@@ -17,4 +17,5 @@ setup(
     license=license,
     requires=[],
     packages=['neet'],
-    platforms=['Windows', 'OS X', 'Linux'])
+    platforms=['Windows', 'OS X', 'Linux']
+)
