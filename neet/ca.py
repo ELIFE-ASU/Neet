@@ -4,6 +4,8 @@
 
 class ECA(object):
     def __init__(self, code):
+        if not isinstance(code, int):
+            raise(TypeError("ECA code is not an int"))
         if 255 < code or code < 0:
             raise(ValueError("invalid ECA code"))
         self.code = code
