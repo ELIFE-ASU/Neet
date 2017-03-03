@@ -17,13 +17,13 @@ class TestECA(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             ca.ECA("30")
-            
+
         with self.assertRaises(TypeError):
             ca.ECA(30, boundary=[1,2])
-            
+
         with self.assertRaises(ValueError):
             ca.ECA(30, boundary=(1,0,1))
-            
+
         with self.assertRaises(ValueError):
             ca.ECA(30, boundary=(1,2))
 
@@ -35,6 +35,39 @@ class TestECA(unittest.TestCase):
                     eca = ca.ECA(code, (left,right))
                     self.assertEqual(code, eca.code)
                     self.assertEqual((left,right), eca.boundary)
+
+    def test_invalid_code(self):
+        eca = ca.ECA(30)
+
+        eca.code = 45
+
+        with self.assertRaises(ValueError):
+            eca.code = -1
+
+        with self.assertRaises(ValueError):
+            eca.code = 256
+
+        with self.assertRaises(TypeError):
+            eca.code = "30"
+
+
+    def test_invalid_boundary(self):
+        eca = ca.ECA(30)
+
+        eca.boundary = (0,0)
+        eca.boundary = None
+
+        with self.assertRaises(ValueError):
+            eca.boundary = (1,1,1)
+
+        with self.assertRaises(ValueError):
+            eca.boundary = (1,2)
+
+        with self.assertRaises(TypeError):
+            eca.boundary = 1
+
+        with self.assertRaises(TypeError):
+            eca.boundary = [0,1]
 
 
     def test_invalid_update_duration(self):
@@ -78,8 +111,8 @@ class TestECA(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             eca.update("101")
-        
-     
+
+
     def test_update_closed(self):
         eca = ca.ECA(30)
 
@@ -167,8 +200,8 @@ class TestECA(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             eca.update("101")
-            
-            
+
+
     def test_step_closed(self):
         eca = ca.ECA(30)
 
@@ -205,7 +238,7 @@ class TestECA(unittest.TestCase):
         expected = [0,1,1,0,1,0,1,0,1,0,1,0,1,0]
         got = eca.step(lattice, n=1000)
         self.assertEqual(expected, got)
-        
+
 
     def test_step_long_time_open(self):
         eca = ca.ECA(45, (0,1))

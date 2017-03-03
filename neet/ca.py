@@ -14,11 +14,11 @@ class ECA(object):
     def __init__(self, code, boundary=None):
         """
         Construct an elementary cellular automaton rule.
-        
+
         .. rubric:: Examples:
-        
+
         ::
-        
+
             >>> ca = ECA(30)
             >>> ca.code
             30
@@ -26,7 +26,7 @@ class ECA(object):
             >>> ca = ECA(30, boundary=(0,0))
             >>> ca.boundary
             (0,0)
-            
+
         :param code: the Wolfram code for the ECA
         :type code: int
         :param boundary: the boundary conditions for the CA
@@ -36,26 +36,92 @@ class ECA(object):
         :raises TypeError: if ``boundary`` is neither ``None`` or an instance of tuple
         :raises ValueError: if ``boundary`` is a neither ``None`` or a pair of binary states
         """
+        self.code = code
+        self.boundary = boundary
+
+    @property
+    def code(self):
+        """
+        The Wolfram code of the elementary cellular automaton
+
+        .. rubric:: Examples:
+
+        ::
+
+            >>> eca = ECA(30)
+            >>> eca.code
+            30
+            >>> eca.code = 45
+            >>> eca.code
+            45
+            >>> eca.code = 256
+            >>> eca.code = 256
+            Traceback (most recent call last):
+              File "<stdin>", line 1, in <module>
+              File "neet\ca.py", line 57, in code
+                raise(ValueError("invalid ECA code"))
+            ValueError: invalid ECA code
+
+        :type: int
+        :raises TypeError: if ``code`` is not an instance of int
+        :raises ValueError: if ``code`` is not in :math:`\{0,1,\ldots,255\}`
+        """
+        return self.__code
+
+    @code.setter
+    def code(self, code):
         if not isinstance(code, int):
             raise(TypeError("ECA code is not an int"))
-        if boundary and not isinstance(boundary, tuple):
-            raise(TypeError("ECA boundary are neither None nor a tuple"))
         if 255 < code or code < 0:
             raise(ValueError("invalid ECA code"))
+        self.__code = code
+
+    @property
+    def boundary(self):
+        """
+        The boundary conditions of the elemenary cellular automaton
+
+        .. rubric:: Examples:
+
+        ::
+
+            >>> eca = ECA(30)
+            >>> eca.boundary
+            >>> eca.boundary = (0,1)
+            >>> eca.boundary
+            (0, 1)
+            >>> eca.boundary = None
+            >>> eca.boundary
+            >>> eca.boundary = [0,1]
+            Traceback (most recent call last):
+              File "<stdin>", line 1, in <module>
+              File "neet\ca.py", line 110, in boundary
+                raise(TypeError("ECA boundary are neither None nor a tuple"))
+            TypeError: ECA boundary are neither None nor a tuple
+
+        :type: ``None`` or tuple
+        :raises TypeError: if ``boundary`` is neither ``None`` or an instance of tuple
+        :raises ValueError: if ``boundary`` is a neither ``None`` or a pair of binary states
+        """
+        return self.__boundary
+
+    @boundary.setter
+    def boundary(self, boundary):
+        if boundary and not isinstance(boundary, tuple):
+            raise(TypeError("ECA boundary are neither None nor a tuple"))
         if boundary:
             if len(boundary) != 2:
                 raise(ValueError("invalid ECA boundary conditions"));
             for x in boundary:
                 if x != 0 and x != 1:
                     raise(ValueError("invalid ECA boundary value"))
-        self.code = code
-        self.boundary = boundary
+        self.__boundary = boundary
 
     @classmethod
     def __check_arguments(self, lattice, n):
         """
         Check the validity of the provided arguments.
-        
+
         :raises ValueError: if ``n`` is less than 1
         :raises ValueError: if :math:`\|lattice\| < 3`
         :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
@@ -76,27 +142,27 @@ class ECA(object):
         Update the state of the ``lattice`` ``n``-times, in place, without
         checking the validity of the arguments. This method uses closed
         (a.k.a. periodic or cyclic) boundary conditions.
-        
+
         :param lattice: the one-dimensional sequence of states
         :type lattice: seq
         :param n: the number of times to update the state
         :type n: int
         """
         for m in range(n):
-            a = lattice[0]            
+            a = lattice[0]
             d = 2 * lattice[-1] + lattice[0]
             for i in range(1, len(lattice)):
                 d = 7 & (2 * d + lattice[i])
                 lattice[i-1] = 1 & (self.code >> d)
             d = 7 & (2 * d + a)
             lattice[-1] = 1 & (self.code >> d)
-            
+
     def __unsafe_update_open(self, lattice, n):
         """
         Update the state of the ``lattice`` ``n``-times, in place, without
         checking the validity of the arguments. This method uses fixed,
         open boundary conditions.
-        
+
         :param lattice: the one-dimensional sequence of states
         :type lattice: seq
         :param n: the number of times to update the state
@@ -113,11 +179,11 @@ class ECA(object):
     def update(self, lattice, n=1):
         """
         Update the state of the ``lattice`` ``n``-times in place.
-        
+
         .. rubric:: Examples:
-        
+
         ::
-        
+
             >>> ca = ECA(30)
             >>> xs = [0,0,1,0,0]
             >>> ca.update(xs)
@@ -130,7 +196,7 @@ class ECA(object):
             >>> ca.update(xs, n=2)
             >>> xs
             [1, 0, 1, 0, 1]
-        
+
         :param lattice: the one-dimensional sequence of states
         :type lattice: seq
         :param n: the number of times to update the state
@@ -148,11 +214,11 @@ class ECA(object):
     def step(self, lattice, n=1):
         """
         Update a copy of the state of the ``lattice`` ``n``-times.
-        
+
         .. rubric:: Examples:
-        
+
         ::
-        
+
             >>> ca = ECA(30)
             >>> xs = [0,0,1,0,0]
             >>> ca.step(xs)
@@ -164,7 +230,7 @@ class ECA(object):
             [0, 1, 1, 1, 1]
             >>> ca.step(xs, n=2)
             [1, 1, 0, 0, 0]
-                    
+
         :param lattice: the one-dimensional sequence of states
         :type lattice: seq
         :param n: the number of times to update the state
