@@ -8,24 +8,32 @@ API Documentation
 
 Elementary Cellular Automata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    
-    .. autoclass:: neet.automata.ECA       
-    
+
+    .. autoclass:: neet.automata.ECA
+
 Attributes
 """"""""""
-        
+
         .. autoattribute:: neet.automata.ECA.code
-             
+
         .. autoattribute:: neet.automata.ECA.boundary
-    
+
+Class Methods
+"""""""""""""
+
+        .. automethod:: neet.automata.ECA.check_lattice
+
 Initialization
 """"""""""""""
-        
+
         .. automethod:: neet.automata.ECA.__init__
 
 Methods
 """""""
-        
+
         .. automethod:: neet.automata.ECA.update
-        
-        .. automethod:: neet.automata.ECA.step
+
+Unsafe Methods
+""""""""""""""
+
+        .. automethod:: neet.automata.ECA._unsafe_update

@@ -95,7 +95,7 @@ class ECA(object):
             >>> eca.boundary = [0,1]
             Traceback (most recent call last):
               File "<stdin>", line 1, in <module>
-              File "neet\ca.py", line 110, in boundary
+              File "neet/automata.py", line 110, in boundary
                 raise(TypeError("ECA boundary are neither None nor a tuple"))
             TypeError: ECA boundary are neither None nor a tuple
 
@@ -118,132 +118,130 @@ class ECA(object):
         self.__boundary = boundary
 
     @classmethod
-    def __check_arguments(self, lattice, n):
+    def check_lattice(self, lattice):
         """
-        Check the validity of the provided arguments.
+        Check the validity of the provided lattice
 
-        :raises ValueError: if ``n`` is less than 1
-        :raises ValueError: if :math:`\|lattice\| < 3`
+        .. rubric:: Examples:
+
+        ::
+
+            >>> ECA.check_lattice([0,0,0])
+            True
+            >>> ECA.check_lattice([])
+            Traceback (most recent call last):
+              File "<stdin>", line 1, in <module>
+              File "neet/automata.py", line 130, in check_lattice
+                raise(ValueError("lattice is too short"))
+            ValueError: lattice is empty
+
+            >>> ECA.check_lattice([0,0,2])
+            Traceback (most recent call last):
+              File "<stdin>", line 1, in <module>
+              File "neet/automata.py", line 135, in check_lattice
+                raise(ValueError(msg))
+            ValueError: invalid value "2" in lattice
+
+            >>> ECA.check_lattice(5)
+            Traceback (most recent call last):
+              File "<stdin>", line 1, in <module>
+              File "neet/automata.py", line 129, in check_lattice
+                if len(lattice) < 3:
+            TypeError: object of type 'int' has no len()
+
+            >>> ECA.check_lattice("elife")
+            Traceback (most recent call last):
+              File "<stdin>", line 1, in <module>
+              File "neet/automata.py", line 135, in check_lattice
+                raise(ValueError(msg))
+            ValueError: invalid value "e" in lattice
+
+        :returns: ``True`` if the lattice is valid, otherwise an error is raised
+        :raises ValueError: if ``not lattice``, i.e. if the lattice is empty
         :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
         """
-        if n < 1:
-            raise(ValueError("cannot update lattice fewer than once"))
-
-        if len(lattice) < 3:
-            raise(ValueError("lattice is too short"))
+        if not lattice:
+            raise(ValueError("lattice is empty"))
 
         for x in lattice:
             if x != 0 and x != 1:
-                msg = "invalid value {} in lattice".format(x)
+                raise(ValueError("invalid value \"{}\" in lattice".format(x)))
+
+        return True
+
+    def _unsafe_update(self, lattice):
+        """
+        Update the state of the ``lattice``, in place, without
+        checking the validity of the arguments.
+
+        .. rubric:: Examples:
+
+        ::
+
+            >>> ca = ECA(30)
+            >>> xs = [0,0,1,0,0]
+            >>> ca._unsafe_update(xs)
+            >>> xs
+            [0, 1, 1, 1, 0]
+            >>> ca.boundary = (0,1)
+            >>> ca._unsafe_update(xs)
+            >>> xs
+            [1, 1, 0, 0, 0]
+
+            >>> xs = [0,0,2,0,0]
+            >>> ca._unsafe_update(xs)
+            >>> xs
+            [0, 1, 1, 0, 1]
+
+        :param lattice: the one-dimensional sequence of states
+        :type lattice: sequence
+        """
+        if self.boundary:
+            left  = self.__boundary[0]
+            right = self.__boundary[1]
+        else:
+            left  = lattice[-1]
+            right = lattice[0]
+
+        d = 2 * left + lattice[0]
+        for i in range(1, len(lattice)):
+            d = 7 & (2 * d + lattice[i])
+            lattice[i-1] = 1 & (self.code >> d)
+        d = 7 & (2 * d + right)
+        lattice[-1] = 1 & (self.code >> d)
+
+    def update(self, lattice):
+        """
+        Update the state of the ``lattice`` in place.
+
+        .. rubric:: Examples:
+
+        ::
+
+            >>> ca = ECA(30)
+            >>> xs = [0,0,1,0,0]
+            >>> ca.update(xs)
+            >>> xs
+            [0, 1, 1, 1, 0]
+            >>> ca.boundary = (0,1)
+            >>> ca.update(xs)
+            >>> xs
+            [1, 1, 0, 0, 0]
+
+            >>> xs = [0,0,2,0,0]
+            >>> ca.update(xs)
+            Traceback (most recent call last):
+              File "<stdin>", line 1, in <module>
+              File "neet/automata.py", line 237, in update
+                ECA.check_lattice(lattice)
+              File "neet/automata.py", line 169, in check_lattice
                 raise(ValueError(msg))
-
-    def __unsafe_update_closed(self, lattice, n):
-        """
-        Update the state of the ``lattice`` ``n``-times, in place, without
-        checking the validity of the arguments. This method uses closed
-        (a.k.a. periodic or cyclic) boundary conditions.
+            ValueError: invalid value "2" in lattice
 
         :param lattice: the one-dimensional sequence of states
-        :type lattice: seq
-        :param n: the number of times to update the state
-        :type n: int
-        """
-        for m in range(n):
-            a = lattice[0]
-            d = 2 * lattice[-1] + lattice[0]
-            for i in range(1, len(lattice)):
-                d = 7 & (2 * d + lattice[i])
-                lattice[i-1] = 1 & (self.code >> d)
-            d = 7 & (2 * d + a)
-            lattice[-1] = 1 & (self.code >> d)
-
-    def __unsafe_update_open(self, lattice, n):
-        """
-        Update the state of the ``lattice`` ``n``-times, in place, without
-        checking the validity of the arguments. This method uses fixed,
-        open boundary conditions.
-
-        :param lattice: the one-dimensional sequence of states
-        :type lattice: seq
-        :param n: the number of times to update the state
-        :type n: int
-        """
-        for m in range(n):
-            d = 2 * self.boundary[0] + lattice[0]
-            for i in range(1, len(lattice)):
-                d = 7 & (2 * d + lattice[i])
-                lattice[i-1] = 1 & (self.code >> d)
-            d = 7 & (2 * d + self.boundary[1])
-            lattice[-1] = 1 & (self.code >> d)
-
-    def update(self, lattice, n=1):
-        """
-        Update the state of the ``lattice`` ``n``-times in place.
-
-        .. rubric:: Examples:
-
-        ::
-
-            >>> ca = ECA(30)
-            >>> xs = [0,0,1,0,0]
-            >>> ca.update(xs)
-            >>> xs
-            [0, 1, 1, 1, 0]
-            >>> ca.boundary = (0,1)
-            >>> ca.update(xs)
-            >>> xs
-            [1, 1, 0, 0, 0]
-            >>> ca.update(xs, n=2)
-            >>> xs
-            [1, 0, 1, 0, 1]
-
-        :param lattice: the one-dimensional sequence of states
-        :type lattice: seq
-        :param n: the number of times to update the state
-        :type n: int
-        :raises ValueError: if ``n`` is less than 1
+        :type lattice: sequence
         :raises ValueError: if :math:`\|lattice\| < 3`
         :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
         """
-        ECA.__check_arguments(lattice, n)
-        if self.boundary:
-            self.__unsafe_update_open(lattice, n)
-        else:
-            self.__unsafe_update_closed(lattice, n)
-
-    def step(self, lattice, n=1):
-        """
-        Update a copy of the state of the ``lattice`` ``n``-times.
-
-        .. rubric:: Examples:
-
-        ::
-
-            >>> ca = ECA(30)
-            >>> xs = [0,0,1,0,0]
-            >>> ca.step(xs)
-            [0, 1, 1, 1, 0]
-            >>> xs
-            [0, 0, 1, 0, 0]
-            >>> ca.boundary = (0,1)
-            >>> ca.step(xs)
-            [0, 1, 1, 1, 1]
-            >>> ca.step(xs, n=2)
-            [1, 1, 0, 0, 0]
-
-        :param lattice: the one-dimensional sequence of states
-        :type lattice: seq
-        :param n: the number of times to update the state
-        :type n: int
-        :returns: an updated copy of ``lattice``
-        :raises ValueError: if ``n`` is less than 1
-        :raises ValueError: if :math:`\|lattice\| < 3`
-        :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
-        """
-        ECA.__check_arguments(lattice, n)
-        l = lattice[:]
-        if self.boundary:
-            self.__unsafe_update_open(l, n)
-        else:
-            self.__unsafe_update_closed(l, n)
-        return l
+        ECA.check_lattice(lattice)
+        self._unsafe_update(lattice)
