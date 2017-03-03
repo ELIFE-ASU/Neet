@@ -2,7 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import unittest
-import neet.ca as ca
+import neet.automata as ca
 
 class TestECA(unittest.TestCase):
     def test_fail_init(self):
