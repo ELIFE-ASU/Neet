@@ -1,6 +1,7 @@
 # Copyright 2017 ELIFE. All rights reserved.
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
+import numpy as np
 
 class ECA(object):
     """
@@ -149,11 +150,11 @@ class ECA(object):
             ValueError: invalid value "e" in lattice
 
         :returns: ``True`` if the lattice is valid, otherwise an error is raised
-        :raises ValueError: if ``not lattice``, i.e. if the lattice is empty
+        :raises ValueError: if ``lattice`` is empty
         :raises TypeError: if ``lattice`` is not iterable
         :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
         """
-        if not lattice:
+        if len(lattice) == 0:
             raise(ValueError("lattice is empty"))
 
         for x in lattice:
@@ -238,7 +239,7 @@ class ECA(object):
 
         :param lattice: the one-dimensional sequence of states
         :type lattice: sequence
-        :raises ValueError: if ``not lattice``, i.e. if the lattice is empty
+        :raises ValueError: if ``lattice`` is empty
         :raises TypeError: if ``lattice`` is not iterable
         :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
         """

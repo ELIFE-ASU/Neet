@@ -3,6 +3,7 @@
 # license that can be found in the LICENSE file.
 import unittest
 import neet.automata as ca
+import numpy as np
 
 class TestECA(unittest.TestCase):
     def test_fail_init(self):
@@ -35,6 +36,7 @@ class TestECA(unittest.TestCase):
                     eca = ca.ECA(code, (left,right))
                     self.assertEqual(code, eca.code)
                     self.assertEqual((left,right), eca.boundary)
+
 
     def test_invalid_code(self):
         eca = ca.ECA(30)
@@ -70,7 +72,7 @@ class TestECA(unittest.TestCase):
             eca.boundary = [0,1]
 
 
-    def test_check_lattice(self):
+    def test_check_lattice_list(self):
         self.assertTrue(ca.ECA.check_lattice([0]))
         self.assertTrue(ca.ECA.check_lattice([0,1]))
         self.assertTrue(ca.ECA.check_lattice([0,1,1,0,1]))
@@ -92,10 +94,36 @@ class TestECA(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             ca.ECA.check_lattice([[1],[0],[2]])
-
+            
+            
+    def test_check_lattice_string(self):
         with self.assertRaises(ValueError):
             ca.ECA.check_lattice("101")
+            
 
+    def test_check_lattice_numpy(self):
+        self.assertTrue(ca.ECA.check_lattice(np.asarray([0])))
+        self.assertTrue(ca.ECA.check_lattice(np.asarray([0,1])))
+        self.assertTrue(ca.ECA.check_lattice(np.asarray([0,1,1,0,1])))
+
+        with self.assertRaises(ValueError):
+            ca.ECA.check_lattice(np.asarray([]))
+
+        with self.assertRaises(ValueError):
+            ca.ECA.check_lattice(np.asarray([-1,0,1]))
+
+        with self.assertRaises(ValueError):
+            ca.ECA.check_lattice(np.asarray([1,0,-1]))
+
+        with self.assertRaises(ValueError):
+            ca.ECA.check_lattice(np.asarray([2,0,0]))
+
+        with self.assertRaises(ValueError):
+            ca.ECA.check_lattice(np.asarray([1,0,2]))
+
+        with self.assertRaises(ValueError):
+            ca.ECA.check_lattice(np.asarray([[1],[0],[2]]))
+            
 
     def test_lattice_empty_update(self):
         eca = ca.ECA(30)
@@ -186,3 +214,26 @@ class TestECA(unittest.TestCase):
             for n in range(1000):
                 eca._unsafe_update(lattice)
         self.assertEqual(expected, lattice)
+
+
+    def test_update_numpy(self):
+        eca = ca.ECA(30, (0,1))
+
+        lattice = np.asarray([0])
+
+        eca.update(lattice)
+        self.assertTrue(np.array_equal([1], lattice))
+
+        lattice = np.asarray([0,0])
+
+        eca.update(lattice)
+        self.assertTrue(np.array_equal([0,1], lattice))
+
+        lattice = [0,0,1,0,0]
+
+        eca.update(lattice)
+        self.assertTrue(np.array_equal([0,1,1,1,1], lattice))
+
+        eca.update(lattice)
+        self.assertTrue(np.array_equal([1,1,0,0,0], lattice))
+
