@@ -57,9 +57,7 @@ class ECA(object):
             >>> eca.code = 256
             >>> eca.code = 256
             Traceback (most recent call last):
-              File "<stdin>", line 1, in <module>
-              File "neet\ca.py", line 57, in code
-                raise(ValueError("invalid ECA code"))
+                ...
             ValueError: invalid ECA code
 
         :type: int
@@ -94,9 +92,7 @@ class ECA(object):
             >>> eca.boundary
             >>> eca.boundary = [0,1]
             Traceback (most recent call last):
-              File "<stdin>", line 1, in <module>
-              File "neet/automata.py", line 110, in boundary
-                raise(TypeError("ECA boundary are neither None nor a tuple"))
+                ...
             TypeError: ECA boundary are neither None nor a tuple
 
         :type: ``None`` or tuple
@@ -126,38 +122,35 @@ class ECA(object):
 
         ::
 
-            >>> ECA.check_lattice([0,0,0])
+            >>> ECA.check_lattice([0])
             True
+            >>> ECA.check_lattice([1,0])
+            True
+            >>> ECA.check_lattice([0,0,1])
+            True
+
+        ::
+
             >>> ECA.check_lattice([])
             Traceback (most recent call last):
-              File "<stdin>", line 1, in <module>
-              File "neet/automata.py", line 130, in check_lattice
-                raise(ValueError("lattice is too short"))
+                ...
             ValueError: lattice is empty
-
             >>> ECA.check_lattice([0,0,2])
             Traceback (most recent call last):
-              File "<stdin>", line 1, in <module>
-              File "neet/automata.py", line 135, in check_lattice
-                raise(ValueError(msg))
+                ...
             ValueError: invalid value "2" in lattice
-
             >>> ECA.check_lattice(5)
             Traceback (most recent call last):
-              File "<stdin>", line 1, in <module>
-              File "neet/automata.py", line 129, in check_lattice
-                if len(lattice) < 3:
-            TypeError: object of type 'int' has no len()
-
+                ...
+            TypeError: 'int' object is not iterable
             >>> ECA.check_lattice("elife")
             Traceback (most recent call last):
-              File "<stdin>", line 1, in <module>
-              File "neet/automata.py", line 135, in check_lattice
-                raise(ValueError(msg))
+                ...
             ValueError: invalid value "e" in lattice
 
         :returns: ``True`` if the lattice is valid, otherwise an error is raised
         :raises ValueError: if ``not lattice``, i.e. if the lattice is empty
+        :raises TypeError: if ``lattice`` is not iterable
         :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
         """
         if not lattice:
@@ -187,6 +180,8 @@ class ECA(object):
             >>> ca._unsafe_update(xs)
             >>> xs
             [1, 1, 0, 0, 0]
+
+        ::
 
             >>> xs = [0,0,2,0,0]
             >>> ca._unsafe_update(xs)
@@ -228,19 +223,23 @@ class ECA(object):
             >>> xs
             [1, 1, 0, 0, 0]
 
+        ::
+
+            >>> xs = []
+            >>> ca.update(xs)
+            Traceback (most recent call last):
+                ...
+            ValueError: lattice is empty
             >>> xs = [0,0,2,0,0]
             >>> ca.update(xs)
             Traceback (most recent call last):
-              File "<stdin>", line 1, in <module>
-              File "neet/automata.py", line 237, in update
-                ECA.check_lattice(lattice)
-              File "neet/automata.py", line 169, in check_lattice
-                raise(ValueError(msg))
+                ...
             ValueError: invalid value "2" in lattice
 
         :param lattice: the one-dimensional sequence of states
         :type lattice: sequence
-        :raises ValueError: if :math:`\|lattice\| < 3`
+        :raises ValueError: if ``not lattice``, i.e. if the lattice is empty
+        :raises TypeError: if ``lattice`` is not iterable
         :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
         """
         ECA.check_lattice(lattice)
