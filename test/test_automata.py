@@ -101,7 +101,7 @@ class TestECA(unittest.TestCase):
             ca.ECA.check_lattice("101")
             
 
-    def test_check_lattice_list(self):
+    def test_check_lattice_numpy(self):
         self.assertTrue(ca.ECA.check_lattice(np.asarray([0])))
         self.assertTrue(ca.ECA.check_lattice(np.asarray([0,1])))
         self.assertTrue(ca.ECA.check_lattice(np.asarray([0,1,1,0,1])))
