@@ -127,6 +127,16 @@ class TestECA(unittest.TestCase):
     def test_update_closed(self):
         eca = ca.ECA(30)
 
+        lattice = [0]
+
+        eca.update(lattice)
+        self.assertEqual([0], lattice)
+
+        lattice = [0,0]
+
+        eca.update(lattice)
+        self.assertEqual([0,0], lattice)
+
         lattice = [0,0,1,0,0]
 
         eca.update(lattice)
@@ -138,6 +148,16 @@ class TestECA(unittest.TestCase):
 
     def test_update_open(self):
         eca = ca.ECA(30, (0,1))
+
+        lattice = [0]
+
+        eca.update(lattice)
+        self.assertEqual([1], lattice)
+
+        lattice = [0,0]
+
+        eca.update(lattice)
+        self.assertEqual([0,1], lattice)
 
         lattice = [0,0,1,0,0]
 
