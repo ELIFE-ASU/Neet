@@ -19,7 +19,7 @@ setup(
     maintainer_email='doug@dglmoore.com',
     url='https://github.com/elife-asu/neet',
     license=license,
-    requires=[],
+    requires=[numpy],
     packages=['neet'],
     test_suite='test',
     platforms=['Windows', 'OS X', 'Linux']
