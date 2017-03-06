@@ -1,15 +1,13 @@
-.. Neet documentation master file, created by
-   sphinx-quickstart on Fri Feb 24 14:26:30 2017.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Neet
+====
 
-Welcome to Neet's documentation!
-================================
+Neet is a python library for simulating network dynamics.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
-
+   
+   automata
 
 
 Indices and tables

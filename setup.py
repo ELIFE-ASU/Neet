@@ -21,6 +21,6 @@ setup(
     license=license,
     requires=[],
     packages=['neet'],
-    test_suite='tests',
+    test_suite='test',
     platforms=['Windows', 'OS X', 'Linux']
 )

@@ -1,0 +1,15 @@
+language: python
+
+os:
+  - linux
+
+  # Travis-CI does not support python on OSX for some reason
+  # - osx
+
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+
+script:
+  - nosetests
