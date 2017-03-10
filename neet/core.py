@@ -5,11 +5,11 @@
 def is_network(obj):
     """
     Determine whether an *object* meets the interface requirement of a network.
-    
+
     .. rubric:: Example:
-    
+
     ::
-    
+
         >>> class IsNetwork(object):
         ...     def update(self):
         ...         pass
@@ -23,20 +23,21 @@ def is_network(obj):
         False
         >>> is_network(5)
         False
-    
+
     :param obj: an object
-    :returns: ``True`` if ``obj`` is not a type and qualifes as a network
+    :returns: ``True`` if ``obj`` is not a type and qualifies as a network
     """
     return not isinstance(obj, type) and hasattr(obj, 'update')
+
 
 def is_network_type(cls):
     """
     Determine whether a *type* meets the interface requirement of a network.
-    
+
     .. rubric:: Example:
-    
+
     ::
-    
+
         >>> class IsNetwork(object):
         ...     def update(self):
         ...         pass
@@ -50,8 +51,8 @@ def is_network_type(cls):
         False
         >>> is_network_type(int)
         False
-    
+
     :param cls: a class
-    :returns: ``True`` if ``cls`` is a type and qualifes as a network
+    :returns: ``True`` if ``cls`` is a type and qualifies as a network
     """
     return isinstance(cls, type) and hasattr(cls, 'update')
