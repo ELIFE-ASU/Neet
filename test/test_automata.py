@@ -99,12 +99,12 @@ class TestECA(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             ca.ECA.check_lattice([[1],[0],[2]])
-            
-            
+
+
     def test_check_lattice_string(self):
         with self.assertRaises(ValueError):
             ca.ECA.check_lattice("101")
-            
+
 
     def test_check_lattice_numpy(self):
         self.assertTrue(ca.ECA.check_lattice(np.asarray([0])))
@@ -128,7 +128,7 @@ class TestECA(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             ca.ECA.check_lattice(np.asarray([[1],[0],[2]]))
-            
+
 
     def test_lattice_empty_update(self):
         eca = ca.ECA(30)
