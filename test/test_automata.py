@@ -2,10 +2,15 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import unittest
+import neet
 import neet.automata as ca
 import numpy as np
 
 class TestECA(unittest.TestCase):
+    def test_is_network(self):
+        self.assertTrue(neet.is_network_type(ca.ECA))
+        self.assertTrue(neet.is_network(ca.ECA(23)))
+
     def test_fail_init(self):
         with self.assertRaises(ValueError):
             ca.ECA(-1)
