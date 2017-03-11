@@ -8,7 +8,7 @@ import numpy as np
 
 class TestECA(unittest.TestCase):
     def test_is_network(self):
-        self.assertTrue(neet.is_network_type(ca.ECA))
+        self.assertTrue(neet.is_network(ca.ECA))
         self.assertTrue(neet.is_network(ca.ECA(23)))
 
     def test_fail_init(self):

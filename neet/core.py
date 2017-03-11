@@ -4,9 +4,10 @@
 import numpy as np
 import sys
 
-def is_network(obj):
+def is_network(thing):
     """
-    Determine whether an *object* meets the interface requirement of a network.
+    Determine whether an *object* or *type* meets the interface requirement of
+    a network.
 
     .. rubric:: Example:
 
@@ -21,43 +22,19 @@ def is_network(obj):
         ...
         >>> is_network(IsNetwork())
         True
+        >>> is_network(IsNetwork)
+        True
         >>> is_network(IsNotNetwork())
+        False
+        >>> is_network(IsNotNetwork)
         False
         >>> is_network(5)
         False
 
-    :param obj: an object
-    :returns: ``True`` if ``obj`` is not a type and qualifies as a network
+    :param thing: an object or a type
+    :returns: ``True`` if ``thing`` has the minimum interface of a network
     """
-    return not isinstance(obj, type) and hasattr(obj, 'update')
-
-
-def is_network_type(cls):
-    """
-    Determine whether a *type* meets the interface requirement of a network.
-
-    .. rubric:: Example:
-
-    ::
-
-        >>> class IsNetwork(object):
-        ...     def update(self):
-        ...         pass
-        ...
-        >>> class IsNotNetwork(object):
-        ...     pass
-        ...
-        >>> is_network_type(IsNetwork)
-        True
-        >>> is_network_type(IsNotNetwork)
-        False
-        >>> is_network_type(int)
-        False
-
-    :param cls: a class
-    :returns: ``True`` if ``cls`` is a type and qualifies as a network
-    """
-    return isinstance(cls, type) and hasattr(cls, 'update')
+    return hasattr(thing, 'update')
 
 
 def trajectory(net, state, n=1):

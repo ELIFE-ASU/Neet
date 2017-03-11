@@ -11,7 +11,6 @@ Interface Tests
 
     .. autofunction:: neet.is_network
 
-    .. autofunction:: neet.is_network_type
 
 State Generators
 ^^^^^^^^^^^^^^^^
