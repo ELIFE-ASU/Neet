@@ -68,3 +68,64 @@ class TestCore(unittest.TestCase):
         got = neet.trajectory(rule30, xs, n=2)
         self.assertEqual([0,1,0], xs)
         self.assertTrue(np.array_equal([[0,1,0],[1,1,1],[0,0,0]], got))
+
+    def test_states_invalid(self):
+        with self.assertRaises(TypeError):
+            list(neet.states(['a', 'b', 'c']))
+
+        with self.assertRaises(TypeError):
+            list(neet.states("abc"))
+
+    def test_states_boolean(self):
+        self.assertEqual([[]],
+            list(neet.states(0)))
+
+        self.assertEqual([[0],[1]],
+            list(neet.states(1)))
+
+        self.assertEqual([[0,0],[1,0],[0,1],[1,1]],
+            list(neet.states(2)))
+
+        self.assertEqual([[0,0,0],[1,0,0],[0,1,0],[1,1,0],
+                          [0,0,1],[1,0,1],[0,1,1],[1,1,1]],
+            list(neet.states(3)))
+
+    def test_states_boolean_list(self):
+        self.assertEqual([[0],[1]],
+            list(neet.states([2])))
+
+        self.assertEqual([[0,0],[1,0],[0,1],[1,1]],
+            list(neet.states([2,2])))
+
+        self.assertEqual([[0,0,0],[1,0,0],[0,1,0],[1,1,0],
+                          [0,0,1],[1,0,1],[0,1,1],[1,1,1]],
+            list(neet.states([2,2,2])))
+
+    def test_states_nonboolean_list(self):
+        self.assertEqual([[]],
+            list(neet.states([])))
+
+        self.assertEqual([[0]],
+            list(neet.states([1])))
+
+        self.assertEqual([[0],[1],[2]],
+            list(neet.states([3])))
+
+        self.assertEqual([[0,0],[0,1]],
+            list(neet.states([1,2])))
+
+        self.assertEqual([[0,0],[0,1],[0,2]],
+            list(neet.states([1,3])))
+
+        self.assertEqual([[0,0],[1,0],[2,0],
+                          [0,1],[1,1],[2,1],
+                          [0,2],[1,2],[2,2]],
+            list(neet.states([3,3])))
+
+    def test_states_count(self):
+        xs = [3,5,2,5,2,1,4,2]
+        count = 0;
+        for state in neet.states(xs):
+            count += 1
+        self.assertEqual(np.product(xs), count)
+
