@@ -177,3 +177,42 @@ class StateSpace(object):
                 x += q * state[i]
                 q *= b
         return x
+
+    def decode(self, x):
+        """
+        Decode an integer into a state in accordance with the state space.
+
+        .. rubric:: Examples:
+
+        ::
+
+            >>> space = StateSpace(3)
+            >>> list(space.states())
+            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0,
+             1], [0, 1, 1], [1, 1, 1]]
+            >>> list(map(space.decode, range(space.base**space.ndim)))
+            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0,
+             1], [0, 1, 1], [1, 1, 1]]
+
+        ::
+
+            >>> space = StateSpace([2,3])
+            >>> list(space.states())
+            [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2], [1, 2]]
+            >>> list(map(space.decode, range(np.product(space.bases))))
+            [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2], [1, 2]]
+
+        :param x: the encoded state
+        :type x: int
+        :returns: the decoded state as a list
+        """
+        state = [0] * self.ndim
+        if self.is_uniform:
+            for i in range(self.ndim):
+                state[i] = x % self.base
+                x = int(x / self.base)
+        else:
+            for i in range(self.ndim):
+                state[i] = x % self.bases[i]
+                x = int(x / self.bases[i])
+        return state

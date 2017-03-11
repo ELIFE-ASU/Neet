@@ -182,3 +182,58 @@ class TestStateSpace(unittest.TestCase):
                         encoding = space.encode(state)
                         self.assertEqual(counter, encoding)
                         counter += 1
+
+    def test_decoding_uniform(self):
+        for width in range(1,5):
+            for base in range(1,5):
+                space = neet.StateSpace(width, base)
+                states = list(space.states())
+                decoded = list(map(space.decode, range(0, base**width)))
+                self.assertEqual(states, decoded)
+
+    def test_decoding_uniform(self):
+        for a in range(1,5):
+            for b in range(1,5):
+                for c in range(1,5):
+                    space = neet.StateSpace([a,b,c])
+                    states = list(space.states())
+                    decoded = list(map(space.decode, range(0, a*b*c)))
+                    self.assertEqual(states, decoded)
+
+    def test_encode_decode_uniform(self):
+        for width in range(1,5):
+            for base in range(1,5):
+                space = neet.StateSpace(width, base)
+                for state in space.states():
+                    encoded = space.encode(state)
+                    decoded = space.decode(encoded)
+                    self.assertEqual(state, decoded)
+
+    def test_encode_decode_nonuniform(self):
+        for a in range(1,5):
+            for b in range(1,5):
+                for c in range(1,5):
+                    space = neet.StateSpace([a,b,c])
+                    for state in space.states():
+                        encoded = space.encode(state)
+                        decoded = space.decode(encoded)
+                        self.assertEqual(state, decoded)
+
+    def test_decode_encode_uniform(self):
+        for width in range(1,5):
+            for base in range(1,5):
+                space = neet.StateSpace(width, base)
+                for i in range(base**width):
+                    decoded = space.decode(i)
+                    encoded = space.encode(decoded)
+                    self.assertEqual(i, encoded)
+
+    def test_decode_encode_nonuniform(self):
+        for a in range(1,5):
+            for b in range(1,5):
+                for c in range(1,5):
+                    space = neet.StateSpace([a,b,c])
+                    for i in range(a*b*c):
+                        decoded = space.decode(i)
+                        encoded = space.encode(decoded)
+                        self.assertEqual(i, encoded)
