@@ -159,10 +159,14 @@ def states(spec, b=2):
     :param b: the base of the network nodes (ignored is ``spec`` if an list)
     :yields: a possible network state
     :raises TypeError: if ``spec`` is neither an int nor a list of ints
+    :raises ValueError: if ``b`` is negative or zero
+    :raises ValueError: if any element of ``spec`` is negative or zero
     """
     if isinstance(spec, int):
         if not isinstance(b, int):
             raise(TypeError("base must be an int"))
+        elif b < 1:
+            raise(ValueError("base must be positive, nonzero"))
 
         for state in states([b]*spec):
             yield state
@@ -170,6 +174,8 @@ def states(spec, b=2):
         for i in range(len(spec)):
             if not isinstance(spec[i], int):
                 raise(TypeError("spec is not an int nor a list of ints"))
+            elif spec[i] < 1:
+                raise(ValueError("spec has a zero or negative base"))
         n = len(spec)
         state = [0]*n
         yield state[:]

@@ -103,6 +103,19 @@ class TestCore(unittest.TestCase):
         self.assertEqual([[0,0,0],[1,0,0],[0,1,0],[1,1,0],
                           [0,0,1],[1,0,1],[0,1,1],[1,1,1]],
             list(neet.states(3)))
+            
+    def test_states_invalid_base(self):
+        with self.assertRaises(ValueError):
+            list(neet.states(2, b=0))
+            
+        with self.assertRaises(ValueError):
+            list(neet.states(2, b=-1))
+            
+        with self.assertRaises(ValueError):
+            list(neet.states([0]))
+        
+        with self.assertRaises(ValueError):
+            list(neet.states([-1]))
 
     def test_states_nonboolean(self):
         self.assertEqual([[]],
@@ -163,4 +176,3 @@ class TestCore(unittest.TestCase):
         for state in neet.states(xs):
             count += 1
         self.assertEqual(np.product(xs), count)
-
