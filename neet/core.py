@@ -2,6 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import numpy as np
+import sys
 
 def is_network(obj):
     """
@@ -159,7 +160,7 @@ def states(spec):
         while i != n:
             if state[i] + 1 < spec[i]:
                 state[i] += 1
-                for j in xrange(i):
+                for j in range(i):
                     state[j] = 0
                 i = 0
                 yield state[:]
