@@ -36,6 +36,32 @@ def is_network(thing):
     """
     return hasattr(thing, 'update')
 
+def is_fixed_sized(thing):
+    """
+    Determine whether an *object* or *type* is a network and has a fixed size.
+
+    .. rubric:: Example
+
+    ::
+
+        >>> class IsNetwork(object):
+        ...     def update(self):
+        ...         pass
+        ...
+        >>> class FixedSized(IsNetwork):
+        ...     def size():
+        ...         return 5
+        ...
+        >>> is_fixed_sized(IsNetwork)
+        False
+        >>> is_fixed_sized(FixedSized)
+        True
+
+    :param thing: an object or a type
+    :returns: ``True`` if ``thing`` is a network with a size attribute
+    :see: :func:`is_network`.
+    """
+    return is_network(thing) and hasattr(thing, 'size')
 
 def trajectory(net, state, n=1):
     """
