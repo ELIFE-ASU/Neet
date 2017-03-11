@@ -100,14 +100,14 @@ def trajectory(net, state, n=1):
     return np.asarray(trajectory)
 
 
-def states(spec):
+def states(spec, b=2):
     """
     Generate all possible network states according to some specification,
     ``spec``.
 
     If ``spec`` is an integer, then it is taken to be the number of nodes in a
-    boolean network. As such, it generates all boolean sequences of length
-    ``spec``.
+    network and ``b`` is assumed to be the base of the all of the nodes. As
+    such, this function generates all base-``b`` sequences of length ``spec``.
 
     .. rubric:: Example:
 
@@ -121,10 +121,20 @@ def states(spec):
         [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1
         , 0, 1], [0, 1, 1], [1, 1, 1]]
 
+    ::
+
+        >>> list(neet.states(2, b=1))
+        [[0, 0]]
+        >>> list(neet.states(2, b=2))
+        [[0, 0], [1, 0], [0, 1], [1, 1]]
+        >>> list(neet.states(2, b=3))
+        [[0, 0], [1, 0], [2, 0], [0, 1], [1, 1], [2, 1], [0, 2], [1
+        , 2], [2, 2]]
+
     If, however, ``spec`` is a list of integers, then each integer is assumed to
-    be the base of some node in the network. In this case, it generates all
-    sequences of length ``len(spec)`` where the base of element ``i`` is
-    ``spec[i]``.
+    be the base of some node in the network. The second second argument ``b``
+    is ignored. In this case, it generates all sequences of length ``len(spec)``
+    where the base of element ``i`` is ``spec[i]``.
 
     .. rubric:: Example:
 
@@ -144,13 +154,17 @@ def states(spec):
         [[0, 0], [1, 0], [2, 0], [0, 1], [1, 1], [2, 1], [0, 2]
         , [1, 2], [2, 2]]
 
-    :param spec: the number of boolean nodes or an array of node bases
+    :param spec: the number of nodes or an array of node bases
     :type spec: int or list
+    :param b: the base of the network nodes (ignored is ``spec`` if an list)
     :yields: a possible network state
     :raises TypeError: if ``spec`` is neither an int nor a list of ints
     """
     if isinstance(spec, int):
-        for state in states([2]*spec):
+        if not isinstance(b, int):
+            raise(TypeError("base must be an int"))
+
+        for state in states([b]*spec):
             yield state
     else:
         for i in range(len(spec)):

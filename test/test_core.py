@@ -104,6 +104,27 @@ class TestCore(unittest.TestCase):
                           [0,0,1],[1,0,1],[0,1,1],[1,1,1]],
             list(neet.states(3)))
 
+    def test_states_nonboolean(self):
+        self.assertEqual([[]],
+            list(neet.states(0, b=1)))
+
+        self.assertEqual([[]],
+            list(neet.states(0, b=3)))
+
+        self.assertEqual([[0]],
+            list(neet.states(1, b=1)))
+
+        self.assertEqual([[0],[1],[2]],
+            list(neet.states(1, b=3)))
+
+        self.assertEqual([[0,0]],
+            list(neet.states(2, b=1)))
+
+        self.assertEqual([[0,0],[1,0],[2,0],
+                          [0,1],[1,1],[2,1],
+                          [0,2],[1,2],[2,2]],
+            list(neet.states(2, b=3)))
+
     def test_states_boolean_list(self):
         self.assertEqual([[0],[1]],
             list(neet.states([2])))
