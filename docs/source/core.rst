@@ -20,7 +20,7 @@ State Generators
 
         .. automethod:: neet.StateSpace.__init__
 
-    .. autofunction:: neet.states
+        .. automethod:: neet.StateSpace.states
 
 Time Series Generation
 ^^^^^^^^^^^^^^^^^^^^^^
