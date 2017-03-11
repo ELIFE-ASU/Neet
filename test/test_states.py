@@ -51,22 +51,26 @@ class TestStateSpace(unittest.TestCase):
         self.assertTrue(spec.is_uniform)
         self.assertEqual(5, spec.ndim)
         self.assertEqual(2, spec.base)
+        self.assertEqual(32, spec.volume)
 
         spec = neet.StateSpace(8, b=4)
         self.assertTrue(spec.is_uniform)
         self.assertEqual(8, spec.ndim)
         self.assertEqual(4, spec.base)
+        self.assertEqual(65536, spec.volume)
 
         spec = neet.StateSpace([3,3,3,3])
         self.assertTrue(spec.is_uniform)
         self.assertEqual(4, spec.ndim)
         self.assertEqual(3, spec.base)
+        self.assertEqual(81, spec.volume)
 
     def test_uniform_bases(self):
         spec = neet.StateSpace([1,2,3,2,1])
         self.assertFalse(spec.is_uniform)
         self.assertEqual([1,2,3,2,1], spec.bases)
         self.assertEqual(5, spec.ndim)
+        self.assertEqual(12, spec.volume)
 
     def test_states_boolean(self):
         space = neet.StateSpace(1)
@@ -188,7 +192,7 @@ class TestStateSpace(unittest.TestCase):
             for base in range(1,5):
                 space = neet.StateSpace(width, base)
                 states = list(space.states())
-                decoded = list(map(space.decode, range(0, base**width)))
+                decoded = list(map(space.decode, range(space.volume)))
                 self.assertEqual(states, decoded)
 
     def test_decoding_uniform(self):
@@ -197,7 +201,7 @@ class TestStateSpace(unittest.TestCase):
                 for c in range(1,5):
                     space = neet.StateSpace([a,b,c])
                     states = list(space.states())
-                    decoded = list(map(space.decode, range(0, a*b*c)))
+                    decoded = list(map(space.decode, range(space.volume)))
                     self.assertEqual(states, decoded)
 
     def test_encode_decode_uniform(self):

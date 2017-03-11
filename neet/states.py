@@ -55,13 +55,15 @@ class StateSpace(object):
 
             self.is_uniform = True
             self.ndim = spec
-            self.base  = b
+            self.base = b
+            self.volume = b**spec
 
         elif isinstance(spec, list):
             if len(spec) == 0:
                 raise(ValueError("bases cannot be an empty"))
             else:
                 self.is_uniform = True
+                self.volume = 1
                 b = spec[0]
                 for x in spec:
                     if not isinstance(x, int):
@@ -70,6 +72,7 @@ class StateSpace(object):
                         raise(ValueError("spec may only contain positive, nonzero elements"))
                     if x != b:
                         self.is_uniform = False
+                    self.volume *= x
                 self.ndim = len(spec)
                 if self.is_uniform:
                     self.base  = b
@@ -190,7 +193,7 @@ class StateSpace(object):
             >>> list(space.states())
             [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0,
              1], [0, 1, 1], [1, 1, 1]]
-            >>> list(map(space.decode, range(space.base**space.ndim)))
+            >>> list(map(space.decode, range(space.volume)))
             [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0,
              1], [0, 1, 1], [1, 1, 1]]
 
@@ -199,7 +202,7 @@ class StateSpace(object):
             >>> space = StateSpace([2,3])
             >>> list(space.states())
             [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2], [1, 2]]
-            >>> list(map(space.decode, range(np.product(space.bases))))
+            >>> list(map(space.decode, range(space.volume)))
             [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2], [1, 2]]
 
         :param x: the encoded state
