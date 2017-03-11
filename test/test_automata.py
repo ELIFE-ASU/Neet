@@ -11,6 +11,12 @@ class TestECA(unittest.TestCase):
         self.assertTrue(neet.is_network(ca.ECA))
         self.assertTrue(neet.is_network(ca.ECA(23)))
 
+
+    def test_is_not_fixed_sized(self):
+        self.assertFalse(neet.is_fixed_sized(ca.ECA))
+        self.assertFalse(neet.is_fixed_sized(ca.ECA(23)))
+
+
     def test_fail_init(self):
         with self.assertRaises(ValueError):
             ca.ECA(-1)
