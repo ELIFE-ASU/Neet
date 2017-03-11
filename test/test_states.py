@@ -145,3 +145,40 @@ class TestStateSpace(unittest.TestCase):
         for state in space.states():
             count += 1
         self.assertEqual(np.product(xs), count)
+
+    def test_encoding_error(self):
+        space = neet.StateSpace(3)
+        with self.assertRaises(ValueError):
+            space.encode([1,1])
+
+        space = neet.StateSpace(1)
+        with self.assertRaises(ValueError):
+            space.encode([2])
+
+        space = neet.StateSpace([2,3])
+        with self.assertRaises(ValueError):
+            space.encode([1,3])
+
+        with self.assertRaises(ValueError):
+            space.encode([1,-1])
+
+    def test_encoding_uniform(self):
+        for width in range(1,5):
+            for base in range(1,5):
+                space = neet.StateSpace(width, base)
+                counter = 0
+                for state in space.states():
+                    encoding = space.encode(state)
+                    self.assertEqual(counter, encoding)
+                    counter += 1
+
+    def test_encoding_nonuniform(self):
+        for a in range(1,5):
+            for b in range(1,5):
+                for c in range(1,5):
+                    space = neet.StateSpace([a,b,c])
+                    counter = 0
+                    for state in space.states():
+                        encoding = space.encode(state)
+                        self.assertEqual(counter, encoding)
+                        counter += 1

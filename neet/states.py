@@ -131,3 +131,49 @@ class StateSpace(object):
                 yield state[:]
             else:
                 i += 1
+
+    def encode(self, state):
+        """
+        Encode a state as an integer consistent with the state space.
+
+        .. rubric:: Examples:
+
+        ::
+
+            >>> space = StateSpace(3, b=2)
+            >>> states = list(space.states())
+            >>> list(map(space.encode, states))
+            [0, 1, 2, 3, 4, 5, 6, 7]
+
+        ::
+
+            >>> space = StateSpace([2,3,4])
+            >>> states = list(space.states())
+            >>> list(map(space.encode, states))
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+            17, 18, 19, 20, 21, 22, 23]
+
+
+        :param state: the state to encode
+        :type state: list
+        :returns: a unique integer encoding of the state
+        :raises ValueError: if ``state`` has an incorrect length
+        """
+        if len(state) != self.ndim:
+            raise(ValueError("state has the wrong length"))
+        x, q = 0, 1
+        if self.is_uniform:
+            b = self.base
+            for i in range(self.ndim):
+                if state[i] < 0 or state[i] >= b:
+                    raise(ValueError("invalid node state"))
+                x += q * state[i]
+                q *= b
+        else:
+            for i in range(self.ndim):
+                b = self.bases[i]
+                if state[i] < 0 or state[i] >= b:
+                    raise(ValueError("invalid node state"))
+                x += q * state[i]
+                q *= b
+        return x

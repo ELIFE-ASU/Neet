@@ -22,6 +22,8 @@ State Generators
 
         .. automethod:: neet.StateSpace.states
 
+        .. automethod:: neet.StateSpace.encode
+
 Time Series Generation
 ^^^^^^^^^^^^^^^^^^^^^^
 
