@@ -5,6 +5,69 @@ import unittest
 import neet
 import numpy as np
 
+class TestStateSpace(unittest.TestCase):
+    def test_invalid_spec_type(self):
+        with self.assertRaises(TypeError):
+            neet.StateSpace("a")
+
+        with self.assertRaises(TypeError):
+            neet.StateSpace("abc")
+
+    def test_invalid_base_type(self):
+        with self.assertRaises(TypeError):
+            neet.StateSpace(5, b='a')
+
+        with self.assertRaises(TypeError):
+            neet.StateSpace(3, b=2.5)
+
+        with self.assertRaises(TypeError):
+            neet.StateSpace([1.0, 2.0, 3.0])
+
+    def test_invalid_spec_value(self):
+        with self.assertRaises(ValueError):
+            neet.StateSpace(0)
+
+        with self.assertRaises(ValueError):
+            neet.StateSpace(-1)
+
+        with self.assertRaises(ValueError):
+            neet.StateSpace([])
+
+        with self.assertRaises(ValueError):
+            neet.StateSpace([0])
+
+        with self.assertRaises(ValueError):
+            neet.StateSpace([-1])
+
+    def test_invalid_base_value(self):
+        with self.assertRaises(ValueError):
+            neet.StateSpace(3, b=0)
+
+        with self.assertRaises(ValueError):
+            neet.StateSpace(4, b=-1)
+
+    def test_uniform_bases(self):
+        spec = neet.StateSpace(5)
+        self.assertTrue(spec.is_uniform)
+        self.assertEqual(5, spec.ndim)
+        self.assertEqual(2, spec.base)
+
+        spec = neet.StateSpace(8, b=4)
+        self.assertTrue(spec.is_uniform)
+        self.assertEqual(8, spec.ndim)
+        self.assertEqual(4, spec.base)
+
+        spec = neet.StateSpace([3,3,3,3])
+        self.assertTrue(spec.is_uniform)
+        self.assertEqual(4, spec.ndim)
+        self.assertEqual(3, spec.base)
+
+    def test_uniform_bases(self):
+        spec = neet.StateSpace([1,2,3,2,1])
+        self.assertFalse(spec.is_uniform)
+        self.assertEqual([1,2,3,2,1], spec.bases)
+        self.assertEqual(5, spec.ndim)
+
 class TestStates(unittest.TestCase):
     def test_states_invalid(self):
         with self.assertRaises(TypeError):
@@ -26,17 +89,17 @@ class TestStates(unittest.TestCase):
         self.assertEqual([[0,0,0],[1,0,0],[0,1,0],[1,1,0],
                           [0,0,1],[1,0,1],[0,1,1],[1,1,1]],
             list(neet.states(3)))
-            
+
     def test_states_invalid_base(self):
         with self.assertRaises(ValueError):
             list(neet.states(2, b=0))
-            
+
         with self.assertRaises(ValueError):
             list(neet.states(2, b=-1))
-            
+
         with self.assertRaises(ValueError):
             list(neet.states([0]))
-        
+
         with self.assertRaises(ValueError):
             list(neet.states([-1]))
 

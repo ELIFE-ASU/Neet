@@ -16,6 +16,10 @@ Interface Tests
 State Generators
 ^^^^^^^^^^^^^^^^
 
+    .. autoclass:: neet.StateSpace
+
+        .. automethod:: neet.StateSpace.__init__
+
     .. autofunction:: neet.states
 
 Time Series Generation
