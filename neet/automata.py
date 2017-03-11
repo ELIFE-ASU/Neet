@@ -191,6 +191,7 @@ class ECA(object):
 
         :param lattice: the one-dimensional sequence of states
         :type lattice: sequence
+        :returns: the updated lattice
         """
         if self.boundary:
             left  = self.__boundary[0]
@@ -198,13 +199,14 @@ class ECA(object):
         else:
             left  = lattice[-1]
             right = lattice[0]
-
+        code = self.code
         d = 2 * left + lattice[0]
         for i in range(1, len(lattice)):
             d = 7 & (2 * d + lattice[i])
-            lattice[i-1] = 1 & (self.code >> d)
+            lattice[i-1] = 1 & (code >> d)
         d = 7 & (2 * d + right)
-        lattice[-1] = 1 & (self.code >> d)
+        lattice[-1] = 1 & (code >> d)
+        return lattice
 
     def update(self, lattice):
         """
@@ -239,9 +241,10 @@ class ECA(object):
 
         :param lattice: the one-dimensional sequence of states
         :type lattice: sequence
+        :returns: the updated lattice
         :raises ValueError: if ``lattice`` is empty
         :raises TypeError: if ``lattice`` is not iterable
         :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
         """
         ECA.check_lattice(lattice)
-        self._unsafe_update(lattice)
+        return self._unsafe_update(lattice)
