@@ -53,19 +53,19 @@ def transitions(net, n=None, encode=True):
         >>> from neet.automata import ECA
         >>> gen = transitions(ECA(30), n=3)
         >>> gen
-        <map object at 0x00000219ABAE86D8>
+        <generator object transitions at 0x000001DF6E02B938>
         >>> list(gen)
         [0, 7, 7, 1, 7, 4, 2, 0]
-        >>> gen = transitions(ECA(30), n=3, encode=False)
-        >>> list(gen)
+        >>> list(transitions(ECA(30), n=3, encode=False))
         [[0, 0, 0], [1, 1, 1], [1, 1, 1], [1, 0, 0], [1, 1, 1], [0, 0,
         1], [0, 1, 0], [0, 0, 0]]
 
     :param net: the network
     :param n: the number of nodes in the network
+    :type n: ``None`` or ``int``
     :param encode: encode the states as integers
     :type encode: boolean
-    :returns: a generator over the one-state transitions
+    :yields: the one-state transitions
     :raises TypeError: if ``net`` is not a network
     :raises TypeError: if ``space`` is not a :class:`neet.StateSpace`
     """
@@ -82,8 +82,9 @@ def transitions(net, n=None, encode=True):
     if not isinstance(space, StateSpace):
         raise(TypeError("network's state space is not an instance of StateSpace"))
 
-    states = map(net.update, space.states())
-    if encode:
-        return map(space.encode, states)
-    else:
-        return states
+    for state in space.states():
+        net.update(state)
+        if encode:
+            yield space.encode(state)
+        else:
+            yield state

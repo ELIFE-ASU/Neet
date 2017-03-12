@@ -49,11 +49,11 @@ class TestCore(unittest.TestCase):
 
     def test_transitions_not_network(self):
         with self.assertRaises(TypeError):
-            neet.transitions(self.IsNotNetwork(), neet.StateSpace(5))
+            list(neet.transitions(self.IsNotNetwork(), neet.StateSpace(5)))
 
     def test_transitions_not_statespace(self):
         with self.assertRaises(TypeError):
-            neet.transitions(self.IsNetwork(), 5)
+            list(neet.transitions(self.IsNetwork(), 5))
 
     def test_transitions_eca_encoded(self):
         from neet.automata import ECA
