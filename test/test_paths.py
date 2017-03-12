@@ -32,7 +32,7 @@ class TestCore(unittest.TestCase):
         with self.assertRaises(ValueError):
             list(neet.trajectory(self.IsNetwork(), [1,2,3], n=-1))
 
-    def test_trajectory_eca(self):
+    def test_trajectory_eca_not_encoded(self):
         from neet.automata import ECA
         rule30 = ECA(30)
         with self.assertRaises(ValueError):
@@ -46,6 +46,22 @@ class TestCore(unittest.TestCase):
         got = list(neet.trajectory(rule30, xs, n=2))
         self.assertEqual([0,1,0], xs)
         self.assertEqual([[0,1,0],[1,1,1],[0,0,0]], got)
+
+    def test_trajectory_eca_encoded(self):
+        from neet.automata import ECA
+        rule30 = ECA(30)
+        with self.assertRaises(ValueError):
+            list(neet.trajectory(rule30, [], encode=True))
+
+        xs = [0,1,0]
+        got = list(neet.trajectory(rule30, xs, encode=True))
+        self.assertEqual([0,1,0], xs)
+        self.assertEqual([2,7], got)
+
+        got = list(neet.trajectory(rule30, xs, n=2, encode=True))
+        self.assertEqual([0,1,0], xs)
+        self.assertEqual([2,7,0], got)
+
 
     def test_transitions_not_network(self):
         with self.assertRaises(TypeError):

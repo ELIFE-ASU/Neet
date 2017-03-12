@@ -7,7 +7,7 @@ from .states import StateSpace
 import copy
 import numpy as np
 
-def trajectory(net, state, n=1):
+def trajectory(net, state, n=1, encode=False):
     """
     Generate the trajectory of length ``n+1`` through state-space, as determined
     by the network rule, beginning at ``state``.
@@ -22,10 +22,13 @@ def trajectory(net, state, n=1):
         <generator object trajectory at 0x000001DF6E02B888>
         >>> list(gen)
         [[0, 1, 0], [1, 1, 1], [0, 0, 0], [0, 0, 0]]
+        >>> list(trajectory(ECA(30), [0,1,0], n=3, encode=True))
+        [2,7,0,0]
 
     :param net: the network
     :param state: the network state
     :param n: the number of steps in the trajectory
+    :param encode: encode the states as integers
     :yields: the ``n+1`` states in the trajectory
     :raises TypeError: ``not is_network(net)``
     :raises ValueError: if ``n < 1``
@@ -36,10 +39,21 @@ def trajectory(net, state, n=1):
         raise(ValueError("number of steps must be positive, non-zero"))
 
     state = copy.copy(state)
-    yield copy.copy(state)
-    for i in range(n):
-        net.update(state)
+    if encode:
+        if is_fixed_sized(net):
+            space = net.state_space()
+        else:
+            space = net.state_space(len(state))
+
+        yield space.encode(state)
+        for i in range(n):
+            net.update(state)
+            yield space.encode(state)
+    else:
         yield copy.copy(state)
+        for i in range(n):
+            net.update(state)
+            yield copy.copy(state)
 
 def transitions(net, n=None, encode=True):
     """
