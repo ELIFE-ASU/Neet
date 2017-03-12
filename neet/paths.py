@@ -4,6 +4,7 @@
 from .interfaces import is_network, is_fixed_sized
 from .states import StateSpace
 
+import copy
 import numpy as np
 
 def trajectory(net, state, n=1):
@@ -16,19 +17,16 @@ def trajectory(net, state, n=1):
     ::
 
         >>> from neet.automata import ECA
-        >>> rule30 = ECA(30)
-        >>> trajectory(rule30, [0,0,1,0,0], n=5)
-        array([[0, 0, 1, 0, 0],
-               [0, 1, 1, 1, 0],
-               [1, 1, 0, 0, 1],
-               [0, 0, 1, 1, 1],
-               [1, 1, 1, 0, 0],
-               [1, 0, 0, 1, 1]])
+        >>> gen = trajectory(ECA(30), [0,1,0], n=3)
+        >>> gen
+        <generator object trajectory at 0x000001DF6E02B888>
+        >>> list(gen)
+        [[0, 1, 0], [1, 1, 1], [0, 0, 0], [0, 0, 0]]
 
     :param net: the network
     :param state: the network state
     :param n: the number of steps in the trajectory
-    :returns: a ``numpy.ndarray`` of ``n+1`` network states
+    :yields: the ``n+1`` states in the trajectory
     :raises TypeError: ``not is_network(net)``
     :raises ValueError: if ``n < 1``
     """
@@ -36,11 +34,12 @@ def trajectory(net, state, n=1):
         raise(TypeError("net is not a network"))
     if n < 1:
         raise(ValueError("number of steps must be positive, non-zero"))
-    trajectory = [np.copy(state)]
+
+    state = copy.copy(state)
+    yield copy.copy(state)
     for i in range(n):
-        trajectory.append(np.copy(trajectory[-1]))
-        net.update(trajectory[-1])
-    return np.asarray(trajectory)
+        net.update(state)
+        yield copy.copy(state)
 
 def transitions(net, n=None, encode=True):
     """
