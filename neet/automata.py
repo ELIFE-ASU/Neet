@@ -57,7 +57,6 @@ class ECA(object):
             >>> eca.code
             45
             >>> eca.code = 256
-            >>> eca.code = 256
             Traceback (most recent call last):
                 ...
             ValueError: invalid ECA code
@@ -126,8 +125,7 @@ class ECA(object):
             <neet.states.StateSpace object at 0x000001C0BDA38550>
             >>> space = eca.state_space(3)
             >>> list(space.states())
-            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1,
-            1]]
+            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
 
         :param n: the number of nodes in the lattice
         :type n: int
