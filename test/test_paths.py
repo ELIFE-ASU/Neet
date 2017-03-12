@@ -9,6 +9,8 @@ class TestCore(unittest.TestCase):
     class IsNetwork(object):
         def update(self, lattice):
             pass
+        def state_space(self):
+            return neet.StateSpace(1)
 
     class IsNotNetwork(object):
         pass
