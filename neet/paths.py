@@ -9,7 +9,7 @@ import numpy as np
 
 def trajectory(net, state, n=1):
     """
-    Compute the trajectory of length ``n+1`` through state-space, as determined
+    Generate the trajectory of length ``n+1`` through state-space, as determined
     by the network rule, beginning at ``state``.
 
     .. rubric:: Example:
