@@ -44,3 +44,38 @@ class TestCore(unittest.TestCase):
         got = neet.trajectory(rule30, xs, n=2)
         self.assertEqual([0,1,0], xs)
         self.assertTrue(np.array_equal([[0,1,0],[1,1,1],[0,0,0]], got))
+
+    def test_transitions_not_network(self):
+        with self.assertRaises(TypeError):
+            neet.transitions(self.IsNotNetwork(), neet.StateSpace(5))
+
+    def test_transitions_not_statespace(self):
+        with self.assertRaises(TypeError):
+            neet.transitions(self.IsNetwork(), 5)
+
+    def test_transitions_eca_encoded(self):
+        from neet.automata import ECA
+        rule30 = ECA(30)
+
+        got = list(neet.transitions(rule30, neet.StateSpace(1)))
+        self.assertEqual([0,0], got)
+
+        got = list(neet.transitions(rule30, neet.StateSpace(2)))
+        self.assertEqual([0,1,2,0], got)
+
+        got = list(neet.transitions(rule30, neet.StateSpace(3)))
+        self.assertEqual([0,7,7,1,7,4,2,0], got)
+
+    def test_transitions_eca_not_encoded(self):
+        from neet.automata import ECA
+        rule30 = ECA(30)
+
+        got = list(neet.transitions(rule30, neet.StateSpace(1), encode=False))
+        self.assertEqual([[0],[0]], got)
+
+        got = list(neet.transitions(rule30, neet.StateSpace(2), encode=False))
+        self.assertEqual([[0,0],[1,0],[0,1],[0,0]], got)
+
+        got = list(neet.transitions(rule30, neet.StateSpace(3), encode=False))
+        self.assertEqual([[0,0,0],[1,1,1],[1,1,1],[1,0,0]
+                         ,[1,1,1],[0,0,1],[0,1,0],[0,0,0]], got)

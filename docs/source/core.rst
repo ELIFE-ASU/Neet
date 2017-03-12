@@ -1,5 +1,5 @@
 Core API
-=================
+========
 
 API Documentation
 -----------------
@@ -32,3 +32,4 @@ Time Series Generation
 
     .. autofunction:: neet.trajectory
 
+    .. autofunction:: neet.transitions
