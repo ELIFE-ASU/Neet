@@ -2,6 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import numpy as np
+from .states import StateSpace
 
 class ECA(object):
     """
@@ -113,6 +114,26 @@ class ECA(object):
                 if x != 0 and x != 1:
                     raise(ValueError("invalid ECA boundary value"))
         self.__boundary = boundary
+
+    def state_space(self, n):
+        """
+        Return a :class:`StateSpace` object for a lattice of length ``n``.
+
+        ::
+
+            >>> eca = ECA(30)
+            >>> eca.state_space(3)
+            <neet.states.StateSpace object at 0x000001C0BDA38550>
+            >>> space = eca.state_space(3)
+            >>> list(space.states())
+            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1,
+            1]]
+
+        :param n: the number of nodes in the lattice
+        :type n: int
+        :raises ValueError: if ``n < 1``
+        """
+        return StateSpace(n, b=2)
 
     @classmethod
     def check_lattice(self, lattice):

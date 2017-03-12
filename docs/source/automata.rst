@@ -31,6 +31,8 @@ Initialization
 Methods
 """""""
 
+        .. automethod:: neet.automata.ECA.state_space
+
         .. automethod:: neet.automata.ECA.update
 
 Unsafe Methods
