@@ -1,7 +1,7 @@
 # Copyright 2017 ELIFE. All rights reserved.
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
-from .interfaces import is_network
+from .interfaces import is_network, is_fixed_sized
 from .states import StateSpace
 
 import numpy as np
@@ -42,27 +42,27 @@ def trajectory(net, state, n=1):
         net.update(trajectory[-1])
     return np.asarray(trajectory)
 
-def transitions(net, space, encode=True):
+def transitions(net, n=None, encode=True):
     """
-    Generate the one-step state transitions for a network over a state space.
+    Generate the one-step state transitions for a network over its state space.
 
     .. rubric:: Example:
 
     ::
 
         >>> from neet.automata import ECA
-        >>> gen = transitions(ECA(30), StateSpace(3))
+        >>> gen = transitions(ECA(30), n=3)
         >>> gen
         <map object at 0x00000219ABAE86D8>
         >>> list(gen)
         [0, 7, 7, 1, 7, 4, 2, 0]
-        >>> gen = transitions(ECA(30), StateSpace(3), encode=False)
+        >>> gen = transitions(ECA(30), n=3, encode=False)
         >>> list(gen)
         [[0, 0, 0], [1, 1, 1], [1, 1, 1], [1, 0, 0], [1, 1, 1], [0, 0,
         1], [0, 1, 0], [0, 0, 0]]
 
     :param net: the network
-    :param space: the ``StateSpace`` for then network
+    :param n: the number of nodes in the network
     :param encode: encode the states as integers
     :type encode: boolean
     :returns: a generator over the one-state transitions
@@ -71,8 +71,17 @@ def transitions(net, space, encode=True):
     """
     if not is_network(net):
         raise(TypeError("net is not a network"))
+
+    if is_fixed_sized(net):
+        if n is not None:
+            raise(TypeError("n must be None for fixed sized networks"))
+        space = net.state_space()
+    else:
+        space = net.state_space(n)
+
     if not isinstance(space, StateSpace):
-        raise(TypeError("space is not a StateSpace"))
+        raise(TypeError("network's state space is not an instance of StateSpace"))
+
     states = map(net.update, space.states())
     if encode:
         return map(space.encode, states)
