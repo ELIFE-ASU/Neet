@@ -2,7 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import numpy as np
-from .states import StateSpace
+from .landscape import StateSpace
 
 class ECA(object):
     """
