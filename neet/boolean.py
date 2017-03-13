@@ -6,6 +6,12 @@ import re
 from .landscape import StateSpace
 
 class WTNetwork(object):
+    """
+    The WTNetwork class represents weight/threshold-based boolean networks. As
+    such it is specified in terms of a matrix of edge weights and a vector of
+    node thresholds, and each node of the network is expected to be in either
+    of two states ``0`` or ``1``.
+    """
     def __init__(self, weights, thresholds=None, names=None):
         """
         Construct a network from weights and thresholds.
@@ -150,6 +156,27 @@ class WTNetwork(object):
 
         .. rubric:: Examples:
 
+        ::
+
+            >>> net = WTNetwork.read("fission-net-nodes.txt", "fission-net-edges.txt")
+            >>> net.size
+            9
+            >>> xs = [0,0,0,0,1,0,0,0,0]
+            >>> net._unsafe_update(xs)
+            [0, 0, 0, 0, 0, 0, 0, 0, 1]
+            >>> net._unsafe_update(xs)
+            [0, 1, 1, 1, 0, 0, 1, 0, 0]
+
+        ::
+
+            >>> net._unsafe_update([0,0,0])
+            Traceback (most recent call last):
+                ...
+            ValueError: shapes (9,9) and (3,) not aligned: 9 (dim 1) != 3 (dim 0)
+            >>> net._unsafe_update([0,0,0,0,2,0,0,0,0])
+            [0, 0, 0, 0, 0, 0, 0, 0, 1]
+
+
         :param states: the one-dimensional sequence of node states
         :type states: sequence
         :returns: the updated states
@@ -168,6 +195,28 @@ class WTNetwork(object):
 
         .. rubric:: Examples:
 
+        ::
+
+            >>> net = WTNetwork.read("fission-net-nodes.txt", "fission-net-edges.txt")
+            >>> net.size
+            9
+            >>> xs = [0,0,0,0,1,0,0,0,0]
+            >>> net.update(xs)
+            [0, 0, 0, 0, 0, 0, 0, 0, 1]
+            >>> net.update(xs)
+            [0, 1, 1, 1, 0, 0, 1, 0, 0]
+
+        ::
+
+            >>> net.update([0,0,0])
+            Traceback (most recent call last):
+                ...
+            ValueError: incorrect number of states in array
+            >>> net.update([0,0,0,0,2,0,0,0,0])
+            Traceback (most recent call last):
+                ...
+            ValueError: invalid node state in states
+
         :param states: the one-dimensional sequence of node states
         :type states: sequence
         :returns: the updated states
@@ -184,6 +233,14 @@ class WTNetwork(object):
         Read a network from a pair of node/edge files.
 
         .. rubric:: Examples:
+
+        ::
+
+            >>> net = WTNetwork.read("fission-net-nodes.txt", "fission-net-edges.txt")
+            >>> net.size
+            9
+            >>> net.names
+            ['SK', 'Cdc2_Cdc13', 'Ste9', 'Rum1', 'Slp1', 'Cdc2_Cdc13_active', 'Wee1_Mik1', 'Cdc25', 'PP']
 
         :returns: a :class:WTNetwork
         """
