@@ -58,16 +58,19 @@ class TestWTNetwork(unittest.TestCase):
         self.assertEqual(1, net.size)
         self.assertTrue(np.array_equal([[1]], net.weights))
         self.assertTrue(np.array_equal([0], net.thresholds))
+        self.assertIsNone(net.names)
 
         net = bnet.WTNetwork([[1,0],[0,1]])
         self.assertEqual(2, net.size)
         self.assertTrue(np.array_equal([[1,0],[0,1]], net.weights))
         self.assertTrue(np.array_equal([0,0], net.thresholds))
+        self.assertIsNone(net.names)
 
         net = bnet.WTNetwork([[1,0,0],[0,1,0],[0,0,1]])
         self.assertEqual(3, net.size)
         self.assertTrue(np.array_equal([[1,0,0],[0,1,0],[0,0,1]], net.weights))
         self.assertTrue(np.array_equal([0,0,0], net.thresholds))
+        self.assertIsNone(net.names)
 
 
     def test_init_weights_thresholds(self):
@@ -75,16 +78,42 @@ class TestWTNetwork(unittest.TestCase):
         self.assertEqual(1, net.size)
         self.assertTrue(np.array_equal([[1]], net.weights))
         self.assertTrue(np.array_equal([1], net.thresholds))
+        self.assertIsNone(net.names)
 
         net = bnet.WTNetwork([[1,0],[0,1]], [1,2])
         self.assertEqual(2, net.size)
         self.assertTrue(np.array_equal([[1,0],[0,1]], net.weights))
         self.assertTrue(np.array_equal([1,2], net.thresholds))
+        self.assertIsNone(net.names)
 
         net = bnet.WTNetwork([[1,0,0],[0,1,0],[0,0,1]], [1,2,3])
         self.assertEqual(3, net.size)
         self.assertTrue(np.array_equal([[1,0,0],[0,1,0],[0,0,1]], net.weights))
         self.assertTrue(np.array_equal([1,2,3], net.thresholds))
+        self.assertIsNone(net.names)
+
+
+    def test_init_names(self):
+        with self.assertRaises(TypeError):
+            bnet.WTNetwork([[1]], names=5)
+
+        with self.assertRaises(ValueError):
+            bnet.WTNetwork([[1]], names=["A","B"])
+
+        with self.assertRaises(ValueError):
+            bnet.WTNetwork([[1]], names=["A","B"])
+
+        net = bnet.WTNetwork([[1]], names=["A"])
+        self.assertEqual(['A'], net.names)
+
+        net = bnet.WTNetwork([[1,0],[1,1]], names=['A','B'])
+        self.assertEqual(['A','B'], net.names)
+
+        net = bnet.WTNetwork([[1]], names="A")
+        self.assertEqual(['A'], net.names)
+
+        net = bnet.WTNetwork([[1,0],[1,1]], names="AB")
+        self.assertEqual(['A','B'], net.names)
 
 
     def test_state_space(self):

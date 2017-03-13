@@ -6,7 +6,7 @@ import re
 from .landscape import StateSpace
 
 class WTNetwork(object):
-    def __init__(self, weights, thresholds=None):
+    def __init__(self, weights, thresholds=None, names=None):
         """
         Construct a network from weights and thresholds.
 
@@ -36,10 +36,12 @@ class WTNetwork(object):
 
         :param weights: the network weights
         :param thresholds: the network thresholds
+        :param names: the names of the network nodes (optional)
         :raises ValueError: if ``weights`` is empty
         :raises ValueError: if ``weights`` is not a square matrix
         :raises ValueError: if ``thresholds`` is not a vector
         :raises ValueError: if ``weights`` and ``thresholds`` have different dimensions
+        :raises ValueError: if ``len(names)`` is not equal to the number of nodes
         """
         self.weights = np.asarray(weights, dtype=np.float)
         shape = self.weights.shape
@@ -55,12 +57,19 @@ class WTNetwork(object):
 
         self.__size = self.thresholds.size
 
+        if isinstance(names, str):
+            self.names = list(names)
+        else:
+            self.names = names
+
         if self.thresholds.ndim != 1:
             raise(ValueError("thresholds must be a vector"))
         elif shape[0] != self.size:
             raise(ValueError("weights and thresholds have different dimensions"))
         elif self.size < 1:
             raise(ValueError("invalid network size"))
+        elif names is not None and len(names) != self.size:
+            raise(ValueError("either all or none of the nodes may have a name"))
 
     @property
     def size(self):
