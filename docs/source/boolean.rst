@@ -28,13 +28,20 @@ Methods
 
         .. automethod:: neet.boolean.WTNetwork.update
 
+        .. automethod:: neet.boolean.WTNetwork.check_states
+
+Unsafe Methods
+""""""""""""""
+
+        .. automethod:: neet.boolean.WTNetwork._unsafe_update
+
 Static Methods
-^^^^^^^^^^^^^^
+""""""""""""""
 
         .. automethod:: neet.boolean.WTNetwork.read
 
 Threshold Functions
-^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""
 
         .. automethod:: neet.boolean.WTNetwork.split_threshold
 
