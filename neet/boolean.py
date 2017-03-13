@@ -12,7 +12,7 @@ class WTNetwork(object):
     node thresholds, and each node of the network is expected to be in either
     of two states ``0`` or ``1``.
     """
-    def __init__(self, weights, thresholds=None, names=None):
+    def __init__(self, weights, thresholds=None, names=None, theta=None):
         """
         Construct a network from weights and thresholds.
 
@@ -43,11 +43,13 @@ class WTNetwork(object):
         :param weights: the network weights
         :param thresholds: the network thresholds
         :param names: the names of the network nodes (optional)
+        :parma theta: the threshold function to use
         :raises ValueError: if ``weights`` is empty
         :raises ValueError: if ``weights`` is not a square matrix
         :raises ValueError: if ``thresholds`` is not a vector
         :raises ValueError: if ``weights`` and ``thresholds`` have different dimensions
         :raises ValueError: if ``len(names)`` is not equal to the number of nodes
+        :raises TypeError: if ``threshold_func`` is not callable
         """
         self.weights = np.asarray(weights, dtype=np.float)
         shape = self.weights.shape
@@ -67,6 +69,13 @@ class WTNetwork(object):
             self.names = list(names)
         else:
             self.names = names
+
+        if theta is None:
+            self.theta = type(self).split_threshold
+        elif callable(theta):
+            self.theta = theta
+        else:
+            raise(TypeError("theta must be a function"))
 
         if self.thresholds.ndim != 1:
             raise(ValueError("thresholds must be a vector"))
@@ -182,12 +191,7 @@ class WTNetwork(object):
         :returns: the updated states
         """
         temp = np.dot(self.weights, states) - self.thresholds
-        for (i,x) in enumerate(temp):
-            if x < 0.0:
-                states[i] = 0
-            elif x > 0.0:
-                states[i] = 1
-        return states
+        return self.theta(temp, states)
 
     def update(self, states):
         """
