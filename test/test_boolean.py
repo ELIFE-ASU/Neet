@@ -42,13 +42,13 @@ class TestWTNetwork(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             bnet.WTNetwork([])
-        
+
         with self.assertRaises(ValueError):
             bnet.WTNetwork([[]])
-        
+
         with self.assertRaises(ValueError):
             bnet.WTNetwork([[1]],[])
-        
+
         with self.assertRaises(ValueError):
             bnet.WTNetwork([[1]],[1,2])
 
@@ -85,3 +85,166 @@ class TestWTNetwork(unittest.TestCase):
         self.assertEqual(3, net.size)
         self.assertTrue(np.array_equal([[1,0,0],[0,1,0],[0,0,1]], net.weights))
         self.assertTrue(np.array_equal([1,2,3], net.thresholds))
+
+
+    def test_state_space(self):
+        net = bnet.WTNetwork([[1]])
+        self.assertEqual(2, len(list(net.state_space().states())))
+        net = bnet.WTNetwork([[1,0],[1,1]])
+        self.assertEqual(4, len(list(net.state_space().states())))
+        net = bnet.WTNetwork([[1,0,0],[0,1,0],[0,0,1]])
+        self.assertEqual(8, len(list(net.state_space().states())))
+
+
+    def test_check_states_nonsense(self):
+        net = bnet.WTNetwork([[1,0],[1,1]])
+
+        with self.assertRaises(TypeError):
+            net.check_states(5)
+
+        with self.assertRaises(ValueError):
+            net.check_states("elife")
+
+
+    def test_check_states_list(self):
+        net = bnet.WTNetwork([[1,0],[1,1]])
+
+        with self.assertRaises(ValueError):
+            net.check_states([])
+
+        with self.assertRaises(ValueError):
+            net.check_states([[]])
+
+        with self.assertRaises(ValueError):
+            net.check_states([0])
+
+        with self.assertRaises(ValueError):
+            net.check_states([0,2])
+
+        self.assertTrue(net.check_states([0,0]))
+        self.assertTrue(net.check_states([1,1]))
+
+
+    def test_check_states_numpy(self):
+        net = bnet.WTNetwork(np.asarray([[1,0],[1,1]]))
+
+        with self.assertRaises(ValueError):
+            net.check_states(np.asarray([]))
+
+        with self.assertRaises(ValueError):
+            net.check_states(np.asarray([[]]))
+
+        with self.assertRaises(ValueError):
+            net.check_states(np.asarray([0]))
+
+        with self.assertRaises(ValueError):
+            net.check_states(np.asarray([0,2]))
+
+        self.assertTrue(net.check_states(np.asarray([0,0])))
+        self.assertTrue(net.check_states(np.asarray([1,1])))
+
+
+    def test_update_empty_states(self):
+        net = bnet.WTNetwork([[1,0],[1,1]])
+        with self.assertRaises(ValueError):
+            net.update([])
+
+
+    def test_update_invalid_states(self):
+        net = bnet.WTNetwork([[1,0],[1,1]])
+        with self.assertRaises(ValueError):
+            net.update([-1,0])
+
+        with self.assertRaises(ValueError):
+            net.update([1,-1])
+
+        with self.assertRaises(ValueError):
+            net.update([2,0])
+
+        with self.assertRaises(ValueError):
+            net.update([1,2])
+
+        with self.assertRaises(ValueError):
+            net.update([[1],[0]])
+
+        with self.assertRaises(ValueError):
+            net.update("101")
+
+
+    def test_update(self):
+        net = bnet.WTNetwork([[1,0],[1,1]], [0.5,0.0])
+
+        xs = [0,0]
+        self.assertEqual([0,0], net.update(xs))
+        self.assertEqual([0,0], xs)
+
+        xs = [1,0]
+        self.assertEqual([1,1], net.update(xs))
+        self.assertEqual([1,1], xs)
+
+        xs = [0,1]
+        self.assertEqual([0,1], net.update(xs))
+        self.assertEqual([0,1], xs)
+
+        xs = [1,1]
+        self.assertEqual([1,1], net.update(xs))
+        self.assertEqual([1,1], xs)
+
+
+    def test_fission_yeast(self):
+        net = bnet.WTNetwork(
+            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
+             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+
+        self.assertEqual(9, net.size)
+        self.assertEqual(512, len(list(net.state_space().states())))
+
+        init = [1,0,1,1,0,0,1,0,0]
+        bio_sequence = [[0,0,0,0,0,0,1,0,0],
+                        [0,1,0,0,0,0,1,0,0],
+                        [0,1,0,0,0,0,0,1,0],
+                        [0,1,0,0,0,1,0,1,0],
+                        [0,1,0,0,1,1,0,1,0],
+                        [0,0,0,0,1,0,0,1,1],
+                        [0,0,1,1,0,0,1,0,1],
+                        [0,0,1,1,0,0,1,0,0]]
+
+        for expected in bio_sequence:
+            self.assertEqual(expected, net.update(init))
+
+    def test_fission_yeast_numpy(self):
+        net = bnet.WTNetwork(
+            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
+             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+
+        self.assertEqual(9, net.size)
+        self.assertEqual(512, len(list(net.state_space().states())))
+
+        init = np.asarray([1,0,1,1,0,0,1,0,0])
+        bio_sequence = np.asarray([[0,0,0,0,0,0,1,0,0],
+                                   [0,1,0,0,0,0,1,0,0],
+                                   [0,1,0,0,0,0,0,1,0],
+                                   [0,1,0,0,0,1,0,1,0],
+                                   [0,1,0,0,1,1,0,1,0],
+                                   [0,0,0,0,1,0,0,1,1],
+                                   [0,0,1,1,0,0,1,0,1],
+                                   [0,0,1,1,0,0,1,0,0]])
+
+        for expected in bio_sequence:
+            self.assertTrue(np.array_equal(expected, net.update(init)))
