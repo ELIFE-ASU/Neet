@@ -2,6 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import numpy as np
+import re
 from .landscape import StateSpace
 
 class WTNetwork(object):
@@ -32,8 +33,8 @@ class WTNetwork(object):
             raise(ValueError("network must have at least one node"))
 
         self.__size       = n
-        self.__thresholds = np.zeros(n, dtype=np.int)
-        self.__weights    = np.zeros((n,n), dtype=np.int)
+        self.__thresholds = np.zeros(n, dtype=np.float)
+        self.__weights    = np.zeros((n,n), dtype=np.float)
 
     @property
     def size(self):
@@ -141,3 +142,35 @@ class WTNetwork(object):
         """
         self.check_states(states)
         return self._unsafe_update(states)
+
+    @staticmethod
+    def read(nodes_file, edges_file):
+        """
+        Read a network from a pair of node/edge files.
+        
+        :returns: a :class:WTNetwork
+        """
+        comment = re.compile(r'^\s*#.*$')
+        names = dict()
+        thresholds = []
+        index = 0
+        with open(nodes_file, "r") as f:
+            for line in f.readlines():
+                if comment.match(line) is None:
+                    name, threshold = line.strip().split()
+                    names[name] = index
+                    thresholds.append(float(threshold))
+                    index += 1
+
+        n = len(names)
+        weights = np.empty((n,n), dtype=np.float)
+        with open(edges_file, "r") as f:
+            for line in f.readlines():
+                if comment.match(line) is None:
+                    a, b, w = line.strip().split()
+                    weights[names[b],names[a]] = float(w)
+
+        net = WTNetwork(n)
+        net._WTNetwork__thresholds = np.asarray(thresholds)
+        net._WTNetwork__weights    = weights
+        return net, names
