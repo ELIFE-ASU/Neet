@@ -265,3 +265,121 @@ class WTNetwork(object):
                     weights[nameindices[b],nameindices[a]] = float(w)
 
         return WTNetwork(weights, thresholds, names)
+
+    @staticmethod
+    def split_threshold(values, states):
+        """
+        The split threshold applies the following functional form to each pair
+        ``(x,y) in zip(values, states)`` and stores the result in ``states``.
+
+        .. math::
+
+            \\theta_s(x,y) = \\begin{cases}
+                0 & x < 0 \\\\
+                y & x = 0 \\\\
+                1 & x > 0
+            \\end{cases}
+
+        .. rubric:: Examples:
+
+        ::
+
+            >>> xs = [0,0,0]
+            >>> WTNetwork.split_threshold([1, -1, 0], xs)
+            [1, 0, 0]
+            >>> xs
+            [1, 0, 0]
+            >>> xs = [1,1,1]
+            >>> WTNetwork.split_threshold([1, -1, 0], xs)
+            [1, 0, 1]
+            >>> xs
+            [1, 0, 1]
+
+        :param values: the threshold-shifted values of each node
+        :param states: the pre-updated states of the nodes
+        :returns: the updated states
+        """
+        for i, x in enumerate(values):
+            if x < 0:
+                states[i] = 0
+            elif x > 0:
+                states[i] = 1
+        return states
+
+    @staticmethod
+    def negative_threshold(values, states):
+        """
+        The negative threshold applies the following functional to each value in
+        ``values`` and stores the result in ``states``.
+
+        .. math::
+
+            \\theta_n(x) = \\begin{cases}
+                0 & x \\leq 0 \\\\
+                1 & x > 0
+            \\end{cases}
+
+        .. rubric:: Examples:
+
+        ::
+
+            >>> xs = [0,0,0]
+            >>> WTNetwork.negative_threshold([1, -1, 0], xs)
+            [1, 0, 0]
+            >>> xs
+            [1, 0, 0]
+            >>> xs = [1,1,1]
+            >>> WTNetwork.negative_threshold([1, -1, 0], xs)
+            [1, 0, 0]
+            >>> xs
+            [1, 0, 0]
+
+        :param values: the threshold-shifted values of each node
+        :param states: the pre-updated states of the nodes
+        :returns: the updated states
+        """
+        for i, x in enumerate(values):
+            if x <= 0:
+                states[i] = 0
+            else:
+                states[i] = 1
+        return states
+
+    @staticmethod
+    def positive_threshold(values, states):
+        """
+        The positive threshold applies the following functional form to each
+        value in ``values`` and stores the result in ``states``.
+
+        .. math::
+
+            \\theta_p(x) = \\begin{cases}
+                0 & x < 0 \\\\
+                1 & x \\geq 0
+            \\end{cases}
+
+        .. rubric:: Examples:
+
+        ::
+
+            >>> xs = [0,0,0]
+            >>> WTNetwork.positive_threshold([1, -1, 0], xs)
+            [1, 0, 1]
+            >>> xs
+            [1, 0, 1]
+            >>> xs = [1,1,1]
+            >>> WTNetwork.positive_threshold([1, -1, 0], xs)
+            [1, 0, 1]
+            >>> xs
+            [1, 0, 1]
+
+        :param values: the threshold-shifted values of each node
+        :param states: the pre-updated states of the nodes
+        :returns: the updated states
+        """
+        for i, x in enumerate(values):
+            if x < 0:
+                states[i] = 0
+            else:
+                states[i] = 1
+        return states

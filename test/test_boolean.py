@@ -277,3 +277,31 @@ class TestWTNetwork(unittest.TestCase):
 
         for expected in bio_sequence:
             self.assertTrue(np.array_equal(expected, net.update(init)))
+
+    def test_split_threshold(self):
+        xs = [0,0,0]
+        self.assertEqual([1,0,0], bnet.WTNetwork.split_threshold([1, -1, 0], xs))
+        self.assertEqual([1,0,0], xs)
+
+        xs = [1,1,1]
+        self.assertEqual([1,0,1], bnet.WTNetwork.split_threshold([1, -1, 0], xs))
+        self.assertEqual([1,0,1], xs)
+
+    def test_negative_threshold(self):
+        xs = [0,0,0]
+        self.assertEqual([1,0,0], bnet.WTNetwork.negative_threshold([1, -1, 0], xs))
+        self.assertEqual([1,0,0], xs)
+
+        xs = [1,1,1]
+        self.assertEqual([1,0,0], bnet.WTNetwork.negative_threshold([1, -1, 0], xs))
+        self.assertEqual([1,0,0], xs)
+
+    def test_positive_threshold(self):
+        xs = [0,0,0]
+        self.assertEqual([1,0,1], bnet.WTNetwork.positive_threshold([1, -1, 0], xs))
+        self.assertEqual([1,0,1], xs)
+
+        xs = [1,1,1]
+        self.assertEqual([1,0,1], bnet.WTNetwork.positive_threshold([1, -1, 0], xs))
+        self.assertEqual([1,0,1], xs)
+

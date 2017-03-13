@@ -27,3 +27,17 @@ Methods
         .. automethod:: neet.boolean.WTNetwork.state_space
 
         .. automethod:: neet.boolean.WTNetwork.update
+
+Static Methods
+^^^^^^^^^^^^^^
+
+        .. automethod:: neet.boolean.WTNetwork.read
+
+Threshold Functions
+^^^^^^^^^^^^^^^^^^^
+
+        .. automethod:: neet.boolean.WTNetwork.split_threshold
+
+        .. automethod:: neet.boolean.WTNetwork.negative_threshold
+
+        .. automethod:: neet.boolean.WTNetwork.positive_threshold
