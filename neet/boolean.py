@@ -9,11 +9,11 @@ class WTNetwork(object):
     def __init__(self, weights, thresholds=None):
         """
         Construct a network from weights and thresholds.
-        
+
         .. rubric:: Examples
-        
+
         ::
-        
+
             >>> net = WTNetwork([[1,0],[1,1]])
             >>> net.size
             2
@@ -24,7 +24,7 @@ class WTNetwork(object):
             array([ 0.,  0.])
 
         ::
-        
+
             >>> net = WTNetwork([[1,0],[1,1]], [0.5,-0.5])
             >>> net.size
             2
@@ -41,13 +41,13 @@ class WTNetwork(object):
         :raises ValueError: if ``thresholds`` is not a vector
         :raises ValueError: if ``weights`` and ``thresholds`` have different dimensions
         """
-        self.weights = np.asarray(weights,    dtype=np.float)
+        self.weights = np.asarray(weights, dtype=np.float)
         shape = self.weights.shape
         if self.weights.ndim != 2:
             raise(ValueError("weights must be a matrix"))
         elif shape[0] != shape[1]:
             raise(ValueError("weights must be square"))
-                
+
         if thresholds is None:
             self.thresholds = np.zeros(shape[1], dtype=np.float)
         else:
@@ -134,7 +134,7 @@ class WTNetwork(object):
                 raise(ValueError("invalid node state in states"))
         return True
 
-    def _unsafe_update(self, lattice):
+    def _unsafe_update(self, states):
         """
         Update ``states``, in place, according to the network update rules
         without checking the validity of the arguments.
@@ -145,13 +145,13 @@ class WTNetwork(object):
         :type states: sequence
         :returns: the updated states
         """
-        temp = np.dot(self.__weights, lattice) - self.__thresholds
+        temp = np.dot(self.weights, states) - self.thresholds
         for (i,x) in enumerate(temp):
             if x < 0.0:
-                lattice[i] = 0
+                states[i] = 0
             elif x > 0.0:
-                lattice[i] = 1
-        return lattice
+                states[i] = 1
+        return states
 
     def update(self, states):
         """
@@ -173,7 +173,9 @@ class WTNetwork(object):
     def read(nodes_file, edges_file):
         """
         Read a network from a pair of node/edge files.
-        
+
+        .. rubric:: Examples:
+
         :returns: a :class:WTNetwork
         """
         comment = re.compile(r'^\s*#.*$')
