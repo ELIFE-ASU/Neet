@@ -6,35 +6,61 @@ import re
 from .landscape import StateSpace
 
 class WTNetwork(object):
-    def __init__(self, n):
+    def __init__(self, weights, thresholds=None):
         """
-        Construct a weight/threshold boolean network with ``n`` nodes.
-
-        .. rubric:: Example:
+        Construct a network from weights and thresholds.
+        
+        .. rubric:: Examples
+        
+        ::
+        
+            >>> net = WTNetwork([[1,0],[1,1]])
+            >>> net.size
+            2
+            >>> net.weights
+            array([[ 1.,  0.],
+                   [ 1.,  1.]])
+            >>> net.thresholds
+            array([ 0.,  0.])
 
         ::
-
-            >>> net = WTNetwork(5)
+        
+            >>> net = WTNetwork([[1,0],[1,1]], [0.5,-0.5])
             >>> net.size
-            5
-            >>> WTNetwork(0)
-            Traceback (most recent call last):
-                ...
-            ValueError: network must have at least one node
+            2
+            >>> net.weights
+            array([[ 1.,  0.],
+                   [ 1.,  1.]])
+            >>> net.thresholds
+            array([ 0.5, -0.5])
 
-        :param n: the number of boolean nodes in the network
-        :type n: int
-        :raise TypeError: if ``n`` is not an ``int``
-        :raise ValueError: if ``n < 1``
+        :param weights: the network weights
+        :param thresholds: the network thresholds
+        :raises ValueError: if ``weights`` is empty
+        :raises ValueError: if ``weights`` is not a square matrix
+        :raises ValueError: if ``thresholds`` is not a vector
+        :raises ValueError: if ``weights`` and ``thresholds`` have different dimensions
         """
-        if not isinstance(n, int):
-            raise(TypeError("n must be an int"))
-        if n < 1:
-            raise(ValueError("network must have at least one node"))
+        self.weights = np.asarray(weights,    dtype=np.float)
+        shape = self.weights.shape
+        if self.weights.ndim != 2:
+            raise(ValueError("weights must be a matrix"))
+        elif shape[0] != shape[1]:
+            raise(ValueError("weights must be square"))
+                
+        if thresholds is None:
+            self.thresholds = np.zeros(shape[1], dtype=np.float)
+        else:
+            self.thresholds = np.asarray(thresholds, dtype=np.float)
 
-        self.__size       = n
-        self.__thresholds = np.zeros(n, dtype=np.float)
-        self.__weights    = np.zeros((n,n), dtype=np.float)
+        self.__size = self.thresholds.size
+
+        if self.thresholds.ndim != 1:
+            raise(ValueError("thresholds must be a vector"))
+        elif shape[0] != self.size:
+            raise(ValueError("weights and thresholds have different dimensions"))
+        elif self.size < 1:
+            raise(ValueError("invalid network size"))
 
     @property
     def size(self):
