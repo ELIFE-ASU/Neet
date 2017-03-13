@@ -188,26 +188,23 @@ class WTNetwork(object):
         :returns: a :class:WTNetwork
         """
         comment = re.compile(r'^\s*#.*$')
-        names = dict()
-        thresholds = []
-        index = 0
+        names, thresholds = [], []
+        nameindices, index = dict(), 0
         with open(nodes_file, "r") as f:
             for line in f.readlines():
                 if comment.match(line) is None:
                     name, threshold = line.strip().split()
-                    names[name] = index
+                    names.append(name)
+                    nameindices[name] = index
                     thresholds.append(float(threshold))
                     index += 1
 
         n = len(names)
-        weights = np.empty((n,n), dtype=np.float)
+        weights = np.zeros((n,n), dtype=np.float)
         with open(edges_file, "r") as f:
             for line in f.readlines():
                 if comment.match(line) is None:
                     a, b, w = line.strip().split()
-                    weights[names[b],names[a]] = float(w)
+                    weights[nameindices[b],nameindices[a]] = float(w)
 
-        net = WTNetwork(n)
-        net._WTNetwork__thresholds = np.asarray(thresholds)
-        net._WTNetwork__weights    = weights
-        return net, names
+        return WTNetwork(weights, thresholds, names)
