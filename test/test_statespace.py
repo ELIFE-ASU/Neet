@@ -65,6 +65,22 @@ class TestStateSpace(unittest.TestCase):
         self.assertEqual(3, spec.base)
         self.assertEqual(81, spec.volume)
 
+    def test_base_mismatch(self):
+        with self.assertRaises(ValueError):
+            StateSpace([2,2,2], b=3)
+
+        with self.assertRaises(ValueError):
+            StateSpace([3,3,3], b=2)
+
+        with self.assertRaises(ValueError):
+            StateSpace([2,2,3], b=2)
+
+        with self.assertRaises(ValueError):
+            StateSpace([2,2,3], b=3)
+
+        StateSpace([2,2,2], b=2)
+        StateSpace([3,3,3], b=3)
+
     def test_uniform_bases(self):
         spec = StateSpace([1,2,3,2,1])
         self.assertFalse(spec.is_uniform)

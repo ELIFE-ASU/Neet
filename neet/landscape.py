@@ -68,18 +68,22 @@ class StateSpace(object):
             else:
                 self.is_uniform = True
                 self.volume = 1
-                b = spec[0]
+                base = spec[0]
+                if b is not None and base != b:
+                    raise(ValueError("b does not match base of spec"))
                 for x in spec:
                     if not isinstance(x, int):
                         raise(TypeError("spec must be a list of ints"))
                     elif x < 1:
                         raise(ValueError("spec may only contain positive, nonzero elements"))
-                    if x != b:
+                    if self.is_uniform and x != base:
                         self.is_uniform = False
+                        if b is not None:
+                            raise(ValueError("b does not match base of spec"))
                     self.volume *= x
                 self.ndim = len(spec)
                 if self.is_uniform:
-                    self.base  = b
+                    self.base  = base
                 else:
                     self.bases = spec[:]
         else:
