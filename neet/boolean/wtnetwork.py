@@ -3,7 +3,7 @@
 # license that can be found in the LICENSE file.
 import numpy as np
 import re
-from .landscape import StateSpace
+from neet.landscape import StateSpace
 
 class WTNetwork(object):
     """
