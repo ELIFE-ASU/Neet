@@ -24,35 +24,7 @@ Weight/Threshold Networks
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. autoclass:: neet.boolean.WTNetwork
-
-Attributes
-""""""""""
-
-        .. autoattribute:: neet.boolean.WTNetwork.size
-
-Initialization
-""""""""""""""
-
-        .. automethod:: neet.boolean.WTNetwork.__init__
-
-Methods
-"""""""
-
-        .. automethod:: neet.boolean.WTNetwork.state_space
-
-        .. automethod:: neet.boolean.WTNetwork.update
-
-        .. automethod:: neet.boolean.WTNetwork.check_states
-
-Unsafe Methods
-""""""""""""""
-
-        .. automethod:: neet.boolean.WTNetwork._unsafe_update
-
-Static Methods
-""""""""""""""
-
-        .. automethod:: neet.boolean.WTNetwork.read
+        :members: __init__, size, state_space, update, check_states, _unsafe_update, read
 
 Threshold Functions
 """""""""""""""""""
