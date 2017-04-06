@@ -6,6 +6,20 @@ API Documentation
 
 .. automodule:: neet.boolean
 
+Example Networks
+^^^^^^^^^^^^^^^^
+
+.. automodule:: neet.boolean.examples
+
+Yeast Networks
+""""""""""""""""""
+
+    .. autoattribute:: neet.boolean.examples.s_pombe
+        :annotation: = <neet.boolean.WTNetwork object>
+
+    .. autoattribute:: neet.boolean.examples.s_cerevisiae
+        :annotation: = <neet.boolean.WTNetwork object>
+
 Weight/Threshold Networks
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 

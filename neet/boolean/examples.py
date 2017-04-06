@@ -1,6 +1,10 @@
 # Copyright 2017 ELIFE. All rights reserved.
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
+"""
+The examples module provides a collection of pre-loaded model networks such
+as :py:attr:`s_pombe` (fission yeast) and :py:attr:`s_cerevisiae` (budding yeast).
+"""
 from neet.boolean import WTNetwork
 from os.path import dirname, abspath, realpath, join
 
