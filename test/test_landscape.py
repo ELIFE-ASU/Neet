@@ -62,6 +62,39 @@ class TestCore(unittest.TestCase):
         self.assertEqual([0,1,0], xs)
         self.assertEqual([2,7,0], got)
 
+    def test_trajectory_wtnetwork_not_encoded(self):
+        from neet.boolean import WTNetwork
+        net = WTNetwork(
+            weights    = [[1,0],[-1,0]],
+            thresholds = [0.5,0.0],
+            theta      = WTNetwork.positive_threshold
+        )
+
+        xs = [0,0]
+        got = list(trajectory(net, xs))
+        self.assertEqual([0,0], xs)
+        self.assertEqual([[0,0],[0,1]], got)
+
+        got = list(trajectory(net, xs, n=3))
+        self.assertEqual([0,0], xs)
+        self.assertEqual([[0,0],[0,1],[0,1],[0,1]], got)
+
+    def test_trajectory_wtnetwork_encoded(self):
+        from neet.boolean import WTNetwork
+        net = WTNetwork(
+            weights    = [[1,0],[-1,0]],
+            thresholds = [0.5,0.0],
+            theta      = WTNetwork.positive_threshold
+        )
+
+        xs = [0,0]
+        got = list(trajectory(net, xs, encode=True))
+        self.assertEqual([0,0], xs)
+        self.assertEqual([0,2], got)
+
+        got = list(trajectory(net, xs, n=3, encode=True))
+        self.assertEqual([0,0], xs)
+        self.assertEqual([0,2,2,2], got)
 
     def test_transitions_not_network(self):
         with self.assertRaises(TypeError):
@@ -97,3 +130,32 @@ class TestCore(unittest.TestCase):
         got = list(transitions(rule30, n=3, encode=False))
         self.assertEqual([[0,0,0],[1,1,1],[1,1,1],[1,0,0]
                          ,[1,1,1],[0,0,1],[0,1,0],[0,0,0]], got)
+
+    def test_transitions_wtnetwork_encoded(self):
+        from neet.boolean import WTNetwork
+        net = WTNetwork(
+            weights    = [[1,0],[-1,1]],
+            thresholds = [0.5,0.0],
+            theta      = WTNetwork.positive_threshold
+        )
+
+        with self.assertRaises(TypeError):
+            list(transitions(net, n=1))
+
+        got = list(transitions(net))
+        self.assertEqual([2,1,2,3], got)
+
+    def test_transitions_eca_not_encoded(self):
+        from neet.boolean import WTNetwork
+        net = WTNetwork(
+            weights    = [[1,0],[-1,1]],
+            thresholds = [0.5,0.0],
+            theta      = WTNetwork.positive_threshold
+        )
+
+        with self.assertRaises(TypeError):
+            list(transitions(net, n=1, encode=False))
+
+        got = list(transitions(net, encode=False))
+        self.assertEqual([[0,1],[1,0],[0,1],[1,1]], got)
+
