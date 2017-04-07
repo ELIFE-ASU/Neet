@@ -4,9 +4,10 @@ Neet
 Neet is a python library for simulating network dynamics.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 5
    :caption: Contents:
-   
+
+   landscape
    automata
 
 

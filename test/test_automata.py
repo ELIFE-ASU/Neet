@@ -6,6 +6,18 @@ import neet.automata as ca
 import numpy as np
 
 class TestECA(unittest.TestCase):
+    def test_is_network(self):
+        from neet.interfaces import is_network
+        self.assertTrue(is_network(ca.ECA))
+        self.assertTrue(is_network(ca.ECA(23)))
+
+
+    def test_is_not_fixed_sized(self):
+        from neet.interfaces import is_fixed_sized
+        self.assertFalse(is_fixed_sized(ca.ECA))
+        self.assertFalse(is_fixed_sized(ca.ECA(23)))
+
+
     def test_fail_init(self):
         with self.assertRaises(ValueError):
             ca.ECA(-1)
@@ -71,6 +83,17 @@ class TestECA(unittest.TestCase):
         with self.assertRaises(TypeError):
             eca.boundary = [0,1]
 
+    def test_state_space(self):
+        with self.assertRaises(ValueError):
+            ca.ECA(30).state_space(0)
+
+        with self.assertRaises(ValueError):
+            ca.ECA(30).state_space(-1)
+
+        eca = ca.ECA(30)
+        self.assertEqual(2, len(list(eca.state_space(1).states())))
+        self.assertEqual(4, len(list(eca.state_space(2).states())))
+        self.assertEqual(8, len(list(eca.state_space(3).states())))
 
     def test_check_lattice_list(self):
         self.assertTrue(ca.ECA.check_lattice([0]))
@@ -94,12 +117,12 @@ class TestECA(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             ca.ECA.check_lattice([[1],[0],[2]])
-            
-            
+
+
     def test_check_lattice_string(self):
         with self.assertRaises(ValueError):
             ca.ECA.check_lattice("101")
-            
+
 
     def test_check_lattice_numpy(self):
         self.assertTrue(ca.ECA.check_lattice(np.asarray([0])))
@@ -123,7 +146,7 @@ class TestECA(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             ca.ECA.check_lattice(np.asarray([[1],[0],[2]]))
-            
+
 
     def test_lattice_empty_update(self):
         eca = ca.ECA(30)
