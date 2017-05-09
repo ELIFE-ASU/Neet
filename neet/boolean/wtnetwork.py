@@ -335,15 +335,22 @@ class WTNetwork(object):
     @staticmethod
     def negative_threshold(values, states):
         """
-        The negative threshold applies the following functional to each value in
-        ``values`` and stores the result in ``states``.
+        Applies the following functional form to the arguments:
 
         .. math::
 
             \\theta_n(x) = \\begin{cases}
                 0 & x \\leq 0 \\\\
-                1 & x > 0
+                1 & x > 0.
             \\end{cases}
+
+        If ``values`` and ``states`` are iterable, then apply the above
+        function to each pair ``(x,y) in zip(values, states)`` and stores
+        the result in ``states``.
+
+        If ``values`` and ``states`` are scalar values, then simply apply
+        the above threshold function to the pair ``(values, states)`` and
+        return the result.
 
         .. rubric:: Examples:
 
@@ -359,17 +366,31 @@ class WTNetwork(object):
             [1, 0, 0]
             >>> xs
             [1, 0, 0]
+            >>> WTNetwork.negative_threshold(0,0)
+            0
+            >>> WTNetwork.negative_threshold(0,1)
+            0
+            >>> WTNetwork.negative_threshold(1,0)
+            1
+            >>> WTNetwork.negative_threshold(1,1)
+            1
 
         :param values: the threshold-shifted values of each node
         :param states: the pre-updated states of the nodes
         :returns: the updated states
         """
-        for i, x in enumerate(values):
-            if x <= 0:
-                states[i] = 0
+        if isinstance(values, list) or isinstance(values, np.ndarray):
+            for i, x in enumerate(values):
+                if x <= 0:
+                    states[i] = 0
+                else:
+                    states[i] = 1
+            return states
+        else:
+            if values <= 0:
+                return 0
             else:
-                states[i] = 1
-        return states
+                return 1
 
     @staticmethod
     def positive_threshold(values, states):

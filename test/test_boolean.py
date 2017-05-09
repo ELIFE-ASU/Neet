@@ -390,6 +390,20 @@ class TestWTNetwork(unittest.TestCase):
         self.assertEqual([1,0,0], bnet.WTNetwork.negative_threshold([1, -1, 0], xs))
         self.assertEqual([1,0,0], xs)
 
+
+    def test_negative_threshold_scalar(self):
+        test = {
+            ( 1, 0) : 1,
+            ( 0, 0) : 0,
+            (-1, 0) : 0,
+            ( 1, 1) : 1,
+            ( 0, 1) : 0,
+            (-1, 1) : 0,
+        }
+        for x, s in test:
+            self.assertEqual(test[(x,s)], bnet.WTNetwork.negative_threshold(x,s))
+
+
     def test_positive_threshold(self):
         xs = [0,0,0]
         self.assertEqual([1,0,1], bnet.WTNetwork.positive_threshold([1, -1, 0], xs))
