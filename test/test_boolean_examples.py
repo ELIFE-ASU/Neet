@@ -27,6 +27,6 @@ class TestBooleanExamples(unittest.TestCase):
         ex.mouse_cortical_post_final_7C]
 
         for mouse_network in mouse_networks:
-            self.assertEqual(10, mouse_network)
+            self.assertEqual(10, mouse_network.size)
             self.assertEqual(["gF","gE","gP","gC","gS","pF","pE","pP","pC","pS"],
-                mouse_network)
+                mouse_network.names)
