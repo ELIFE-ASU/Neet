@@ -20,7 +20,7 @@ setup(
     url='https://github.com/elife-asu/neet',
     license=license,
     requires=['numpy'],
-    packages=['neet'],
+    packages=['neet', 'neet.boolean'],
     test_suite='test',
     platforms=['Windows', 'OS X', 'Linux']
 )

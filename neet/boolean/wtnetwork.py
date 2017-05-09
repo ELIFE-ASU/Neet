@@ -3,7 +3,7 @@
 # license that can be found in the LICENSE file.
 import numpy as np
 import re
-from .landscape import StateSpace
+from neet.landscape import StateSpace
 
 class WTNetwork(object):
     """
@@ -235,6 +235,8 @@ class WTNetwork(object):
     def read(nodes_file, edges_file):
         """
         Read a network from a pair of node/edge files.
+
+        Note that the node names cannot have spaces in them.
 
         .. rubric:: Examples:
 
