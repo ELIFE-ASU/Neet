@@ -236,6 +236,8 @@ class WTNetwork(object):
         """
         Read a network from a pair of node/edge files.
 
+        Note that the node names cannot have spaces in them.
+
         .. rubric:: Examples:
 
         ::
