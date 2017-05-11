@@ -20,7 +20,7 @@ The cell cycle network for *S. pombe* (fission yeast).
 """
 s_pombe = WTNetwork.read(S_POMBE_NODES, S_POMBE_EDGES)
 
-# Get the path of the nodse and edges files for the budding yeast cell cycle
+# Get the path of the nodes and edges files for the budding yeast cell cycle
 S_CEREVISIAE_NODES = join(DATA_PATH, "s_cerevisiae-nodes.txt")
 S_CEREVISIAE_EDGES = join(DATA_PATH, "s_cerevisiae-edges.txt")
 """
