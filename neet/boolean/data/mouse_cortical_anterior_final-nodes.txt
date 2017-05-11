@@ -1,0 +1,10 @@
+gF 1
+gE 0
+gP 1
+gC 0
+gS 1
+pF 1
+pE 0
+pP 1
+pC 0
+pS 1
