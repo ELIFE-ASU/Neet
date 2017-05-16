@@ -158,7 +158,7 @@ class WTNetwork(object):
                 raise(ValueError("invalid node state in states"))
         return True
 
-    def _unsafe_update(self, states):
+    def _unsafe_update(self, states, index=None):
         """
         Update ``states``, in place, according to the network update rules
         without checking the validity of the arguments.
@@ -178,22 +178,43 @@ class WTNetwork(object):
 
         ::
 
+            >>> xs = [0,0,0,0,1,0,0,0,0]
+            >>> net._unsafe_update(xs, -1)
+            [0, 0, 0, 0, 1, 0, 0, 0, 1]
+            >>> net._unsafe_update(xs, 2)
+            [0, 0, 1, 0, 1, 0, 0, 0, 1]
+            >>> net._unsafe_update(xs, 3)
+            [0, 0, 1, 1, 1, 0, 0, 0, 1]
+
+        ::
+
             >>> net._unsafe_update([0,0,0])
             Traceback (most recent call last):
                 ...
             ValueError: shapes (9,9) and (3,) not aligned: 9 (dim 1) != 3 (dim 0)
             >>> net._unsafe_update([0,0,0,0,2,0,0,0,0])
             [0, 0, 0, 0, 0, 0, 0, 0, 1]
-
+            >>> net._unsafe_update([0,0,0,0,1,0,0,0,0], 9)
+            Traceback (most recent call last):
+                ...
+            IndexError: index 9 is out of bounds for axis 0 with size 9
 
         :param states: the one-dimensional sequence of node states
         :type states: sequence
+        :param index: the index to update or None
+        :type index: int or None
         :returns: the updated states
         """
-        temp = np.dot(self.weights, states) - self.thresholds
-        return self.theta(temp, states)
+        if index is None:
+            temp = np.dot(self.weights, states) - self.thresholds
+            return self.theta(temp, states)
+        else:
+            temp = np.dot(self.weights[index], states) - self.thresholds[index]
+            states[index] = self.theta(temp, states[index])
+            return states
 
-    def update(self, states):
+
+    def update(self, states, index=None):
         """
         Update ``states``, in place, according to the network update rules.
 
@@ -212,6 +233,16 @@ class WTNetwork(object):
 
         ::
 
+            >>> xs = [0,0,0,0,1,0,0,0,0]
+            >>> net.update(xs, -1)
+            [0, 0, 0, 0, 1, 0, 0, 0, 1]
+            >>> net.(xs, 2)
+            [0, 0, 1, 0, 1, 0, 0, 0, 1]
+            >>> net.(xs, 3)
+            [0, 0, 1, 1, 1, 0, 0, 0, 1]
+
+        ::
+
             >>> net.update([0,0,0])
             Traceback (most recent call last):
                 ...
@@ -220,16 +251,23 @@ class WTNetwork(object):
             Traceback (most recent call last):
                 ...
             ValueError: invalid node state in states
+            >>> net.update([0,0,0,0,1,0,0,0,0], 9)
+            Traceback (most recent call last):
+                ...
+            IndexError: index 9 is out of bounds for axis 0 with size 9
 
         :param states: the one-dimensional sequence of node states
         :type states: sequence
+        :param index: the index to update (or None)
+        :type index: int or None
         :returns: the updated states
         :raises TypeError: if ``states`` is not iterable
         :raises ValueError: if ``len(states)`` is not the number of nodes in the network
         :raises ValueError: if ``states[i] not in [0,1]`` for any node ``i``
+        :raises IndexError: if ``index is not None and index > len(states)``
         """
         self.check_states(states)
-        return self._unsafe_update(states)
+        return self._unsafe_update(states, index)
 
     @staticmethod
     def read(nodes_file, edges_file):
@@ -275,16 +313,23 @@ class WTNetwork(object):
     @staticmethod
     def split_threshold(values, states):
         """
-        The split threshold applies the following functional form to each pair
-        ``(x,y) in zip(values, states)`` and stores the result in ``states``.
+        Applies the following functional form to the arguments:
 
         .. math::
 
             \\theta_s(x,y) = \\begin{cases}
                 0 & x < 0 \\\\
                 y & x = 0 \\\\
-                1 & x > 0
+                1 & x > 0.
             \\end{cases}
+
+        If ``values`` and ``states`` are iterable, then apply the above
+        function to each pair ``(x,y) in zip(values, states)`` and stores
+        the result in ``states``.
+
+        If ``values`` and ``states`` are scalar values, then simply apply
+        the above threshold function to the pair ``(values, states)`` and
+        return the result.
 
         .. rubric:: Examples:
 
@@ -300,30 +345,52 @@ class WTNetwork(object):
             [1, 0, 1]
             >>> xs
             [1, 0, 1]
+            >>> WTNetwork.split_threshold(0,0)
+            0
+            >>> WTNetwork.split_threshold(0,1)
+            1
+            >>> WTNetwork.split_threshold(1,0)
+            1
+            >>> WTNetwork.split_threshold(1,1)
+            1
 
         :param values: the threshold-shifted values of each node
         :param states: the pre-updated states of the nodes
         :returns: the updated states
         """
-        for i, x in enumerate(values):
-            if x < 0:
-                states[i] = 0
-            elif x > 0:
-                states[i] = 1
-        return states
+        if isinstance(values, list) or isinstance(values, np.ndarray):
+            for i, x in enumerate(values):
+                if x < 0:
+                    states[i] = 0
+                elif x > 0:
+                    states[i] = 1
+            return states
+        else:
+            if values < 0:
+                return 0
+            elif values > 0:
+                return 1
+            return states
 
     @staticmethod
     def negative_threshold(values, states):
         """
-        The negative threshold applies the following functional to each value in
-        ``values`` and stores the result in ``states``.
+        Applies the following functional form to the arguments:
 
         .. math::
 
             \\theta_n(x) = \\begin{cases}
                 0 & x \\leq 0 \\\\
-                1 & x > 0
+                1 & x > 0.
             \\end{cases}
+
+        If ``values`` and ``states`` are iterable, then apply the above
+        function to each pair ``(x,y) in zip(values, states)`` and stores
+        the result in ``states``.
+
+        If ``values`` and ``states`` are scalar values, then simply apply
+        the above threshold function to the pair ``(values, states)`` and
+        return the result.
 
         .. rubric:: Examples:
 
@@ -339,30 +406,51 @@ class WTNetwork(object):
             [1, 0, 0]
             >>> xs
             [1, 0, 0]
+            >>> WTNetwork.negative_threshold(0,0)
+            0
+            >>> WTNetwork.negative_threshold(0,1)
+            0
+            >>> WTNetwork.negative_threshold(1,0)
+            1
+            >>> WTNetwork.negative_threshold(1,1)
+            1
 
         :param values: the threshold-shifted values of each node
         :param states: the pre-updated states of the nodes
         :returns: the updated states
         """
-        for i, x in enumerate(values):
-            if x <= 0:
-                states[i] = 0
+        if isinstance(values, list) or isinstance(values, np.ndarray):
+            for i, x in enumerate(values):
+                if x <= 0:
+                    states[i] = 0
+                else:
+                    states[i] = 1
+            return states
+        else:
+            if values <= 0:
+                return 0
             else:
-                states[i] = 1
-        return states
+                return 1
 
     @staticmethod
     def positive_threshold(values, states):
         """
-        The positive threshold applies the following functional form to each
-        value in ``values`` and stores the result in ``states``.
+        Applies the following functional form to the arguments:
 
         .. math::
 
             \\theta_p(x) = \\begin{cases}
                 0 & x < 0 \\\\
-                1 & x \\geq 0
+                1 & x \\geq 0.
             \\end{cases}
+
+        If ``values`` and ``states`` are iterable, then apply the above
+        function to each pair ``(x,y) in zip(values, states)`` and stores
+        the result in ``states``.
+
+        If ``values`` and ``states`` are scalar values, then simply apply
+        the above threshold function to the pair ``(values, states)`` and
+        return the result.
 
         .. rubric:: Examples:
 
@@ -378,14 +466,28 @@ class WTNetwork(object):
             [1, 0, 1]
             >>> xs
             [1, 0, 1]
+            >>> WTNetwork.negative_threshold(0,0)
+            1
+            >>> WTNetwork.negative_threshold(0,1)
+            1
+            >>> WTNetwork.negative_threshold(1,0)
+            1
+            >>> WTNetwork.negative_threshold(-1,0)
+            0
 
         :param values: the threshold-shifted values of each node
         :param states: the pre-updated states of the nodes
         :returns: the updated states
         """
-        for i, x in enumerate(values):
-            if x < 0:
-                states[i] = 0
+        if isinstance(values, list) or isinstance(values, np.ndarray):
+            for i, x in enumerate(values):
+                if x < 0:
+                    states[i] = 0
+                else:
+                    states[i] = 1
+            return states
+        else:
+            if values < 0:
+                return 0
             else:
-                states[i] = 1
-        return states
+                return 1
