@@ -1,0 +1,16 @@
+ATM -2
+p53 -1
+Mdm2 -1
+MdmX -1
+Wip1 1
+cyclinG 1
+PTEN 1
+p21 1
+AKT -1
+cyclinE -1
+Rb 0
+E2F1 -1
+p14ARF 0
+Bcl2 0
+Bax 1
+caspase 1
