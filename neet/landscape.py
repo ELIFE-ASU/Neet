@@ -5,6 +5,7 @@ from .interfaces import is_network, is_fixed_sized
 
 import copy
 import numpy as np
+import networkx as nx
 
 class StateSpace(object):
     """
@@ -316,3 +317,45 @@ def transitions(net, n=None, encode=True):
             yield space.encode(state)
         else:
             yield state
+
+
+def transition_graph(net):
+    """
+    Return a networkx graph representing net's transition network.
+    
+    .. rubric:: Example:
+    
+    ::
+    
+        >>> from neet.boolean.examples import s_pombe
+        >>> g = landscape.transition_graph(s_pombe)
+        >>> g.number_of_edges()
+        512
+    """
+
+    if not is_network(net):
+        raise(TypeError("net is not a network"))
+
+    edgeList = enumerate( transitions(net) )
+    
+    return nx.DiGraph(edgeList)
+
+def attractors(net):
+    """
+    Return a generator that lists net's attractors.  Each attractor 
+    is represented as a list of 'encoded' states.
+    
+    .. rubric:: Example:
+    
+    ::
+    
+        >>> from neet.boolean.examples import s_pombe
+        >>> print(list(attractors(s_pombe)))
+        [[204], [200], [196], [140], [136], [132], [72], [68], 
+        [384, 110, 144], [12], [8], [4], [76]]
+        
+    """
+    g = transition_graph(net)
+    return nx.simple_cycles(g)
+
+
