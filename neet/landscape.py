@@ -319,7 +319,7 @@ def transitions(net, n=None, encode=True):
             yield state
 
 
-def transition_graph(net):
+def transition_graph(net, n=None):
     """
     Return a networkx graph representing net's transition network.
     
@@ -336,7 +336,7 @@ def transition_graph(net):
     if not is_network(net):
         raise(TypeError("net is not a network"))
 
-    edgeList = enumerate( transitions(net) )
+    edgeList = enumerate( transitions(net,n) )
     
     return nx.DiGraph(edgeList)
 
