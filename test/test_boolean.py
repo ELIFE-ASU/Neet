@@ -561,9 +561,12 @@ class TestWTNetwork(unittest.TestCase):
 
 
     def test_update_pin(self):
-        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
-          theta=bnet.WTNetwork.positive_threshold)
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0])
+
+        net.theta = bnet.WTNetwork.negative_threshold
         xs = [1,1]
         self.assertEqual([1,0], net.update(xs, pin=[0]))
+
+        net.theta = bnet.WTNetwork.positive_threshold
         xs = [0,0]
         self.assertEqual([0,0], net.update(xs, pin=[1]))
