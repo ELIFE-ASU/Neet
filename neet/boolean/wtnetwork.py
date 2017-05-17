@@ -274,6 +274,10 @@ class WTNetwork(object):
         :raises IndexError: if ``index is not None and index > len(states)``
         """
         self.check_states(states)
+
+        if (index is not None) and (pin is not None and pin != []):
+            raise(ValueError("cannot provide both the index and pin arguments"))
+
         return self._unsafe_update(states, index, pin)
 
     @staticmethod
