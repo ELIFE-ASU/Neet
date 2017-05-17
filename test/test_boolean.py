@@ -570,3 +570,22 @@ class TestWTNetwork(unittest.TestCase):
         net.theta = bnet.WTNetwork.positive_threshold
         xs = [0,0]
         self.assertEqual([0,0], net.update(xs, pin=[1]))
+
+    def test_pinning_s_pombe(self):
+        from neet.boolean.examples import s_pombe
+        self.assertEqual(
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            s_pombe.update([0,0,0,0,1,0,0,0,0], pin=[-1])
+        )
+        self.assertEqual(
+            [0, 0, 1, 1, 0, 0, 1, 0, 0],
+            s_pombe.update([0,0,0,0,0,0,0,0,1], pin=[1])
+        )
+        self.assertEqual(
+            [0, 0, 0, 0, 0, 0, 1, 0, 0],
+            s_pombe.update([0,0,0,0,0,0,0,0,1], pin=range(1,4))
+        )
+        self.assertEqual(
+            [0, 0, 0, 0, 0, 0, 1, 0, 1],
+            s_pombe.update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
+        )
