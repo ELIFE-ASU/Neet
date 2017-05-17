@@ -158,7 +158,7 @@ class WTNetwork(object):
                 raise(ValueError("invalid node state in states"))
         return True
 
-    def _unsafe_update(self, states, index=None):
+    def _unsafe_update(self, states, index=None, pin=None):
         """
         Update ``states``, in place, according to the network update rules
         without checking the validity of the arguments.
@@ -205,16 +205,23 @@ class WTNetwork(object):
         :type index: int or None
         :returns: the updated states
         """
+        pin_states = pin is not None and pin != []
         if index is None:
+            if pin_states:
+                pinned = np.asarray(states)[pin]
             temp = np.dot(self.weights, states) - self.thresholds
-            return self.theta(temp, states)
+            self.theta(temp, states)
+            if pin_states:
+                for (j,i) in enumerate(pin):
+                    states[i] = pinned[j]
+            return states
         else:
             temp = np.dot(self.weights[index], states) - self.thresholds[index]
             states[index] = self.theta(temp, states[index])
             return states
 
 
-    def update(self, states, index=None):
+    def update(self, states, index=None, pin=None):
         """
         Update ``states``, in place, according to the network update rules.
 
@@ -267,7 +274,7 @@ class WTNetwork(object):
         :raises IndexError: if ``index is not None and index > len(states)``
         """
         self.check_states(states)
-        return self._unsafe_update(states, index)
+        return self._unsafe_update(states, index, pin)
 
     @staticmethod
     def read(nodes_file, edges_file):
