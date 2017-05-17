@@ -548,6 +548,18 @@ class TestWTNetwork(unittest.TestCase):
         xs = [0,0]
         self.assertEqual([0,1], net.update(xs, pin=[]))
 
+
+    def test_update_pin_index_clash(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
+          theta=bnet.WTNetwork.positive_threshold)
+        with self.assertRaises(ValueError):
+          net.update([0,0], index=0, pin=[1])
+        with self.assertRaises(ValueError):
+          net.update([0,0], index=1, pin=[1])
+        with self.assertRaises(ValueError):
+          net.update([0,0], index=1, pin=[0,1])
+
+
     def test_update_pin(self):
         net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
           theta=bnet.WTNetwork.positive_threshold)
