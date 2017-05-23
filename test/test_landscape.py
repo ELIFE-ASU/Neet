@@ -4,6 +4,8 @@
 import unittest
 from neet.landscape import *
 import numpy as np
+from neet.boolean.examples import s_pombe
+from collections import Counter
 
 class TestCore(unittest.TestCase):
     class IsNetwork(object):
@@ -164,7 +166,6 @@ class TestCore(unittest.TestCase):
             transition_graph(self.IsNotNetwork())
 
     def test_transition_graph_s_pombe(self):
-        from neet.boolean.examples import s_pombe
         g = transition_graph(s_pombe)
 
         # the transition graph should have number of nodes
@@ -174,10 +175,19 @@ class TestCore(unittest.TestCase):
                          g.number_of_nodes())
 
     def test_attractors_s_pombe(self):
-        from neet.boolean.examples import s_pombe
         att = list( attractors(s_pombe) )
 
         self.assertEqual(13, len(att))
                             
-    
+    def test_basins(self):
+        
+        b = basins(s_pombe)
+        
+        s_pombe_counter = Counter([378, 2, 2, 2, 104,6, 6,
+                                   2, 2, 2, 2, 2, 2])
+        b_counter = Counter([ len(c) for c in b ])
+                                  
+        self.assertEqual(s_pombe_counter,b_counter)
+
+
 
