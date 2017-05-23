@@ -2,6 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import unittest
+import numpy as np
 from neet.automata.reca import RewiredECA
 
 class TestRewiredECA(unittest.TestCase):
@@ -74,3 +75,20 @@ class TestRewiredECA(unittest.TestCase):
             RewiredECA(30)
         with self.assertRaises(ValueError):
             RewiredECA(30, boundary=(0, 0))
+
+
+    def test_size_init(self):
+        """
+        Ensure that size initialization is working correctly
+        """
+        eca = RewiredECA(30, size=2)
+        self.assertEqual(30, eca.code)
+        self.assertEqual(2, eca.size)
+        self.assertTrue(np.array_equal([[-1, 0], [0, 1], [1, 0]], eca.wiring))
+
+        eca = RewiredECA(23, boundary=(1, 0), size=5)
+        self.assertEqual(23, eca.code)
+        self.assertEqual(5, eca.size)
+        self.assertTrue(
+            np.array_equal([[-1, 0, 1, 2, 3], [0, 1, 2, 3, 4], [1, 2, 3, 4, 0]],
+                           eca.wiring))

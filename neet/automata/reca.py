@@ -1,6 +1,7 @@
 # Copyright 2017 ELIFE. All rights reserved.
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
+import numpy as np
 from neet.landscape import StateSpace
 from . import eca
 
@@ -36,10 +37,13 @@ class RewiredECA(eca.ECA):
                 raise ValueError("size must be positive, nonzero")
             else:
                 self.__size = size
-                self.__wiring = None
+                self.wiring = np.zeros((3, size), dtype=int)
+                self.wiring[0, :] = range(-1, size-1)
+                self.wiring[1, :] = range(0, size)
+                self.wiring[2, :-1] = range(1, size)
         elif wiring is not None:
             self.__size = None
-            self.__wiring = wiring
+            self.wiring = wiring
         else:
             raise ValueError("either size or wiring must be provided")
 
