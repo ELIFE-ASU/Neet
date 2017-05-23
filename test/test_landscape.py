@@ -178,7 +178,19 @@ class TestCore(unittest.TestCase):
         att = list( attractors(s_pombe) )
 
         self.assertEqual(13, len(att))
-                            
+    
+    def test_attractors_type(self):
+        att_from_graph = attractors(transition_graph(s_pombe))
+        att_from_network = attractors(s_pombe)
+        self.assertEqual(list(att_from_network),list(att_from_graph))
+    
+    def test_attractors_typeerror(self):
+        with self.assertRaises(TypeError):
+            attractors('blah')
+        
+        with self.assertRaises(TypeError):
+            attractors(nx.Graph()) # (undirected)
+    
     def test_basins(self):
         
         b = basins(s_pombe)
@@ -189,5 +201,19 @@ class TestCore(unittest.TestCase):
                                   
         self.assertEqual(s_pombe_counter,b_counter)
 
+    def test_basins_type(self):
+        b_from_graph = basins(transition_graph(s_pombe))
+        b_from_network = basins(s_pombe)
+        
+        edges_from_graph = [ g.edges() for g in b_from_graph ]
+        edges_from_network = [ g.edges() for g in b_from_network ]
+        
+        self.assertEqual(edges_from_network,edges_from_graph)
 
+    def test_basins_typeerror(self):
+        with self.assertRaises(TypeError):
+            basins('blah')
+
+        with self.assertRaises(TypeError):
+            basins(nx.Graph()) # (undirected)
 

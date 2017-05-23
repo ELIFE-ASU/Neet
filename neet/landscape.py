@@ -355,7 +355,13 @@ def attractors(net):
         [384, 110, 144], [12], [8], [4], [76]]
         
     """
-    g = transition_graph(net)
+    if is_network(net):
+        g = transition_graph(net)
+    elif isinstance(net,nx.DiGraph):
+        g = net
+    else:
+        raise TypeError("net must be a network or a networkx DiGraph")
+    
     return nx.simple_cycles(g)
 
 def basins(net):
@@ -367,7 +373,13 @@ def basins(net):
     
     ::
     """
-    g = transition_graph(net)
+    if is_network(net):
+        g = transition_graph(net)
+    elif isinstance(net,nx.DiGraph):
+        g = net
+    else:
+        raise TypeError("net must be a network or a networkx DiGraph")
+
     return nx.weakly_connected_component_subgraphs(g)
 
 
