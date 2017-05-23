@@ -65,6 +65,30 @@ class TestRewiredECA(unittest.TestCase):
             RewiredECA(30, size=0)
 
 
+    def test_invalid_wiring(self):
+        """
+        Ensure that init fails when an invalid wiring is provided
+        """
+        with self.assertRaises(TypeError):
+            RewiredECA(30, wiring=5)
+        with self.assertRaises(TypeError):
+            RewiredECA(30, wiring="apples")
+        with self.assertRaises(ValueError):
+            RewiredECA(30, wiring=[])
+        with self.assertRaises(ValueError):
+            RewiredECA(30, wiring=[-1, 0, 1])
+        with self.assertRaises(ValueError):
+            RewiredECA(30, wiring=np.asarray([-1, 0, 1]))
+        with self.assertRaises(ValueError):
+            RewiredECA(30, wiring=[[0], [0]])
+        with self.assertRaises(ValueError):
+            RewiredECA(30, wiring=[[0, 0], [0], [0]])
+        with self.assertRaises(ValueError):
+            RewiredECA(30, wiring=[[-2], [0], [0]])
+        with self.assertRaises(ValueError):
+            RewiredECA(30, wiring=[[1], [0], [0]])
+
+
     def test_invalid_size_wiring(self):
         """
         Ensure that size and wiring are not both provided, but at least one is
@@ -92,3 +116,32 @@ class TestRewiredECA(unittest.TestCase):
         self.assertTrue(
             np.array_equal([[-1, 0, 1, 2, 3], [0, 1, 2, 3, 4], [1, 2, 3, 4, 0]],
                            eca.wiring))
+
+
+    def test_wiring_init(self):
+        """
+        Ensure that wiring initialization is working correctly
+        """
+        eca = RewiredECA(30, wiring=[[0], [0], [0]])
+        self.assertEqual(30, eca.code)
+        self.assertEqual(1, eca.size)
+        self.assertTrue(np.array_equal([[0], [0], [0]], eca.wiring))
+
+        eca = RewiredECA(23, boundary=(1, 0), wiring=[[-1, -1, 0], [0, 1, 1], [2, 0, -1]])
+        self.assertEqual(23, eca.code)
+        self.assertEqual(3, eca.size)
+        self.assertTrue(
+            np.array_equal([[-1, -1, 0], [0, 1, 1], [2, 0, -1]],
+                           eca.wiring))
+
+
+    def test_setting_wiring(self):
+        """
+        Ensure that we cannot reshape the wiring
+        """
+        eca = RewiredECA(30, size=2)
+        with self.assertRaises(AttributeError):
+            eca.wiring = np.asarray([[0, 0, 0], [0, 0, 0], [0, 0, 0]])
+        self.assertEqual(-1, eca.wiring[0, 0])
+        eca.wiring[0, 0] = 0
+        self.assertEqual(0, eca.wiring[0, 0])

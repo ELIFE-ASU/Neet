@@ -37,15 +37,36 @@ class RewiredECA(eca.ECA):
                 raise ValueError("size must be positive, nonzero")
             else:
                 self.__size = size
-                self.wiring = np.zeros((3, size), dtype=int)
-                self.wiring[0, :] = range(-1, size-1)
-                self.wiring[1, :] = range(0, size)
-                self.wiring[2, :-1] = range(1, size)
+                self.__wiring = np.zeros((3, size), dtype=int)
+                self.__wiring[0, :] = range(-1, size-1)
+                self.__wiring[1, :] = range(0, size)
+                self.__wiring[2, :-1] = range(1, size)
         elif wiring is not None:
-            self.__size = None
-            self.wiring = wiring
+            if not isinstance(wiring, list) and not isinstance(wiring, np.ndarray):
+                raise TypeError("wiring must be a list or an array")
+            wiring_array = np.copy(wiring)
+            shape = wiring_array.shape
+            if wiring_array.ndim != 2:
+                raise ValueError("wiring must be a matrix")
+            elif shape[0] != 3:
+                raise ValueError("wiring must have 3 rows")
+            elif np.any(wiring_array < -1):
+                raise ValueError("invalid input node in wiring")
+            elif np.any(wiring_array >= shape[1]):
+                raise ValueError("invalid input node in wiring")
+            self.__size = shape[1]
+            self.__wiring = wiring_array
         else:
             raise ValueError("either size or wiring must be provided")
+
+    @property
+    def wiring(self):
+        """
+        The wiring matrix for the rule.
+
+        :type: numpy.ndarray
+        """
+        return self.__wiring
 
     @property
     def size(self):
