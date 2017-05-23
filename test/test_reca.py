@@ -205,3 +205,26 @@ class TestRewiredECA(unittest.TestCase):
             expect = eca.update(np.copy(state))
             got = reca.update(state)
             self.assertTrue(np.array_equal(expect, got))
+
+
+    def test_rewired_network(self):
+        """
+        Test a non-trivially rewired network
+        """
+        reca = RewiredECA(30, wiring=[
+            [-1, 0, 1, 2, 3], [0, 1, 2, 3, 4], [1, 2, 3, 4, 5]
+        ])
+        state = [0, 0, 0, 0, 1]
+        self.assertEqual([1, 0, 0, 1, 1], reca.update(state))
+
+        reca.wiring[:, :] = [
+            [0, 4, 1, 2, 3], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
+        ]
+        state = [0, 0, 0, 0, 1]
+        self.assertEqual([0, 1, 0, 1, 1], reca.update(state))
+        self.assertEqual([0, 0, 0, 1, 0], reca.update(state))
+        self.assertEqual([0, 0, 1, 1, 1], reca.update(state))
+        self.assertEqual([0, 0, 1, 0, 0], reca.update(state))
+        self.assertEqual([0, 1, 1, 1, 0], reca.update(state))
+        self.assertEqual([0, 1, 0, 0, 1], reca.update(state))
+        self.assertEqual([0, 0, 1, 1, 1], reca.update(state))
