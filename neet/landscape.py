@@ -354,6 +354,10 @@ def attractors(net):
         [[204], [200], [196], [140], [136], [132], [72], [68], 
         [384, 110, 144], [12], [8], [4], [76]]
         
+    :param net: the network or landscape transition_graph
+    :type net: neet network or networkx DiGraph
+    :returns: generator of attractors
+    :raises TypeError: if ``net`` is not a network or DiGraph
     """
     if is_network(net):
         g = transition_graph(net)
@@ -372,6 +376,11 @@ def basins(net):
     .. rubric:: Example:
     
     ::
+    
+    :param net: the network or landscape transition_graph
+    :type net: neet network or networkx DiGraph
+    :returns: generator of basin subgraphs
+    :raises TypeError: if ``net`` is not a network or DiGraph
     """
     if is_network(net):
         g = transition_graph(net)
