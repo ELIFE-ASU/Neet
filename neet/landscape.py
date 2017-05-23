@@ -358,4 +358,19 @@ def attractors(net):
     g = transition_graph(net)
     return nx.simple_cycles(g)
 
+def basins(net):
+    """
+    Return a generator that lists net's basins.  Each basin
+    is a networkx graph.
+    
+    .. rubric:: Example:
+    
+    ::
+    """
+    g = transition_graph(net)
+    return nx.weakly_connected_component_subgraphs(g)
+
+
+
+
 
