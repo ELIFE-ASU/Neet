@@ -182,7 +182,7 @@ class ECA(object):
 
         return True
 
-    def _unsafe_update(self, lattice):
+    def _unsafe_update(self, lattice, index=None):
         """
         Update the state of the ``lattice``, in place, without
         checking the validity of the arguments.
@@ -219,15 +219,33 @@ class ECA(object):
             left  = lattice[-1]
             right = lattice[0]
         code = self.code
-        d = 2 * left + lattice[0]
-        for i in range(1, len(lattice)):
-            d = 7 & (2 * d + lattice[i])
-            lattice[i-1] = 1 & (code >> d)
-        d = 7 & (2 * d + right)
-        lattice[-1] = 1 & (code >> d)
+        if index is None:
+            d = 2 * left + lattice[0]
+            for i in range(1, len(lattice)):
+                d = 7 & (2 * d + lattice[i])
+                lattice[i-1] = 1 & (code >> d)
+            d = 7 & (2 * d + right)
+            lattice[-1] = 1 & (code >> d)
+        else:
+            if index < 0:
+                index += len(lattice)
+
+            if index == 0:
+                d = left
+            else:
+                d = lattice[index-1]
+
+            d = 2 * d + lattice[index]
+
+            if index + 1 == len(lattice):
+                d = 2 * d + right
+            else:
+                d = 2 * d + lattice[index+1]
+
+            lattice[index] = 1 & (code >> (7 & d))
         return lattice
 
-    def update(self, lattice):
+    def update(self, lattice, index=None):
         """
         Update the state of the ``lattice`` in place.
 
@@ -266,4 +284,6 @@ class ECA(object):
         :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
         """
         ECA.check_lattice(lattice)
-        return self._unsafe_update(lattice)
+        if index is not None and index < -len(lattice):
+            raise(IndexError("lattice index out of range"))
+        return self._unsafe_update(lattice, index)
