@@ -26,3 +26,51 @@ class TestRewiredECA(unittest.TestCase):
         self.assertTrue(is_fixed_sized(RewiredECA))
         self.assertTrue(is_fixed_sized(RewiredECA(23, size=3)))
         self.assertTrue(is_fixed_sized(RewiredECA(30, wiring=[[-1, 0, 1], [0, 1, 2], [1, 2, 0]])))
+
+
+    def test_invalid_code(self):
+        """
+        Ensure that init fails when an invalid Wolfram code is provided
+        """
+        with self.assertRaises(ValueError):
+            RewiredECA(-1, size=3)
+        with self.assertRaises(ValueError):
+            RewiredECA(256, size=3)
+        with self.assertRaises(TypeError):
+            RewiredECA("30", size=3)
+
+
+    def test_invalid_boundary(self):
+        """
+        Ensure that init fails when an invalid boundary condition is provided
+        """
+        with self.assertRaises(TypeError):
+            RewiredECA(30, boundary=[1, 2], size=3)
+        with self.assertRaises(ValueError):
+            RewiredECA(30, boundary=(1, 0, 1), size=3)
+        with self.assertRaises(ValueError):
+            RewiredECA(30, boundary=(1, 2), size=3)
+
+
+    def test_invalid_size(self):
+        """
+        Ensure that init fails when an invalid size is provided
+        """
+        with self.assertRaises(TypeError):
+            RewiredECA(30, size="3")
+        with self.assertRaises(ValueError):
+            RewiredECA(30, size=-1)
+        with self.assertRaises(ValueError):
+            RewiredECA(30, size=0)
+
+
+    def test_invalid_size_wiring(self):
+        """
+        Ensure that size and wiring are not both provided, but at least one is
+        """
+        with self.assertRaises(ValueError):
+            RewiredECA(30, size=3, wiring=[])
+        with self.assertRaises(ValueError):
+            RewiredECA(30)
+        with self.assertRaises(ValueError):
+            RewiredECA(30, boundary=(0, 0))

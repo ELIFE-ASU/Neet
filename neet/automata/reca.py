@@ -21,10 +21,27 @@ class RewiredECA(eca.ECA):
         :param size: the number of cells in the lattice
         :type size: int or None
         :param wiring: a wiring matrix
+        :raises ValueError: if `size is None and wiring is None`
+        :raises ValueError: if `size is not None and wiring is not None`
+        :raises TypeError: if `size is not None and not isinstance(size, int)`
+        :raises ValueError: if `size is not None and size <= 0`
         """
         super(RewiredECA, self).__init__(code, boundary=boundary)
-        self.__size = size
-        self.__wiring = wiring
+        if size is not None and wiring is not None:
+            raise ValueError("cannot provide size and wiring at the same time")
+        elif size is not None:
+            if not isinstance(size, int):
+                raise TypeError("size must be an int")
+            elif size <= 0:
+                raise ValueError("size must be positive, nonzero")
+            else:
+                self.__size = size
+                self.__wiring = None
+        elif wiring is not None:
+            self.__size = None
+            self.__wiring = wiring
+        else:
+            raise ValueError("either size or wiring must be provided")
 
     @property
     def size(self):
