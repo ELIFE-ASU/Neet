@@ -194,12 +194,24 @@ class ECA(object):
             >>> ca = ECA(30)
             >>> xs = [0,0,1,0,0]
             >>> ca._unsafe_update(xs)
+            [0, 1, 1, 1, 0]
             >>> xs
             [0, 1, 1, 1, 0]
             >>> ca.boundary = (0,1)
             >>> ca._unsafe_update(xs)
-            >>> xs
             [1, 1, 0, 0, 0]
+
+        ::
+
+            >>> ca = ECA(30)
+            >>> xs = [0,0,1,0,0]
+            >>> ca._unsafe_update(xs, index=1)
+            [0, 1, 1, 0, 0]
+            >>> xs
+            [0, 1, 1, 0, 0]
+            >>> ca.boundary = (0,1)
+            >>> ca._unsafe_update(xs, index=-1)
+            [0, 1, 1, 0, 1]
 
         ::
 
@@ -210,6 +222,8 @@ class ECA(object):
 
         :param lattice: the one-dimensional sequence of states
         :type lattice: sequence
+        :param index: the index to update (or None)
+        :type index: int
         :returns: the updated lattice
         """
         if self.boundary:
@@ -255,13 +269,13 @@ class ECA(object):
 
             >>> ca = ECA(30)
             >>> xs = [0,0,1,0,0]
-            >>> ca.update(xs)
+            >>> ca.update(xs, index=1)
+            [0, 1, 1, 0, 0]
             >>> xs
-            [0, 1, 1, 1, 0]
-            >>> ca.boundary = (0,1)
-            >>> ca.update(xs)
-            >>> xs
-            [1, 1, 0, 0, 0]
+            [0, 1, 1, 0, 0]
+            >>> ca.boundary = (1,1)
+            >>> ca.update(xs, index=-1)
+            [0, 1, 1, 0, 1]
 
         ::
 
@@ -275,13 +289,20 @@ class ECA(object):
             Traceback (most recent call last):
                 ...
             ValueError: invalid value "2" in lattice
+            >>> ca.update(xs, index=5)
+            Traceback (most recent call last):
+                  ...
+            IndexError: list index out of range
 
         :param lattice: the one-dimensional sequence of states
         :type lattice: sequence
+        :param index: the index to update (or None)
+        :type index: int
         :returns: the updated lattice
         :raises ValueError: if ``lattice`` is empty
         :raises TypeError: if ``lattice`` is not iterable
         :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
+        :raises IndexError: if ``index is not None and index > len(states)``
         """
         ECA.check_lattice(lattice)
         if index is not None and index < -len(lattice):
