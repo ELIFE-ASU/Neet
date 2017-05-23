@@ -145,3 +145,63 @@ class TestRewiredECA(unittest.TestCase):
         self.assertEqual(-1, eca.wiring[0, 0])
         eca.wiring[0, 0] = 0
         self.assertEqual(0, eca.wiring[0, 0])
+
+
+    def test_invalid_lattice_size(self):
+        """
+        Ensure that update fails when the lattice is the wrong size
+        """
+        eca = RewiredECA(30, size=3)
+        with self.assertRaises(ValueError):
+            eca.update([])
+        with self.assertRaises(ValueError):
+            eca.update([0])
+        with self.assertRaises(ValueError):
+            eca.update([0, 0])
+
+
+    def test_invalid_lattice_state(self):
+        """
+        Ensure that the states of the lattice are binary states
+        """
+        eca = RewiredECA(30, size=3)
+        with self.assertRaises(ValueError):
+            eca.update([-1, 0, 1])
+        with self.assertRaises(ValueError):
+            eca.update([1, 0, -1])
+        with self.assertRaises(ValueError):
+            eca.update([2, 0, 0])
+        with self.assertRaises(ValueError):
+            eca.update([1, 0, 2])
+        with self.assertRaises(ValueError):
+            eca.update([[1], [0], [2]])
+        with self.assertRaises(ValueError):
+            eca.update("101")
+
+
+    def test_reproduce_closed_ecas(self):
+        """
+        Ensure that RewiredECAs can reproduce closed ECAs
+        """
+        from neet.automata import ECA
+        reca = RewiredECA(30, size=7)
+        eca = ECA(30)
+        state = [0, 0, 0, 1, 0, 0, 0]
+        for _ in range(10):
+            expect = eca.update(np.copy(state))
+            got = reca.update(state)
+            self.assertTrue(np.array_equal(expect, got))
+
+
+    def test_reproduce_open_ecas(self):
+        """
+        Ensure that RewiredECAs can reproduce open ECAs
+        """
+        from neet.automata import ECA
+        reca = RewiredECA(30, boundary=(1, 0), size=7)
+        eca = ECA(30, boundary=(1, 0))
+        state = [0, 0, 0, 1, 0, 0, 0]
+        for _ in range(10):
+            expect = eca.update(np.copy(state))
+            got = reca.update(state)
+            self.assertTrue(np.array_equal(expect, got))

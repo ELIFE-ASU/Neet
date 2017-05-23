@@ -151,3 +151,95 @@ class RewiredECA(eca.ECA):
         :returns: :class:`StateSpace`
         """
         return StateSpace(self.__size, b=2)
+
+    def check_lattice(self, lattice):
+        r"""
+        Check the validity of the provided lattice
+
+        .. rubric:: Examples:
+
+        ::
+
+            >>> RewiredECA(30, size=1).check_lattice([0])
+            True
+            >>> RewiredECA(30, size=2).check_lattice([1,0])
+            True
+            >>> RewiredECA(30, size=3).check_lattice([0,0,1])
+            True
+
+        ::
+
+            >>> RewiredECA(30, size=3).check_lattice([])
+            Traceback (most recent call last):
+                ...
+            ValueError: lattice must be of length 3
+            >>> RewiredECA(30, size=3).check_lattice([0,0,2])
+            Traceback (most recent call last):
+                ...
+            ValueError: invalid value "2" in lattice
+            >>> RewiredECA(30, size=3).check_lattice(5)
+            Traceback (most recent call last):
+                ...
+            TypeError: 'int' object is not iterable
+            >>> RewiredECA(30, size=3).check_lattice("elife")
+            Traceback (most recent call last):
+                ...
+            ValueError: invalid value "e" in lattice
+
+        :returns: ``True`` if the lattice is valid, otherwise an error is raised
+        :raises ValueError: if ``len(lattice) != self.size``
+        :raises TypeError: if ``lattice`` is not iterable
+        :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
+        """
+        if len(lattice) != self.size:
+            raise ValueError("lattice must be of length {}".format(self.size))
+        super(RewiredECA, self).check_lattice(lattice)
+
+    def _unsafe_update(self, lattice):
+        """
+        Update the state of the ``lattice``, in place, without
+        checking the validity of the arguments.
+
+        .. rubric:: Examples:
+
+        :param lattice: the one-dimensional sequence of states
+        :type lattice: sequence
+        :returns: the updated lattice
+        """
+        if self.boundary:
+            left = self.boundary[0]
+            right = self.boundary[1]
+        else:
+            left = lattice[-1]
+            right = lattice[0]
+        code = self.code
+        wiring = self.wiring
+        temp = np.copy(lattice)
+        size = len(lattice)
+        for j in range(size):
+            shift = 0
+            for i in range(3):
+                k = wiring[i, j]
+                if k == -1:
+                    shift = 2 * shift + left
+                elif k == size:
+                    shift = 2 * shift + right
+                else:
+                    shift = 2 * shift + lattice[k]
+            temp[j] = 1 & (code >> (7 & shift))
+        lattice[:] = temp[:]
+        return lattice
+
+    def update(self, lattice):
+        r"""
+        Update the state of the ``lattice`` in place.
+
+        :param lattice: the one-dimensional sequence of states
+        :type lattice: sequence
+        :returns: the updated lattice
+        :raises ValueError: if ``len(lattice) != self.size``
+        :raises TypeError: if ``lattice`` is not iterable
+        :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
+        """
+        self.check_lattice(lattice)
+        return self._unsafe_update(lattice)
