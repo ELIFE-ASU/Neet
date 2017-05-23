@@ -16,7 +16,7 @@ class TestRewiredECA(unittest.TestCase):
         from neet.interfaces import is_network
         self.assertTrue(is_network(RewiredECA))
         self.assertTrue(is_network(RewiredECA(23, size=3)))
-        self.assertTrue(is_network(RewiredECA(30, wiring=[[-1, 0, 1], [0, 1, 2], [1, 2, 0]])))
+        self.assertTrue(is_network(RewiredECA(30, wiring=[[-1, 0, 1], [0, 1, 2], [1, 2, 3]])))
 
 
     def test_is_fixed_sized(self):
@@ -26,7 +26,7 @@ class TestRewiredECA(unittest.TestCase):
         from neet.interfaces import is_fixed_sized
         self.assertTrue(is_fixed_sized(RewiredECA))
         self.assertTrue(is_fixed_sized(RewiredECA(23, size=3)))
-        self.assertTrue(is_fixed_sized(RewiredECA(30, wiring=[[-1, 0, 1], [0, 1, 2], [1, 2, 0]])))
+        self.assertTrue(is_fixed_sized(RewiredECA(30, wiring=[[-1, 0, 1], [0, 1, 2], [1, 2, 3]])))
 
 
     def test_invalid_code(self):
@@ -86,7 +86,7 @@ class TestRewiredECA(unittest.TestCase):
         with self.assertRaises(ValueError):
             RewiredECA(30, wiring=[[-2], [0], [0]])
         with self.assertRaises(ValueError):
-            RewiredECA(30, wiring=[[1], [0], [0]])
+            RewiredECA(30, wiring=[[2], [0], [0]])
 
 
     def test_invalid_size_wiring(self):
@@ -108,13 +108,13 @@ class TestRewiredECA(unittest.TestCase):
         eca = RewiredECA(30, size=2)
         self.assertEqual(30, eca.code)
         self.assertEqual(2, eca.size)
-        self.assertTrue(np.array_equal([[-1, 0], [0, 1], [1, 0]], eca.wiring))
+        self.assertTrue(np.array_equal([[-1, 0], [0, 1], [1, 2]], eca.wiring))
 
         eca = RewiredECA(23, boundary=(1, 0), size=5)
         self.assertEqual(23, eca.code)
         self.assertEqual(5, eca.size)
         self.assertTrue(
-            np.array_equal([[-1, 0, 1, 2, 3], [0, 1, 2, 3, 4], [1, 2, 3, 4, 0]],
+            np.array_equal([[-1, 0, 1, 2, 3], [0, 1, 2, 3, 4], [1, 2, 3, 4, 5]],
                            eca.wiring))
 
 

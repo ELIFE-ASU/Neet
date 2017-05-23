@@ -27,11 +27,11 @@ class RewiredECA(eca.ECA):
             >>> reca.wiring
             array([[-1,  0,  1],
                    [ 0,  1,  2],
-                   [ 1,  2,  0]])
+                   [ 1,  2,  3]])
 
         ::
 
-            >>> reca = RewiredECA(30, wiring=[[0,1,2],[-1,0,0],[2,2,1]])
+            >>> reca = RewiredECA(30, wiring=[[0,1,2],[-1,0,0],[2,3,1]])
             >>> reca.code
             30
             >>> reca.size
@@ -39,7 +39,7 @@ class RewiredECA(eca.ECA):
             >>> reca.wiring
             array([[ 0,  1,  2],
                    [-1,  0,  0],
-                   [ 2,  2,  1]])
+                   [ 2,  3,  1]])
 
         :param code: the 8-bit Wolfram code for the rule
         :type code: int
@@ -55,7 +55,7 @@ class RewiredECA(eca.ECA):
         :raises TypeError: if ``not isinstance(wiring, list) and not
             isinstance(wiring, numpy.ndarray)``
         :raises ValueError: if ``wiring`` is not :math:`3 \times N`
-        :raises ValueError: if ``any(wiring < -1) or any(wiring >= N)``
+        :raises ValueError: if ``any(wiring < -1) or any(wiring > N)``
         """
         super(RewiredECA, self).__init__(code, boundary=boundary)
         if size is not None and wiring is not None:
@@ -70,7 +70,7 @@ class RewiredECA(eca.ECA):
                 self.__wiring = np.zeros((3, size), dtype=int)
                 self.__wiring[0, :] = range(-1, size-1)
                 self.__wiring[1, :] = range(0, size)
-                self.__wiring[2, :-1] = range(1, size)
+                self.__wiring[2, :] = range(1, size+1)
         elif wiring is not None:
             if not isinstance(wiring, list) and not isinstance(wiring, np.ndarray):
                 raise TypeError("wiring must be a list or an array")
@@ -82,7 +82,7 @@ class RewiredECA(eca.ECA):
                 raise ValueError("wiring must have 3 rows")
             elif np.any(wiring_array < -1):
                 raise ValueError("invalid input node in wiring")
-            elif np.any(wiring_array >= shape[1]):
+            elif np.any(wiring_array > shape[1]):
                 raise ValueError("invalid input node in wiring")
             self.__size = shape[1]
             self.__wiring = wiring_array
