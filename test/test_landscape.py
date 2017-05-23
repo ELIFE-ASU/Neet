@@ -4,6 +4,8 @@
 import unittest
 from neet.landscape import *
 import numpy as np
+from neet.boolean.examples import s_pombe
+from collections import Counter
 
 class TestCore(unittest.TestCase):
     class IsNetwork(object):
@@ -164,7 +166,6 @@ class TestCore(unittest.TestCase):
             transition_graph(self.IsNotNetwork())
 
     def test_transition_graph_s_pombe(self):
-        from neet.boolean.examples import s_pombe
         g = transition_graph(s_pombe)
 
         # the transition graph should have number of nodes
@@ -174,10 +175,45 @@ class TestCore(unittest.TestCase):
                          g.number_of_nodes())
 
     def test_attractors_s_pombe(self):
-        from neet.boolean.examples import s_pombe
         att = list( attractors(s_pombe) )
 
         self.assertEqual(13, len(att))
-                            
     
+    def test_attractors_type(self):
+        att_from_graph = attractors(transition_graph(s_pombe))
+        att_from_network = attractors(s_pombe)
+        self.assertEqual(list(att_from_network),list(att_from_graph))
+    
+    def test_attractors_typeerror(self):
+        with self.assertRaises(TypeError):
+            attractors('blah')
+        
+        with self.assertRaises(TypeError):
+            attractors(nx.Graph()) # (undirected)
+    
+    def test_basins(self):
+        
+        b = basins(s_pombe)
+        
+        s_pombe_counter = Counter([378, 2, 2, 2, 104,6, 6,
+                                   2, 2, 2, 2, 2, 2])
+        b_counter = Counter([ len(c) for c in b ])
+                                  
+        self.assertEqual(s_pombe_counter,b_counter)
+
+    def test_basins_type(self):
+        b_from_graph = basins(transition_graph(s_pombe))
+        b_from_network = basins(s_pombe)
+        
+        edges_from_graph = [ g.edges() for g in b_from_graph ]
+        edges_from_network = [ g.edges() for g in b_from_network ]
+        
+        self.assertEqual(edges_from_network,edges_from_graph)
+
+    def test_basins_typeerror(self):
+        with self.assertRaises(TypeError):
+            basins('blah')
+
+        with self.assertRaises(TypeError):
+            basins(nx.Graph()) # (undirected)
 

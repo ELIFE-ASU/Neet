@@ -28,6 +28,16 @@ The cell cycle network for *S. cerevisiae* (budding yeast).
 """
 s_cerevisiae = WTNetwork.read(S_CEREVISIAE_NODES, S_CEREVISIAE_EDGES)
 
+
+# Get the path of the nodes and edges files for C. elegans
+C_ELEGANS_NODES = join(DATA_PATH, "c_elegans-nodes.dat")
+C_ELEGANS_EDGES = join(DATA_PATH, "c_elegans-edges.dat")
+
+"""
+    The cell cycle network for *C. elegans*.
+"""
+c_elegans = WTNetwork.read(C_ELEGANS_NODES, C_ELEGANS_EDGES)
+
 # Get the path of the nodes and edges files for the p53 GRN w/no damage
 P53_NO_DMG_NODES = join(DATA_PATH, "p53_no_dmg-nodes.txt")
 P53_NO_DMG_EDGES = join(DATA_PATH, "p53_no_dmg-edges.txt")

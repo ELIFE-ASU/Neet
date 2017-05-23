@@ -354,8 +354,44 @@ def attractors(net):
         [[204], [200], [196], [140], [136], [132], [72], [68], 
         [384, 110, 144], [12], [8], [4], [76]]
         
+    :param net: the network or landscape transition_graph
+    :type net: neet network or networkx DiGraph
+    :returns: generator of attractors
+    :raises TypeError: if ``net`` is not a network or DiGraph
     """
-    g = transition_graph(net)
+    if is_network(net):
+        g = transition_graph(net)
+    elif isinstance(net,nx.DiGraph):
+        g = net
+    else:
+        raise TypeError("net must be a network or a networkx DiGraph")
+    
     return nx.simple_cycles(g)
+
+def basins(net):
+    """
+    Return a generator that lists net's basins.  Each basin
+    is a networkx graph.
+    
+    .. rubric:: Example:
+    
+    ::
+    
+    :param net: the network or landscape transition_graph
+    :type net: neet network or networkx DiGraph
+    :returns: generator of basin subgraphs
+    :raises TypeError: if ``net`` is not a network or DiGraph
+    """
+    if is_network(net):
+        g = transition_graph(net)
+    elif isinstance(net,nx.DiGraph):
+        g = net
+    else:
+        raise TypeError("net must be a network or a networkx DiGraph")
+
+    return nx.weakly_connected_component_subgraphs(g)
+
+
+
 
 

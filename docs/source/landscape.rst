@@ -32,3 +32,13 @@ Time Series Generation
     .. autofunction:: neet.landscape.trajectory
 
     .. autofunction:: neet.landscape.transitions
+
+Landscape Analysis Functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    .. autofunction:: neet.landscape.transition_graph
+
+    .. autofunction:: neet.landscape.attractors
+
+    .. autofunction:: neet.landscape.basins
+
