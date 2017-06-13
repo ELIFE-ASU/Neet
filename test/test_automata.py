@@ -260,3 +260,51 @@ class TestECA(unittest.TestCase):
         eca.update(lattice)
         self.assertTrue(np.array_equal([1,1,0,0,0], lattice))
 
+
+    def test_update_index_error(self):
+        eca = ca.ECA(30)
+        with self.assertRaises(IndexError):
+            eca.update([0,0], index=2)
+
+        with self.assertRaises(IndexError):
+            eca.update([0,0], index=-3)
+
+
+    def test_update_index(self):
+        eca = ca.ECA(30, (1,1))
+
+        lattice = [0,0,0,0,0]
+        eca.update(lattice, index=0)
+        self.assertEqual([1,0,0,0,0], lattice)
+
+        lattice = [0,0,0,0,0]
+        eca.update(lattice, index=1)
+        self.assertEqual([0,0,0,0,0], lattice)
+
+        lattice = [0,0,0,0,0]
+        eca.update(lattice, index=-1)
+        self.assertEqual([0,0,0,0,1], lattice)
+
+        lattice = [0,0,1,0,0]
+        eca.update(lattice, index=1)
+        self.assertEqual([0,1,1,0,0], lattice)
+
+
+    def test_update_index_numpy(self):
+        eca = ca.ECA(30, (1,1))
+
+        lattice = np.asarray([0,0,0,0,0])
+        eca.update(lattice, index=0)
+        self.assertTrue(np.array_equal([1,0,0,0,0], lattice))
+
+        lattice = np.asarray([0,0,0,0,0])
+        eca.update(lattice, index=1)
+        self.assertTrue(np.array_equal([0,0,0,0,0], lattice))
+
+        lattice = np.asarray([0,0,0,0,0])
+        eca.update(lattice, index=-1)
+        self.assertTrue(np.array_equal([0,0,0,0,1], lattice))
+
+        lattice = np.asarray([0,0,1,0,0])
+        eca.update(lattice, index=1)
+        self.assertTrue(np.array_equal([0,1,1,0,0], lattice))
