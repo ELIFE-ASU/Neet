@@ -2,7 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import unittest
-from neet.landscape import *
+from neet.synchronous import *
 import numpy as np
 from neet.boolean.examples import s_pombe
 from collections import Counter
