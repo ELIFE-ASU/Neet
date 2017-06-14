@@ -33,6 +33,8 @@ Time Series Generation
 
     .. autofunction:: neet.landscape.transitions
 
+    .. autofunction:: neet.landscape.timeseries
+
 Landscape Analysis Functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
