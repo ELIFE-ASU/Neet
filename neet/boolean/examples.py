@@ -28,6 +28,33 @@ The cell cycle network for *S. cerevisiae* (budding yeast).
 """
 s_cerevisiae = WTNetwork.read(S_CEREVISIAE_NODES, S_CEREVISIAE_EDGES)
 
+
+# Get the path of the nodes and edges files for C. elegans
+C_ELEGANS_NODES = join(DATA_PATH, "c_elegans-nodes.dat")
+C_ELEGANS_EDGES = join(DATA_PATH, "c_elegans-edges.dat")
+
+"""
+    The cell cycle network for *C. elegans*.
+"""
+c_elegans = WTNetwork.read(C_ELEGANS_NODES, C_ELEGANS_EDGES)
+
+# Get the path of the nodes and edges files for the p53 GRN w/no damage
+P53_NO_DMG_NODES = join(DATA_PATH, "p53_no_dmg-nodes.txt")
+P53_NO_DMG_EDGES = join(DATA_PATH, "p53_no_dmg-edges.txt")
+"""
+The p53 GRN with no damage present.
+"""
+
+p53_no_dmg = WTNetwork.read(P53_NO_DMG_NODES, P53_NO_DMG_EDGES)
+
+# Get the path of the nodes and edges files for the p53 GRN w/damage
+P53_DMG_NODES = join(DATA_PATH, "p53_dmg-nodes.txt")
+P53_DMG_EDGES = join(DATA_PATH, "p53_dmg-edges.txt")
+"""
+The p53 GRN with damage present.
+"""
+p53_dmg = WTNetwork.read(P53_DMG_NODES, P53_DMG_EDGES)
+
 # Get the path of the nodes and edges files for the mouse cortical gene regulatory network
 # Edges are from either figure 7B or 7C (Giacomantonio, 2010)
 

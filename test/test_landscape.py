@@ -159,3 +159,25 @@ class TestCore(unittest.TestCase):
         got = list(transitions(net, encode=False))
         self.assertEqual([[0,1],[1,0],[0,1],[1,1]], got)
 
+    def test_transition_graph_not_network(self):
+        with self.assertRaises(TypeError):
+            transition_graph(self.IsNotNetwork())
+
+    def test_transition_graph_s_pombe(self):
+        from neet.boolean.examples import s_pombe
+        g = transition_graph(s_pombe)
+
+        # the transition graph should have number of nodes
+        # equal to the volume of state space (the number of
+        # possible states)
+        self.assertEqual(s_pombe.state_space().volume,
+                         g.number_of_nodes())
+
+    def test_attractors_s_pombe(self):
+        from neet.boolean.examples import s_pombe
+        att = list( attractors(s_pombe) )
+
+        self.assertEqual(13, len(att))
+                            
+    
+
