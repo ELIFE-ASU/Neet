@@ -245,9 +245,7 @@ class TestCore(unittest.TestCase):
             series = timeseries(net, timesteps=time)
             self.assertEqual((size, 2**size, time+1), series.shape)
             for (index, state) in enumerate(net.state_space().states()):
-                traj = list(trajectory(net, state, n=time))
-                for t in range(time + 1):
-                    expect = traj[t]
+                for (t, expect) in enumerate(trajectory(net, state, n=time)):
                     got = series[:, index, t]
                     self.assertTrue(np.array_equal(expect, got))
 
@@ -258,8 +256,6 @@ class TestCore(unittest.TestCase):
             series = timeseries(rule, timesteps=time, size=size)
             self.assertEqual((size, 2**size, time+1), series.shape)
             for (index, state) in enumerate(rule.state_space(size).states()):
-                traj = list(trajectory(rule, state, n=time))
-                for t in range(time + 1):
-                    expect = traj[t]
+                for t, expect in enumerate(trajectory(rule, state, n=time)):
                     got = series[:, index, t]
                     self.assertTrue(np.array_equal(expect, got))
