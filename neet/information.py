@@ -312,6 +312,7 @@ class Architecture(object):
     def active_information(self, local=False):
         """
         Get the local or average active information
+
         :param local: whether to return local (True) or global active information
         :type local: bool
         :return: a numpy array containing the (local) active information
@@ -321,6 +322,7 @@ class Architecture(object):
     def entropy_rate(self, local=False):
         """
         Get the local or average entropy rate
+
         :param local: whether to return local (True) or global entropy rate
         :type local: bool
         :return: a numpy array containing the (local) entropy rate
@@ -330,6 +332,7 @@ class Architecture(object):
     def transfer_entropy(self, local=False):
         """
         Get the local or average transfer entropy
+
         :param local: whether to return local (True) or global transfer entropy
         :type local: bool
         :return: a numpy array containing the (local) transfer entropy
@@ -339,6 +342,7 @@ class Architecture(object):
     def mutual_information(self, local=False):
         """
         Get the local or average mutual information
+        
         :param local: whether to return local (True) or global mutual information
         :type local: bool
         :return: a numpy array containing the (local) mutual information
