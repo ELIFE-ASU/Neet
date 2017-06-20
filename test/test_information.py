@@ -5,7 +5,7 @@ import numpy as np
 import unittest
 from neet.automata import ECA
 from neet.boolean.examples import s_pombe
-from neet.information import active_information, entropy_rate, transfer_entropy, mutual_information
+from neet.information import Architecture, active_information, entropy_rate, transfer_entropy, mutual_information
 
 class TestInformation(unittest.TestCase):
     """
@@ -227,4 +227,80 @@ class TestInformation(unittest.TestCase):
         self.assertEqual((9, 9, 512, 21), computed_mi.shape)
         for i in range(9):
             for j in range(9):
-                self.assertAlmostEqual(known_mi[i,j], np.mean(computed_mi[i,j]), places=6)
+                self.assertAlmostEqual(known_mi[i, j], np.mean(computed_mi[i, j]), places=6)
+
+    def test_architecture_ai(self):
+        """
+        The architecture correctly computes the active information
+        """
+        k, timesteps = 5, 20
+        arch = Architecture(s_pombe, k=k, timesteps=timesteps)
+
+        expected_ai = active_information(s_pombe, k=k, timesteps=timesteps)
+        got_ai = arch.active_information()
+        self.assertEqual(got_ai.shape, expected_ai.shape)
+        for got, expected in zip(got_ai, expected_ai):
+            self.assertAlmostEqual(expected, got, places=6)
+
+        expected_ai = active_information(s_pombe, k=k, timesteps=timesteps, local=True)
+        got_ai = arch.active_information(local=True)
+        self.assertEqual(got_ai.shape, expected_ai.shape)
+        for got, expected in zip(got_ai.flatten(), expected_ai.flatten()):
+            self.assertAlmostEqual(expected, got, places=6)
+
+    def test_architecture_er(self):
+        """
+        The architecture correctly computes the entropy rate
+        """
+        k, timesteps = 5, 20
+        arch = Architecture(s_pombe, k=k, timesteps=timesteps)
+
+        expected_er = entropy_rate(s_pombe, k=k, timesteps=timesteps)
+        got_er = arch.entropy_rate()
+        self.assertEqual(got_er.shape, expected_er.shape)
+        for got, expected in zip(got_er, expected_er):
+            self.assertAlmostEqual(expected, got, places=6)
+
+        expected_er = entropy_rate(s_pombe, k=k, timesteps=timesteps, local=True)
+        got_er = arch.entropy_rate(local=True)
+        self.assertEqual(got_er.shape, expected_er.shape)
+        for got, expected in zip(got_er.flatten(), expected_er.flatten()):
+            self.assertAlmostEqual(expected, got, places=6)
+
+    def test_architecture_te(self):
+        """
+        The architecture correctly computes the transfer entropy
+        """
+        k, timesteps = 5, 20
+        arch = Architecture(s_pombe, k=k, timesteps=timesteps)
+
+        expected_te = transfer_entropy(s_pombe, k=k, timesteps=timesteps)
+        got_te = arch.transfer_entropy()
+        self.assertEqual(got_te.shape, expected_te.shape)
+        for got, expected in zip(got_te.flatten(), expected_te.flatten()):
+            self.assertAlmostEqual(expected, got, places=6)
+
+        expected_te = transfer_entropy(s_pombe, k=k, timesteps=timesteps, local=True)
+        got_te = arch.transfer_entropy(local=True)
+        self.assertEqual(got_te.shape, expected_te.shape)
+        for got, expected in zip(got_te.flatten(), expected_te.flatten()):
+            self.assertAlmostEqual(expected, got, places=6)
+
+    def test_architecture_mi(self):
+        """
+        The architecture correctly computes the mutual information
+        """
+        k, timesteps = 5, 20
+        arch = Architecture(s_pombe, k=k, timesteps=timesteps)
+
+        expected_mi = mutual_information(s_pombe, timesteps=timesteps)
+        got_mi = arch.mutual_information()
+        self.assertEqual(got_mi.shape, expected_mi.shape)
+        for got, expected in zip(got_mi.flatten(), expected_mi.flatten()):
+            self.assertAlmostEqual(expected, got, places=6)
+
+        expected_mi = mutual_information(s_pombe, timesteps=timesteps, local=True)
+        got_mi = arch.mutual_information(local=True)
+        self.assertEqual(got_mi.shape, expected_mi.shape)
+        for got, expected in zip(got_mi.flatten(), expected_mi.flatten()):
+            self.assertAlmostEqual(expected, got, places=6)

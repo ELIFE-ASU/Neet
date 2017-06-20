@@ -236,3 +236,111 @@ def mutual_information(net, timesteps, size=None, local=False):
             for j in range(shape[0]):
                 mutual_info[i, j] = pi.mutual_info(series[j], series[i], local=False)
     return mutual_info
+
+class Architecture(object):
+    """
+    A class to represent the k-history informational architecture of a network.
+    """
+    def __init__(self, net, k, timesteps, size=None):
+        """
+        Initialize the architecture given a network and enough information to
+        compute a time series.
+
+        During initialization the following measures are computed and cached:
+        * Local and Average Active Information Storage
+        * Local and Average Entropy Rate
+        * Local and Average Transfer Entropy
+        * Local and Average Mutual Information
+
+        :param net: a NEET network
+        :param k: the history length
+        :param timesteps: the number of timesteps to evaluate the network
+        :param size: the size of variable-sized network (or ``None``)
+        """
+        self.__k = k
+        self.__series = timeseries(net, timesteps=timesteps, size=size)
+        shape = self.__series.shape
+
+        self.__local_active_info = np.empty((shape[0], shape[1], shape[2]-k))
+        self.__local_entropy_rate = np.empty((shape[0], shape[1], shape[2]-k))
+        self.__local_transfer_entropy = np.empty((shape[0], shape[0], shape[1], shape[2]-k))
+        self.__local_mutual_info = np.empty((shape[0], shape[0], shape[1], shape[2]))
+
+        self.__active_info = np.empty(shape[0])
+        self.__entropy_rate = np.empty(shape[0])
+        self.__transfer_entropy = np.empty((shape[0], shape[0]))
+        self.__mutual_info = np.empty((shape[0], shape[0]))
+
+        self.__initialize()
+
+    def __initialize(self):
+        """
+        Initialize the internal variables storing the computed information
+        measures.
+        """
+        k = self.__k
+        series = self.__series
+        nodes = self.__series.shape[0]
+
+        local_active_info = self.__local_active_info
+        active_info = self.__active_info
+        for i in range(nodes):
+            local_active_info[i, :, :] = pi.active_info(series[i], k=k, local=True)
+            active_info[i] = np.mean(local_active_info[i, :, :])
+
+        local_entropy_rate = self.__local_entropy_rate
+        ent_rate = self.__entropy_rate
+        for i in range(nodes):
+            local_entropy_rate[i, :, :] = pi.entropy_rate(series[i], k=k, local=True)
+            ent_rate[i] = np.mean(local_entropy_rate[i, :, :])
+
+        local_transfer_entropy = self.__local_transfer_entropy
+        trans_entropy = self.__transfer_entropy
+        for i in range(nodes):
+            for j in range(nodes):
+                local_transfer_entropy[i, j, :, :] = pi.transfer_entropy(series[j], series[i],
+                                                                         k=k, local=True)
+                trans_entropy[i, j] = np.mean(local_transfer_entropy[i, j, :, :])
+
+        local_mutual_info = self.__local_mutual_info
+        mutual_info = self.__mutual_info
+        for i in range(nodes):
+            for j in range(nodes):
+                local_mutual_info[i, j, :, :] = pi.mutual_info(series[j], series[i], local=True)
+                mutual_info[i, j] = np.mean(local_mutual_info[i, j, :, :])
+
+    def active_information(self, local=False):
+        """
+        Get the local or average active information
+        :param local: whether to return local (True) or global active information
+        :type local: bool
+        :return: a numpy array containing the (local) active information
+        """
+        return self.__local_active_info if local else self.__active_info
+
+    def entropy_rate(self, local=False):
+        """
+        Get the local or average entropy rate
+        :param local: whether to return local (True) or global entropy rate
+        :type local: bool
+        :return: a numpy array containing the (local) entropy rate
+        """
+        return self.__local_entropy_rate if local else self.__entropy_rate
+
+    def transfer_entropy(self, local=False):
+        """
+        Get the local or average transfer entropy
+        :param local: whether to return local (True) or global transfer entropy
+        :type local: bool
+        :return: a numpy array containing the (local) transfer entropy
+        """
+        return self.__local_transfer_entropy if local else self.__transfer_entropy
+
+    def mutual_information(self, local=False):
+        """
+        Get the local or average mutual information
+        :param local: whether to return local (True) or global mutual information
+        :type local: bool
+        :return: a numpy array containing the (local) mutual information
+        """
+        return self.__local_mutual_info if local else self.__mutual_info
