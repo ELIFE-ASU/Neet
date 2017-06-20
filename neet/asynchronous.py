@@ -4,26 +4,29 @@
 import copy
 from .interfaces import is_network, is_fixed_sized
 
-def transitions(net):
+def transitions(net, size=None):
     """
     Compute the asynchronous updates for a network.
 
-    The implementation only provides support for fixed sized networks and
-    includes all state updates, regardless of whether or not the update changed
-    the state of the node in question.
+    The implementation includes all state updates, regardless of whether or not
+    the update changed the state of the node in question.
 
     :param net: the network
     :type net: network
+    :param size: the size of the network or None (if network is fixed-sized)
+    :type size: int or None
     :yields: a dictionary with encoded states and probabilities as keys and values
     """
     if not is_network(net):
         raise TypeError("net must adhere to NEET's network interface")
-    # We need support for variable sized networks
-    if not is_fixed_sized(net):
-        raise ValueError("network must have a fixed size")
+    if is_fixed_sized(net):
+        state_space = net.state_space()
+        size = net.size
+    elif size is not None:
+        state_space = net.state_space(size)
+    else:
+        raise ValueError("must provide a size if network is variable-sized")
 
-    state_space = net.state_space()
-    size = net.size
     # This will need to change when we consider unchanging node states
     k = 1.0 / size
     for state in state_space.states():

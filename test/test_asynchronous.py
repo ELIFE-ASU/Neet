@@ -3,6 +3,7 @@
 # license that can be found in the LICENSE file.
 import unittest
 from neet.asynchronous import transitions
+from neet.automata import ECA
 from neet.boolean.examples import s_pombe, s_cerevisiae, c_elegans
 from .mock import MockObject
 
@@ -34,3 +35,8 @@ class TestAsync(unittest.TestCase):
         for net in [s_pombe, s_cerevisiae, c_elegans]:
             for state in transitions(net):
                 self.assertAlmostEqual(1.0, sum(state.values()))
+
+        for net in [ECA(30), ECA(110), ECA(42)]:
+            for size in [5, 8, 10]:
+                for state in transitions(net, size):
+                    self.assertAlmostEqual(1.0, sum(state.values()))
