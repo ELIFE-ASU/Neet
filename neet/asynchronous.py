@@ -4,17 +4,16 @@
 import copy
 from .interfaces import is_network, is_fixed_sized
 
-def transitions(net, size=None):
+def transitions(net, size=None, require_update=False):
     """
     Compute the asynchronous updates for a network.
-
-    The implementation includes all state updates, regardless of whether or not
-    the update changed the state of the node in question.
 
     :param net: the network
     :type net: network
     :param size: the size of the network or None (if network is fixed-sized)
     :type size: int or None
+    :param require_update: whether or not to require a node to update
+    :type require_update: bool
     :yields: a dictionary with encoded states and probabilities as keys and values
     """
     if not is_network(net):
@@ -27,17 +26,22 @@ def transitions(net, size=None):
     else:
         raise ValueError("must provide a size if network is variable-sized")
 
-    # This will need to change when we consider unchanging node states
-    k = 1.0 / size
     for state in state_space.states():
+        count = 0
         # A dictionary will not work when we admit non-encoded network states
         next_states = dict()
         for node in range(size):
             next_state = copy.copy(state)
             net.update(next_state, index=node)
             state_code = state_space.encode(next_state)
-            if state_code in next_states:
-                next_states[state_code] += k
-            else:
-                next_states[state_code] = k
+            if (not require_update) or next_state[node] != state[node]:
+                if state_code in next_states:
+                    next_states[state_code] += 1.0
+                else:
+                    next_states[state_code] = 1.0
+                count += 1
+
+        for state_code in next_states:
+            next_states[state_code] /= count
+
         yield next_states
