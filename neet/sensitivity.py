@@ -14,7 +14,15 @@ def sensitivity(net, state):
         Letters, 93(4), 48701.
         http://doi.org/10.1103/PhysRevLett.93.048701
         
-    The sensitivity of a Boolean function f on state vector x is the number of Hamming neighbors of x on which the function value is different than on x. This should be straightforward to implement for synchronous networks.
+    The sensitivity of a Boolean function f on state vector x is the number of Hamming neighbors of x on which the function value is different than on x.
+    
+    .. rubric:: Examples
+    
+    ::
+    
+        >>> from neet.boolean.examples import s_pombe
+        >>> sensitivity(s_pombe,[0,0,0,0,0,1,1,1,1])
+        7
     """
 
     if not is_boolean_network(net):
@@ -43,7 +51,9 @@ def hamming_neighbors(state):
     ::
     
         >>> hamming_neighbors([0,0,1])
-        
+        array([[1, 0, 1],
+               [0, 1, 1],
+               [0, 0, 0]])
     """
     state = np.asarray(state, dtype=int)
     if len(state.shape) > 1:
@@ -55,5 +65,64 @@ def hamming_neighbors(state):
     neighbors = (repeat + np.diag(np.ones_like(state)))%2
     
     return neighbors
+
+def average_sensitivity(net,states=None,weights=None):
+    """
+    Calculate average Boolean network sensitivity, as defined in, e.g.,
+    
+    Shmulevich, I., & Kauffman, S. A. (2004). Activities and
+    sensitivities in Boolean network models. Physical Review
+    Letters, 93(4), 48701.
+    http://doi.org/10.1103/PhysRevLett.93.048701
+    
+    The sensitivity of a Boolean function f on state vector x is the number of Hamming neighbors of x on which the function value is different than on x.
+    
+    The average sensitivity is an average taken over initial states.
+    
+    .. rubric:: Examples
+    
+    ::
+    
+        >>> from neet.boolean.examples import s_pombe
+        >>> average_sensitivity(s_pombe)
+        6.0
+        >>> average_sensitivity(s_pombe,states=[[0,0,0,0,0,0,0,0,0],
+        [0,1,0,1,0,1,0,1,0]])
+        5.5
+        >>> average_sensitivity(s_pombe,states=[[0,0,0,0,0,0,0,0,0],
+        [0,1,0,1,0,1,0,1,0]],weights=[0.9,0.1])
+        3.75
+        >>> average_sensitivity(s_pombe,states=[[0,0,0,0,0,0,0,0,0],
+        [0,1,0,1,0,1,0,1,0]],weights=[9,1])
+        3.75
+    
+    net    : NEET network
+    states : Optional list or generator of states.  If None, all states are used.
+    weights: Optional list or generator of weights for each state.  
+             If None, each state is equally weighted.
+    """
+
+    if states is None:
+        states = net.state_space().states()
+
+    if weights is not None:
+        # currently changes generators to lists when weights are given.
+        # is there a way to avoid this?
+        states = list(states)
+        weights = list(weights)
+        if len(states) != len(weights):
+            raise(ValueError("Length of weights and states must match"))
+
+    sensList = []
+    for state in states:
+        sensList.append( sensitivity(net,state) )
+
+    if weights is not None:
+        sensList = 1./np.sum(weights) * np.array(weights) * np.array(sensList)
+
+    return np.mean(sensList)
+
+
+
 
 
