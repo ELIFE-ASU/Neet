@@ -5,7 +5,7 @@ import numpy as np
 import unittest
 from neet.automata import ECA
 from neet.boolean.examples import s_pombe
-from neet.information import active_information, entropy_rate, transfer_entropy
+from neet.information import active_information, entropy_rate, transfer_entropy, mutual_information
 
 class TestInformation(unittest.TestCase):
     """
@@ -110,4 +110,50 @@ class TestInformation(unittest.TestCase):
         computed_te = transfer_entropy(s_pombe, k=5, timesteps=20)
         self.assertEqual(known_te.shape, computed_te.shape)
         for got, expected in zip(computed_te.flatten(), known_te.flatten()):
+            self.assertAlmostEqual(expected, got, places=6)
+
+    def test_mutual_information_not_network(self):
+        """
+        Raise a ``TypeError`` if the provided network is not actually a network
+        """
+        with self.assertRaises(TypeError):
+            mutual_information(5, timesteps=10, local=False)
+        with self.assertRaises(TypeError):
+            mutual_information(5, timesteps=10, local=True)
+
+    def test_mutual_information_not_fixed_size(self):
+        """
+        Raise a ``ValueError`` if the provided network is not fixed sized, and
+        the ``size`` argument is ``None``
+        """
+        with self.assertRaises(ValueError):
+            mutual_information(ECA(30), timesteps=10, local=False)
+        mutual_information(ECA(30), timesteps=10, size=5, local=False)
+
+    def test_mutual_information_s_pombe(self):
+        """
+        ``mutual_information`` computes the correct values for ``s_pombe``
+        """
+        known_mi = np.asarray(
+            [[0.162326, 0.013747, 0.004285, 0.004285, 0.013409, 0.015862,
+              0.005170, 0.005170, 0.011028],
+             [0.013747, 0.566610, 0.007457, 0.007457, 0.006391, 0.327908,
+              0.006761, 0.006761, 0.004683],
+             [0.004285, 0.007457, 0.838373, 0.475582, 0.211577, 0.004329,
+              0.459025, 0.459025, 0.127557],
+             [0.004285, 0.007457, 0.475582, 0.838373, 0.211577, 0.004329,
+              0.459025, 0.459025, 0.127557],
+             [0.013409, 0.006391, 0.211577, 0.211577, 0.574591, 0.007031,
+              0.175608, 0.175608, 0.012334],
+             [0.015862, 0.327908, 0.004329, 0.004329, 0.007031, 0.519051,
+              0.006211, 0.006211, 0.002607],
+             [0.005170, 0.006761, 0.459025, 0.459025, 0.175608, 0.006211,
+              0.808317, 0.493495, 0.103905],
+             [0.005170, 0.006761, 0.459025, 0.459025, 0.175608, 0.006211,
+              0.493495, 0.808317, 0.103905],
+             [0.011028, 0.004683, 0.127557, 0.127557, 0.012334, 0.002607,
+              0.103905, 0.103905, 0.634238]])
+        computed_mi = mutual_information(s_pombe, timesteps=20)
+        self.assertEqual(known_mi.shape, computed_mi.shape)
+        for got, expected in zip(computed_mi.flatten(), known_mi.flatten()):
             self.assertAlmostEqual(expected, got, places=6)

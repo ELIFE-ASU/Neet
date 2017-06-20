@@ -104,7 +104,6 @@ def transfer_entropy(net, k, timesteps, size=None, local=False):
     ::
 
         >>> transfer_entropy(s_pombe, k=5, timesteps=20)
-        (9, 9)
         array([[  0.00000000e+00,   0.00000000e+00,  -1.11022302e-16,
                 -1.11022302e-16,   0.00000000e+00,   0.00000000e+00,
                 -1.11022302e-16,   0.00000000e+00,   0.00000000e+00],
@@ -156,7 +155,7 @@ def transfer_entropy(net, k, timesteps, size=None, local=False):
     :param timesteps: the number of timesteps to evaluate the network
     :param size: the size of variable-sized network (or ``None``)
     :param local: whether or not to compute the local transfer entropy
-    :returns: a generator of transfer entropy values
+    :returns: a numpy matrix of transfer entropy values
     """
     series = timeseries(net, timesteps=timesteps, size=size)
     shape = series.shape
@@ -168,8 +167,72 @@ def transfer_entropy(net, k, timesteps, size=None, local=False):
                                                                 k=k, local=True)
     else:
         trans_entropy = np.empty((shape[0], shape[0]), dtype=np.float)
-        print(trans_entropy.shape)
         for i in range(shape[0]):
             for j in range(shape[0]):
-                trans_entropy[i, j] = pi.transfer_entropy(series[j], series[i], k=k, local=False)
+                trans_entropy[i, j] = pi.transfer_entropy(series[j], series[i],
+                                                          k=k, local=False)
     return trans_entropy
+
+def mutual_information(net, timesteps, size=None, local=False):
+    """
+    Compute the mutual information matrix for a network.
+
+    ::
+
+        >>> mutual_information(s_pombe, timesteps=20)
+        array([[ 0.16232618,  0.01374672,  0.00428548,  0.00428548,  0.01340937,
+                0.01586238,  0.00516987,  0.00516987,  0.01102766],
+            [ 0.01374672,  0.56660996,  0.00745714,  0.00745714,  0.00639113,
+                0.32790848,  0.0067609 ,  0.0067609 ,  0.00468342],
+            [ 0.00428548,  0.00745714,  0.83837294,  0.475582  ,  0.21157695,
+                0.00432855,  0.4590254 ,  0.4590254 ,  0.12755745],
+            [ 0.00428548,  0.00745714,  0.475582  ,  0.83837294,  0.21157695,
+                0.00432855,  0.4590254 ,  0.4590254 ,  0.12755745],
+            [ 0.01340937,  0.00639113,  0.21157695,  0.21157695,  0.57459066,
+                0.00703145,  0.17560769,  0.17560769,  0.01233356],
+            [ 0.01586238,  0.32790848,  0.00432855,  0.00432855,  0.00703145,
+                0.51905053,  0.00621124,  0.00621124,  0.00260667],
+            [ 0.00516987,  0.0067609 ,  0.4590254 ,  0.4590254 ,  0.17560769,
+                0.00621124,  0.80831657,  0.49349527,  0.10390475],
+            [ 0.00516987,  0.0067609 ,  0.4590254 ,  0.4590254 ,  0.17560769,
+                0.00621124,  0.49349527,  0.80831657,  0.10390475],
+            [ 0.01102766,  0.00468342,  0.12755745,  0.12755745,  0.01233356,
+                0.00260667,  0.10390475,  0.10390475,  0.63423835]])
+        >>> lmi = mutual_information(s_pombe, timesteps=20, local=True)
+        >>> lmi[4,3]
+        array([[-0.67489772, -0.67489772, -0.67489772, ...,  0.18484073,
+                0.18484073,  0.18484073],
+            [-0.67489772, -0.67489772, -0.67489772, ...,  0.18484073,
+                0.18484073,  0.18484073],
+            [-0.67489772, -0.67489772, -0.67489772, ...,  0.18484073,
+                0.18484073,  0.18484073],
+            ...,
+            [-2.89794147,  1.7513014 ,  0.18484073, ...,  0.18484073,
+                0.18484073,  0.18484073],
+            [-2.89794147,  1.7513014 ,  0.18484073, ...,  0.18484073,
+                0.18484073,  0.18484073],
+            [-2.89794147,  1.7513014 ,  0.18484073, ...,  0.18484073,
+                0.18484073,  0.18484073]])
+        >>> np.mean(lmi[4,3])
+        0.21157695279993302
+
+    :param net: a NEET network
+    :param k: the history length
+    :param timesteps: the number of timesteps to evaluate the network
+    :param size: the size of variable-sized network (or ``None``)
+    :param local: whether or not to compute the local mutual information
+    :returns: a numpy matrix of mutual information values
+    """
+    series = timeseries(net, timesteps=timesteps, size=size)
+    shape = series.shape
+    if local:
+        mutual_info = np.empty((shape[0], shape[0], shape[1], shape[2]), dtype=np.float)
+        for i in range(shape[0]):
+            for j in range(shape[0]):
+                mutual_info[i, j, :, :] = pi.mutual_info(series[j], series[i], local=True)
+    else:
+        mutual_info = np.empty((shape[0], shape[0]), dtype=np.float)
+        for i in range(shape[0]):
+            for j in range(shape[0]):
+                mutual_info[i, j] = pi.mutual_info(series[j], series[i], local=False)
+    return mutual_info
