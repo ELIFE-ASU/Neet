@@ -1,7 +1,7 @@
 # Copyright 2017 ELIFE. All rights reserved.
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
-from interfaces import is_boolean_network
+from .interfaces import is_boolean_network
 import numpy as np
 
 def sensitivity(net, state):
