@@ -4,7 +4,7 @@
 import unittest
 from neet.automata import ECA
 from neet.boolean.examples import s_pombe
-from neet.information import active_information
+from neet.information import active_information, entropy_rate
 
 class TestInformation(unittest.TestCase):
     """
@@ -43,4 +43,33 @@ class TestInformation(unittest.TestCase):
         computed_ai = list(active_information(s_pombe, k=5, timesteps=20))
         self.assertEqual(9, len(computed_ai))
         for got, expected in zip(computed_ai, known_ai):
+            self.assertAlmostEqual(expected, got, places=6)
+
+    def test_entropy_rate_not_network(self):
+        """
+        Raise a ``TypeError`` if the provided network is not actually a network
+        """
+        with self.assertRaises(TypeError):
+            entropy_rate(5, k=3, timesteps=10, local=False)
+        with self.assertRaises(TypeError):
+            entropy_rate(5, k=3, timesteps=10, local=True)
+
+    def test_entropy_rate_not_fixed_size(self):
+        """
+        Raise a ``ValueError`` if the provided network is not fixed sized, and
+        the ``size`` argument is ``None``
+        """
+        with self.assertRaises(ValueError):
+            entropy_rate(ECA(30), k=3, timesteps=10, local=False)
+        entropy_rate(ECA(30), k=3, timesteps=10, size=5, local=False)
+
+    def test_entropy_rate_s_pombe(self):
+        """
+        ``entropy_rate`` computes the correct values for ``s_pombe``
+        """
+        known_er = [0.0, 0.016912, 0.072803, 0.072803, 0.058420, 0.024794,
+                    0.032173, 0.032173, 0.089669]
+        computed_er = list(entropy_rate(s_pombe, k=5, timesteps=20))
+        self.assertEqual(9, len(computed_er))
+        for got, expected in zip(computed_er, known_er):
             self.assertAlmostEqual(expected, got, places=6)
