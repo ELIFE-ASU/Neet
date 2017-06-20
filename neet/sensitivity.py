@@ -23,6 +23,9 @@ def sensitivity(net, state):
         >>> from neet.boolean.examples import s_pombe
         >>> sensitivity(s_pombe,[0,0,0,0,0,1,1,1,1])
         7
+        
+    net    : NEET boolean network
+    state  : A single network state, represented as a list of node states
     """
 
     if not is_boolean_network(net):
@@ -96,11 +99,14 @@ def average_sensitivity(net,states=None,weights=None):
         [0,1,0,1,0,1,0,1,0]],weights=[9,1])
         3.75
     
-    net    : NEET network
+    net    : NEET boolean network
     states : Optional list or generator of states.  If None, all states are used.
     weights: Optional list or generator of weights for each state.  
              If None, each state is equally weighted.
     """
+
+    if not is_boolean_network(net):
+        raise(TypeError("net must be a boolean network"))
 
     if states is None:
         states = net.state_space().states()
