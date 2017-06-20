@@ -4,7 +4,7 @@
 import copy
 from .interfaces import is_network, is_fixed_sized
 
-def transitions(net, size=None, require_update=False):
+def transitions(net, size=None, require_update=False, encoded=False):
     """
     Compute the asynchronous updates for a network.
 
@@ -14,6 +14,8 @@ def transitions(net, size=None, require_update=False):
     :type size: int or None
     :param require_update: whether or not to require a node to update
     :type require_update: bool
+    :param encoded: whether or not to encode the states
+    :type encoded: bool
     :yields: a pair of lists (states, probabilities)
     """
     if not is_network(net):
@@ -29,6 +31,7 @@ def transitions(net, size=None, require_update=False):
     for state in state_space.states():
         count = 0
         next_states = dict()
+        encoded_states = dict()
         for node in range(size):
             next_state = copy.copy(state)
             net.update(next_state, index=node)
@@ -38,9 +41,14 @@ def transitions(net, size=None, require_update=False):
                     next_states[state_code] += 1.0
                 else:
                     next_states[state_code] = 1.0
+                    encoded_states[state_code] = next_state
                 count += 1
 
-        states = list(next_states.keys())
+        if encoded:
+            states = list(next_states.keys())
+        else:
+            states = [encoded_states[state] for state in next_states.keys()]
+
         probabilities = [n / count for n in next_states.values()]
 
         yield states, probabilities
