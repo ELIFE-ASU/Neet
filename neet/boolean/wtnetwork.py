@@ -3,7 +3,7 @@
 # license that can be found in the LICENSE file.
 import numpy as np
 import re
-from .landscape import StateSpace
+from neet.landscape import StateSpace
 
 class WTNetwork(object):
     """
@@ -158,12 +158,12 @@ class WTNetwork(object):
                 raise(ValueError("invalid node state in states"))
         return True
 
-    def _unsafe_update(self, states):
+    def _unsafe_update(self, states, index=None, pin=None):
         """
         Update ``states``, in place, according to the network update rules
         without checking the validity of the arguments.
 
-        .. rubric:: Examples:
+        .. rubric:: Basic Use:
 
         ::
 
@@ -175,6 +175,34 @@ class WTNetwork(object):
             [0, 0, 0, 0, 0, 0, 0, 0, 1]
             >>> net._unsafe_update(xs)
             [0, 1, 1, 1, 0, 0, 1, 0, 0]
+
+        .. rubric:: Single-Node Update:
+
+        ::
+
+            >>> xs = [0,0,0,0,1,0,0,0,0]
+            >>> net._unsafe_update(xs, index=-1)
+            [0, 0, 0, 0, 1, 0, 0, 0, 1]
+            >>> net._unsafe_update(xs, index=2)
+            [0, 0, 1, 0, 1, 0, 0, 0, 1]
+            >>> net._unsafe_update(xs, index=3)
+            [0, 0, 1, 1, 1, 0, 0, 0, 1]
+
+
+        .. rubric:: State Pinning:
+
+        ::
+
+            >>> net._unsafe_update([0,0,0,0,1,0,0,0,0], pin=[-1])
+            [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            >>> net._unsafe_update([0,0,0,0,0,0,0,0,1], pin=[1])
+            [0, 0, 1, 1, 0, 0, 1, 0, 0]
+            >>> net._unsafe_update([0,0,0,0,0,0,0,0,1], pin=range(1,4))
+            [0, 0, 0, 0, 0, 0, 1, 0, 0]
+            >>> net._unsafe_update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
+            [0, 0, 0, 0, 0, 0, 1, 0, 1]
+
+        .. rubric:: Erroneous Usage:
 
         ::
 
@@ -184,20 +212,44 @@ class WTNetwork(object):
             ValueError: shapes (9,9) and (3,) not aligned: 9 (dim 1) != 3 (dim 0)
             >>> net._unsafe_update([0,0,0,0,2,0,0,0,0])
             [0, 0, 0, 0, 0, 0, 0, 0, 1]
-
+            >>> net._unsafe_update([0,0,0,0,1,0,0,0,0], 9)
+            Traceback (most recent call last):
+                ...
+            IndexError: index 9 is out of bounds for axis 0 with size 9
+            >>> net._unsafe_update([0,0,0,0,0,0,0,0,1], pin=[10])
+            Traceback (most recent call last):
+                ...
+            IndexError: index 10 is out of bounds for axis 1 with size 9
 
         :param states: the one-dimensional sequence of node states
         :type states: sequence
+        :param index: the index to update or None
+        :type index: int or None
+        :param pin: the indices to pin (fix to their current state) or None
+        :type pin: sequence
         :returns: the updated states
         """
-        temp = np.dot(self.weights, states) - self.thresholds
-        return self.theta(temp, states)
+        pin_states = pin is not None and pin != []
+        if index is None:
+            if pin_states:
+                pinned = np.asarray(states)[pin]
+            temp = np.dot(self.weights, states) - self.thresholds
+            self.theta(temp, states)
+            if pin_states:
+                for (j,i) in enumerate(pin):
+                    states[i] = pinned[j]
+            return states
+        else:
+            temp = np.dot(self.weights[index], states) - self.thresholds[index]
+            states[index] = self.theta(temp, states[index])
+            return states
 
-    def update(self, states):
+
+    def update(self, states, index=None, pin=None):
         """
         Update ``states``, in place, according to the network update rules.
 
-        .. rubric:: Examples:
+        .. rubric:: Basic Use:
 
         ::
 
@@ -209,6 +261,33 @@ class WTNetwork(object):
             [0, 0, 0, 0, 0, 0, 0, 0, 1]
             >>> net.update(xs)
             [0, 1, 1, 1, 0, 0, 1, 0, 0]
+
+        .. rubric:: Single-Node Update:
+
+        ::
+
+            >>> xs = [0,0,0,0,1,0,0,0,0]
+            >>> net.update(xs, index=-1)
+            [0, 0, 0, 0, 1, 0, 0, 0, 1]
+            >>> net.(xs, index=2)
+            [0, 0, 1, 0, 1, 0, 0, 0, 1]
+            >>> net.(xs, index=3)
+            [0, 0, 1, 1, 1, 0, 0, 0, 1]
+
+        .. rubric:: State Pinning:
+
+        ::
+
+            >>> net.update([0,0,0,0,1,0,0,0,0], pin=[-1])
+            [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            >>> net.update([0,0,0,0,0,0,0,0,1], pin=[1])
+            [0, 0, 1, 1, 0, 0, 1, 0, 0]
+            >>> net.update([0,0,0,0,0,0,0,0,1], pin=range(1,4))
+            [0, 0, 0, 0, 0, 0, 1, 0, 0]
+            >>> net.update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
+            [0, 0, 0, 0, 0, 0, 1, 0, 1]
+
+        .. rubric:: Erroneous Usage:
 
         ::
 
@@ -220,21 +299,46 @@ class WTNetwork(object):
             Traceback (most recent call last):
                 ...
             ValueError: invalid node state in states
+            >>> net.update([0,0,0,0,1,0,0,0,0], 9)
+            Traceback (most recent call last):
+                ...
+            IndexError: index 9 is out of bounds for axis 0 with size 9
+            >>> net.update([0,0,0,0,1,0,0,0,0], index=-1, pin=[-1])
+            Traceback (most recent call last):
+                ...
+            ValueError: cannot provide both the index and pin arguments
+            >>> net.update([0,0,0,0,1,0,0,0,0], pin=[10])
+            Traceback (most recent call last):
+                ...
+            IndexError: index 10 is out of bounds for axis 1 with size 9
 
         :param states: the one-dimensional sequence of node states
         :type states: sequence
+        :param index: the index to update (or None)
+        :type index: int or None
+        :param pin: the indices to pin (or None)
+        :type pin: sequence
         :returns: the updated states
         :raises TypeError: if ``states`` is not iterable
         :raises ValueError: if ``len(states)`` is not the number of nodes in the network
         :raises ValueError: if ``states[i] not in [0,1]`` for any node ``i``
+        :raises IndexError: if ``index is not None and index > len(states)``
+        :raises ValueError: if both ``index`` and ``pin`` are provided
+        :raises IndexError: if any element of ``pin`` is greater than ``len(states)``
         """
         self.check_states(states)
-        return self._unsafe_update(states)
+
+        if (index is not None) and (pin is not None and pin != []):
+            raise(ValueError("cannot provide both the index and pin arguments"))
+
+        return self._unsafe_update(states, index, pin)
 
     @staticmethod
     def read(nodes_file, edges_file):
         """
         Read a network from a pair of node/edge files.
+
+        Note that the node names cannot have spaces in them.
 
         .. rubric:: Examples:
 
@@ -273,16 +377,23 @@ class WTNetwork(object):
     @staticmethod
     def split_threshold(values, states):
         """
-        The split threshold applies the following functional form to each pair
-        ``(x,y) in zip(values, states)`` and stores the result in ``states``.
+        Applies the following functional form to the arguments:
 
         .. math::
 
             \\theta_s(x,y) = \\begin{cases}
                 0 & x < 0 \\\\
                 y & x = 0 \\\\
-                1 & x > 0
+                1 & x > 0.
             \\end{cases}
+
+        If ``values`` and ``states`` are iterable, then apply the above
+        function to each pair ``(x,y) in zip(values, states)`` and stores
+        the result in ``states``.
+
+        If ``values`` and ``states`` are scalar values, then simply apply
+        the above threshold function to the pair ``(values, states)`` and
+        return the result.
 
         .. rubric:: Examples:
 
@@ -298,30 +409,52 @@ class WTNetwork(object):
             [1, 0, 1]
             >>> xs
             [1, 0, 1]
+            >>> WTNetwork.split_threshold(0,0)
+            0
+            >>> WTNetwork.split_threshold(0,1)
+            1
+            >>> WTNetwork.split_threshold(1,0)
+            1
+            >>> WTNetwork.split_threshold(1,1)
+            1
 
         :param values: the threshold-shifted values of each node
         :param states: the pre-updated states of the nodes
         :returns: the updated states
         """
-        for i, x in enumerate(values):
-            if x < 0:
-                states[i] = 0
-            elif x > 0:
-                states[i] = 1
-        return states
+        if isinstance(values, list) or isinstance(values, np.ndarray):
+            for i, x in enumerate(values):
+                if x < 0:
+                    states[i] = 0
+                elif x > 0:
+                    states[i] = 1
+            return states
+        else:
+            if values < 0:
+                return 0
+            elif values > 0:
+                return 1
+            return states
 
     @staticmethod
     def negative_threshold(values, states):
         """
-        The negative threshold applies the following functional to each value in
-        ``values`` and stores the result in ``states``.
+        Applies the following functional form to the arguments:
 
         .. math::
 
             \\theta_n(x) = \\begin{cases}
                 0 & x \\leq 0 \\\\
-                1 & x > 0
+                1 & x > 0.
             \\end{cases}
+
+        If ``values`` and ``states`` are iterable, then apply the above
+        function to each pair ``(x,y) in zip(values, states)`` and stores
+        the result in ``states``.
+
+        If ``values`` and ``states`` are scalar values, then simply apply
+        the above threshold function to the pair ``(values, states)`` and
+        return the result.
 
         .. rubric:: Examples:
 
@@ -337,30 +470,51 @@ class WTNetwork(object):
             [1, 0, 0]
             >>> xs
             [1, 0, 0]
+            >>> WTNetwork.negative_threshold(0,0)
+            0
+            >>> WTNetwork.negative_threshold(0,1)
+            0
+            >>> WTNetwork.negative_threshold(1,0)
+            1
+            >>> WTNetwork.negative_threshold(1,1)
+            1
 
         :param values: the threshold-shifted values of each node
         :param states: the pre-updated states of the nodes
         :returns: the updated states
         """
-        for i, x in enumerate(values):
-            if x <= 0:
-                states[i] = 0
+        if isinstance(values, list) or isinstance(values, np.ndarray):
+            for i, x in enumerate(values):
+                if x <= 0:
+                    states[i] = 0
+                else:
+                    states[i] = 1
+            return states
+        else:
+            if values <= 0:
+                return 0
             else:
-                states[i] = 1
-        return states
+                return 1
 
     @staticmethod
     def positive_threshold(values, states):
         """
-        The positive threshold applies the following functional form to each
-        value in ``values`` and stores the result in ``states``.
+        Applies the following functional form to the arguments:
 
         .. math::
 
             \\theta_p(x) = \\begin{cases}
                 0 & x < 0 \\\\
-                1 & x \\geq 0
+                1 & x \\geq 0.
             \\end{cases}
+
+        If ``values`` and ``states`` are iterable, then apply the above
+        function to each pair ``(x,y) in zip(values, states)`` and stores
+        the result in ``states``.
+
+        If ``values`` and ``states`` are scalar values, then simply apply
+        the above threshold function to the pair ``(values, states)`` and
+        return the result.
 
         .. rubric:: Examples:
 
@@ -376,14 +530,28 @@ class WTNetwork(object):
             [1, 0, 1]
             >>> xs
             [1, 0, 1]
+            >>> WTNetwork.negative_threshold(0,0)
+            1
+            >>> WTNetwork.negative_threshold(0,1)
+            1
+            >>> WTNetwork.negative_threshold(1,0)
+            1
+            >>> WTNetwork.negative_threshold(-1,0)
+            0
 
         :param values: the threshold-shifted values of each node
         :param states: the pre-updated states of the nodes
         :returns: the updated states
         """
-        for i, x in enumerate(values):
-            if x < 0:
-                states[i] = 0
+        if isinstance(values, list) or isinstance(values, np.ndarray):
+            for i, x in enumerate(values):
+                if x < 0:
+                    states[i] = 0
+                else:
+                    states[i] = 1
+            return states
+        else:
+            if values < 0:
+                return 0
             else:
-                states[i] = 1
-        return states
+                return 1

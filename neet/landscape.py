@@ -5,6 +5,7 @@ from .interfaces import is_network, is_fixed_sized
 
 import copy
 import numpy as np
+import networkx as nx
 
 class StateSpace(object):
     """
@@ -316,3 +317,81 @@ def transitions(net, n=None, encode=True):
             yield space.encode(state)
         else:
             yield state
+
+
+def transition_graph(net, n=None):
+    """
+    Return a networkx graph representing net's transition network.
+    
+    .. rubric:: Example:
+    
+    ::
+    
+        >>> from neet.boolean.examples import s_pombe
+        >>> g = landscape.transition_graph(s_pombe)
+        >>> g.number_of_edges()
+        512
+    """
+
+    if not is_network(net):
+        raise(TypeError("net is not a network"))
+
+    edgeList = enumerate( transitions(net,n) )
+    
+    return nx.DiGraph(edgeList)
+
+def attractors(net):
+    """
+    Return a generator that lists net's attractors.  Each attractor 
+    is represented as a list of 'encoded' states.
+    
+    .. rubric:: Example:
+    
+    ::
+    
+        >>> from neet.boolean.examples import s_pombe
+        >>> print(list(attractors(s_pombe)))
+        [[204], [200], [196], [140], [136], [132], [72], [68], 
+        [384, 110, 144], [12], [8], [4], [76]]
+        
+    :param net: the network or landscape transition_graph
+    :type net: neet network or networkx DiGraph
+    :returns: generator of attractors
+    :raises TypeError: if ``net`` is not a network or DiGraph
+    """
+    if is_network(net):
+        g = transition_graph(net)
+    elif isinstance(net,nx.DiGraph):
+        g = net
+    else:
+        raise TypeError("net must be a network or a networkx DiGraph")
+    
+    return nx.simple_cycles(g)
+
+def basins(net):
+    """
+    Return a generator that lists net's basins.  Each basin
+    is a networkx graph.
+    
+    .. rubric:: Example:
+    
+    ::
+    
+    :param net: the network or landscape transition_graph
+    :type net: neet network or networkx DiGraph
+    :returns: generator of basin subgraphs
+    :raises TypeError: if ``net`` is not a network or DiGraph
+    """
+    if is_network(net):
+        g = transition_graph(net)
+    elif isinstance(net,nx.DiGraph):
+        g = net
+    else:
+        raise TypeError("net must be a network or a networkx DiGraph")
+
+    return nx.weakly_connected_component_subgraphs(g)
+
+
+
+
+

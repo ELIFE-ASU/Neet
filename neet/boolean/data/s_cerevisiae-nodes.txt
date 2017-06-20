@@ -1,0 +1,11 @@
+Cln3 0
+MBF 0
+SBF 0
+Cln1_2 0
+Cdh1 0
+Swi5 0
+Cdc20_Cdc14 0
+Clb5_6 0
+Sic1 0
+Clb1_2 0
+Mcm1_SFF 0

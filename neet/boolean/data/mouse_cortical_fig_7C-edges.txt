@@ -1,0 +1,15 @@
+gF pF 1
+gE pE 1
+gP pP 1
+gC pC 1
+gS pS 1
+pF gE 0
+pF gP 1
+pF gC 0
+pE gS 0
+pE gP 0
+pP gE 0
+pP gC 0
+pC gS 0
+pS gF 1
+pS gE 0

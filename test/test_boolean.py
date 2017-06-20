@@ -213,6 +213,12 @@ class TestWTNetwork(unittest.TestCase):
             net.update("101")
 
 
+    def test_update_invalid_index(self):
+        net = bnet.WTNetwork([[1,0],[1,1]])
+        with self.assertRaises(IndexError):
+            net.update([0,0], 2)
+
+
     def test_update(self):
         net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0])
 
@@ -271,31 +277,139 @@ class TestWTNetwork(unittest.TestCase):
         self.assertEqual([1,1], xs)
 
 
+    def test_update_index(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0])
+
+        self.assertEqual(bnet.WTNetwork.split_threshold, net.theta)
+
+        xs = [0,0]
+        self.assertEqual([0,0], net.update(xs, 0))
+        self.assertEqual([0,0], net.update(xs, 1))
+        self.assertEqual([0,0], xs)
+
+        xs = [1,0]
+        self.assertEqual([1,0], net.update(xs, 0))
+        self.assertEqual([1,0], net.update(xs, 1))
+        self.assertEqual([1,0], xs)
+
+        xs = [0,1]
+        self.assertEqual([0,1], net.update(xs, 0))
+        self.assertEqual([0,1], net.update(xs, 1))
+        self.assertEqual([0,1], xs)
+
+        xs = [1,1]
+        self.assertEqual([1,1], net.update(xs, 0))
+        self.assertEqual([1,1], net.update(xs, 1))
+        self.assertEqual([1,1], xs)
+
+        net.theta = bnet.WTNetwork.negative_threshold
+
+        xs = [0,0]
+        self.assertEqual([0,0], net.update(xs, 0))
+        self.assertEqual([0,0], net.update(xs, 1))
+        self.assertEqual([0,0], xs)
+
+        xs = [1,0]
+        self.assertEqual([1,0], net.update(xs, 0))
+        self.assertEqual([1,0], net.update(xs, 1))
+        self.assertEqual([1,0], xs)
+
+        xs = [0,1]
+        self.assertEqual([0,1], net.update(xs, 0))
+        self.assertEqual([0,1], net.update(xs, 1))
+        self.assertEqual([0,1], xs)
+
+        xs = [1,1]
+        self.assertEqual([1,1], net.update(xs, 0))
+        self.assertEqual([1,0], net.update(xs, 1))
+        self.assertEqual([1,0], xs)
+
+        net.theta = bnet.WTNetwork.positive_threshold
+
+        xs = [0,0]
+        self.assertEqual([0,0], net.update(xs, 0))
+        self.assertEqual([0,1], net.update(xs, 1))
+        self.assertEqual([0,1], xs)
+
+        xs = [1,0]
+        self.assertEqual([1,0], net.update(xs, 0))
+        self.assertEqual([1,0], net.update(xs, 1))
+        self.assertEqual([1,0], xs)
+
+        xs = [0,1]
+        self.assertEqual([0,1], net.update(xs, 0))
+        self.assertEqual([0,1], net.update(xs, 1))
+        self.assertEqual([0,1], xs)
+
+        xs = [1,1]
+        self.assertEqual([1,1], net.update(xs, 0))
+        self.assertEqual([1,1], net.update(xs, 1))
+        self.assertEqual([1,1], xs)
+
+
     def test_user_defined_threshold(self):
         def reverse_negative(values, states):
-            for i, x in enumerate(values):
-                if x <= 0:
-                    states[i] = 1
+            if isinstance(values, list) or isinstance(values, np.ndarray):
+                for i, x in enumerate(values):
+                    if x <= 0:
+                        states[i] = 1
+                    else:
+                        states[i] = 0
+                return states
+            else:
+                if values <= 0:
+                    return 1
                 else:
-                    states[i] = 0
-            return states
+                    return 0
 
         net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0], theta=reverse_negative)
         xs = [0,0]
         self.assertEqual([1,1], net.update(xs))
         self.assertEqual([1,1], xs)
 
+        xs = [0,0]
+        self.assertEqual([1,0], net.update(xs, 0))
+        self.assertEqual([1,0], xs)
+
+        xs = [0,0]
+        self.assertEqual([0,1], net.update(xs, 1))
+        self.assertEqual([0,1], xs)
+
         xs = [1,0]
         self.assertEqual([0,1], net.update(xs))
         self.assertEqual([0,1], xs)
+
+        xs = [1,0]
+        self.assertEqual([0,0], net.update(xs, 0))
+        self.assertEqual([0,0], xs)
+
+        xs = [1,0]
+        self.assertEqual([1,1], net.update(xs, 1))
+        self.assertEqual([1,1], xs)
 
         xs = [0,1]
         self.assertEqual([1,0], net.update(xs))
         self.assertEqual([1,0], xs)
 
+        xs = [0,1]
+        self.assertEqual([1,1], net.update(xs, 0))
+        self.assertEqual([1,1], xs)
+
+        xs = [0,1]
+        self.assertEqual([0,0], net.update(xs, 1))
+        self.assertEqual([0,0], xs)
+
         xs = [1,1]
         self.assertEqual([0,1], net.update(xs))
         self.assertEqual([0,1], xs)
+
+        xs = [1,1]
+        self.assertEqual([0,1], net.update(xs, 0))
+        self.assertEqual([0,1], xs)
+
+        xs = [1,1]
+        self.assertEqual([1,1], net.update(xs, 1))
+        self.assertEqual([1,1], xs)
 
 
     def test_fission_yeast(self):
@@ -367,6 +481,20 @@ class TestWTNetwork(unittest.TestCase):
         self.assertEqual([1,0,1], bnet.WTNetwork.split_threshold([1, -1, 0], xs))
         self.assertEqual([1,0,1], xs)
 
+
+    def test_split_threshold_scalar(self):
+        test = {
+            ( 1, 0) : 1,
+            ( 0, 0) : 0,
+            (-1, 0) : 0,
+            ( 1, 1) : 1,
+            ( 0, 1) : 1,
+            (-1, 1) : 0,
+        }
+        for x, s in test:
+            self.assertEqual(test[(x,s)], bnet.WTNetwork.split_threshold(x,s))
+
+
     def test_negative_threshold(self):
         xs = [0,0,0]
         self.assertEqual([1,0,0], bnet.WTNetwork.negative_threshold([1, -1, 0], xs))
@@ -376,6 +504,20 @@ class TestWTNetwork(unittest.TestCase):
         self.assertEqual([1,0,0], bnet.WTNetwork.negative_threshold([1, -1, 0], xs))
         self.assertEqual([1,0,0], xs)
 
+
+    def test_negative_threshold_scalar(self):
+        test = {
+            ( 1, 0) : 1,
+            ( 0, 0) : 0,
+            (-1, 0) : 0,
+            ( 1, 1) : 1,
+            ( 0, 1) : 0,
+            (-1, 1) : 0,
+        }
+        for x, s in test:
+            self.assertEqual(test[(x,s)], bnet.WTNetwork.negative_threshold(x,s))
+
+
     def test_positive_threshold(self):
         xs = [0,0,0]
         self.assertEqual([1,0,1], bnet.WTNetwork.positive_threshold([1, -1, 0], xs))
@@ -384,3 +526,66 @@ class TestWTNetwork(unittest.TestCase):
         xs = [1,1,1]
         self.assertEqual([1,0,1], bnet.WTNetwork.positive_threshold([1, -1, 0], xs))
         self.assertEqual([1,0,1], xs)
+
+
+    def test_positive_threshold_scalar(self):
+        test = {
+            ( 1, 0) : 1,
+            ( 0, 0) : 1,
+            (-1, 0) : 0,
+            ( 1, 1) : 1,
+            ( 0, 1) : 1,
+            (-1, 1) : 0,
+        }
+        for x, s in test:
+            self.assertEqual(test[(x,s)], bnet.WTNetwork.positive_threshold(x,s))
+
+    def test_update_pin_none(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
+          theta=bnet.WTNetwork.positive_threshold)
+        xs = [0,0]
+        self.assertEqual([0,1], net.update(xs, pin=None))
+        xs = [0,0]
+        self.assertEqual([0,1], net.update(xs, pin=[]))
+
+
+    def test_update_pin_index_clash(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
+          theta=bnet.WTNetwork.positive_threshold)
+        with self.assertRaises(ValueError):
+          net.update([0,0], index=0, pin=[1])
+        with self.assertRaises(ValueError):
+          net.update([0,0], index=1, pin=[1])
+        with self.assertRaises(ValueError):
+          net.update([0,0], index=1, pin=[0,1])
+
+
+    def test_update_pin(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0])
+
+        net.theta = bnet.WTNetwork.negative_threshold
+        xs = [1,1]
+        self.assertEqual([1,0], net.update(xs, pin=[0]))
+
+        net.theta = bnet.WTNetwork.positive_threshold
+        xs = [0,0]
+        self.assertEqual([0,0], net.update(xs, pin=[1]))
+
+    def test_pinning_s_pombe(self):
+        from neet.boolean.examples import s_pombe
+        self.assertEqual(
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            s_pombe.update([0,0,0,0,1,0,0,0,0], pin=[-1])
+        )
+        self.assertEqual(
+            [0, 0, 1, 1, 0, 0, 1, 0, 0],
+            s_pombe.update([0,0,0,0,0,0,0,0,1], pin=[1])
+        )
+        self.assertEqual(
+            [0, 0, 0, 0, 0, 0, 1, 0, 0],
+            s_pombe.update([0,0,0,0,0,0,0,0,1], pin=range(1,4))
+        )
+        self.assertEqual(
+            [0, 0, 0, 0, 0, 0, 1, 0, 1],
+            s_pombe.update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
+        )
