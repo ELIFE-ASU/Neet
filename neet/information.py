@@ -12,12 +12,9 @@ def active_information(net, k, timesteps, size=None, local=False):
     ::
 
         >>> active_information(s_pombe, k=5, timesteps=20)
-        <map object at 0x000001E3DC4096D8>
-        >>> list(active_information(s_pombe, k=5, timesteps=20))
-        [0.0, 0.4083435963963131, 0.629566787877351, 0.629566787877351,
-        0.37915718072043925, 0.4004616479864467, 0.6701961455359506,
-        0.6701961455359506, 0.3918912655219793]
-        >>> lais = list(active_information(s_pombe, k=5, timesteps=20, local=True))
+        array([ 0.        ,  0.4083436 ,  0.62956679,  0.62956679,  0.37915718,
+                0.40046165,  0.67019615,  0.67019615,  0.39189127])
+        >>> lais = active_information(s_pombe, k=5, timesteps=20, local=True)
         >>> lais[1]
         array([[ 0.13079175,  0.13079175,  0.13079175, ...,  0.13079175,
                 0.13079175,  0.13079175],
@@ -40,10 +37,19 @@ def active_information(net, k, timesteps, size=None, local=False):
     :param timesteps: the number of timesteps to evaluate the network
     :param size: the size of variable-sized network (or ``None``)
     :param local: whether or not to compute the local active information
-    :returns: a generator of active information values
+    :returns: a numpy array of active information values
     """
     series = timeseries(net, timesteps=timesteps, size=size)
-    return map(lambda xs: pi.active_info(xs, k=k, local=local), series)
+    shape = series.shape
+    if local:
+        active_info = np.empty((shape[0], shape[1], shape[2]-k), dtype=np.float)
+        for i in range(shape[0]):
+            active_info[i, :, :] = pi.active_info(series[i], k=k, local=local)
+    else:
+        active_info = np.empty(shape[0], dtype=np.float)
+        for i in range(shape[0]):
+            active_info[i] = pi.active_info(series[i], k=k, local=local)
+    return active_info
 
 def entropy_rate(net, k, timesteps, size=None, local=False):
     """
