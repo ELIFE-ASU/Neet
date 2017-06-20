@@ -1,38 +1,30 @@
 # Copyright 2017 ELIFE. All rights reserved.
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
-import unittest
-from neet.synchronous import *
 import numpy as np
-from neet.boolean.examples import s_pombe
+import unittest
 from collections import Counter
+from neet.boolean.examples import s_pombe
+from neet.synchronous import *
+from .mock import MockObject, MockFixedSizedNetwork
 
 class TestCore(unittest.TestCase):
-    class IsNetwork(object):
-        def update(self, lattice):
-            pass
-        def state_space(self):
-            return StateSpace(1)
-
-    class IsNotNetwork(object):
-        pass
-
     def test_trajectory_not_network(self):
         with self.assertRaises(TypeError):
             list(trajectory(5, [1,2,3]))
 
         with self.assertRaises(TypeError):
-            list(trajectory(self.IsNotNetwork(), [1,2,3]))
+            list(trajectory(MockObject(), [1,2,3]))
 
         with self.assertRaises(TypeError):
-            list(trajectory(self.IsNetwork, [1,2,3]))
+            list(trajectory(MockFixedSizedNetwork, [1,2,3]))
 
     def test_trajectory_too_short(self):
         with self.assertRaises(ValueError):
-            list(trajectory(self.IsNetwork(), [1,2,3], n=0))
+            list(trajectory(MockFixedSizedNetwork(), [1,2,3], n=0))
 
         with self.assertRaises(ValueError):
-            list(trajectory(self.IsNetwork(), [1,2,3], n=-1))
+            list(trajectory(MockFixedSizedNetwork(), [1,2,3], n=-1))
 
     def test_trajectory_eca_not_encoded(self):
         from neet.automata import ECA
@@ -100,11 +92,11 @@ class TestCore(unittest.TestCase):
 
     def test_transitions_not_network(self):
         with self.assertRaises(TypeError):
-            list(transitions(self.IsNotNetwork(), StateSpace(5)))
+            list(transitions(MockObject(), StateSpace(5)))
 
     def test_transitions_not_statespace(self):
         with self.assertRaises(TypeError):
-            list(transitions(self.IsNetwork(), 5))
+            list(transitions(MockFixedSizedNetwork(), 5))
 
     def test_transitions_eca_encoded(self):
         from neet.automata import ECA
@@ -163,7 +155,7 @@ class TestCore(unittest.TestCase):
 
     def test_transition_graph_not_network(self):
         with self.assertRaises(TypeError):
-            transition_graph(self.IsNotNetwork())
+            transition_graph(MockObject())
 
     def test_transition_graph_s_pombe(self):
         g = transition_graph(s_pombe)
@@ -216,4 +208,3 @@ class TestCore(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             basins(nx.Graph()) # (undirected)
-
