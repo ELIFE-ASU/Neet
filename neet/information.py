@@ -58,13 +58,9 @@ def entropy_rate(net, k, timesteps, size=None, local=False):
     ::
 
         >>> entropy_rate(s_pombe, k=5, timesteps=20)
-        <map object at 0x0000020405FF69E8>
-        >>> list(entropy_rate(s_pombe, k=5, timesteps=20)
-        ... )
-        [0.0, 0.016912075864473852, 0.07280268006097801, 0.07280268006097801,
-        0.05841994344763268, 0.024794024274340076, 0.03217332240237836,
-        0.03217332240237836, 0.0896694145592174]
-        >>> ler = list(entropy_rate(s_pombe, k=5, timesteps=20, local=True))
+        array([ 0.        ,  0.01691208,  0.07280268,  0.07280268,  0.05841994,
+                0.02479402,  0.03217332,  0.03217332,  0.08966941])
+        >>> ler = entropy_rate(s_pombe, k=5, timesteps=20, local=True)
         >>> ler[4]
         array([[ 0.        ,  0.        ,  0.        , ...,  0.00507099,
                 0.00507099,  0.00507099],
@@ -79,7 +75,6 @@ def entropy_rate(net, k, timesteps, size=None, local=False):
                 0.00507099,  0.00507099],
             [ 0.        ,  0.29604946,  0.00507099, ...,  0.00507099,
                 0.00507099,  0.00507099]])
-        >>> import numpy as np
         >>> np.mean(ler[4])
         0.0584199434476326
 
@@ -88,10 +83,19 @@ def entropy_rate(net, k, timesteps, size=None, local=False):
     :param timesteps: the number of timesteps to evaluate the network
     :param size: the size of variable-sized network (or ``None``)
     :param local: whether or not to compute the local entropy rate
-    :returns: a generator of entropy rate values
+    :returns: a numpy array of entropy rate values
     """
     series = timeseries(net, timesteps=timesteps, size=size)
-    return map(lambda xs: pi.entropy_rate(xs, k=k, local=local), series)
+    shape = series.shape
+    if local:
+        rate = np.empty((shape[0], shape[1], shape[2]-k), dtype=np.float)
+        for i in range(shape[0]):
+            rate[i, :, :] = pi.entropy_rate(series[i], k=k, local=local)
+    else:
+        rate = np.empty(shape[0], dtype=np.float)
+        for i in range(shape[0]):
+            rate[i] = pi.entropy_rate(series[i], k=k, local=local)
+    return rate
 
 def transfer_entropy(net, k, timesteps, size=None, local=False):
     """
