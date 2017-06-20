@@ -1,10 +1,8 @@
 # Copyright 2017 ELIFE. All rights reserved.
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
-from .interfaces import is_network, is_fixed_sized
-from .statespace import StateSpace
-
 import copy
+from .interfaces import is_network, is_fixed_sized
 
 def transitions(net):
     """
