@@ -33,13 +33,13 @@ class TestAsync(unittest.TestCase):
         state
         """
         for net in [s_pombe, s_cerevisiae, c_elegans]:
-            for state in transitions(net):
-                self.assertAlmostEqual(1.0, sum(state.values()))
+            for _, probabilities in transitions(net):
+                self.assertAlmostEqual(1.0, sum(probabilities))
 
         for net in [ECA(30), ECA(110), ECA(42)]:
             for size in [5, 8, 10]:
-                for state in transitions(net, size):
-                    self.assertAlmostEqual(1.0, sum(state.values()))
+                for _, probabilities in transitions(net, size):
+                    self.assertAlmostEqual(1.0, sum(probabilities))
 
     def test_transitions_require_update(self):
         """
@@ -47,12 +47,12 @@ class TestAsync(unittest.TestCase):
         state
         """
         for net in [s_pombe, s_cerevisiae, c_elegans]:
-            for state in transitions(net, require_update=True):
-                if len(state) != 0:
-                    self.assertAlmostEqual(1.0, sum(state.values()))
+            for _, probabilities in transitions(net, require_update=True):
+                if len(probabilities) != 0:
+                    self.assertAlmostEqual(1.0, sum(probabilities))
 
         for net in [ECA(30), ECA(110), ECA(42)]:
             for size in [5, 8, 10]:
-                for state in transitions(net, size, require_update=True):
-                    if len(state) != 0:
-                        self.assertAlmostEqual(1.0, sum(state.values()))
+                for _, probabilities in transitions(net, size, require_update=True):
+                    if len(probabilities) != 0:
+                        self.assertAlmostEqual(1.0, sum(probabilities))

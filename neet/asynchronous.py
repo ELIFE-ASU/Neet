@@ -14,7 +14,7 @@ def transitions(net, size=None, require_update=False):
     :type size: int or None
     :param require_update: whether or not to require a node to update
     :type require_update: bool
-    :yields: a dictionary with encoded states and probabilities as keys and values
+    :yields: a pair of lists (states, probabilities)
     """
     if not is_network(net):
         raise TypeError("net must adhere to NEET's network interface")
@@ -28,7 +28,6 @@ def transitions(net, size=None, require_update=False):
 
     for state in state_space.states():
         count = 0
-        # A dictionary will not work when we admit non-encoded network states
         next_states = dict()
         for node in range(size):
             next_state = copy.copy(state)
@@ -41,7 +40,7 @@ def transitions(net, size=None, require_update=False):
                     next_states[state_code] = 1.0
                 count += 1
 
-        for state_code in next_states:
-            next_states[state_code] /= count
+        states = list(next_states.keys())
+        probabilities = [n / count for n in next_states.values()]
 
-        yield next_states
+        yield states, probabilities
