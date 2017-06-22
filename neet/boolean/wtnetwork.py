@@ -63,7 +63,7 @@ class WTNetwork(object):
         :raises ValueError: if ``len(names)`` is not equal to the number of nodes
         :raises TypeError: if ``threshold_func`` is not callable
         """
-        if type(weights) == int:
+        if isinstance(weights, int):
             self.weights = np.zeros([weights,weights])
         else:
             self.weights = np.asarray(weights, dtype=np.float)
