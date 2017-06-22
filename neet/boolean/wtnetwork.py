@@ -40,6 +40,18 @@ class WTNetwork(object):
             >>> net.thresholds
             array([ 0.5, -0.5])
 
+        ::
+
+            >>> net = WTNetwork(3)
+            >>> net.size
+            3
+            >>> net.weights
+            array([[ 0.,  0.,  0.],
+                   [ 0.,  0.,  0.],
+                   [ 0.,  0.,  0.]])
+            >>> net.thresholds
+            array([ 0.,  0.,  0.])
+
         :param weights: the network weights
         :param thresholds: the network thresholds
         :param names: the names of the network nodes (optional)
@@ -51,7 +63,11 @@ class WTNetwork(object):
         :raises ValueError: if ``len(names)`` is not equal to the number of nodes
         :raises TypeError: if ``threshold_func`` is not callable
         """
-        self.weights = np.asarray(weights, dtype=np.float)
+        if isinstance(weights, int):
+            self.weights = np.zeros([weights,weights])
+        else:
+            self.weights = np.asarray(weights, dtype=np.float)
+        
         shape = self.weights.shape
         if self.weights.ndim != 2:
             raise(ValueError("weights must be a matrix"))
@@ -101,7 +117,7 @@ class WTNetwork(object):
             >>> WTNetwork(0)
             Traceback (most recent call last):
                 ...
-            ValueError: network must have at least one node
+            ValueError: invalid network size
 
         :type: int
         """
