@@ -2,7 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import unittest
-from neet.landscape import StateSpace
+from neet.statespace import StateSpace
 import numpy as np
 
 class TestStateSpace(unittest.TestCase):

@@ -2,7 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import numpy as np
-from neet.landscape import StateSpace
+from neet.statespace import StateSpace
 from . import eca
 
 class RewiredECA(eca.ECA):
@@ -143,7 +143,7 @@ class RewiredECA(eca.ECA):
 
             >>> eca = RewiredECA(30, size=3)
             >>> eca.state_space()
-            <neet.landscape.StateSpace object at 0x0000020EED289748>
+            <neet.statespace.StateSpace object at 0x0000020EED289748>
             >>> space = eca.state_space()
             >>> list(space.states())
             [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]

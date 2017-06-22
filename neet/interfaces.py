@@ -65,3 +65,12 @@ def is_fixed_sized(thing):
     :see: :func:`is_network`.
     """
     return is_network(thing) and hasattr(thing, 'size')
+
+
+def is_boolean_network(thing):
+    """
+    Determine whether an *object* is a network with all Boolean states.
+    """
+    # Boolean networks have a single base equal to 2
+    return is_network(thing) and hasattr(thing.state_space(), 'base') and thing.state_space().base == 2
+
