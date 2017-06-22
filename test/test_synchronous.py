@@ -5,35 +5,27 @@ import numpy as np
 import unittest
 from collections import Counter
 from neet.automata import ECA
-from neet.boolean.examples import *
-from neet.landscape import *
+from neet.boolean.examples import s_pombe, s_cerevisiae, c_elegans
+from neet.synchronous import *
+from .mock import MockObject, MockFixedSizedNetwork
 
 class TestCore(unittest.TestCase):
-    class IsNetwork(object):
-        def update(self, lattice):
-            pass
-        def state_space(self):
-            return StateSpace(1)
-
-    class IsNotNetwork(object):
-        pass
-
     def test_trajectory_not_network(self):
         with self.assertRaises(TypeError):
             list(trajectory(5, [1,2,3]))
 
         with self.assertRaises(TypeError):
-            list(trajectory(self.IsNotNetwork(), [1,2,3]))
+            list(trajectory(MockObject(), [1,2,3]))
 
         with self.assertRaises(TypeError):
-            list(trajectory(self.IsNetwork, [1,2,3]))
+            list(trajectory(MockFixedSizedNetwork, [1,2,3]))
 
     def test_trajectory_too_short(self):
         with self.assertRaises(ValueError):
-            list(trajectory(self.IsNetwork(), [1,2,3], n=0))
+            list(trajectory(MockFixedSizedNetwork(), [1,2,3], n=0))
 
         with self.assertRaises(ValueError):
-            list(trajectory(self.IsNetwork(), [1,2,3], n=-1))
+            list(trajectory(MockFixedSizedNetwork(), [1,2,3], n=-1))
 
     def test_trajectory_eca_not_encoded(self):
         from neet.automata import ECA
@@ -101,11 +93,11 @@ class TestCore(unittest.TestCase):
 
     def test_transitions_not_network(self):
         with self.assertRaises(TypeError):
-            list(transitions(self.IsNotNetwork(), StateSpace(5)))
+            list(transitions(MockObject(), StateSpace(5)))
 
     def test_transitions_not_statespace(self):
         with self.assertRaises(TypeError):
-            list(transitions(self.IsNetwork(), 5))
+            list(transitions(MockFixedSizedNetwork(), 5))
 
     def test_transitions_eca_encoded(self):
         from neet.automata import ECA
@@ -164,7 +156,7 @@ class TestCore(unittest.TestCase):
 
     def test_transition_graph_not_network(self):
         with self.assertRaises(TypeError):
-            transition_graph(self.IsNotNetwork())
+            transition_graph(MockObject())
 
     def test_transition_graph_s_pombe(self):
         g = transition_graph(s_pombe)
@@ -224,7 +216,7 @@ class TestCore(unittest.TestCase):
             timeseries(5, timesteps=2)
 
         with self.assertRaises(TypeError):
-            timeseries(self.IsNotNetwork(), timesteps=2)
+            timeseries(MockObject(), timesteps=2)
 
 
     def test_timeseries_not_fixed_sized(self):
@@ -234,10 +226,11 @@ class TestCore(unittest.TestCase):
 
     def test_timeseries_too_short(self):
         with self.assertRaises(ValueError):
-            timeseries(self.IsNetwork(), timesteps=0)
+            timeseries(MockFixedSizedNetwork(), timesteps=0)
 
         with self.assertRaises(ValueError):
-            timeseries(self.IsNetwork(), timesteps=-1)
+            timeseries(MockFixedSizedNetwork(), timesteps=-1)
+
 
     def test_timeseries_wtnetworks(self):
         for (net, size) in [(s_pombe,9), (s_cerevisiae,11), (c_elegans,8)]:
@@ -248,6 +241,7 @@ class TestCore(unittest.TestCase):
                 for (t, expect) in enumerate(trajectory(net, state, n=time)):
                     got = series[:, index, t]
                     self.assertTrue(np.array_equal(expect, got))
+
 
     def test_timeseries_eca(self):
         rule = ECA(30)

@@ -3,7 +3,7 @@
 # license that can be found in the LICENSE file.
 import numpy as np
 import pyinform as pi
-from neet.landscape import timeseries
+from neet.synchronous import timeseries
 
 def active_information(net, k, timesteps, size=None, local=False):
     """

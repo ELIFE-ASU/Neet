@@ -3,6 +3,7 @@
 # license that can be found in the LICENSE file.
 import unittest
 from neet.interfaces import *
+from neet.statespace import StateSpace
 import numpy as np
 
 class TestCore(unittest.TestCase):
@@ -22,6 +23,18 @@ class TestCore(unittest.TestCase):
     class NotFixedSizedNetwork(IsNotNetwork):
         def size(self):
             return 5
+    
+    class BaseThreeNetwork(object):
+        def update(self, lattice):
+            pass
+        def state_space(self):
+            return StateSpace(1,b=3)
+    
+    class MultipleBaseNetwork(object):
+        def update(self, lattice):
+            pass
+        def state_space(self):
+            return StateSpace([1,2,3])
 
     def test_is_network(self):
         net = self.IsNetwork()
@@ -51,3 +64,14 @@ class TestCore(unittest.TestCase):
         not_net = self.NotFixedSizedNetwork()
         self.assertFalse(is_fixed_sized(not_net))
         self.assertFalse(is_fixed_sized(type(not_net)))
+
+    def test_is_boolean_network(self):
+        net = self.IsNetwork()
+        self.assertTrue(is_boolean_network(net))
+        
+        not_bool_net = self.BaseThreeNetwork()
+        self.assertFalse(is_boolean_network(not_bool_net))
+        
+        not_bool_net = self.MultipleBaseNetwork()
+        self.assertFalse(is_boolean_network(not_bool_net))
+        
