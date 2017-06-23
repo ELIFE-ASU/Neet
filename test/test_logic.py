@@ -12,7 +12,7 @@ class TestLogicNetwork(unittest.TestCase):
         self.assertTrue(is_network(bnet.LogicNetwork))
         self.assertTrue(is_network(bnet.LogicNetwork([(1, {0})])))
 
-    def test_us_fuxed_sized(self):
+    def test_is_fixed_sized(self):
         from neet.interfaces import is_fixed_sized
         self.assertTrue(is_fixed_sized(bnet.LogicNetwork))
         self.assertTrue(is_fixed_sized(bnet.LogicNetwork([(1, {0})])))
@@ -43,4 +43,4 @@ class TestLogicNetwork(unittest.TestCase):
             bnet.LogicNetwork([(2, {0})])
 
         with self.assertRaises(ValueError):
-            bnet.LogicNetwork([(1, {0})])
+            bnet.LogicNetwork([(1, {2})])

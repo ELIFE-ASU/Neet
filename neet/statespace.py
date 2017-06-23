@@ -2,11 +2,13 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 
+
 class StateSpace(object):
     """
     StateSpace represents the state space of a network model. It may be
     either uniform, i.e. all nodes have the same base, or non-uniform.
     """
+
     def __init__(self, spec, b=None):
         """
         Initialize the state spec in accordance with the provided ``spec``
@@ -71,7 +73,8 @@ class StateSpace(object):
                     if not isinstance(x, int):
                         raise(TypeError("spec must be a list of ints"))
                     elif x < 1:
-                        raise(ValueError("spec may only contain positive, nonzero elements"))
+                        raise(ValueError(
+                            "spec may only contain positive, nonzero elements"))
                     if self.is_uniform and x != base:
                         self.is_uniform = False
                         if b is not None:
@@ -79,7 +82,7 @@ class StateSpace(object):
                     self.volume *= x
                 self.ndim = len(spec)
                 if self.is_uniform:
-                    self.base  = base
+                    self.base = base
                 else:
                     self.bases = spec[:]
         else:
@@ -215,4 +218,3 @@ class StateSpace(object):
                 state[i] = x % self.bases[i]
                 x = int(x / self.bases[i])
         return state
-
