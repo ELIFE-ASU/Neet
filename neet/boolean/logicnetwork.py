@@ -37,7 +37,7 @@ class LogicNetwork(object):
             for condition in row[1]:
                 encoded_condition = 0
                 for idx, state in zip(row[0], condition):
-                    encoded_condition += 2 ** idx if state else 0
+                    encoded_condition += 2 ** idx if int(state) else 0
                 encoded_sub_table.add(encoded_condition)
             self._encoded_table.append((mask_code, encoded_sub_table))
         # Store positive truth table for human reader.
@@ -50,15 +50,15 @@ class LogicNetwork(object):
 
         new_net_state = net_state.copy()
 
-        if index:
-            indices = [index]
-        else:
+        if index is None:
             indices = range(self.size)
+        else:
+            indices = [index]
 
         for idx in indices:
-            mask = self.table[idx][0]
+            mask, condition = self._encoded_table[idx]
             sub_net_state = mask & encoded_state
-            new_net_state[idx] = 1 if sub_net_state in self.table[idx][1] else 0
+            new_net_state[idx] = 1 if sub_net_state in condition else 0
 
         return new_net_state
 
