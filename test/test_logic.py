@@ -42,3 +42,12 @@ class TestLogicNetwork(unittest.TestCase):
         self.assertEqual(net.update([1, 0], 1), [1, 1])
         self.assertEqual(net.update([1, 0]), [1, 1])
         self.assertEqual(net.update([1, 1]), [1, 1])
+
+        net = bnet.LogicNetwork([((1, 2), {'01', '10'}),
+                                 ((0, 2), {(0, 1), '10', (1, 1)}),
+                                 ((0, 1), {'11'})])
+        self.assertEqual(net.update([0, 1, 0]), [1, 0, 0])
+        self.assertEqual(net.update([1, 1, 1], 1), [1, 1, 1])
+        self.assertEqual(net.update([0, 0, 1]), [1, 1, 0])
+        self.assertEqual(net.update([0, 0, 1], pin=[1]), [1, 0, 0])
+        self.assertEqual(net.update([0, 0, 1], pin=[0, 1]), [0, 0, 0])
