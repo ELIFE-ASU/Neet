@@ -14,41 +14,34 @@ class LogicNetwork(object):
         """
         if not isinstance(table, (list, tuple)):
             raise TypeError("table must be a list or tuple.")
-        self._size = len(table)
-        self._num_states = 2 ** self._size  # To be changed with the StateSpace
+
+        self.size = len(table)
+        self.state_space = StateSpace(self.size, b=2)
+        self._encoded_table = []
+
         for row in table:
-            if not (isinstance(row, (list, tuple)) and len(row) == 2
-                    and isinstance(row[0], int) and isinstance(row[1], set)):
+            # Validate mask.
+            if not (isinstance(row, (list, tuple)) and len(row) == 2):
                 raise ValueError("Invalid table format.")
-            if row[0] not in range(self._num_states):
-                raise ValueError("mask must be an encoded net state.")
-            if any([encode not in range(self._num_states) for encode in row[1]]):
-                raise ValueError("active_condition must be encoded net state.")
-
+            # Encode the mask.
+            mask_code = 0
+            for idx in row[0]:
+                if idx >= self.size:
+                    raise IndexError("mask index out of range.")
+                mask_code += 2 ** idx  # Low order, low index.
+            # Validate truth table of the sub net.
+            if not isinstance(row[1], (list, tuple, set)):
+                raise ValueError("Invalid table format.")
+            # Encode each condition of truth table.
+            encoded_sub_table = set()
+            for condition in row[1]:
+                encoded_condition = 0
+                for idx, state in zip(row[0], condition):
+                    encoded_condition += 2 ** idx if state else 0
+                encoded_sub_table.add(encoded_condition)
+            self._encoded_table.append((mask_code, encoded_sub_table))
+        # Store positive truth table for human reader.
         self.table = table
-        self._state_space = StateSpace(self.size, b=2)
-
-    @property
-    def size(self):
-        """
-        """
-        return self._size
-
-    @property
-    def state_space(self):
-        """
-        """
-        return self._state_space
-
-    def check_state(self, states):
-        """
-        """
-        if len(states) != self.size:
-            raise ValueError("incorrect number of states in array")
-        for x in states:
-            if x != 0 and x != 1:
-                raise ValueError("invalid node state in states")
-        return True
 
     def _update(self, net_state, index=None):
         """
