@@ -72,6 +72,18 @@ class TestWTNetwork(unittest.TestCase):
         self.assertTrue(np.array_equal([0,0,0], net.thresholds))
         self.assertIsNone(net.names)
 
+        net = bnet.WTNetwork(1)
+        self.assertEqual(1, net.size)
+        self.assertTrue(np.array_equal([[0]], net.weights))
+        self.assertTrue(np.array_equal([0], net.thresholds))
+        self.assertIsNone(net.names)
+
+        net = bnet.WTNetwork(2)
+        self.assertEqual(2, net.size)
+        self.assertTrue(np.array_equal([[0,0],[0,0]], net.weights))
+        self.assertTrue(np.array_equal([0,0], net.thresholds))
+        self.assertIsNone(net.names)
+
 
     def test_init_weights_thresholds(self):
         net = bnet.WTNetwork([[1]], [1])
