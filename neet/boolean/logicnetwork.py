@@ -140,7 +140,7 @@ class LogicNetwork(object):
         """
         encoded_state = self.state_space.encode(net_state)
 
-        new_net_state = net_state.copy()
+        new_net_state = net_state[:]  # Python 2.7
 
         if index is None:
             indices = range(self.size)
