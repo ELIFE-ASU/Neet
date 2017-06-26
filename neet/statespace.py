@@ -218,3 +218,54 @@ class StateSpace(object):
                 state[i] = x % self.bases[i]
                 x = int(x / self.bases[i])
         return state
+
+    def check_states(self, states):
+        """
+        Check the validity of the provided states.
+
+        .. rubric:: Examples;
+
+        ::
+
+            >>> StateSpace(3).check_states([0,0,0])
+            True
+            >>> StateSpace(3).check_states([0,0])
+            Traceback (most recent call last):
+                ...
+            ValueError: incorrect number of states in array
+            >>> StateSpace(3).check_states([1,2,1])
+            Traceback (most recent call last):
+                ...
+            ValueError: invalid node state in states
+
+            >>> StateSpace([2, 3, 2]).check_states([0, 2, 1])
+            True
+            >>> StateSpace([2, 2, 3]).check_states([0, 1])
+            Traceback (most recent call last):
+                ...
+            ValueError: incorrect number of states in array
+            >>> StateSpace([2, 3, 4]).check_states([1, 1, 6])
+            Traceback (most recent call last):
+                ...
+            ValueError: invalid node state in states
+
+        :returns: ``True`` if the ``states`` are valid, otherwise an error is raised
+        :param states: the one-dimensional sequence of node states
+        :type states: sequence
+        :raises TypeError: if ``states`` is not iterable
+        :raises ValueError: if ``len(states)`` is not the number of nodes in the network
+        :raises ValueError: if ``states[i] not in [0,1]`` for any node ``i``
+        """
+        if len(states) != self.ndim:
+            raise ValueError("incorrect number of states in array")
+
+        if self.is_uniform:
+            for x in states:
+                if x not in range(self.base):
+                    raise ValueError("invalid node state in states")
+        else:
+            for x, b in zip(states, self.bases):
+                if x not in range(b):
+                    raise ValueError("invalid node state in states")
+
+        return True
