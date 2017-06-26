@@ -218,7 +218,6 @@ class StateSpace(object):
                 state[i] = x % self.bases[i]
                 x = int(x / self.bases[i])
         return state
-<<<<<<< HEAD
 
     def check_states(self, states):
         """
@@ -270,5 +269,3 @@ class StateSpace(object):
                     raise ValueError("invalid node state in states")
 
         return True
-=======
->>>>>>> dev
