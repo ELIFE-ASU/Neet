@@ -6,7 +6,7 @@ import unittest
 from collections import Counter
 from neet.automata import ECA
 from neet.boolean import WTNetwork
-from neet.boolean.examples import s_pombe
+from neet.boolean.examples import s_pombe, s_cerevisiae, c_elegans
 from neet.synchronous import *
 from .mock import MockObject, MockFixedSizedNetwork
 
@@ -230,22 +230,65 @@ class TestSynchronous(unittest.TestCase):
         self.assertEqual(volume, graph.number_of_nodes())
         self.assertEqual(volume, graph.number_of_edges())
 
-    def test_attractors_s_pombe(self):
-        att = list( attractors(s_pombe) )
-
-        self.assertEqual(13, len(att))
-    
-    def test_attractors_type(self):
-        att_from_graph = attractors(transition_graph(s_pombe))
-        att_from_network = attractors(s_pombe)
-        self.assertEqual(list(att_from_network),list(att_from_graph))
-    
-    def test_attractors_typeerror(self):
+    def test_attractors_invalid_net(self):
+        """
+        ``attractors`` should raise an error if ``net`` is neither a network
+        nor a networkx digraph
+        """
         with self.assertRaises(TypeError):
             attractors('blah')
-        
+
         with self.assertRaises(TypeError):
-            attractors(nx.Graph()) # (undirected)
+            attractors(MockObject())
+
+        with self.assertRaises(TypeError):
+            attractors(nx.Graph())
+
+    def test_attractors_varialbe_sized(self):
+        """
+        ``attractors`` should raise an error if ``net`` is a variable sized
+        network and ``size`` is ``None``
+        """
+        with self.assertRaises(ValueError):
+            attractors(ECA(30), size=None)
+
+    def test_attractors_fixed_sized(self):
+        """
+        ``attractors`` should raise an error if ``net`` is either a fixed sized
+        network or a networkx digraph, and ``size`` is not ``None``
+        """
+        with self.assertRaises(ValueError):
+            attractors(MockFixedSizedNetwork(), size=5)
+
+        with self.assertRaises(ValueError):
+            attractors(nx.DiGraph(), size=5)
+
+    def test_attractors_eca(self):
+        """
+        test ``attractors`` on ECA
+        """
+        networks = [(ECA(30), 2, 3), (ECA(30), 3, 1), (ECA(30), 4, 4),
+                    (ECA(30), 5, 2), (ECA(30), 6, 3), (ECA(110), 2, 1),
+                    (ECA(110), 3, 1), (ECA(110), 4, 3), (ECA(110), 5, 1),
+                    (ECA(110), 6, 3)]
+        for rule, width, size in networks:
+            self.assertEqual(size, len(list(attractors(rule, width))))
+
+    def test_attractors_wtnetworks(self):
+        """
+        test ``attractors`` on WTNetworks
+        """
+        networks = [(s_pombe, 13), (s_cerevisiae, 7), (c_elegans, 5)]
+        for net, size in networks:
+            self.assertEqual(size, len(list(attractors(net))))
+
+    def test_attractors_transition_graph(self):
+        """
+        test ``attractors`` on ``s_pombe`` transition graph
+        """
+        att_from_graph = list(attractors(transition_graph(s_pombe)))
+        att_from_network = list(attractors(s_pombe))
+        self.assertEqual(att_from_network, att_from_graph)
     
     def test_basins(self):
         

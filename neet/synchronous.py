@@ -120,36 +120,39 @@ def transition_graph(net, size=None):
         >>> g.number_of_edges()
         32
     """
-    edge_list = enumerate(transitions(net, size=size, encode=True))
+    edge_gen = list(transitions(net, size=size, encode=True))
+    edge_list = enumerate(edge_gen)
     return nx.DiGraph(list(edge_list))
 
-def attractors(net):
+def attractors(net, size=None):
     """
-    Return a generator that lists net's attractors.  Each attractor 
+    Return a generator that lists net's attractors. Each attractor
     is represented as a list of 'encoded' states.
-    
+
     .. rubric:: Example:
-    
+
     ::
-    
+
         >>> from neet.boolean.examples import s_pombe
         >>> print(list(attractors(s_pombe)))
-        [[204], [200], [196], [140], [136], [132], [72], [68], 
+        [[204], [200], [196], [140], [136], [132], [72], [68],
         [384, 110, 144], [12], [8], [4], [76]]
-        
+
     :param net: the network or landscape transition_graph
     :type net: neet network or networkx DiGraph
     :returns: generator of attractors
     :raises TypeError: if ``net`` is not a network or DiGraph
     """
     if is_network(net):
-        g = transition_graph(net)
-    elif isinstance(net,nx.DiGraph):
-        g = net
+        graph = transition_graph(net, size=size)
+    elif isinstance(net, nx.DiGraph):
+        if size is not None:
+            raise ValueError("size must be None for transition graphs")
+        graph = net
     else:
         raise TypeError("net must be a network or a networkx DiGraph")
-    
-    return nx.simple_cycles(g)
+
+    return nx.simple_cycles(graph)
 
 def basins(net):
     """
