@@ -4,6 +4,7 @@
 import numpy as np
 import unittest
 from collections import Counter
+from neet.automata import ECA
 from neet.boolean import WTNetwork
 from neet.boolean.examples import s_pombe
 from neet.synchronous import *
@@ -37,11 +38,10 @@ class TestSynchronous(unittest.TestCase):
         with self.assertRaises(ValueError):
             list(trajectory(MockFixedSizedNetwork(), [1, 2, 3], timesteps=-1))
 
-    def test_trajectory_eca_not_encoded(self):
+    def test_trajectory_eca(self):
         """
         test ``trajectory`` on ECAs
         """
-        from neet.automata import ECA
         rule30 = ECA(30)
         with self.assertRaises(ValueError):
             list(trajectory(rule30, []))
@@ -59,21 +59,20 @@ class TestSynchronous(unittest.TestCase):
         """
         test ``trajectory`` on ECAs; encoding the states
         """
-        from neet.automata import ECA
         rule30 = ECA(30)
         with self.assertRaises(ValueError):
             list(trajectory(rule30, [], encode=True))
 
-        xs = [0, 1, 0]
-        got = list(trajectory(rule30, xs, encode=True))
-        self.assertEqual([0, 1, 0], xs)
+        state = [0, 1, 0]
+        got = list(trajectory(rule30, state, encode=True))
+        self.assertEqual([0, 1, 0], state)
         self.assertEqual([2, 7], got)
 
-        got = list(trajectory(rule30, xs, timesteps=2, encode=True))
-        self.assertEqual([0, 1, 0], xs)
+        got = list(trajectory(rule30, state, timesteps=2, encode=True))
+        self.assertEqual([0, 1, 0], state)
         self.assertEqual([2, 7, 0], got)
 
-    def test_trajectory_wtnetwork_not_encoded(self):
+    def test_trajectory_wtnetwork(self):
         """
         test ``trajectory`` on WTNetworks
         """
@@ -83,13 +82,13 @@ class TestSynchronous(unittest.TestCase):
             theta=WTNetwork.positive_threshold
         )
 
-        xs = [0, 0]
-        got = list(trajectory(net, xs))
-        self.assertEqual([0, 0], xs)
+        state = [0, 0]
+        got = list(trajectory(net, state))
+        self.assertEqual([0, 0], state)
         self.assertEqual([[0, 0], [0, 1]], got)
 
-        got = list(trajectory(net, xs, timesteps=3))
-        self.assertEqual([0, 0], xs)
+        got = list(trajectory(net, state, timesteps=3))
+        self.assertEqual([0, 0], state)
         self.assertEqual([[0, 0], [0, 1], [0, 1], [0, 1]], got)
 
     def test_trajectory_wtnetwork_encoded(self):
@@ -102,77 +101,94 @@ class TestSynchronous(unittest.TestCase):
             theta=WTNetwork.positive_threshold
         )
 
-        xs = [0, 0]
-        got = list(trajectory(net, xs, encode=True))
-        self.assertEqual([0, 0], xs)
+        state = [0, 0]
+        got = list(trajectory(net, state, encode=True))
+        self.assertEqual([0, 0], state)
         self.assertEqual([0, 2], got)
 
-        got = list(trajectory(net, xs, timesteps=3, encode=True))
-        self.assertEqual([0, 0], xs)
+        got = list(trajectory(net, state, timesteps=3, encode=True))
+        self.assertEqual([0, 0], state)
         self.assertEqual([0, 2, 2, 2], got)
 
     def test_transitions_not_network(self):
+        """
+        ``transitions`` should raise a type error if ``net`` is not a network
+        """
         with self.assertRaises(TypeError):
-            list(transitions(MockObject(), StateSpace(5)))
+            list(transitions(MockObject(), 5))
 
-    def test_transitions_not_statespace(self):
-        with self.assertRaises(TypeError):
-            list(transitions(MockFixedSizedNetwork(), 5))
+    def test_transitions_not_fixed_sized(self):
+        """
+        ``transitions`` should raise an error if ``net`` is not fixed sized
+        and ``size`` is ``None``
+        """
+        with self.assertRaises(ValueError):
+            list(transitions(ECA(30), size=None))
+
+    def test_transitions_fixed_sized(self):
+        """
+        ``transitions`` should raise an error if ``net`` is fixed sized and
+        ``size`` is not ``None``
+        """
+        with self.assertRaises(ValueError):
+            list(transitions(MockFixedSizedNetwork, size=3))
+
+    def test_transitions_eca(self):
+        """
+        test ``transitions`` on ECAs; encoding the states
+        """
+        rule30 = ECA(30)
+
+        got = list(transitions(rule30, size=1))
+        self.assertEqual([[0], [0]], got)
+
+        got = list(transitions(rule30, size=2))
+        self.assertEqual([[0, 0], [1, 0], [0, 1], [0, 0]], got)
+
+        got = list(transitions(rule30, size=3))
+        self.assertEqual([[0, 0, 0], [1, 1, 1], [1, 1, 1], [1, 0, 0],
+                          [1, 1, 1], [0, 0, 1], [0, 1, 0], [0, 0, 0]], got)
 
     def test_transitions_eca_encoded(self):
-        from neet.automata import ECA
+        """
+        test ``transitions`` on ECAs; encoding the states
+        """
         rule30 = ECA(30)
 
-        got = list(transitions(rule30, n=1))
-        self.assertEqual([0,0], got)
+        got = list(transitions(rule30, size=1, encode=True))
+        self.assertEqual([0, 0], got)
 
-        got = list(transitions(rule30, n=2))
-        self.assertEqual([0,1,2,0], got)
+        got = list(transitions(rule30, size=2, encode=True))
+        self.assertEqual([0, 1, 2, 0], got)
 
-        got = list(transitions(rule30, n=3))
-        self.assertEqual([0,7,7,1,7,4,2,0], got)
+        got = list(transitions(rule30, size=3, encode=True))
+        self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], got)
 
-    def test_transitions_eca_not_encoded(self):
-        from neet.automata import ECA
-        rule30 = ECA(30)
-
-        got = list(transitions(rule30, n=1, encode=False))
-        self.assertEqual([[0],[0]], got)
-
-        got = list(transitions(rule30, n=2, encode=False))
-        self.assertEqual([[0,0],[1,0],[0,1],[0,0]], got)
-
-        got = list(transitions(rule30, n=3, encode=False))
-        self.assertEqual([[0,0,0],[1,1,1],[1,1,1],[1,0,0]
-                         ,[1,1,1],[0,0,1],[0,1,0],[0,0,0]], got)
-
-    def test_transitions_wtnetwork_encoded(self):
-        from neet.boolean import WTNetwork
+    def test_transitions_wtnetwork(self):
+        """
+        test ``transitions`` on WTNetworks
+        """
         net = WTNetwork(
-            weights    = [[1,0],[-1,1]],
-            thresholds = [0.5,0.0],
-            theta      = WTNetwork.positive_threshold
+            weights=[[1, 0], [-1, 1]],
+            thresholds=[0.5, 0.0],
+            theta=WTNetwork.positive_threshold
         )
-
-        with self.assertRaises(TypeError):
-            list(transitions(net, n=1))
 
         got = list(transitions(net))
-        self.assertEqual([2,1,2,3], got)
+        self.assertEqual([[0, 1], [1, 0], [0, 1], [1, 1]], got)
 
-    def test_transitions_eca_not_encoded(self):
-        from neet.boolean import WTNetwork
+    def test_transitions_wtnetwork_encoded(self):
+        """
+        test ``transitions`` on WTNetworks; encoding the states
+        """
         net = WTNetwork(
-            weights    = [[1,0],[-1,1]],
-            thresholds = [0.5,0.0],
-            theta      = WTNetwork.positive_threshold
+            weights=[[1, 0], [-1, 1]],
+            thresholds=[0.5, 0.0],
+            theta=WTNetwork.positive_threshold
         )
 
-        with self.assertRaises(TypeError):
-            list(transitions(net, n=1, encode=False))
-
-        got = list(transitions(net, encode=False))
-        self.assertEqual([[0,1],[1,0],[0,1],[1,1]], got)
+        got = list(transitions(net, encode=True))
+        self.assertEqual([2, 1, 2, 3], got)
 
     def test_transition_graph_not_network(self):
         with self.assertRaises(TypeError):

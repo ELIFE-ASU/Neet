@@ -54,7 +54,7 @@ def trajectory(net, state, timesteps=1, encode=False):
             net.update(state)
             yield copy.copy(state)
 
-def transitions(net, n=None, encode=True):
+def transitions(net, size=None, encode=False):
     """
     Generate the one-step state transitions for a network over its state space.
 
@@ -67,14 +67,14 @@ def transitions(net, n=None, encode=True):
         >>> gen
         <generator object transitions at 0x000001DF6E02B938>
         >>> list(gen)
-        [0, 7, 7, 1, 7, 4, 2, 0]
-        >>> list(transitions(ECA(30), n=3, encode=False))
         [[0, 0, 0], [1, 1, 1], [1, 1, 1], [1, 0, 0], [1, 1, 1], [0, 0,
         1], [0, 1, 0], [0, 0, 0]]
+        >>> list(transitions(ECA(30), n=3, encode=True))
+        [0, 7, 7, 1, 7, 4, 2, 0]
 
     :param net: the network
-    :param n: the number of nodes in the network
-    :type n: ``None`` or ``int``
+    :param size: the number of nodes in the network
+    :type size: ``None`` or ``int``
     :param encode: encode the states as integers
     :type encode: boolean
     :yields: the one-state transitions
@@ -82,17 +82,19 @@ def transitions(net, n=None, encode=True):
     :raises TypeError: if ``space`` is not a :class:`neet.StateSpace`
     """
     if not is_network(net):
-        raise(TypeError("net is not a network"))
+        raise TypeError("net is not a network")
 
     if is_fixed_sized(net):
-        if n is not None:
-            raise(TypeError("n must be None for fixed sized networks"))
+        if size is not None:
+            raise ValueError("size must be None for fixed sized networks")
         space = net.state_space()
     else:
-        space = net.state_space(n)
+        if size is None:
+            raise ValueError("size must not be None for variable sized networks")
+        space = net.state_space(size)
 
     if not isinstance(space, StateSpace):
-        raise(TypeError("network's state space is not an instance of StateSpace"))
+        raise TypeError("network's state space is not an instance of StateSpace")
 
     for state in space.states():
         net.update(state)
@@ -100,7 +102,6 @@ def transitions(net, n=None, encode=True):
             yield space.encode(state)
         else:
             yield state
-
 
 def transition_graph(net, n=None):
     """
@@ -119,7 +120,7 @@ def transition_graph(net, n=None):
     if not is_network(net):
         raise(TypeError("net is not a network"))
 
-    edgeList = enumerate( transitions(net,n) )
+    edgeList = enumerate( transitions(net, size=n, encode=True) )
     
     return nx.DiGraph(edgeList)
 
