@@ -34,7 +34,7 @@ Yeast Networks
 
     .. autoattribute:: neet.boolean.examples.s_cerevisiae
         :annotation: = <neet.boolean.WTNetwork object>
-        
+
 p53 Networks
 """"""""""""""""""
 
@@ -42,4 +42,10 @@ p53 Networks
         :annotation: = <neet.boolean.WTNetwork object>
 
     .. autoattribute:: neet.boolean.examples.p53_dmg
-        :annotation: = <neet.boolean.WTNetwork object>        
+        :annotation: = <neet.boolean.WTNetwork object>
+
+
+Random networks
+^^^^^^^^^^^^^^^
+
+.. automodule:: neet.boolean.rannetwork
