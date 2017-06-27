@@ -9,10 +9,10 @@ class StateSpace(object):
     either uniform, i.e. all nodes have the same base, or non-uniform.
     """
 
-    def __init__(self, spec, b=None):
+    def __init__(self, spec, base=None):
         """
         Initialize the state spec in accordance with the provided ``spec``
-        and base ``b``.
+        and base ``base``.
 
         .. rubric:: Examples of Uniform State Spaces:
 
@@ -38,27 +38,27 @@ class StateSpace(object):
 
         :param spec: the number of nodes or an array of node bases
         :type spec: int or list
-        :param b: the base of the network nodes (ignored if ``spec`` is a list)
+        :param base: the base of the network nodes (ignored if ``spec`` is a list)
         :raises TypeError: if ``spec`` is neither an int nor a list of ints
-        :raises TypeError: if ``b`` is neither ``None`` nor an int
-        :raises ValueError: if ``b`` is negative or zero
+        :raises TypeError: if ``base`` is neither ``None`` nor an int
+        :raises ValueError: if ``base`` is negative or zero
         :raises ValueError: if any element of ``spec`` is negative or zero
         :raises ValueError: if ``spec`` is empty
         """
         if isinstance(spec, int):
             if spec < 1:
                 raise ValueError("ndim cannot be zero or negative")
-            if b is None:
-                b = 2
-            elif not isinstance(b, int):
+            if base is None:
+                base = 2
+            elif not isinstance(base, int):
                 raise TypeError("base must be an int")
-            elif b < 1:
+            elif base < 1:
                 raise ValueError("base must be positive, nonzero")
 
             self.is_uniform = True
             self.ndim = spec
-            self.base = b
-            self.volume = b**spec
+            self.base = base
+            self.volume = base**spec
 
         elif isinstance(spec, list):
             if len(spec) == 0:
@@ -66,23 +66,23 @@ class StateSpace(object):
             else:
                 self.is_uniform = True
                 self.volume = 1
-                base = spec[0]
-                if b is not None and base != b:
-                    raise ValueError("b does not match base of spec")
+                first_base = spec[0]
+                if base is not None and first_base != base:
+                    raise ValueError("base does not match base of spec")
                 for spec_base in spec:
                     if not isinstance(spec_base, int):
                         raise TypeError("spec must be a list of ints")
                     elif spec_base < 1:
                         msg = "spec may only contain positive, nonzero elements"
                         raise ValueError(msg)
-                    if self.is_uniform and spec_base != base:
+                    if self.is_uniform and spec_base != first_base:
                         self.is_uniform = False
-                        if b is not None:
+                        if base is not None:
                             raise ValueError("b does not match base of spec")
                     self.volume *= spec_base
                 self.ndim = len(spec)
                 if self.is_uniform:
-                    self.base = base
+                    self.base = first_base
                 else:
                     self.bases = spec[:]
         else:

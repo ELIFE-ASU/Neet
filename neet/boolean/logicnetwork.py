@@ -61,7 +61,7 @@ class LogicNetwork(object):
             raise TypeError("table must be a list or tuple.")
 
         self.size = len(table)
-        self.state_space = StateSpace(self.size, b=2)
+        self.state_space = StateSpace(self.size, base=2)
         self._encoded_table = []
 
         for row in table:

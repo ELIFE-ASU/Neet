@@ -140,7 +140,7 @@ class WTNetwork(object):
         :type n: int
         :raises ValueError: if ``n < 1``
         """
-        return StateSpace(self.size, b=2)
+        return StateSpace(self.size, base=2)
 
     def check_states(self, states):
         """

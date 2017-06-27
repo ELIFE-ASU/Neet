@@ -131,7 +131,7 @@ class ECA(object):
         :type n: int
         :raises ValueError: if ``n < 1``
         """
-        return StateSpace(n, b=2)
+        return StateSpace(n, base=2)
 
     @classmethod
     def check_lattice(self, lattice):
