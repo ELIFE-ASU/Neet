@@ -261,14 +261,10 @@ class TestStateSpace(unittest.TestCase):
 
     def test_check_states_uniform(self):
         self.assertTrue(StateSpace(3).check_states([0, 1, 1]))
-        with self.assertRaises(ValueError):
-            StateSpace(3).check_states([0, 0])
-        with self.assertRaises(ValueError):
-            StateSpace(3).check_states([1, 2, 0])
+        self.assertFalse(StateSpace(3).check_states([0, 0]))
+        self.assertFalse(StateSpace(3).check_states([1, 2, 0]))
 
     def test_check_states_varied(self):
         self.assertTrue(StateSpace([2, 3, 2]).check_states([0, 2, 1]))
-        with self.assertRaises(ValueError):
-            StateSpace([2, 2, 3]).check_states([0, 1])
-        with self.assertRaises(ValueError):
-            StateSpace([2, 3, 4]).check_states([1, 1, 6])
+        self.assertFalse(StateSpace([2, 2, 3]).check_states([0, 1]))
+        self.assertFalse(StateSpace([2, 3, 4]).check_states([1, 1, 6]))

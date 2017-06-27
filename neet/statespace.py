@@ -226,51 +226,39 @@ class StateSpace(object):
 
     def check_states(self, states):
         """
-        Check the validity of the provided states.
+        Check the validity of the provided states
 
-        .. rubric:: Examples;
+        .. rubric:: Examples:
 
         ::
 
             >>> StateSpace(3).check_states([0,0,0])
             True
             >>> StateSpace(3).check_states([0,0])
-            Traceback (most recent call last):
-                ...
-            ValueError: incorrect number of states in array
+            False
             >>> StateSpace(3).check_states([1,2,1])
-            Traceback (most recent call last):
-                ...
-            ValueError: invalid node state in states
+            False
 
             >>> StateSpace([2, 3, 2]).check_states([0, 2, 1])
             True
             >>> StateSpace([2, 2, 3]).check_states([0, 1])
-            Traceback (most recent call last):
-                ...
-            ValueError: incorrect number of states in array
+            False
             >>> StateSpace([2, 3, 4]).check_states([1, 1, 6])
-            Traceback (most recent call last):
-                ...
-            ValueError: invalid node state in states
+            False
 
-        :returns: ``True`` if the ``states`` are valid, otherwise an error is raised
         :param states: the one-dimensional sequence of node states
-        :type states: sequence
-        :raises TypeError: if ``states`` is not iterable
-        :raises ValueError: if ``len(states)`` is not the number of nodes in the network
-        :raises ValueError: if ``states[i] not in [0,1]`` for any node ``i``
+        :returns: ``True`` if the ``states`` are valid
         """
         if len(states) != self.ndim:
-            raise ValueError("incorrect number of states in array")
+            return False
 
         if self.is_uniform:
             for state in states:
-                if state not in range(self.base):
-                    raise ValueError("invalid node state in states")
+                if self.base <= state or state < 0:
+                    return False
         else:
             for state, base in zip(states, self.bases):
                 if state not in range(base):
-                    raise ValueError("invalid node state in states")
+                    return False
 
         return True
