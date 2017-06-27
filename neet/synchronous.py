@@ -213,6 +213,8 @@ def timeseries(net, timesteps, size=None):
         raise TypeError("net must be a NEET network")
     if not is_fixed_sized(net) and size is None:
         raise ValueError("network is not fixed sized; must provide a size")
+    elif is_fixed_sized(net) and size is not None:
+        raise ValueError("cannot provide a size with a fixed sized network")
     if timesteps < 1:
         raise ValueError("time series must have at least one timestep")
 

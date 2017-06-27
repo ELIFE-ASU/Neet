@@ -224,6 +224,11 @@ class TestCore(unittest.TestCase):
             timeseries(ECA(30), timesteps=5)
 
 
+    def test_timeseries_fixed_sized_with_size(self):
+        with self.assertRaises(ValueError):
+            timeseries(MockFixedSizedNetwork(), size=5, timesteps=5)
+
+
     def test_timeseries_too_short(self):
         with self.assertRaises(ValueError):
             timeseries(MockFixedSizedNetwork(), timesteps=0)
