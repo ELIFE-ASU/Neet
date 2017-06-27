@@ -25,11 +25,11 @@ class TestRandom(unittest.TestCase):
         G = nx.from_numpy_matrix(net.weights, create_using = nx.DiGraph())
         ranG = nx.from_numpy_matrix(ran_net.weights, create_using = nx.DiGraph())
 
-        InDegree = G.in_degree(weight = 'weight').values()
-        ranInDegree = ranG.in_degree(weight = 'weight').values()
+        InDegree = list(G.in_degree(weight = 'weight').values())
+        ranInDegree = list(ranG.in_degree(weight = 'weight').values())
 
-        OutDegree = G.out_degree(weight = 'weight').values()
-        ranOutDegree = ranG.out_degree(weight = 'weight').values()
+        OutDegree = list(G.out_degree(weight = 'weight').values())
+        ranOutDegree = list(ranG.out_degree(weight = 'weight').values())
 
         self.assertEqual(InDegree, ranInDegree)
         self.assertEqual(OutDegree, ranOutDegree)
