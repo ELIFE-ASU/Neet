@@ -21,10 +21,10 @@ class StateSpace(object):
             >>> spec = StateSpace(5)
             >>> (spec.is_uniform, spec.ndim, spec.base)
             (True, 5, 2)
-            >>> spec = StateSpace(3, b=3)
+            >>> spec = StateSpace(3, base=3)
             >>> (spec.is_uniform, spec.ndim, spec.base)
             (True, 3, 3)
-            >>> spec = StateSpace([2,2,2])
+            >>> spec = StateSpace([2, 2, 2])
             >>> (spec.is_uniform, spec.ndim, spec.base)
             (True, 3, 2)
 
@@ -32,7 +32,7 @@ class StateSpace(object):
 
         ::
 
-            >>> spec = StateSpace([2,3,4])
+            >>> spec = StateSpace([2, 3, 4])
             >>> (spec.is_uniform, spec.bases, spec.ndim)
             (False, [2, 3, 4], 3)
 
@@ -88,19 +88,19 @@ class StateSpace(object):
         else:
             raise TypeError("spec must be an int or a list")
 
-    def states(self):
+    def __iter__(self):
         """
-        Generate each state of the state space.
+        Iterate over the states in the state space
 
         .. rubric:: Examples of Boolean Spaces
 
         ::
 
-            >>> list(StateSpace(1).states())
+            >>> list(StateSpace(1))
             [[0], [1]]
-            >>> list(StateSpace(2).states())
+            >>> list(StateSpace(2))
             [[0, 0], [1, 0], [0, 1], [1, 1]]
-            >>> list(StateSpace(3).states())
+            >>> list(StateSpace(3))
             [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1],
             [0, 1, 1], [1, 1, 1]]
 
@@ -108,9 +108,9 @@ class StateSpace(object):
 
         ::
 
-            >>> list(StateSpace(1,b=3).states())
+            >>> list(StateSpace(1, base=3))
             [[0], [1], [2]]
-            >>> list(StateSpace(2,b=4).states())
+            >>> list(StateSpace(2, base=4))
             [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [1, 1], [2, 1], [3, 1],
             [0, 2], [1, 2], [2, 2], [3, 2], [0, 3], [1, 3], [2, 3], [3, 3]]
 
@@ -118,9 +118,9 @@ class StateSpace(object):
 
         ::
 
-            >>> list(StateSpace([1,2,3]).states())
+            >>> list(StateSpace([1,2,3]))
             [[0, 0, 0], [0, 1, 0], [0, 0, 1], [0, 1, 1], [0, 0, 2], [0, 1, 2]]
-            >>> list(StateSpace([3,4]).states())
+            >>> list(StateSpace([3,4]))
             [[0, 0], [1, 0], [2, 0], [0, 1], [1, 1], [2, 1], [0, 2], [1, 2],
             [2, 2], [0, 3], [1, 3], [2, 3]]
 
@@ -148,15 +148,15 @@ class StateSpace(object):
 
         ::
 
-            >>> space = StateSpace(3, b=2)
-            >>> states = list(space.states())
+            >>> space = StateSpace(3, base=2)
+            >>> states = list(space)
             >>> list(map(space.encode, states))
             [0, 1, 2, 3, 4, 5, 6, 7]
 
         ::
 
             >>> space = StateSpace([2,3,4])
-            >>> states = list(space.states())
+            >>> states = list(space)
             >>> list(map(space.encode, states))
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
 
@@ -194,7 +194,7 @@ class StateSpace(object):
         ::
 
             >>> space = StateSpace(3)
-            >>> list(space.states())
+            >>> list(space)
             [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
             >>> list(map(space.decode, range(space.volume)))
             [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
@@ -202,7 +202,7 @@ class StateSpace(object):
         ::
 
             >>> space = StateSpace([2,3])
-            >>> list(space.states())
+            >>> list(space)
             [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2], [1, 2]]
             >>> list(map(space.decode, range(space.volume)))
             [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2], [1, 2]]

@@ -91,9 +91,9 @@ class TestECA(unittest.TestCase):
             ca.ECA(30).state_space(-1)
 
         eca = ca.ECA(30)
-        self.assertEqual(2, len(list(eca.state_space(1).states())))
-        self.assertEqual(4, len(list(eca.state_space(2).states())))
-        self.assertEqual(8, len(list(eca.state_space(3).states())))
+        self.assertEqual(2, len(list(eca.state_space(1))))
+        self.assertEqual(4, len(list(eca.state_space(2))))
+        self.assertEqual(8, len(list(eca.state_space(3))))
 
 
     def test_lattice_empty_update(self):

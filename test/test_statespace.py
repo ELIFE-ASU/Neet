@@ -92,78 +92,78 @@ class TestStateSpace(unittest.TestCase):
     def test_states_boolean(self):
         space = StateSpace(1)
         self.assertEqual([[0], [1]],
-                         list(space.states()))
+                         list(space))
 
         space = StateSpace(2)
         self.assertEqual([[0, 0], [1, 0], [0, 1], [1, 1]],
-                         list(space.states()))
+                         list(space))
 
         space = StateSpace(3)
         self.assertEqual([[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0],
                           [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]],
-                         list(space.states()))
+                         list(space))
 
     def test_states_nonboolean(self):
         space = StateSpace(1, base=1)
         self.assertEqual([[0]],
-                         list(space.states()))
+                         list(space))
 
         space = StateSpace(1, base=3)
         self.assertEqual([[0], [1], [2]],
-                         list(space.states()))
+                         list(space))
 
         space = StateSpace(2, base=1)
         self.assertEqual([[0, 0]],
-                         list(space.states()))
+                         list(space))
 
         space = StateSpace(2, base=3)
         self.assertEqual([[0, 0], [1, 0], [2, 0],
                           [0, 1], [1, 1], [2, 1],
                           [0, 2], [1, 2], [2, 2]],
-                         list(space.states()))
+                         list(space))
 
     def test_states_boolean_list(self):
         space = StateSpace([2])
         self.assertEqual([[0], [1]],
-                         list(space.states()))
+                         list(space))
 
         space = StateSpace([2, 2])
         self.assertEqual([[0, 0], [1, 0], [0, 1], [1, 1]],
-                         list(space.states()))
+                         list(space))
 
         space = StateSpace([2, 2, 2])
         self.assertEqual([[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0],
                           [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]],
-                         list(space.states()))
+                         list(space))
 
     def test_states_nonboolean_list(self):
         space = StateSpace([1])
         self.assertEqual([[0]],
-                         list(space.states()))
+                         list(space))
 
         space = StateSpace([3])
         self.assertEqual([[0], [1], [2]],
-                         list(space.states()))
+                         list(space))
 
         space = StateSpace([1, 2])
         self.assertEqual([[0, 0], [0, 1]],
-                         list(space.states()))
+                         list(space))
 
         space = StateSpace([1, 3])
         self.assertEqual([[0, 0], [0, 1], [0, 2]],
-                         list(space.states()))
+                         list(space))
 
         space = StateSpace([3, 3])
         self.assertEqual([[0, 0], [1, 0], [2, 0],
                           [0, 1], [1, 1], [2, 1],
                           [0, 2], [1, 2], [2, 2]],
-                         list(space.states()))
+                         list(space))
 
     def test_states_count(self):
         xs = [3, 5, 2, 5, 2, 1, 4, 2]
         space = StateSpace(xs)
         count = 0
-        for state in space.states():
+        for state in space:
             count += 1
         self.assertEqual(np.product(xs), count)
 
@@ -188,7 +188,7 @@ class TestStateSpace(unittest.TestCase):
             for base in range(1, 5):
                 space = StateSpace(width, base)
                 counter = 0
-                for state in space.states():
+                for state in space:
                     encoding = space.encode(state)
                     self.assertEqual(counter, encoding)
                     counter += 1
@@ -199,7 +199,7 @@ class TestStateSpace(unittest.TestCase):
                 for c in range(1, 5):
                     space = StateSpace([a, b, c])
                     counter = 0
-                    for state in space.states():
+                    for state in space:
                         encoding = space.encode(state)
                         self.assertEqual(counter, encoding)
                         counter += 1
@@ -208,7 +208,7 @@ class TestStateSpace(unittest.TestCase):
         for width in range(1, 5):
             for base in range(1, 5):
                 space = StateSpace(width, base)
-                states = list(space.states())
+                states = list(space)
                 decoded = list(map(space.decode, range(space.volume)))
                 self.assertEqual(states, decoded)
 
@@ -217,7 +217,7 @@ class TestStateSpace(unittest.TestCase):
             for b in range(1, 5):
                 for c in range(1, 5):
                     space = StateSpace([a, b, c])
-                    states = list(space.states())
+                    states = list(space)
                     decoded = list(map(space.decode, range(space.volume)))
                     self.assertEqual(states, decoded)
 
@@ -225,7 +225,7 @@ class TestStateSpace(unittest.TestCase):
         for width in range(1, 5):
             for base in range(1, 5):
                 space = StateSpace(width, base)
-                for state in space.states():
+                for state in space:
                     encoded = space.encode(state)
                     decoded = space.decode(encoded)
                     self.assertEqual(state, decoded)
@@ -235,7 +235,7 @@ class TestStateSpace(unittest.TestCase):
             for b in range(1, 5):
                 for c in range(1, 5):
                     space = StateSpace([a, b, c])
-                    for state in space.states():
+                    for state in space:
                         encoded = space.encode(state)
                         decoded = space.decode(encoded)
                         self.assertEqual(state, decoded)

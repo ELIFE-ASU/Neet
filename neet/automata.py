@@ -124,7 +124,7 @@ class ECA(object):
             >>> eca.state_space(3)
             <neet.states.StateSpace object at 0x000001C0BDA38550>
             >>> space = eca.state_space(3)
-            >>> list(space.states())
+            >>> list(space)
             [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
 
         :param n: the number of nodes in the lattice

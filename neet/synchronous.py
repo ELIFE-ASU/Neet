@@ -90,17 +90,17 @@ def transitions(net, n=None, encode=True):
     if is_fixed_sized(net):
         if n is not None:
             raise(TypeError("n must be None for fixed sized networks"))
-        space = net.state_space()
+        state_space = net.state_space()
     else:
-        space = net.state_space(n)
+        state_space = net.state_space(n)
 
-    if not isinstance(space, StateSpace):
+    if not isinstance(state_space, StateSpace):
         raise(TypeError("network's state space is not an instance of StateSpace"))
 
-    for state in space.states():
+    for state in state_space:
         net.update(state)
         if encode:
-            yield space.encode(state)
+            yield state_space.encode(state)
         else:
             yield state
 
@@ -225,7 +225,7 @@ def timeseries(net, timesteps, size=None):
 
     shape = (state_space.ndim, state_space.volume, timesteps+1)
     series = np.empty(shape, dtype=np.int)
-    for (index, init) in enumerate(state_space.states()):
+    for (index, init) in enumerate(state_space):
         traj = trajectory(net, init, n=timesteps, encode=False)
         for (time, state) in enumerate(traj):
             series[:, index, time] = state
