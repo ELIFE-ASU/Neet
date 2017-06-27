@@ -1,7 +1,7 @@
 # Copyright 2016-2017 ELIFE. All rights reserved.
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
-
+import numpy as np
 
 class StateSpace(object):
     """
@@ -249,16 +249,21 @@ class StateSpace(object):
         :param states: the one-dimensional sequence of node states
         :returns: ``True`` if the ``states`` are valid
         """
-        if len(states) != self.ndim:
-            return False
+        try:
+            if len(states) != self.ndim:
+                return False
 
-        if self.is_uniform:
-            for state in states:
-                if self.base <= state or state < 0:
-                    return False
-        else:
-            for state, base in zip(states, self.bases):
-                if state not in range(base):
-                    return False
+            if self.is_uniform:
+                for state in states:
+                    if self.base <= state or state < 0:
+                        return False
+            else:
+                for state, base in zip(states, self.bases):
+                    if state not in range(base):
+                        return False
+        except TypeError:
+            return False
+        except IndexError:
+            return False
 
         return True
