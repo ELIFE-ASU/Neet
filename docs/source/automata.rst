@@ -18,11 +18,6 @@ Attributes
 
         .. autoattribute:: neet.automata.ECA.boundary
 
-Class Methods
-"""""""""""""
-
-        .. automethod:: neet.automata.ECA.check_lattice
-
 Initialization
 """"""""""""""
 
