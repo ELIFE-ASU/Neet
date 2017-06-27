@@ -191,17 +191,44 @@ class TestSynchronous(unittest.TestCase):
         self.assertEqual([2, 1, 2, 3], got)
 
     def test_transition_graph_not_network(self):
+        """
+        ``transitions_graph`` should raise an error if ``net`` is not a network
+        """
         with self.assertRaises(TypeError):
             transition_graph(MockObject())
 
-    def test_transition_graph_s_pombe(self):
-        g = transition_graph(s_pombe)
+    def test_transition_graph_variable_sized(self):
+        """
+        ``transitions_graph`` should raise an error if ``net`` is variable sized
+        and ``size`` is ``None``
+        """
+        with self.assertRaises(ValueError):
+            transition_graph(ECA(30))
 
-        # the transition graph should have number of nodes
-        # equal to the volume of state space (the number of
-        # possible states)
-        self.assertEqual(s_pombe.state_space().volume,
-                         g.number_of_nodes())
+    def test_transition_graph_fixed_sized(self):
+        """
+        ``transitions_graph`` should raise an error if ``net`` is fixed sized
+        and ``size`` is not ``None``
+        """
+        with self.assertRaises(ValueError):
+            transition_graph(MockFixedSizedNetwork(), size=5)
+
+    def test_transition_graph_eca(self):
+        """
+        test ``transitions_graph`` on ``ECA``
+        """
+        graph = transition_graph(ECA(30), size=8)
+        self.assertEqual(256, graph.number_of_nodes())
+        self.assertEqual(256, graph.number_of_edges())
+
+    def test_transition_graph_s_pombe(self):
+        """
+        test ``transitions_graph`` on ``s_pombe``
+        """
+        volume = s_pombe.state_space().volume
+        graph = transition_graph(s_pombe)
+        self.assertEqual(volume, graph.number_of_nodes())
+        self.assertEqual(volume, graph.number_of_edges())
 
     def test_attractors_s_pombe(self):
         att = list( attractors(s_pombe) )

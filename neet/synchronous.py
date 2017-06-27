@@ -103,26 +103,25 @@ def transitions(net, size=None, encode=False):
         else:
             yield state
 
-def transition_graph(net, n=None):
+def transition_graph(net, size=None):
     """
     Return a networkx graph representing net's transition network.
-    
+
     .. rubric:: Example:
-    
+
     ::
-    
+
+        >>> from neet.automata import ECA
         >>> from neet.boolean.examples import s_pombe
-        >>> g = landscape.transition_graph(s_pombe)
+        >>> g = transition_graph(s_pombe)
         >>> g.number_of_edges()
         512
+        >>> g = transition_graph(ECA(30), size=5)
+        >>> g.number_of_edges()
+        32
     """
-
-    if not is_network(net):
-        raise(TypeError("net is not a network"))
-
-    edgeList = enumerate( transitions(net, size=n, encode=True) )
-    
-    return nx.DiGraph(edgeList)
+    edge_list = enumerate(transitions(net, size=size, encode=True))
+    return nx.DiGraph(list(edge_list))
 
 def attractors(net):
     """
