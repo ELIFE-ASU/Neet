@@ -1,13 +1,13 @@
 # Copyright 2017 ELIFE. All rights reserved.
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
-import numpy as np
 import unittest
 from collections import Counter
 from neet.automata import ECA
 from neet.boolean import WTNetwork
 from neet.boolean.examples import s_pombe, s_cerevisiae, c_elegans
 from neet.synchronous import *
+import numpy as np
 from .mock import MockObject, MockFixedSizedNetwork
 
 class TestSynchronous(unittest.TestCase):
@@ -358,53 +358,66 @@ class TestSynchronous(unittest.TestCase):
         for net, basin_sizes in networks:
             basin_counter = Counter([len(c) for c in basins(net)])
             self.assertEqual(Counter(basin_sizes), basin_counter)
-            basins(nx.Graph()) # (undirected)
-
 
     def test_timeseries_not_network(self):
+        """
+        ``timeseries`` should raise an error if ``net`` is not a network
+        """
         with self.assertRaises(TypeError):
             timeseries(5, timesteps=2)
 
         with self.assertRaises(TypeError):
             timeseries(MockObject(), timesteps=2)
 
-
-    def test_timeseries_not_fixed_sized(self):
+    def test_timeseries_variable_sized(self):
+        """
+        ``timeseries`` should raise an error if ``net`` is variable sized and
+        ``size`` is ``None``
+        """
         with self.assertRaises(ValueError):
-            timeseries(ECA(30), timesteps=5)
+            timeseries(ECA(30), size=None, timesteps=5)
 
-
-    def test_timeseries_fixed_sized_with_size(self):
+    def test_timeseries_fixed_sized(self):
+        """
+        ``timeseries`` should raise an error if ``net`` is fixed sized and
+        ``size`` is not ``None``
+        """
         with self.assertRaises(ValueError):
-            timeseries(MockFixedSizedNetwork(), size=5, timesteps=5)
-
+            timeseries(MockFixedSizedNetwork, size=5, timesteps=5)
 
     def test_timeseries_too_short(self):
+        """
+        ``timeseries`` shoudl raise an error if ``timesteps`` is too small
+        """
         with self.assertRaises(ValueError):
             timeseries(MockFixedSizedNetwork(), timesteps=0)
 
         with self.assertRaises(ValueError):
             timeseries(MockFixedSizedNetwork(), timesteps=-1)
 
-
-    def test_timeseries_wtnetworks(self):
-        for (net, size) in [(s_pombe,9), (s_cerevisiae,11), (c_elegans,8)]:
-            time = 10
-            series = timeseries(net, timesteps=time)
-            self.assertEqual((size, 2**size, time+1), series.shape)
-            for (index, state) in enumerate(net.state_space().states()):
-                for (t, expect) in enumerate(trajectory(net, state, n=time)):
-                    got = series[:, index, t]
-                    self.assertTrue(np.array_equal(expect, got))
-
-
     def test_timeseries_eca(self):
+        """
+        test ``timeseries`` on ECA
+        """
         rule = ECA(30)
-        for size in [5,7,11]:
+        for size in [5, 7, 11]:
             time = 10
             series = timeseries(rule, timesteps=time, size=size)
             self.assertEqual((size, 2**size, time+1), series.shape)
-            for (index, state) in enumerate(rule.state_space(size).states()):
-                for t, expect in enumerate(trajectory(rule, state, n=time)):
+            for index, state in enumerate(rule.state_space(size).states()):
+                for t, expect in enumerate(trajectory(rule, state, timesteps=time)):
+                    got = series[:, index, t]
+                    self.assertTrue(np.array_equal(expect, got))
+
+    def test_timeseries_wtnetworks(self):
+        """
+        test ``timeseries`` on WTNetwork
+        """
+        for (net, size) in [(s_pombe, 9), (s_cerevisiae, 11), (c_elegans, 8)]:
+            time = 10
+            series = timeseries(net, timesteps=time)
+            self.assertEqual((size, 2**size, time+1), series.shape)
+            for index, state in enumerate(net.state_space().states()):
+                for t, expect in enumerate(trajectory(net, state, timesteps=time)):
                     got = series[:, index, t]
                     self.assertTrue(np.array_equal(expect, got))

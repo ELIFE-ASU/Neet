@@ -3,8 +3,8 @@
 # license that can be found in the LICENSE file.
 import copy
 import networkx as nx
+import numpy as np
 from .interfaces import is_network, is_fixed_sized
-from .statespace import StateSpace
 
 def trajectory(net, state, timesteps=1, encode=False):
     """
@@ -230,14 +230,12 @@ def timeseries(net, timesteps, size=None):
                 [ 1.,  1.,  1.,  1.,  1.,  1.]]])
 
     :param net: the network
-    :type net: neet network
     :param timesteps: the number of timesteps in the timeseries
-    :type timesteps: int
     :param size: the size of the network (``None`` if fixed sized)
-    :type size: int
     :return: a numpy array
     :raises TypeError: if ``net`` is not a network
-    :raises ValueError: if ``net`` is not fixed-sized and ``size`` is ``None``
+    :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
+    :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     :raises ValueError: if ``timesteps < 1``
     """
     if not is_network(net):
@@ -257,7 +255,7 @@ def timeseries(net, timesteps, size=None):
     shape = (state_space.ndim, state_space.volume, timesteps+1)
     series = np.empty(shape, dtype=np.int)
     for (index, init) in enumerate(state_space.states()):
-        traj = trajectory(net, init, n=timesteps, encode=False)
+        traj = trajectory(net, init, timesteps=timesteps, encode=False)
         for (time, state) in enumerate(traj):
             series[:, index, time] = state
     return series
