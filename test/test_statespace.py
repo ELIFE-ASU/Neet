@@ -260,11 +260,20 @@ class TestStateSpace(unittest.TestCase):
                         self.assertEqual(i, encoded)
 
     def test_check_states_uniform(self):
-        self.assertTrue(StateSpace(3).check_states([0, 1, 1]))
-        self.assertFalse(StateSpace(3).check_states([0, 0]))
-        self.assertFalse(StateSpace(3).check_states([1, 2, 0]))
+        state_space = StateSpace(3)
+        self.assertTrue([0, 1, 1] in state_space)
+        self.assertFalse([0, 0] in state_space)
+        self.assertFalse([1, 2, 0] in state_space)
+
+        self.assertFalse([0, 1, 1] not in state_space)
+        self.assertTrue([0, 0] not in state_space)
+        self.assertTrue([1, 2, 0] not in state_space)
 
     def test_check_states_varied(self):
-        self.assertTrue(StateSpace([2, 3, 2]).check_states([0, 2, 1]))
-        self.assertFalse(StateSpace([2, 2, 3]).check_states([0, 1]))
-        self.assertFalse(StateSpace([2, 3, 4]).check_states([1, 1, 6]))
+        self.assertTrue([0, 2, 1] in StateSpace([2, 3, 2]))
+        self.assertFalse([0, 1] in StateSpace([2, 2, 3]))
+        self.assertFalse([1, 1, 6] in StateSpace([2, 3, 4]))
+
+        self.assertFalse([0, 2, 1] not in StateSpace([2, 3, 2]))
+        self.assertTrue([0, 1] not in StateSpace([2, 2, 3]))
+        self.assertTrue([1, 1, 6] not in StateSpace([2, 3, 4]))

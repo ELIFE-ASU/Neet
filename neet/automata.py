@@ -253,10 +253,11 @@ class ECA(object):
         :raises ValueError: if ``lattice`` is not in the ECA's state space
         :raises IndexError: if ``index is not None and index > len(states)``
         """
-        if not self.state_space(len(lattice)).check_states(lattice):
+        size = len(lattice)
+        if lattice not in self.state_space(size):
             raise ValueError("the provided state is not in the ECA's state space")
 
-        if index is not None and index < -len(lattice):
+        if index is not None and index < -size:
             raise IndexError("lattice index out of range")
 
         return self._unsafe_update(lattice, index)

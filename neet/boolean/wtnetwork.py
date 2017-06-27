@@ -305,7 +305,7 @@ class WTNetwork(object):
         :returns: the updated states
         :raises ValueError: if ``states`` is not in the network's state space
         """
-        if not self.state_space().check_states(states):
+        if states not in self.state_space():
             raise ValueError("the provided state is not in the network's state space")
 
         if (index is not None) and (pin is not None and pin != []):

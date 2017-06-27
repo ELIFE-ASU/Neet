@@ -172,7 +172,7 @@ class TestECA(unittest.TestCase):
         lattice  = [1,1,0,1,0,0,1,0,1,0,0,1,0,1]
         expected = [0,1,1,0,1,0,1,0,1,0,1,0,1,0]
         state_space = eca.state_space(len(lattice))
-        if state_space.check_states(lattice):
+        if lattice in state_space:
             for n in range(1000):
                 eca._unsafe_update(lattice)
         self.assertEqual(expected, lattice)
@@ -183,7 +183,7 @@ class TestECA(unittest.TestCase):
         lattice  = [1,1,0,1,0,0,1,0,1,0,0,1,0,1]
         expected = [1,0,0,1,0,0,1,0,0,1,0,0,1,1]
         state_space = eca.state_space(len(lattice))
-        if state_space.check_states(lattice):
+        if lattice in state_space:
             for n in range(1000):
                 eca._unsafe_update(lattice)
         self.assertEqual(expected, lattice)

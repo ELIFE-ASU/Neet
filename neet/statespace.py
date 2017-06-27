@@ -224,26 +224,27 @@ class StateSpace(object):
                 encoded = int(encoded / base)
         return state
 
-    def check_states(self, states):
+    def __contains__(self, states):
         """
-        Check the validity of the provided states
+        Determine if a state is in the state space
 
         .. rubric:: Examples:
 
         ::
 
-            >>> StateSpace(3).check_states([0,0,0])
+            >>> state_space = StateSpace(3)
+            >>> [0, 0, 0] in state_space
             True
-            >>> StateSpace(3).check_states([0,0])
+            >>> [0, 0] in state_space
             False
-            >>> StateSpace(3).check_states([1,2,1])
+            >>> [1, 2, 1] in state_space
             False
 
-            >>> StateSpace([2, 3, 2]).check_states([0, 2, 1])
+            >>> [0, 2, 1] in StateSpace([2, 3, 2])
             True
-            >>> StateSpace([2, 2, 3]).check_states([0, 1])
+            >>> [0, 1] in StateSpace([2, 2, 3])
             False
-            >>> StateSpace([2, 3, 4]).check_states([1, 1, 6])
+            >>> [1, 1, 6] in StateSpace([2, 3, 4])
             False
 
         :param states: the one-dimensional sequence of node states

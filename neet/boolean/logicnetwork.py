@@ -209,7 +209,7 @@ class LogicNetwork(object):
             >>> net.update([0, 0, 1], pin=[0, 1])
             [0, 0, 0]
         """
-        if not self.state_space.check_states(net_state):
+        if net_state not in self.state_space:
             raise ValueError("the provided state is not in the network's state space")
 
         new_net_state = self._update(net_state, index)
