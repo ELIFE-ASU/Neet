@@ -57,7 +57,7 @@ def rewiring_fixed_size(net):
     '''
     Generate a random network by rewiring a given network
     with fixed size (the number of nodes and edges for each weight), threshold and self-loops.
-    
+
     :param net: a network
     :returns: a random network
     '''
