@@ -1,14 +1,12 @@
 # Copyright 2017 ELIFE. All rights reserved.
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
+import copy
+import networkx as nx
 from .interfaces import is_network, is_fixed_sized
 from .statespace import StateSpace
 
-import copy
-import numpy as np
-import networkx as nx
-
-def trajectory(net, state, n=1, encode=False):
+def trajectory(net, state, timesteps=1, encode=False):
     """
     Generate the trajectory of length ``n+1`` through state-space, as determined
     by the network rule, beginning at ``state``.
@@ -23,21 +21,21 @@ def trajectory(net, state, n=1, encode=False):
         <generator object trajectory at 0x000001DF6E02B888>
         >>> list(gen)
         [[0, 1, 0], [1, 1, 1], [0, 0, 0], [0, 0, 0]]
-        >>> list(trajectory(ECA(30), [0,1,0], n=3, encode=True))
+        >>> list(trajectory(ECA(30), [0,1,0], timesteps=3, encode=True))
         [2,7,0,0]
 
     :param net: the network
     :param state: the network state
-    :param n: the number of steps in the trajectory
+    :param timesteps: the number of steps in the trajectory
     :param encode: encode the states as integers
-    :yields: the ``n+1`` states in the trajectory
+    :yields: the ``timesteps+1`` states in the trajectory
     :raises TypeError: ``not is_network(net)``
-    :raises ValueError: if ``n < 1``
+    :raises ValueError: if ``timesteps < 1``
     """
     if not is_network(net):
-        raise(TypeError("net is not a network"))
-    if n < 1:
-        raise(ValueError("number of steps must be positive, non-zero"))
+        raise TypeError("net is not a network")
+    if timesteps < 1:
+        raise ValueError("number of steps must be positive, non-zero")
 
     state = copy.copy(state)
     if encode:
@@ -47,15 +45,14 @@ def trajectory(net, state, n=1, encode=False):
             space = net.state_space(len(state))
 
         yield space.encode(state)
-        for i in range(n):
+        for _ in range(timesteps):
             net.update(state)
             yield space.encode(state)
     else:
         yield copy.copy(state)
-        for i in range(n):
+        for _ in range(timesteps):
             net.update(state)
             yield copy.copy(state)
-
 
 def transitions(net, n=None, encode=True):
     """
