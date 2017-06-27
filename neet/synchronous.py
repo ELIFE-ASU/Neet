@@ -76,7 +76,7 @@ def transitions(net, n=None, encode=True):
         1], [0, 1, 0], [0, 0, 0]]
 
     :param net: the network
-    :param n: the number of nodes in the network
+    :param n: the size of the network (``None`` if fixed sized)
     :type n: ``None`` or ``int``
     :param encode: encode the states as integers
     :type encode: boolean
@@ -202,7 +202,7 @@ def timeseries(net, timesteps, size=None):
     :type net: neet network
     :param timesteps: the number of timesteps in the timeseries
     :type timesteps: int
-    :param size: the size of the network (if it is variable-sized)
+    :param size: the size of the network (``None`` if fixed sized)
     :type size: int
     :return: a numpy array
     :raises TypeError: if ``net`` is not a network
