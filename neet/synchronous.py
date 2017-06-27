@@ -211,9 +211,9 @@ def basins(net, size=None):
 def timeseries(net, timesteps, size=None):
     """
     Return the timeseries for the network. The result will be a :math:`3D` array
-    with shape :math:`N times V times t` where :math:`N` is the number of nodes
-    in the network, :math:`V` is the volume of the state space (total number of
-    network states), and :math:`t` is ``timesteps + 1``.
+    with shape :math:`N \\times V \\times t` where :math:`N` is the number of
+    nodes in the network, :math:`V` is the volume of the state space (total
+    number of network states), and :math:`t` is ``timesteps + 1``.
 
     ::
 
