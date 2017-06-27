@@ -95,58 +95,6 @@ class TestECA(unittest.TestCase):
         self.assertEqual(4, len(list(eca.state_space(2).states())))
         self.assertEqual(8, len(list(eca.state_space(3).states())))
 
-    def test_check_lattice_list(self):
-        self.assertTrue(ca.ECA.check_lattice([0]))
-        self.assertTrue(ca.ECA.check_lattice([0,1]))
-        self.assertTrue(ca.ECA.check_lattice([0,1,1,0,1]))
-
-        with self.assertRaises(ValueError):
-            ca.ECA.check_lattice([])
-
-        with self.assertRaises(ValueError):
-            ca.ECA.check_lattice([-1,0,1])
-
-        with self.assertRaises(ValueError):
-            ca.ECA.check_lattice([1,0,-1])
-
-        with self.assertRaises(ValueError):
-            ca.ECA.check_lattice([2,0,0])
-
-        with self.assertRaises(ValueError):
-            ca.ECA.check_lattice([1,0,2])
-
-        with self.assertRaises(ValueError):
-            ca.ECA.check_lattice([[1],[0],[2]])
-
-
-    def test_check_lattice_string(self):
-        with self.assertRaises(ValueError):
-            ca.ECA.check_lattice("101")
-
-
-    def test_check_lattice_numpy(self):
-        self.assertTrue(ca.ECA.check_lattice(np.asarray([0])))
-        self.assertTrue(ca.ECA.check_lattice(np.asarray([0,1])))
-        self.assertTrue(ca.ECA.check_lattice(np.asarray([0,1,1,0,1])))
-
-        with self.assertRaises(ValueError):
-            ca.ECA.check_lattice(np.asarray([]))
-
-        with self.assertRaises(ValueError):
-            ca.ECA.check_lattice(np.asarray([-1,0,1]))
-
-        with self.assertRaises(ValueError):
-            ca.ECA.check_lattice(np.asarray([1,0,-1]))
-
-        with self.assertRaises(ValueError):
-            ca.ECA.check_lattice(np.asarray([2,0,0]))
-
-        with self.assertRaises(ValueError):
-            ca.ECA.check_lattice(np.asarray([1,0,2]))
-
-        with self.assertRaises(ValueError):
-            ca.ECA.check_lattice(np.asarray([[1],[0],[2]]))
-
 
     def test_lattice_empty_update(self):
         eca = ca.ECA(30)
@@ -223,7 +171,8 @@ class TestECA(unittest.TestCase):
         eca = ca.ECA(45)
         lattice  = [1,1,0,1,0,0,1,0,1,0,0,1,0,1]
         expected = [0,1,1,0,1,0,1,0,1,0,1,0,1,0]
-        if ca.ECA.check_lattice(lattice):
+        state_space = eca.state_space(len(lattice))
+        if state_space.check_states(lattice):
             for n in range(1000):
                 eca._unsafe_update(lattice)
         self.assertEqual(expected, lattice)
@@ -233,7 +182,8 @@ class TestECA(unittest.TestCase):
         eca = ca.ECA(45, (0,1))
         lattice  = [1,1,0,1,0,0,1,0,1,0,0,1,0,1]
         expected = [1,0,0,1,0,0,1,0,0,1,0,0,1,1]
-        if ca.ECA.check_lattice(lattice):
+        state_space = eca.state_space(len(lattice))
+        if state_space.check_states(lattice):
             for n in range(1000):
                 eca._unsafe_update(lattice)
         self.assertEqual(expected, lattice)
