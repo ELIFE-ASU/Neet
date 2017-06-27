@@ -76,7 +76,7 @@ def transitions(net, n=None, encode=True):
         1], [0, 1, 0], [0, 0, 0]]
 
     :param net: the network
-    :param n: the number of nodes in the network
+    :param n: the size of the network (``None`` if fixed sized)
     :type n: ``None`` or ``int``
     :param encode: encode the states as integers
     :type encode: boolean
@@ -177,7 +177,56 @@ def basins(net):
 
     return nx.weakly_connected_component_subgraphs(g)
 
+def timeseries(net, timesteps, size=None):
+    """
+    Return the timeseries for the network. The result will be a :math:`3D` array
+    with shape :math:`N times V times t` where :math:`N` is the number of nodes
+    in the network, :math:`V` is the volume of the state space (total number of
+    network states), and :math:`t` is ``timesteps + 1``.
 
+    ::
 
+        >>> net = WTNetwork([[1,-1],[1,0]])
+        >>> timeseries(net, 5)
+        array([[[ 0.,  0.,  0.,  0.,  0.,  0.],
+                [ 1.,  1.,  1.,  1.,  1.,  1.],
+                [ 0.,  0.,  0.,  0.,  0.,  0.],
+                [ 1.,  1.,  1.,  1.,  1.,  1.]],
 
+            [[ 0.,  0.,  0.,  0.,  0.,  0.],
+                [ 0.,  1.,  1.,  1.,  1.,  1.],
+                [ 1.,  1.,  1.,  1.,  1.,  1.],
+                [ 1.,  1.,  1.,  1.,  1.,  1.]]])
 
+    :param net: the network
+    :type net: neet network
+    :param timesteps: the number of timesteps in the timeseries
+    :type timesteps: int
+    :param size: the size of the network (``None`` if fixed sized)
+    :type size: int
+    :return: a numpy array
+    :raises TypeError: if ``net`` is not a network
+    :raises ValueError: if ``net`` is not fixed-sized and ``size`` is ``None``
+    :raises ValueError: if ``timesteps < 1``
+    """
+    if not is_network(net):
+        raise TypeError("net must be a NEET network")
+    if not is_fixed_sized(net) and size is None:
+        raise ValueError("network is not fixed sized; must provide a size")
+    elif is_fixed_sized(net) and size is not None:
+        raise ValueError("cannot provide a size with a fixed sized network")
+    if timesteps < 1:
+        raise ValueError("time series must have at least one timestep")
+
+    if size is None:
+        state_space = net.state_space()
+    else:
+        state_space = net.state_space(size)
+
+    shape = (state_space.ndim, state_space.volume, timesteps+1)
+    series = np.empty(shape, dtype=np.int)
+    for (index, init) in enumerate(state_space.states()):
+        traj = trajectory(net, init, n=timesteps, encode=False)
+        for (time, state) in enumerate(traj):
+            series[:, index, time] = state
+    return series

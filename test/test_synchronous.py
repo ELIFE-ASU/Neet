@@ -4,7 +4,8 @@
 import numpy as np
 import unittest
 from collections import Counter
-from neet.boolean.examples import s_pombe
+from neet.automata import ECA
+from neet.boolean.examples import s_pombe, s_cerevisiae, c_elegans
 from neet.synchronous import *
 from .mock import MockObject, MockFixedSizedNetwork
 
@@ -208,3 +209,52 @@ class TestCore(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             basins(nx.Graph()) # (undirected)
+
+
+    def test_timeseries_not_network(self):
+        with self.assertRaises(TypeError):
+            timeseries(5, timesteps=2)
+
+        with self.assertRaises(TypeError):
+            timeseries(MockObject(), timesteps=2)
+
+
+    def test_timeseries_not_fixed_sized(self):
+        with self.assertRaises(ValueError):
+            timeseries(ECA(30), timesteps=5)
+
+
+    def test_timeseries_fixed_sized_with_size(self):
+        with self.assertRaises(ValueError):
+            timeseries(MockFixedSizedNetwork(), size=5, timesteps=5)
+
+
+    def test_timeseries_too_short(self):
+        with self.assertRaises(ValueError):
+            timeseries(MockFixedSizedNetwork(), timesteps=0)
+
+        with self.assertRaises(ValueError):
+            timeseries(MockFixedSizedNetwork(), timesteps=-1)
+
+
+    def test_timeseries_wtnetworks(self):
+        for (net, size) in [(s_pombe,9), (s_cerevisiae,11), (c_elegans,8)]:
+            time = 10
+            series = timeseries(net, timesteps=time)
+            self.assertEqual((size, 2**size, time+1), series.shape)
+            for (index, state) in enumerate(net.state_space().states()):
+                for (t, expect) in enumerate(trajectory(net, state, n=time)):
+                    got = series[:, index, t]
+                    self.assertTrue(np.array_equal(expect, got))
+
+
+    def test_timeseries_eca(self):
+        rule = ECA(30)
+        for size in [5,7,11]:
+            time = 10
+            series = timeseries(rule, timesteps=time, size=size)
+            self.assertEqual((size, 2**size, time+1), series.shape)
+            for (index, state) in enumerate(rule.state_space(size).states()):
+                for t, expect in enumerate(trajectory(rule, state, n=time)):
+                    got = series[:, index, t]
+                    self.assertTrue(np.array_equal(expect, got))
