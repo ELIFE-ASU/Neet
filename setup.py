@@ -21,6 +21,7 @@ setup(
     license=license,
     requires=['numpy','networkx'],
     packages=['neet', 'neet.boolean'],
+    package_data={'neet.boolean': ['data/*.txt', 'data/*.dat']},
     test_suite='test',
     platforms=['Windows', 'OS X', 'Linux']
 )

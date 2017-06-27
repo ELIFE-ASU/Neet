@@ -2,7 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import numpy as np
-from .landscape import StateSpace
+from .statespace import StateSpace
 
 class ECA(object):
     """
@@ -182,7 +182,7 @@ class ECA(object):
 
         return True
 
-    def _unsafe_update(self, lattice):
+    def _unsafe_update(self, lattice, index=None):
         """
         Update the state of the ``lattice``, in place, without
         checking the validity of the arguments.
@@ -194,12 +194,24 @@ class ECA(object):
             >>> ca = ECA(30)
             >>> xs = [0,0,1,0,0]
             >>> ca._unsafe_update(xs)
+            [0, 1, 1, 1, 0]
             >>> xs
             [0, 1, 1, 1, 0]
             >>> ca.boundary = (0,1)
             >>> ca._unsafe_update(xs)
-            >>> xs
             [1, 1, 0, 0, 0]
+
+        ::
+
+            >>> ca = ECA(30)
+            >>> xs = [0,0,1,0,0]
+            >>> ca._unsafe_update(xs, index=1)
+            [0, 1, 1, 0, 0]
+            >>> xs
+            [0, 1, 1, 0, 0]
+            >>> ca.boundary = (0,1)
+            >>> ca._unsafe_update(xs, index=-1)
+            [0, 1, 1, 0, 1]
 
         ::
 
@@ -210,6 +222,8 @@ class ECA(object):
 
         :param lattice: the one-dimensional sequence of states
         :type lattice: sequence
+        :param index: the index to update (or None)
+        :type index: int
         :returns: the updated lattice
         """
         if self.boundary:
@@ -219,15 +233,33 @@ class ECA(object):
             left  = lattice[-1]
             right = lattice[0]
         code = self.code
-        d = 2 * left + lattice[0]
-        for i in range(1, len(lattice)):
-            d = 7 & (2 * d + lattice[i])
-            lattice[i-1] = 1 & (code >> d)
-        d = 7 & (2 * d + right)
-        lattice[-1] = 1 & (code >> d)
+        if index is None:
+            d = 2 * left + lattice[0]
+            for i in range(1, len(lattice)):
+                d = 7 & (2 * d + lattice[i])
+                lattice[i-1] = 1 & (code >> d)
+            d = 7 & (2 * d + right)
+            lattice[-1] = 1 & (code >> d)
+        else:
+            if index < 0:
+                index += len(lattice)
+
+            if index == 0:
+                d = left
+            else:
+                d = lattice[index-1]
+
+            d = 2 * d + lattice[index]
+
+            if index + 1 == len(lattice):
+                d = 2 * d + right
+            else:
+                d = 2 * d + lattice[index+1]
+
+            lattice[index] = 1 & (code >> (7 & d))
         return lattice
 
-    def update(self, lattice):
+    def update(self, lattice, index=None):
         """
         Update the state of the ``lattice`` in place.
 
@@ -237,13 +269,13 @@ class ECA(object):
 
             >>> ca = ECA(30)
             >>> xs = [0,0,1,0,0]
-            >>> ca.update(xs)
+            >>> ca.update(xs, index=1)
+            [0, 1, 1, 0, 0]
             >>> xs
-            [0, 1, 1, 1, 0]
-            >>> ca.boundary = (0,1)
-            >>> ca.update(xs)
-            >>> xs
-            [1, 1, 0, 0, 0]
+            [0, 1, 1, 0, 0]
+            >>> ca.boundary = (1,1)
+            >>> ca.update(xs, index=-1)
+            [0, 1, 1, 0, 1]
 
         ::
 
@@ -257,13 +289,22 @@ class ECA(object):
             Traceback (most recent call last):
                 ...
             ValueError: invalid value "2" in lattice
+            >>> ca.update(xs, index=5)
+            Traceback (most recent call last):
+                  ...
+            IndexError: list index out of range
 
         :param lattice: the one-dimensional sequence of states
         :type lattice: sequence
+        :param index: the index to update (or None)
+        :type index: int
         :returns: the updated lattice
         :raises ValueError: if ``lattice`` is empty
         :raises TypeError: if ``lattice`` is not iterable
         :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
+        :raises IndexError: if ``index is not None and index > len(states)``
         """
         ECA.check_lattice(lattice)
-        return self._unsafe_update(lattice)
+        if index is not None and index < -len(lattice):
+            raise(IndexError("lattice index out of range"))
+        return self._unsafe_update(lattice, index)

@@ -1,17 +1,14 @@
 # Copyright 2017 ELIFE. All rights reserved.
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
-from .interfaces import is_network, is_fixed_sized
 
-import copy
-import numpy as np
-import networkx as nx
 
 class StateSpace(object):
     """
     StateSpace represents the state space of a network model. It may be
     either uniform, i.e. all nodes have the same base, or non-uniform.
     """
+
     def __init__(self, spec, b=None):
         """
         Initialize the state spec in accordance with the provided ``spec``
@@ -76,7 +73,8 @@ class StateSpace(object):
                     if not isinstance(x, int):
                         raise(TypeError("spec must be a list of ints"))
                     elif x < 1:
-                        raise(ValueError("spec may only contain positive, nonzero elements"))
+                        raise(ValueError(
+                            "spec may only contain positive, nonzero elements"))
                     if self.is_uniform and x != base:
                         self.is_uniform = False
                         if b is not None:
@@ -84,7 +82,7 @@ class StateSpace(object):
                     self.volume *= x
                 self.ndim = len(spec)
                 if self.is_uniform:
-                    self.base  = base
+                    self.base = base
                 else:
                     self.bases = spec[:]
         else:
@@ -221,141 +219,53 @@ class StateSpace(object):
                 x = int(x / self.bases[i])
         return state
 
+    def check_states(self, states):
+        """
+        Check the validity of the provided states.
 
-def trajectory(net, state, n=1, encode=False):
-    """
-    Generate the trajectory of length ``n+1`` through state-space, as determined
-    by the network rule, beginning at ``state``.
+        .. rubric:: Examples;
 
-    .. rubric:: Example:
+        ::
 
-    ::
+            >>> StateSpace(3).check_states([0,0,0])
+            True
+            >>> StateSpace(3).check_states([0,0])
+            Traceback (most recent call last):
+                ...
+            ValueError: incorrect number of states in array
+            >>> StateSpace(3).check_states([1,2,1])
+            Traceback (most recent call last):
+                ...
+            ValueError: invalid node state in states
 
-        >>> from neet.automata import ECA
-        >>> gen = trajectory(ECA(30), [0,1,0], n=3)
-        >>> gen
-        <generator object trajectory at 0x000001DF6E02B888>
-        >>> list(gen)
-        [[0, 1, 0], [1, 1, 1], [0, 0, 0], [0, 0, 0]]
-        >>> list(trajectory(ECA(30), [0,1,0], n=3, encode=True))
-        [2,7,0,0]
+            >>> StateSpace([2, 3, 2]).check_states([0, 2, 1])
+            True
+            >>> StateSpace([2, 2, 3]).check_states([0, 1])
+            Traceback (most recent call last):
+                ...
+            ValueError: incorrect number of states in array
+            >>> StateSpace([2, 3, 4]).check_states([1, 1, 6])
+            Traceback (most recent call last):
+                ...
+            ValueError: invalid node state in states
 
-    :param net: the network
-    :param state: the network state
-    :param n: the number of steps in the trajectory
-    :param encode: encode the states as integers
-    :yields: the ``n+1`` states in the trajectory
-    :raises TypeError: ``not is_network(net)``
-    :raises ValueError: if ``n < 1``
-    """
-    if not is_network(net):
-        raise(TypeError("net is not a network"))
-    if n < 1:
-        raise(ValueError("number of steps must be positive, non-zero"))
+        :returns: ``True`` if the ``states`` are valid, otherwise an error is raised
+        :param states: the one-dimensional sequence of node states
+        :type states: sequence
+        :raises TypeError: if ``states`` is not iterable
+        :raises ValueError: if ``len(states)`` is not the number of nodes in the network
+        :raises ValueError: if ``states[i] not in [0,1]`` for any node ``i``
+        """
+        if len(states) != self.ndim:
+            raise ValueError("incorrect number of states in array")
 
-    state = copy.copy(state)
-    if encode:
-        if is_fixed_sized(net):
-            space = net.state_space()
+        if self.is_uniform:
+            for x in states:
+                if x not in range(self.base):
+                    raise ValueError("invalid node state in states")
         else:
-            space = net.state_space(len(state))
+            for x, b in zip(states, self.bases):
+                if x not in range(b):
+                    raise ValueError("invalid node state in states")
 
-        yield space.encode(state)
-        for i in range(n):
-            net.update(state)
-            yield space.encode(state)
-    else:
-        yield copy.copy(state)
-        for i in range(n):
-            net.update(state)
-            yield copy.copy(state)
-
-
-def transitions(net, n=None, encode=True):
-    """
-    Generate the one-step state transitions for a network over its state space.
-
-    .. rubric:: Example:
-
-    ::
-
-        >>> from neet.automata import ECA
-        >>> gen = transitions(ECA(30), n=3)
-        >>> gen
-        <generator object transitions at 0x000001DF6E02B938>
-        >>> list(gen)
-        [0, 7, 7, 1, 7, 4, 2, 0]
-        >>> list(transitions(ECA(30), n=3, encode=False))
-        [[0, 0, 0], [1, 1, 1], [1, 1, 1], [1, 0, 0], [1, 1, 1], [0, 0,
-        1], [0, 1, 0], [0, 0, 0]]
-
-    :param net: the network
-    :param n: the number of nodes in the network
-    :type n: ``None`` or ``int``
-    :param encode: encode the states as integers
-    :type encode: boolean
-    :yields: the one-state transitions
-    :raises TypeError: if ``net`` is not a network
-    :raises TypeError: if ``space`` is not a :class:`neet.StateSpace`
-    """
-    if not is_network(net):
-        raise(TypeError("net is not a network"))
-
-    if is_fixed_sized(net):
-        if n is not None:
-            raise(TypeError("n must be None for fixed sized networks"))
-        space = net.state_space()
-    else:
-        space = net.state_space(n)
-
-    if not isinstance(space, StateSpace):
-        raise(TypeError("network's state space is not an instance of StateSpace"))
-
-    for state in space.states():
-        net.update(state)
-        if encode:
-            yield space.encode(state)
-        else:
-            yield state
-
-
-def transition_graph(net, n=None):
-    """
-    Return a networkx graph representing net's transition network.
-    
-    .. rubric:: Example:
-    
-    ::
-    
-        >>> from neet.boolean.examples import s_pombe
-        >>> g = landscape.transition_graph(s_pombe)
-        >>> g.number_of_edges()
-        512
-    """
-
-    if not is_network(net):
-        raise(TypeError("net is not a network"))
-
-    edgeList = enumerate( transitions(net,n) )
-    
-    return nx.DiGraph(edgeList)
-
-def attractors(net):
-    """
-    Return a generator that lists net's attractors.  Each attractor 
-    is represented as a list of 'encoded' states.
-    
-    .. rubric:: Example:
-    
-    ::
-    
-        >>> from neet.boolean.examples import s_pombe
-        >>> print(list(attractors(s_pombe)))
-        [[204], [200], [196], [140], [136], [132], [72], [68], 
-        [384, 110, 144], [12], [8], [4], [76]]
-        
-    """
-    g = transition_graph(net)
-    return nx.simple_cycles(g)
-
-
+        return True
