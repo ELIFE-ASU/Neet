@@ -47,13 +47,13 @@ class StateSpace(object):
         """
         if isinstance(spec, int):
             if spec < 1:
-                raise(ValueError("ndim cannot be zero or negative"))
+                raise ValueError("ndim cannot be zero or negative")
             if b is None:
                 b = 2
             elif not isinstance(b, int):
-                raise(TypeError("base must be an int"))
+                raise TypeError("base must be an int")
             elif b < 1:
-                raise(ValueError("base must be positive, nonzero"))
+                raise ValueError("base must be positive, nonzero")
 
             self.is_uniform = True
             self.ndim = spec
@@ -62,31 +62,31 @@ class StateSpace(object):
 
         elif isinstance(spec, list):
             if len(spec) == 0:
-                raise(ValueError("bases cannot be an empty"))
+                raise ValueError("bases cannot be an empty")
             else:
                 self.is_uniform = True
                 self.volume = 1
                 base = spec[0]
                 if b is not None and base != b:
-                    raise(ValueError("b does not match base of spec"))
-                for x in spec:
-                    if not isinstance(x, int):
-                        raise(TypeError("spec must be a list of ints"))
-                    elif x < 1:
-                        raise(ValueError(
-                            "spec may only contain positive, nonzero elements"))
-                    if self.is_uniform and x != base:
+                    raise ValueError("b does not match base of spec")
+                for spec_base in spec:
+                    if not isinstance(spec_base, int):
+                        raise TypeError("spec must be a list of ints")
+                    elif spec_base < 1:
+                        msg = "spec may only contain positive, nonzero elements"
+                        raise ValueError(msg)
+                    if self.is_uniform and spec_base != base:
                         self.is_uniform = False
                         if b is not None:
-                            raise(ValueError("b does not match base of spec"))
-                    self.volume *= x
+                            raise ValueError("b does not match base of spec")
+                    self.volume *= spec_base
                 self.ndim = len(spec)
                 if self.is_uniform:
                     self.base = base
                 else:
                     self.bases = spec[:]
         else:
-            raise(TypeError("spec must be an int or a list"))
+            raise TypeError("spec must be an int or a list")
 
     def states(self):
         """
@@ -101,7 +101,8 @@ class StateSpace(object):
             >>> list(StateSpace(2).states())
             [[0, 0], [1, 0], [0, 1], [1, 1]]
             >>> list(StateSpace(3).states())
-            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
+            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1],
+            [0, 1, 1], [1, 1, 1]]
 
         .. rubric:: Examples of Non-Boolean Spaces
 
@@ -110,7 +111,8 @@ class StateSpace(object):
             >>> list(StateSpace(1,b=3).states())
             [[0], [1], [2]]
             >>> list(StateSpace(2,b=4).states())
-            [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [1, 1], [2, 1], [3, 1], [0, 2], [1, 2], [2, 2], [3, 2], [0, 3], [1, 3], [2, 3], [3, 3]]
+            [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [1, 1], [2, 1], [3, 1],
+            [0, 2], [1, 2], [2, 2], [3, 2], [0, 3], [1, 3], [2, 3], [3, 3]]
 
         .. rubric:: Examples of Non-Uniform Spaces
 
@@ -119,7 +121,8 @@ class StateSpace(object):
             >>> list(StateSpace([1,2,3]).states())
             [[0, 0, 0], [0, 1, 0], [0, 0, 1], [0, 1, 1], [0, 0, 2], [0, 1, 2]]
             >>> list(StateSpace([3,4]).states())
-            [[0, 0], [1, 0], [2, 0], [0, 1], [1, 1], [2, 1], [0, 2], [1, 2], [2, 2], [0, 3], [1, 3], [2, 3]]
+            [[0, 0], [1, 0], [2, 0], [0, 1], [1, 1], [2, 1], [0, 2], [1, 2],
+            [2, 2], [0, 3], [1, 3], [2, 3]]
 
         :yields: each possible state in the state space
         """
@@ -127,8 +130,8 @@ class StateSpace(object):
         yield state[:]
         i = 0
         while i != self.ndim:
-            b = self.base if self.is_uniform else self.bases[i]
-            if state[i] + 1 < b:
+            base = self.base if self.is_uniform else self.bases[i]
+            if state[i] + 1 < base:
                 state[i] += 1
                 for j in range(i):
                     state[j] = 0
@@ -164,25 +167,25 @@ class StateSpace(object):
         :raises ValueError: if ``state`` has an incorrect length
         """
         if len(state) != self.ndim:
-            raise(ValueError("state has the wrong length"))
-        x, q = 0, 1
+            raise ValueError("state has the wrong length")
+        encoded, place = 0, 1
         if self.is_uniform:
-            b = self.base
+            base = self.base
             for i in range(self.ndim):
-                if state[i] < 0 or state[i] >= b:
-                    raise(ValueError("invalid node state"))
-                x += q * state[i]
-                q *= b
+                if state[i] < 0 or state[i] >= base:
+                    raise ValueError("invalid node state")
+                encoded += place * state[i]
+                place *= base
         else:
             for i in range(self.ndim):
-                b = self.bases[i]
-                if state[i] < 0 or state[i] >= b:
-                    raise(ValueError("invalid node state"))
-                x += q * state[i]
-                q *= b
-        return x
+                base = self.bases[i]
+                if state[i] < 0 or state[i] >= base:
+                    raise ValueError("invalid node state")
+                encoded += place * state[i]
+                place *= base
+        return encoded
 
-    def decode(self, x):
+    def decode(self, encoded):
         """
         Decode an integer into a state in accordance with the state space.
 
@@ -204,19 +207,21 @@ class StateSpace(object):
             >>> list(map(space.decode, range(space.volume)))
             [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2], [1, 2]]
 
-        :param x: the encoded state
-        :type x: int
+        :param encoded: the encoded state
+        :type encoded: int
         :returns: the decoded state as a list
         """
         state = [0] * self.ndim
         if self.is_uniform:
+            base = self.base
             for i in range(self.ndim):
-                state[i] = x % self.base
-                x = int(x / self.base)
+                state[i] = encoded % base
+                encoded = int(encoded / base)
         else:
             for i in range(self.ndim):
-                state[i] = x % self.bases[i]
-                x = int(x / self.bases[i])
+                base = self.bases[i]
+                state[i] = encoded % base
+                encoded = int(encoded / base)
         return state
 
     def check_states(self, states):
@@ -260,12 +265,12 @@ class StateSpace(object):
             raise ValueError("incorrect number of states in array")
 
         if self.is_uniform:
-            for x in states:
-                if x not in range(self.base):
+            for state in states:
+                if state not in range(self.base):
                     raise ValueError("invalid node state in states")
         else:
-            for x, b in zip(states, self.bases):
-                if x not in range(b):
+            for state, base in zip(states, self.bases):
+                if state not in range(base):
                     raise ValueError("invalid node state in states")
 
         return True
