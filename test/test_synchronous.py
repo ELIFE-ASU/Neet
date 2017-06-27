@@ -244,7 +244,7 @@ class TestSynchronous(unittest.TestCase):
         with self.assertRaises(TypeError):
             attractors(nx.Graph())
 
-    def test_attractors_varialbe_sized(self):
+    def test_attractors_variable_sized(self):
         """
         ``attractors`` should raise an error if ``net`` is a variable sized
         network and ``size`` is ``None``
@@ -289,29 +289,72 @@ class TestSynchronous(unittest.TestCase):
         att_from_graph = list(attractors(transition_graph(s_pombe)))
         att_from_network = list(attractors(s_pombe))
         self.assertEqual(att_from_network, att_from_graph)
-    
-    def test_basins(self):
-        
-        b = basins(s_pombe)
-        
-        s_pombe_counter = Counter([378, 2, 2, 2, 104,6, 6,
-                                   2, 2, 2, 2, 2, 2])
-        b_counter = Counter([ len(c) for c in b ])
-                                  
-        self.assertEqual(s_pombe_counter,b_counter)
 
-    def test_basins_type(self):
-        b_from_graph = basins(transition_graph(s_pombe))
-        b_from_network = basins(s_pombe)
-        
-        edges_from_graph = [ g.edges() for g in b_from_graph ]
-        edges_from_network = [ g.edges() for g in b_from_network ]
-        
-        self.assertEqual(edges_from_network,edges_from_graph)
-
-    def test_basins_typeerror(self):
+    def test_basins_invalid_net(self):
+        """
+        ``basins`` should raise an error if ``net`` is neither a network nor a
+        networkx digraph
+        """
         with self.assertRaises(TypeError):
             basins('blah')
 
         with self.assertRaises(TypeError):
-            basins(nx.Graph()) # (undirected)
+            basins(MockObject)
+
+        with self.assertRaises(TypeError):
+            basins(nx.Graph())
+
+    def test_basins_variable_sized(self):
+        """
+        ``basins`` should raise an error if ``net`` is a variable sized network
+        and ``size`` is ``None``
+        """
+        with self.assertRaises(ValueError):
+            basins(ECA(30), size=None)
+
+    def test_basins_fixed_sized(self):
+        """
+        ``basins`` should raise an error if ``net`` is a fized sized network
+        and ``size`` is not ``None``
+        """
+        with self.assertRaises(ValueError):
+            basins(MockFixedSizedNetwork, size=5)
+
+    def test_basins_transition_graph(self):
+        """
+        test ``basins`` on ``s_pombe`` transition graph
+        """
+        from_graph = basins(transition_graph(s_pombe))
+        from_network = basins(s_pombe)
+
+        edges_from_graph = [g.edges() for g in from_graph]
+        edges_from_network = [g.edges() for g in from_network]
+
+        self.assertEqual(edges_from_network, edges_from_graph)
+
+    def test_basins_eca(self):
+        """
+        test ``basins`` on ECAs
+        """
+        networks = [(ECA(30), 2, [2, 1, 1]), (ECA(30), 3, [8]),
+                    (ECA(30), 4, [2, 12, 1, 1]), (ECA(30), 5, [2, 30]),
+                    (ECA(30), 6, [62, 1, 1]), (ECA(110), 2, [4]),
+                    (ECA(110), 3, [8]), (ECA(110), 4, [4, 6, 6]),
+                    (ECA(110), 5, [32]), (ECA(110), 6, [10, 27, 27])]
+
+        for net, width, basin_sizes in networks:
+            basin_counter = Counter([len(c) for c in basins(net, size=width)])
+            self.assertEqual(Counter(basin_sizes), basin_counter)
+
+
+    def test_basins_wtnetwork(self):
+        """
+        test ``basins`` on WTNetworks
+        """
+        networks = [(s_pombe, [378, 2, 2, 2, 104, 6, 6, 2, 2, 2, 2, 2, 2]),
+                    (s_cerevisiae, [7, 1764, 151, 1, 9, 109, 7]),
+                    (c_elegans, [4, 219, 12, 5, 16])]
+
+        for net, basin_sizes in networks:
+            basin_counter = Counter([len(c) for c in basins(net)])
+            self.assertEqual(Counter(basin_sizes), basin_counter)

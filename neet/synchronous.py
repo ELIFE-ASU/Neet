@@ -29,8 +29,6 @@ def trajectory(net, state, timesteps=1, encode=False):
     :param timesteps: the number of steps in the trajectory
     :param encode: encode the states as integers
     :yields: the ``timesteps+1`` states in the trajectory
-    :raises TypeError: ``not is_network(net)``
-    :raises ValueError: if ``timesteps < 1``
     """
     if not is_network(net):
         raise TypeError("net is not a network")
@@ -78,8 +76,6 @@ def transitions(net, size=None, encode=False):
     :param encode: encode the states as integers
     :type encode: boolean
     :yields: the one-state transitions
-    :raises TypeError: if ``net`` is not a network
-    :raises TypeError: if ``space`` is not a :class:`neet.StateSpace`
     """
     if not is_network(net):
         raise TypeError("net is not a network")
@@ -119,6 +115,14 @@ def transition_graph(net, size=None):
         >>> g = transition_graph(ECA(30), size=5)
         >>> g.number_of_edges()
         32
+
+    :param net: the network
+    :param type: a neet network
+    :param size: the number of nodes in the network
+    :type size: ``None`` or ``int``
+    :param encode: encode the states as integers
+    :type encode: boolean
+    :returns: a ``networkx.DiGraph`` of the network's transition graph
     """
     edge_gen = list(transitions(net, size=size, encode=True))
     edge_list = enumerate(edge_gen)
@@ -138,10 +142,11 @@ def attractors(net, size=None):
         [[204], [200], [196], [140], [136], [132], [72], [68],
         [384, 110, 144], [12], [8], [4], [76]]
 
-    :param net: the network or landscape transition_graph
+    :param net: the network or a transition graph
     :type net: neet network or networkx DiGraph
-    :returns: generator of attractors
-    :raises TypeError: if ``net`` is not a network or DiGraph
+    :param size: the number of nodes in the network
+    :type size: ``None`` or ``int``
+    :returns: a generator of attractors
     """
     if is_network(net):
         graph = transition_graph(net, size=size)
@@ -154,30 +159,21 @@ def attractors(net, size=None):
 
     return nx.simple_cycles(graph)
 
-def basins(net):
+def basins(net, size=None):
     """
-    Return a generator that lists net's basins.  Each basin
+    Return a generator that lists ``net``'s attractor basins. Each basin
     is a networkx graph.
-    
-    .. rubric:: Example:
-    
-    ::
-    
+
     :param net: the network or landscape transition_graph
     :type net: neet network or networkx DiGraph
     :returns: generator of basin subgraphs
     :raises TypeError: if ``net`` is not a network or DiGraph
     """
     if is_network(net):
-        g = transition_graph(net)
-    elif isinstance(net,nx.DiGraph):
-        g = net
+        graph = transition_graph(net, size=size)
+    elif isinstance(net, nx.DiGraph):
+        graph = net
     else:
         raise TypeError("net must be a network or a networkx DiGraph")
 
-    return nx.weakly_connected_component_subgraphs(g)
-
-
-
-
-
+    return nx.weakly_connected_component_subgraphs(graph)
