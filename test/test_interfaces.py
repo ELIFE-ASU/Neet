@@ -31,7 +31,7 @@ class TestCore(unittest.TestCase):
             pass
 
         def state_space(self):
-            return StateSpace(1, b=3)
+            return StateSpace(1, base=3)
 
     class MultipleBaseNetwork(object):
         def update(self, lattice):

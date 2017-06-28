@@ -28,7 +28,7 @@ def transitions(net, size=None, require_update=False, encoded=False):
     else:
         raise ValueError("must provide a size if network is variable-sized")
 
-    for state in state_space.states():
+    for state in state_space:
         count = 0
         next_states = dict()
         encoded_states = dict()

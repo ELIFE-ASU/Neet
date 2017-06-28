@@ -101,10 +101,10 @@ def transitions(net, size=None, encode=False):
             raise ValueError("size must not be None for variable sized networks")
         space = net.state_space(size)
 
-    for state in space.states():
+    for state in state_space:
         net.update(state)
         if encode:
-            yield space.encode(state)
+            yield state_space.encode(state)
         else:
             yield state
 
@@ -254,8 +254,9 @@ def timeseries(net, timesteps, size=None):
 
     shape = (state_space.ndim, state_space.volume, timesteps+1)
     series = np.empty(shape, dtype=np.int)
-    for (index, init) in enumerate(state_space.states()):
-        traj = trajectory(net, init, timesteps=timesteps, encode=False)
+
+    for (index, init) in enumerate(state_space):
+        traj = trajectory(net, init, n=timesteps, encode=False)
         for (time, state) in enumerate(traj):
             series[:, index, time] = state
     return series

@@ -6,8 +6,6 @@ API Documentation
 
 .. automodule:: neet.statespace
 
-State Generators
-^^^^^^^^^^^^^^^^
-
     .. autoclass:: neet.statespace.StateSpace
-        :members: __init__, states, encode, decode, check_states
+
+        :members: __init__, __iter__, encode, decode, __contains__

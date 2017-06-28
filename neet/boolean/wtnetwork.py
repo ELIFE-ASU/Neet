@@ -133,46 +133,14 @@ class WTNetwork(object):
             >>> net.state_space()
             <neet.landscape.StateSpace object at 0x00000193E4DA84A8>
             >>> space = net.state_space()
-            >>> list(space.states())
+            >>> list(space)
             [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
 
         :param n: the number of nodes in the lattice
         :type n: int
         :raises ValueError: if ``n < 1``
         """
-        return StateSpace(self.size, b=2)
-
-    def check_states(self, states):
-        """
-        Check the validity of the provided states.
-
-        .. rubric:: Examples;
-
-        ::
-
-            >>> WTNetwork(3).check_states([0,0,0])
-            True
-            >>> WTNetwork(3).check_states([0,0])
-            Traceback (most recent call last):
-                ...
-            ValueError: incorrect number of states in array
-            >>> WTNetwork(3).check_states([1,2,1])
-                ...
-            ValueError: invalid node state in states
-
-        :returns: ``True`` if the ``states`` are valid, otherwise an error is raised
-        :param states: the one-dimensional sequence of node states
-        :type states: sequence
-        :raises TypeError: if ``states`` is not iterable
-        :raises ValueError: if ``len(states)`` is not the number of nodes in the network
-        :raises ValueError: if ``states[i] not in [0,1]`` for any node ``i``
-        """
-        if len(states) != self.size:
-            raise(ValueError("incorrect number of states in array"))
-        for x in states:
-            if x !=0 and x != 1:
-                raise(ValueError("invalid node state in states"))
-        return True
+        return StateSpace(self.size, base=2)
 
     def _unsafe_update(self, states, index=None, pin=None):
         """
@@ -335,17 +303,13 @@ class WTNetwork(object):
         :param pin: the indices to pin (or None)
         :type pin: sequence
         :returns: the updated states
-        :raises TypeError: if ``states`` is not iterable
-        :raises ValueError: if ``len(states)`` is not the number of nodes in the network
-        :raises ValueError: if ``states[i] not in [0,1]`` for any node ``i``
-        :raises IndexError: if ``index is not None and index > len(states)``
-        :raises ValueError: if both ``index`` and ``pin`` are provided
-        :raises IndexError: if any element of ``pin`` is greater than ``len(states)``
+        :raises ValueError: if ``states`` is not in the network's state space
         """
-        self.check_states(states)
+        if states not in self.state_space():
+            raise ValueError("the provided state is not in the network's state space")
 
         if (index is not None) and (pin is not None and pin != []):
-            raise(ValueError("cannot provide both the index and pin arguments"))
+            raise ValueError("cannot provide both the index and pin arguments")
 
         return self._unsafe_update(states, index, pin)
 
