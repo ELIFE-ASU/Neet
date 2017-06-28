@@ -256,7 +256,7 @@ def timeseries(net, timesteps, size=None):
     series = np.empty(shape, dtype=np.int)
 
     for (index, init) in enumerate(state_space):
-        traj = trajectory(net, init, n=timesteps, encode=False)
+        traj = trajectory(net, init, timesteps=timesteps, encode=False)
         for (time, state) in enumerate(traj):
             series[:, index, time] = state
     return series
