@@ -45,14 +45,14 @@ def trajectory(net, state, timesteps=1, encode=False):
     state = copy.copy(state)
     if encode:
         if is_fixed_sized(net):
-            space = net.state_space()
+            state_space = net.state_space()
         else:
-            space = net.state_space(len(state))
+            state_space = net.state_space(len(state))
 
-        yield space.encode(state)
+        yield state_space.encode(state)
         for _ in range(timesteps):
             net.update(state)
-            yield space.encode(state)
+            yield state_space.encode(state)
     else:
         yield copy.copy(state)
         for _ in range(timesteps):
@@ -95,11 +95,11 @@ def transitions(net, size=None, encode=False):
     if is_fixed_sized(net):
         if size is not None:
             raise ValueError("size must be None for fixed sized networks")
-        space = net.state_space()
+        state_space = net.state_space()
     else:
         if size is None:
             raise ValueError("size must not be None for variable sized networks")
-        space = net.state_space(size)
+        state_space = net.state_space(size)
 
     for state in state_space:
         net.update(state)

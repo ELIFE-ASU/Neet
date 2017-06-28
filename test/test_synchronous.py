@@ -404,7 +404,7 @@ class TestSynchronous(unittest.TestCase):
             time = 10
             series = timeseries(rule, timesteps=time, size=size)
             self.assertEqual((size, 2**size, time+1), series.shape)
-            for index, state in enumerate(rule.state_space(size).states()):
+            for index, state in enumerate(rule.state_space(size)):
                 for t, expect in enumerate(trajectory(rule, state, timesteps=time)):
                     got = series[:, index, t]
                     self.assertTrue(np.array_equal(expect, got))
@@ -417,7 +417,7 @@ class TestSynchronous(unittest.TestCase):
             time = 10
             series = timeseries(net, timesteps=time)
             self.assertEqual((size, 2**size, time+1), series.shape)
-            for index, state in enumerate(net.state_space().states()):
+            for index, state in enumerate(net.state_space()):
                 for t, expect in enumerate(trajectory(net, state, timesteps=time)):
                     got = series[:, index, t]
                     self.assertTrue(np.array_equal(expect, got))
