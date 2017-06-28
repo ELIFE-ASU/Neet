@@ -111,7 +111,7 @@ def average_sensitivity(net, states=None, weights=None):
         raise(TypeError("net must be a boolean network"))
 
     if states is None:
-        states = net.state_space().states()
+        states = net.state_space()
 
     if weights is not None:
         # currently changes generators to lists when weights are given.

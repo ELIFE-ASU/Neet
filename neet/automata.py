@@ -124,63 +124,14 @@ class ECA(object):
             >>> eca.state_space(3)
             <neet.states.StateSpace object at 0x000001C0BDA38550>
             >>> space = eca.state_space(3)
-            >>> list(space.states())
+            >>> list(space)
             [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
 
         :param n: the number of nodes in the lattice
         :type n: int
         :raises ValueError: if ``n < 1``
         """
-        return StateSpace(n, b=2)
-
-    @classmethod
-    def check_lattice(self, lattice):
-        """
-        Check the validity of the provided lattice
-
-        .. rubric:: Examples:
-
-        ::
-
-            >>> ECA.check_lattice([0])
-            True
-            >>> ECA.check_lattice([1,0])
-            True
-            >>> ECA.check_lattice([0,0,1])
-            True
-
-        ::
-
-            >>> ECA.check_lattice([])
-            Traceback (most recent call last):
-                ...
-            ValueError: lattice is empty
-            >>> ECA.check_lattice([0,0,2])
-            Traceback (most recent call last):
-                ...
-            ValueError: invalid value "2" in lattice
-            >>> ECA.check_lattice(5)
-            Traceback (most recent call last):
-                ...
-            TypeError: 'int' object is not iterable
-            >>> ECA.check_lattice("elife")
-            Traceback (most recent call last):
-                ...
-            ValueError: invalid value "e" in lattice
-
-        :returns: ``True`` if the lattice is valid, otherwise an error is raised
-        :raises ValueError: if ``lattice`` is empty
-        :raises TypeError: if ``lattice`` is not iterable
-        :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
-        """
-        if len(lattice) == 0:
-            raise(ValueError("lattice is empty"))
-
-        for x in lattice:
-            if x != 0 and x != 1:
-                raise(ValueError("invalid value \"{}\" in lattice".format(x)))
-
-        return True
+        return StateSpace(n, base=2)
 
     def _unsafe_update(self, lattice, index=None):
         """
@@ -299,12 +250,14 @@ class ECA(object):
         :param index: the index to update (or None)
         :type index: int
         :returns: the updated lattice
-        :raises ValueError: if ``lattice`` is empty
-        :raises TypeError: if ``lattice`` is not iterable
-        :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
+        :raises ValueError: if ``lattice`` is not in the ECA's state space
         :raises IndexError: if ``index is not None and index > len(states)``
         """
-        ECA.check_lattice(lattice)
-        if index is not None and index < -len(lattice):
-            raise(IndexError("lattice index out of range"))
+        size = len(lattice)
+        if lattice not in self.state_space(size):
+            raise ValueError("the provided state is not in the ECA's state space")
+
+        if index is not None and index < -size:
+            raise IndexError("lattice index out of range")
+
         return self._unsafe_update(lattice, index)
