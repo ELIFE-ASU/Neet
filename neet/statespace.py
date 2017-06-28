@@ -256,7 +256,7 @@ class StateSpace(object):
 
             if self.is_uniform:
                 for state in states:
-                    if self.base <= state or state < 0:
+                    if state not in range(self.base):
                         return False
             else:
                 for state, base in zip(states, self.bases):
