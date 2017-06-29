@@ -61,7 +61,7 @@ class LogicNetwork(object):
             raise TypeError("table must be a list or tuple.")
 
         self.size = len(table)
-        self.state_space = StateSpace(self.size, b=2)
+        self.state_space = StateSpace(self.size, base=2)
         self._encoded_table = []
 
         for row in table:
@@ -209,6 +209,9 @@ class LogicNetwork(object):
             >>> net.update([0, 0, 1], pin=[0, 1])
             [0, 0, 0]
         """
+        if net_state not in self.state_space:
+            raise ValueError("the provided state is not in the network's state space")
+
         new_net_state = self._update(net_state, index)
 
         if pin:

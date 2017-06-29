@@ -20,6 +20,8 @@ Time Series Generation
 
     .. autofunction:: neet.synchronous.transitions
 
+    .. autofunction:: neet.synchronous.timeseries
+
 Synchronous Landscape Analysis Functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
