@@ -2,10 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 
-import sys
-import os
 import random as ran
-import networkx as nx
 import numpy as np
 import copy
 from .wtnetwork import WTNetwork
