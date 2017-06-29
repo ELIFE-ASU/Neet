@@ -12,7 +12,7 @@ class LogicNetwork(object):
     or ``1``.
     """
 
-    def __init__(self, table):
+    def __init__(self, table, names=None):
         """
         Construct a network from a logic truth table.
 
@@ -48,35 +48,46 @@ class LogicNetwork(object):
 
         ::
 
-            >>> net = LogicNetwork([((1, 2), {'01', '10'}),
+            >>> net = LogicNetwork([((1, 2), {'01', '10'}, ['A', 'B']),
                                     ((0, 2), {(0, 1), '10', [1, 1]}),
                                     ((0, 1), {'11'})])
             >>> net.size
             3
+            >>> net.names
+            ['A', 'B']
             >>> net.table
             [((1, 2), {'01', '10'}), ((0, 2), {'01', '10', '11'}), ((0, 1), {'11'})]
 
         """
         if not isinstance(table, (list, tuple)):
-            raise TypeError("table must be a list or tuple.")
+            raise TypeError("table must be a list or tuple")
 
         self.size = len(table)
+
+        if names:
+            if not isinstance(names, (list, tuple)):
+                raise TypeError("names must be a list or tuple")
+            elif len(names) != self.size:
+                raise ValueError("number of names must match network size")
+            else:
+                self.names = list(names)
+
         self.state_space = StateSpace(self.size, base=2)
         self._encoded_table = []
 
         for row in table:
             # Validate mask.
             if not (isinstance(row, (list, tuple)) and len(row) == 2):
-                raise ValueError("Invalid table format.")
+                raise ValueError("Invalid table format")
             # Encode the mask.
             mask_code = 0
             for idx in row[0]:
                 if idx >= self.size:
-                    raise IndexError("mask index out of range.")
+                    raise IndexError("mask index out of range")
                 mask_code += 2 ** idx  # Low order, low index.
             # Validate truth table of the sub net.
             if not isinstance(row[1], (list, tuple, set)):
-                raise ValueError("Invalid table format.")
+                raise ValueError("Invalid table format")
             # Encode each condition of truth table.
             encoded_sub_table = set()
             for condition in row[1]:
@@ -86,7 +97,7 @@ class LogicNetwork(object):
                 encoded_sub_table.add(encoded_condition)
             self._encoded_table.append((mask_code, encoded_sub_table))
         # Store positive truth table for human reader.
-        self.table = table
+        self.table = list(table)
 
     def _update(self, net_state, index=None):
         """
@@ -210,7 +221,8 @@ class LogicNetwork(object):
             [0, 0, 0]
         """
         if net_state not in self.state_space:
-            raise ValueError("the provided state is not in the network's state space")
+            raise ValueError(
+                "the provided state is not in the network's state space")
 
         new_net_state = self._update(net_state, index)
 
@@ -226,4 +238,5 @@ class LogicNetwork(object):
         """
         # read table from table_file
         # return cls.(table)
+
         pass

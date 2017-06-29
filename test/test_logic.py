@@ -20,8 +20,10 @@ class TestLogicNetwork(unittest.TestCase):
         self.assertEqual(1, net.size)
         self.assertEqual([(1, {0})], net._encoded_table)
 
-        net = bnet.LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
+        net = bnet.LogicNetwork(
+            [((1,), {'0', '1'}), ((0,), {'1'})], ['A', 'B'])
         self.assertEqual(2, net.size)
+        self.assertEqual(['A', 'B'], net.names)
         self.assertEqual([(2, {0, 2}), (1, {1})], net._encoded_table)
 
     def test_update(self):
