@@ -11,3 +11,7 @@ class TestLogicExamples(unittest.TestCase):
         self.assertEqual(11, ex.myeloid.size)
         self.assertEqual(['GATA-2', 'GATA-1', 'FOG-1', 'EKLF', 'Fli-1', 'SCL',
                           'C/EBPa', 'PU.1', 'cJun', 'EgrNab', 'Gfi-1'], ex.myeloid.names)
+        self.assertEqual(ex.myeloid.update([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0], 0),
+                         [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        self.assertEqual(ex.myeloid.update([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+                         [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
