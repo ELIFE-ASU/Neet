@@ -269,6 +269,9 @@ class LogicNetwork(object):
         0 1 1
         '''
 
+        Custom comments can be added above the table title, but not below.
+        Otherwise
+
         :returns: a :class:LogicNetwork
 
         .. rubric:: Examples:
@@ -311,6 +314,9 @@ class LogicNetwork(object):
                         r'\s*,\s*|\s+', node_title.group(2).strip())
                     table[node_index] = (
                         tuple([names.index(node) for node in sub_net_nodes]), set())
+                elif re.match(r'^\s*#.*$', line):
+                    # Skip a comment.
+                    continue
                 else:
                     # Read activation conditions for node.
                     try:
