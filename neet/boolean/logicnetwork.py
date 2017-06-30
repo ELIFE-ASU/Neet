@@ -1,7 +1,7 @@
 # Copyright 2017 ELIFE. All rights reserved.
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
-import numpy as np
+import re
 from neet.statespace import StateSpace
 
 
@@ -233,10 +233,111 @@ class LogicNetwork(object):
         return new_net_state
 
     @classmethod
-    def read_table(cls, table_file):
+    def read(cls, table_file):
         """
-        """
-        # read table from table_file
-        # return cls.(table)
+        Read a network from a logic table file.
 
-        pass
+        A logic table file starts with a table title which contains names of
+        all nodes. It is a line marked by `##` at the begining with node names
+        seperated by commas or spaces. This line is required. For artificial
+        network without node names, arbitrary names will be put in place, e.g.:
+
+        `## A B C D`
+
+        Following are the sub-tables of logic condition for every node. Each
+        sub-table nominates a node and its logically connected nodes in par-
+        enthesis as a comment line:
+
+        `# A (B C)`
+
+        The rest of the sub-table are states of those nodes in parenthesis
+        (B, C) that would activate the state of A. States that would deactive A
+        should not be included in the sub-table.abs
+
+        A complete logic table with 3 nodes A, B, C would look like this:
+
+        '''
+        ## A B C
+        # A (B C)
+        1 0
+        1 1
+        # B (A)
+        1
+        # C (B C A)
+        1 0 1
+        0 1 0
+        0 1 1
+        '''
+
+        :returns: a :class:LogicNetwork
+
+        .. rubric:: Examples:
+
+        ::
+
+            >>> net = LogicNetwork.read('myeloid-table.txt')
+            >>> net.size
+            >>> net.names
+        """
+        names_format = re.compile(r'^\s*##[^#]+$')
+        node_title_format = re.compile(
+            r'^\s*#\s*(\S+)\s*\((\s*(\S+\s*)+)\)\s*$')
+
+        with open(table_file, 'r') as f:
+            lines = f.read().splitlines()
+            # Search for node names.
+            i = 0
+            names = []
+            while not names:
+                try:
+                    if names_format.match(lines[i]):
+                        names = re.split(r'\s*,\s*|\s+', lines[i].strip())[1:]
+                    i += 1
+                except IndexError:
+                    raise FormatError("node names not found in file")
+
+            table = [()] * len(names)
+            # Create condition tables for each node.
+            for line in lines[i:]:
+                node_title = node_title_format.match(line)
+                if node_title:
+                    node_name = node_title.group(1)
+                    # Read specifications for node.
+                    if node_name not in names:
+                        raise FormatError(
+                            "'{}' not in node names".format(node_name))
+                    node_index = names.index(node_name)
+                    sub_net_nodes = re.split(
+                        r'\s*,\s*|\s+', node_title.group(2).strip())
+                    table[node_index] = (
+                        tuple([names.index(node) for node in sub_net_nodes]), set())
+                else:
+                    # Read activation conditions for node.
+                    try:
+                        if line.strip():
+                            condition = re.split(r'\s*,\s*|\s+', line.strip())
+                        else:
+                            # Skip an empty line.
+                            continue
+
+                        if len(condition) != len(table[node_index][0]):
+                            raise FormatError(
+                                "number of states and nodes must match")
+                        for state in condition:
+                            if state not in ('0', '1'):
+                                raise FormatError("node state must be binary")
+                        table[node_index][1].add(''.join(condition))
+
+                    except NameError:  # node_index not defined
+                        raise FormatError(
+                            "node must be specified before logic conditions")
+
+        if not all(table):
+            raise FormatError(
+                "logic conditions must be provided for all nodes")
+        return cls(table, names)
+
+
+class FormatError(Exception):
+    """Exception for errors in logic table's format"""
+    pass
