@@ -244,7 +244,7 @@ class LogicNetwork(object):
 
         `## A B C D`
 
-        Following are the sub-tables of logic condition for every node. Each
+        Following are the sub-tables of logic conditions for every node. Each
         sub-table nominates a node and its logically connected nodes in par-
         enthesis as a comment line:
 
@@ -252,7 +252,7 @@ class LogicNetwork(object):
 
         The rest of the sub-table are states of those nodes in parenthesis
         (B, C) that would activate the state of A. States that would deactive A
-        should not be included in the sub-table.abs
+        should not be included in the sub-table.
 
         A complete logic table with 3 nodes A, B, C would look like this:
 
@@ -270,7 +270,6 @@ class LogicNetwork(object):
         '''
 
         Custom comments can be added above the table title, but not below.
-        Otherwise
 
         :returns: a :class:LogicNetwork
 
