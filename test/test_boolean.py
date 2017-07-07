@@ -565,7 +565,7 @@ class TestWTNetwork(unittest.TestCase):
         self.assertEqual([0,1], net.update(xs, values={}))
 
 
-    def test_update_pin_invalid_values(self):
+    def test_update_invalid_values(self):
         net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
           theta=bnet.WTNetwork.positive_threshold)
         with self.assertRaises(ValueError):
