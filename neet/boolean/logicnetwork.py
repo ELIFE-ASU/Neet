@@ -48,9 +48,9 @@ class LogicNetwork(object):
 
         ::
 
-            >>> net = LogicNetwork([((1, 2), {'01', '10'}, ['A', 'B']),
+            >>> net = LogicNetwork([((1, 2), {'01', '10'}),
                                     ((0, 2), {(0, 1), '10', [1, 1]}),
-                                    ((0, 1), {'11'})])
+                                    ((0, 1), {'11'})], ['A', 'B'])
             >>> net.size
             3
             >>> net.names
