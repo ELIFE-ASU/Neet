@@ -17,7 +17,7 @@ class TestLogicExamples(unittest.TestCase):
                          [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
         self.assertEqual(ex.myeloid.update([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
                          [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
-        self.assertEqual(ex.myeloid.update([0, 0, 0, 0, 0, 0, 1, 1, 1, 0]),
+        self.assertEqual(ex.myeloid.update([0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0]),
                          [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0])
 
     def test_myeloid_attractors(self):
