@@ -29,9 +29,9 @@ class TestLogicExamples(unittest.TestCase):
                       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                       [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0])
         for state in attractors:
-            self.assertEqual(ex.myeloid.update(state.copy()), state)
+            self.assertEqual(ex.myeloid.update(state[:]), state)
 
         # Assert non-attractors.
         for state in ex.myeloid.state_space:
             if state not in attractors:
-                self.assertNotEqual(ex.myeloid.update(state.copy()), state)
+                self.assertNotEqual(ex.myeloid.update(state[:]), state)
