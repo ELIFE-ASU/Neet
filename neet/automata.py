@@ -133,7 +133,7 @@ class ECA(object):
         """
         return StateSpace(n, base=2)
 
-    def _unsafe_update(self, lattice, index=None):
+    def _unsafe_update(self, lattice, index=None, pin=None):
         """
         Update the state of the ``lattice``, in place, without
         checking the validity of the arguments.
@@ -174,43 +174,49 @@ class ECA(object):
         :param lattice: the one-dimensional sequence of states
         :type lattice: sequence
         :param index: the index to update (or None)
-        :type index: int
+        :param pin: a sequence of indicies to pin (or None)
         :returns: the updated lattice
         """
+        pin_states = pin is not None and pin != []
         if self.boundary:
-            left  = self.__boundary[0]
+            left = self.__boundary[0]
             right = self.__boundary[1]
         else:
-            left  = lattice[-1]
+            left = lattice[-1]
             right = lattice[0]
         code = self.code
         if index is None:
-            d = 2 * left + lattice[0]
+            if pin_states:
+                pinned = np.asarray(lattice)[pin]
+            temp = 2 * left + lattice[0]
             for i in range(1, len(lattice)):
-                d = 7 & (2 * d + lattice[i])
-                lattice[i-1] = 1 & (code >> d)
-            d = 7 & (2 * d + right)
-            lattice[-1] = 1 & (code >> d)
+                temp = 7 & (2 * temp + lattice[i])
+                lattice[i-1] = 1 & (code >> temp)
+            temp = 7 & (2 * temp + right)
+            lattice[-1] = 1 & (code >> temp)
+            if pin_states:
+                for (j, i) in enumerate(pin):
+                    lattice[i] = pinned[j]
         else:
             if index < 0:
                 index += len(lattice)
 
             if index == 0:
-                d = left
+                temp = left
             else:
-                d = lattice[index-1]
+                temp = lattice[index-1]
 
-            d = 2 * d + lattice[index]
+            temp = 2 * temp + lattice[index]
 
             if index + 1 == len(lattice):
-                d = 2 * d + right
+                temp = 2 * temp + right
             else:
-                d = 2 * d + lattice[index+1]
+                temp = 2 * temp + lattice[index+1]
 
-            lattice[index] = 1 & (code >> (7 & d))
+            lattice[index] = 1 & (code >> (7 & temp))
         return lattice
 
-    def update(self, lattice, index=None):
+    def update(self, lattice, index=None, pin=None):
         """
         Update the state of the ``lattice`` in place.
 
@@ -246,9 +252,8 @@ class ECA(object):
             IndexError: list index out of range
 
         :param lattice: the one-dimensional sequence of states
-        :type lattice: sequence
         :param index: the index to update (or None)
-        :type index: int
+        :param pin: a sequence of indicies to pin (or None)
         :returns: the updated lattice
         :raises ValueError: if ``lattice`` is not in the ECA's state space
         :raises IndexError: if ``index is not None and index > len(states)``
@@ -257,7 +262,10 @@ class ECA(object):
         if lattice not in self.state_space(size):
             raise ValueError("the provided state is not in the ECA's state space")
 
-        if index is not None and index < -size:
-            raise IndexError("lattice index out of range")
+        if index is not None:
+            if index < -size:
+                raise IndexError("lattice index out of range")
+            elif pin is not None and pin != []:
+                raise ValueError("cannot provide both the index and pin arguments")
 
-        return self._unsafe_update(lattice, index)
+        return self._unsafe_update(lattice, index, pin)

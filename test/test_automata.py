@@ -258,3 +258,35 @@ class TestECA(unittest.TestCase):
         lattice = np.asarray([0,0,1,0,0])
         eca.update(lattice, index=1)
         self.assertTrue(np.array_equal([0,1,1,0,0], lattice))
+
+
+    def test_update_pin_none(self):
+        eca = ca.ECA(30)
+
+        xs = [0,0,1,0,0]
+        self.assertEqual([0,1,1,1,0], eca.update(xs, pin=None))
+        self.assertEqual([1,1,0,0,1], eca.update(xs, pin=[]))
+
+
+    def test_update_pin_index_clash(self):
+        eca = ca.ECA(30)
+        with self.assertRaises(ValueError):
+          eca.update([0,0], index=0, pin=[1])
+        with self.assertRaises(ValueError):
+          eca.update([0,0], index=1, pin=[1])
+        with self.assertRaises(ValueError):
+          eca.update([0,0], index=1, pin=[0,1])
+
+
+    def test_update_pin(self):
+        eca = ca.ECA(30)
+
+        xs = [0,0,1,0,0]
+        self.assertEqual([0,0,1,1,0], eca.update(xs, pin=[1]))
+        self.assertEqual([0,0,1,0,1], eca.update(xs, pin=[1]))
+        self.assertEqual([1,0,1,0,1], eca.update(xs, pin=[1]))
+
+        eca.boundary = (1,1)
+        xs = [0,0,0,0,0]
+        self.assertEqual([1,0,0,0,0], eca.update(xs, pin=[-1]))
+        # self.assertEqual([1,1,0,0,0], eca.update(xs, pin=[0,-1]))
