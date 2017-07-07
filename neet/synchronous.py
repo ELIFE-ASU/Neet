@@ -125,7 +125,7 @@ def transition_graph(net, size=None):
         >>> g.number_of_nodes(), g.number_of_edges()
         (64, 64)
 
-    :param net: the network
+    :param net: the network (if already a networkx.DiGraph, does nothing and returns it)
     :param size: the size of the network (``None`` if fixed sized)
     :param encode: encode the states as integers
     :returns: a ``networkx.DiGraph`` of the network's transition graph
@@ -133,8 +133,15 @@ def transition_graph(net, size=None):
     :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
-    edge_list = enumerate(transitions(net, size=size, encode=True))
-    return nx.DiGraph(list(edge_list))
+    if is_network(net):
+        edge_list = enumerate(transitions(net, size=size, encode=True))
+        return nx.DiGraph(list(edge_list))
+    elif isinstance(net, nx.DiGraph):
+        if size is not None:
+            raise ValueError("size must be None for transition graphs")
+        return net
+    else:
+        raise TypeError("net must be a network or a networkx DiGraph")
 
 def attractors(net, size=None):
     """
@@ -161,15 +168,7 @@ def attractors(net, size=None):
     :raises ValueError: if ``net`` is a transition graph and ``size`` is not ``None``
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
-    if is_network(net):
-        graph = transition_graph(net, size=size)
-    elif isinstance(net, nx.DiGraph):
-        if size is not None:
-            raise ValueError("size must be None for transition graphs")
-        graph = net
-    else:
-        raise TypeError("net must be a network or a networkx DiGraph")
-
+    graph = transition_graph(net, size=size)
     return nx.simple_cycles(graph)
 
 def basins(net, size=None):
@@ -199,13 +198,7 @@ def basins(net, size=None):
     :raises ValueError: if ``net`` is a transition graph and ``size`` is not ``None``
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
-    if is_network(net):
-        graph = transition_graph(net, size=size)
-    elif isinstance(net, nx.DiGraph):
-        graph = net
-    else:
-        raise TypeError("net must be a network or a networkx DiGraph")
-
+    graph = transition_graph(net, size=size)
     return nx.weakly_connected_component_subgraphs(graph)
 
 def timeseries(net, timesteps, size=None):
