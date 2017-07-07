@@ -289,4 +289,55 @@ class TestECA(unittest.TestCase):
         eca.boundary = (1,1)
         xs = [0,0,0,0,0]
         self.assertEqual([1,0,0,0,0], eca.update(xs, pin=[-1]))
-        # self.assertEqual([1,1,0,0,0], eca.update(xs, pin=[0,-1]))
+        self.assertEqual([1,1,0,0,0], eca.update(xs, pin=[0,-1]))
+
+
+    def test_update_values_none(self):
+        eca = ca.ECA(30)
+
+        xs = [0,0,1,0,0]
+        self.assertEqual([0,1,1,1,0], eca.update(xs, values=None))
+        self.assertEqual([1,1,0,0,1], eca.update(xs, values={}))
+
+
+    def test_update_invalid_values(self):
+        eca = ca.ECA(30)
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], values={0: 2})
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], values={0:-1})
+
+
+    def test_update_values_index_clash(self):
+        eca = ca.ECA(30)
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], index=0, values={0: 1})
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], index=1, values={1: 0})
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], index=1, values={0: 0, 1: 0})
+
+
+    def test_update_values_pin_clash(self):
+        eca = ca.ECA(30)
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], pin=[0], values={0: 1})
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], pin=[1], values={1: 0})
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], pin=[1], values={0: 0, 1: 0})
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], pin=[1, 0], values={0: 0})
+
+
+    def test_update_values(self):
+        eca = ca.ECA(30)
+
+        xs = [0,0,1,0,0]
+        self.assertEqual([0,1,0,1,0], eca.update(xs, values={2:0}))
+        self.assertEqual([1,0,0,0,1], eca.update(xs, values={1:0, 3:0}))
+        self.assertEqual([0,1,0,1,0], eca.update(xs, values={-1:0}))
+
+        eca.boundary = (1,1)
+        xs = [0,0,0,0,0]
+        self.assertEqual([1,0,1,0,1], eca.update(xs, values={2:1}))

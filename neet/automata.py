@@ -133,7 +133,7 @@ class ECA(object):
         """
         return StateSpace(n, base=2)
 
-    def _unsafe_update(self, lattice, index=None, pin=None):
+    def _unsafe_update(self, lattice, index=None, pin=None, values=None):
         """
         Update the state of the ``lattice``, in place, without
         checking the validity of the arguments.
@@ -175,6 +175,7 @@ class ECA(object):
         :type lattice: sequence
         :param index: the index to update (or None)
         :param pin: a sequence of indicies to pin (or None)
+        :param values: a dictionary of index-value pairs to fix after update
         :returns: the updated lattice
         """
         pin_states = pin is not None and pin != []
@@ -214,9 +215,12 @@ class ECA(object):
                 temp = 2 * temp + lattice[index+1]
 
             lattice[index] = 1 & (code >> (7 & temp))
+        if values is not None:
+            for key in values:
+                lattice[key] = values[key]
         return lattice
 
-    def update(self, lattice, index=None, pin=None):
+    def update(self, lattice, index=None, pin=None, values=None):
         """
         Update the state of the ``lattice`` in place.
 
@@ -254,6 +258,7 @@ class ECA(object):
         :param lattice: the one-dimensional sequence of states
         :param index: the index to update (or None)
         :param pin: a sequence of indicies to pin (or None)
+        :param values: a dictionary of index-value pairs to fix after update
         :returns: the updated lattice
         :raises ValueError: if ``lattice`` is not in the ECA's state space
         :raises IndexError: if ``index is not None and index > len(states)``
@@ -267,5 +272,15 @@ class ECA(object):
                 raise IndexError("lattice index out of range")
             elif pin is not None and pin != []:
                 raise ValueError("cannot provide both the index and pin arguments")
+            elif values is not None and values != {}:
+                raise ValueError("cannot provide both the index and values arguments")
+        elif pin is not None and values is not None:
+            for key in values.keys():
+                for key in pin:
+                    raise ValueError("cannot set a value for a pinned state")
+        if values is not None:
+            for val in values.values():
+                if val != 0 and val != 1:
+                    raise ValueError("invalid state in values argument")
 
-        return self._unsafe_update(lattice, index, pin)
+        return self._unsafe_update(lattice, index, pin, values)
