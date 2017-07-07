@@ -2,7 +2,7 @@
 # GATA-2 (GATA-2, GATA-1, FOG-1, PU.1)
 1 1 0 0
 1 0 1 0
-1 0 0 1
+1 0 0 0
 # GATA-1 (GATA-1, GATA-2, Fli-1, PU.1)
 1 0 0 0
 0 1 0 0
@@ -30,6 +30,7 @@
 # PU.1 (C/EBPa, PU.1, GATA-1, GATA-2)
 1 0 0 0
 0 1 0 0
+1 1 0 0
 # cJun (PU.1, Gfi-1)
 1 0
 # EgrNab (PU.1, cJun, Gfi-1)
