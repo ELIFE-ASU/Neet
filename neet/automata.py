@@ -138,7 +138,7 @@ class ECA(object):
         Update the state of the ``lattice``, in place, without
         checking the validity of the arguments.
 
-        .. rubric:: Examples:
+        .. rubric:: Basic Use:
 
         ::
 
@@ -146,30 +146,44 @@ class ECA(object):
             >>> xs = [0,0,1,0,0]
             >>> ca._unsafe_update(xs)
             [0, 1, 1, 1, 0]
-            >>> xs
-            [0, 1, 1, 1, 0]
-            >>> ca.boundary = (0,1)
-            >>> ca._unsafe_update(xs)
-            [1, 1, 0, 0, 0]
+            >>> ca.boundary = (1,1)
+            >>> ca._unsafe_update([0,0,1,0,0])
+            [1, 1, 1, 1, 1]
+
+        .. rubric:: Single-Node Update:
 
         ::
 
-            >>> ca = ECA(30)
+            >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
             >>> ca._unsafe_update(xs, index=1)
             [0, 1, 1, 0, 0]
             >>> xs
             [0, 1, 1, 0, 0]
-            >>> ca.boundary = (0,1)
+            >>> ca.boundary = (1,1)
             >>> ca._unsafe_update(xs, index=-1)
             [0, 1, 1, 0, 1]
 
-        ::
+        .. rubric:: State Pinning:
 
-            >>> xs = [0,0,2,0,0]
-            >>> ca._unsafe_update(xs)
-            >>> xs
-            [0, 1, 1, 0, 1]
+            >>> ca.boundary = None
+            >>> xs = [0,0,1,0,0]
+            >>> ca._unsafe_update(xs, pin=[-2])
+            [0, 1, 1, 0, 0]
+            >>> ca.boundary = (1,1)
+            >>> ca._unsafe_update(xs, pin=[4])
+            [0, 1, 0, 1, 0]
+        
+        .. rubric:: Value Fixing:
+
+            >>> ca.boundary = None
+            >>> xs = [0,0,1,0,0]
+            >>> ca._unsafe_update(xs, values={0:1,-2:0})
+            [1, 1, 1, 0, 0]
+            >>> ca.boundary = (1,1)
+            >>> xs = [1,1,1,0,0]
+            >>> ca._unsafe_update(xs, values={1:0,-1:0})
+            [0, 0, 0, 1, 0]
 
         :param lattice: the one-dimensional sequence of states
         :type lattice: sequence
@@ -224,11 +238,23 @@ class ECA(object):
         """
         Update the state of the ``lattice`` in place.
 
-        .. rubric:: Examples:
+        .. rubric:: Basic Use:
 
         ::
 
             >>> ca = ECA(30)
+            >>> xs = [0,0,1,0,0]
+            >>> ca.update(xs)
+            [0, 1, 1, 1, 0]
+            >>> ca.boundary = (1,1)
+            >>> ca.update([0,0,1,0,0])
+            [1, 1, 1, 1, 1]
+
+        .. rubric:: Single-Node Update:
+
+        ::
+
+            >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
             >>> ca.update(xs, index=1)
             [0, 1, 1, 0, 0]
@@ -237,6 +263,29 @@ class ECA(object):
             >>> ca.boundary = (1,1)
             >>> ca.update(xs, index=-1)
             [0, 1, 1, 0, 1]
+
+        .. rubric:: State Pinning:
+
+            >>> ca.boundary = None
+            >>> xs = [0,0,1,0,0]
+            >>> ca.update(xs, pin=[-2])
+            [0, 1, 1, 0, 0]
+            >>> ca.boundary = (1,1)
+            >>> ca.update(xs, pin=[4])
+            [0, 1, 0, 1, 0]
+        
+        .. rubric:: Value Fixing:
+
+            >>> ca.boundary = None
+            >>> xs = [0,0,1,0,0]
+            >>> ca.update(xs, values={0:1,-2:0})
+            [1, 1, 1, 0, 0]
+            >>> ca.boundary = (1,1)
+            >>> xs = [1,1,1,0,0]
+            >>> ca.update(xs, values={1:0,-1:0})
+            [0, 0, 0, 1, 0]
+
+        .. rubric:: Erroneous Usage:
 
         ::
 
@@ -254,6 +303,18 @@ class ECA(object):
             Traceback (most recent call last):
                   ...
             IndexError: list index out of range
+            >>> ca.update([0,0,1,0,0,], index=1, pin=[0])
+                ...
+            ValueError: cannot provide both the index and pin arguments
+            >>> ca.update([0,0,1,0,0], index=1, values={0:0})
+                ...
+            ValueError: cannot provide both the index and values arguments
+            >>> ca.update([0,0,1,0,0], pin=[2], values={2:0})
+                ...
+            ValueError: cannot set a value for a pinned state
+            >>> ca.update([0,0,1,0,0], values={2:2})
+                ...
+            ValueError: invalid state in values argument
 
         :param lattice: the one-dimensional sequence of states
         :param index: the index to update (or None)
@@ -262,6 +323,10 @@ class ECA(object):
         :returns: the updated lattice
         :raises ValueError: if ``lattice`` is not in the ECA's state space
         :raises IndexError: if ``index is not None and index > len(states)``
+        :raises ValueError: if ``index`` and ``pin`` are both provided
+        :raises ValueError: if ``index`` and ``values`` are both provided
+        :raises ValueError: if an element of ``pin`` is a key in ``values``
+        :raises ValueError: if a value in ``values`` is not binary (0 or 1)
         """
         size = len(lattice)
         if lattice not in self.state_space(size):
