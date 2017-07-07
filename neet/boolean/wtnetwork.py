@@ -186,6 +186,15 @@ class WTNetwork(object):
             >>> net._unsafe_update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
             [0, 0, 0, 0, 0, 0, 1, 0, 1]
 
+        .. rubric:: Value Fixing:
+
+            >>> net.update([0,0,0,0,1,0,0,0,0], values={0:1, 2:1})
+            [1, 0, 1, 0, 0, 0, 0, 0, 1]
+            >>> net.update([0,0,0,0,0,0,0,0,1], values={0:1, 1:0, 2:0})
+            [1, 0, 0, 1, 0, 0, 1, 0, 0]
+            >>> net.update([0,0,0,0,0,0,0,0,1], values={-1:1, -2:1})
+            [0, 1, 1, 1, 0, 0, 1, 1, 1]
+
         .. rubric:: Erroneous Usage:
 
         ::
@@ -206,11 +215,9 @@ class WTNetwork(object):
             IndexError: index 10 is out of bounds for axis 1 with size 9
 
         :param states: the one-dimensional sequence of node states
-        :type states: sequence
         :param index: the index to update or None
-        :type index: int or None
         :param pin: the indices to pin (fix to their current state) or None
-        :type pin: sequence
+        :param values: a dictionary of index-value pairs to fix after update
         :returns: the updated states
         """
         pin_states = pin is not None and pin != []
@@ -273,6 +280,15 @@ class WTNetwork(object):
             >>> net.update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
             [0, 0, 0, 0, 0, 0, 1, 0, 1]
 
+        .. rubric:: Value Fixing:
+
+            >>> net.update([0,0,0,0,1,0,0,0,0], values={0:1, 2:1})
+            [1, 0, 1, 0, 0, 0, 0, 0, 1]
+            >>> net.update([0,0,0,0,0,0,0,0,1], values={0:1, 1:0, 2:0})
+            [1, 0, 0, 1, 0, 0, 1, 0, 0]
+            >>> net.update([0,0,0,0,0,0,0,0,1], values={-1:1, -2:1})
+            [0, 1, 1, 1, 0, 0, 1, 1, 1]
+
         .. rubric:: Erroneous Usage:
 
         ::
@@ -297,15 +313,29 @@ class WTNetwork(object):
             Traceback (most recent call last):
                 ...
             IndexError: index 10 is out of bounds for axis 1 with size 9
+            >>> net.update([0,0,0,0,1,0,0,0,0], index=1, values={1:0,3:0,2:1})
+            Traceback (most recent call last):
+                ...
+            ValueError: cannot provide both the index and values arguments
+            >>> net.update([0,0,0,0,1,0,0,0,0], pin=[1], values={1:0,3:0,2:1})
+            Traceback (most recent call last):
+                ...
+            ValueError: cannot set a value for a pinned state
+            >>> net.update([0,0,0,0,1,0,0,0,0], values={1:2})
+            Traceback (most recent call last):
+                ...
+            ValueError: invalid state in values argument
 
         :param states: the one-dimensional sequence of node states
-        :type states: sequence
         :param index: the index to update (or None)
-        :type index: int or None
         :param pin: the indices to pin (or None)
-        :type pin: sequence
+        :param values: a dictionary of index-value pairs to set after update
         :returns: the updated states
         :raises ValueError: if ``states`` is not in the network's state space
+        :raises ValueError: if ``index`` and ``pin`` are both provided
+        :raises ValueError: if ``index`` and ``values`` are both provided
+        :raises ValueError: if an element of ``pin`` is a key in ``values``
+        :raises ValueError: if a value in ``values`` is not binary (0 or 1)
         """
         if states not in self.state_space():
             raise ValueError("the provided state is not in the network's state space")
@@ -313,7 +343,7 @@ class WTNetwork(object):
         if index is not None:
             if pin is not None and pin != []:
                 raise ValueError("cannot provide both the index and pin arguments")
-            elif values is not None and pin != {}:
+            elif values is not None and values != {}:
                 raise ValueError("cannot provide both the index and values arguments")
         elif pin is not None and values is not None:
             for k in values.keys():
