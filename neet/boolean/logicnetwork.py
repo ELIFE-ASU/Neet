@@ -104,8 +104,7 @@ class LogicNetwork(object):
         Update node states according to the truth table. Core update function.
 
         If `index` is provided, update only node at `index`. If `index` is not
-        provided, update all ndoes. `pin` provides the indices of which the
-        nodes' states are forced to remain unchanged.
+        provided, update all ndoes. The input `net_state` is not modified.
 
         :param net_state: a sequence of binary node states
         :type net_state: sequence
@@ -165,13 +164,13 @@ class LogicNetwork(object):
 
         return new_net_state
 
-    def update(self, net_state, index=None, pin=None):
+    def update(self, net_state, index=None, pin=[]):
         """
         Update node states according to the truth table.
 
         If `index` is provided, update only node at `index`. If `index` is not
         provided, update all ndoes. `pin` provides the indices of which the
-        nodes' states are forced to remain unchanged.
+        nodes' states are forced to remain unchanged. Update is inplace.
 
         :param net_state: a sequence of binary node states
         :type net_state: sequence
@@ -226,11 +225,11 @@ class LogicNetwork(object):
 
         new_net_state = self._update(net_state, index)
 
-        if pin:
-            for idx in pin:
-                new_net_state[idx] = net_state[idx]
+        for idx in range(self.size):
+            if idx not in pin:
+                net_state[idx] = new_net_state[idx]
 
-        return new_net_state
+        return net_state
 
     @classmethod
     def read(cls, table_file):
