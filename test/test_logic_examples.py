@@ -15,12 +15,23 @@ class TestLogicExamples(unittest.TestCase):
                          [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
         self.assertEqual(ex.myeloid.update([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
                          [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
-        # Assert attractors
-        self.assertEqual(ex.myeloid.update([0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0]),
-                         [0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0])
-        self.assertEqual(ex.myeloid.update([0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0]),
-                         [0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0])
-        self.assertEqual(ex.myeloid.update([0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0]),
-                         [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0])
-        self.assertEqual(ex.myeloid.update([0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1]),
-                         [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1])
+        self.assertEqual(ex.myeloid.update([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+                         [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+        self.assertEqual(ex.myeloid.update([0, 0, 0, 0, 0, 0, 1, 1, 1, 0]),
+                         [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0])
+
+    def test_myeloid_attractors(self):
+        # Assert attractors.
+        attractors = ([0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0],
+                      [0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+                      [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0],
+                      [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1],
+                      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                      [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0])
+        for state in attractors:
+            self.assertEqual(ex.myeloid.update(state.copy()), state)
+
+        # Assert non-attractors.
+        for state in ex.myeloid.state_space:
+            if state not in attractors:
+                self.assertNotEqual(ex.myeloid.update(state.copy()), state)
