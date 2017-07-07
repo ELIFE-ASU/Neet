@@ -346,7 +346,6 @@ class TestSynchronous(unittest.TestCase):
             basin_counter = Counter([len(c) for c in basins(net, size=width)])
             self.assertEqual(Counter(basin_sizes), basin_counter)
 
-
     def test_basins_wtnetwork(self):
         """
         test ``basins`` on WTNetworks
@@ -358,6 +357,85 @@ class TestSynchronous(unittest.TestCase):
         for net, basin_sizes in networks:
             basin_counter = Counter([len(c) for c in basins(net)])
             self.assertEqual(Counter(basin_sizes), basin_counter)
+
+    def test_basin_entropy_invalid_net(self):
+        """
+        ``basin_entropy`` should raise an error if ``net`` is neither a network nor a
+        networkx digraph
+        """
+        with self.assertRaises(TypeError):
+            basin_entropy('blee')
+
+        with self.assertRaises(TypeError):
+            basin_entropy(MockObject)
+
+        with self.assertRaises(TypeError):
+            basin_entropy(nx.Graph())
+
+    def test_basin_entropy_variable_sized(self):
+        """
+        ``basin_entropy`` should raise an error if ``net`` is a variable sized network
+        and ``size`` is ``None``
+        """
+        with self.assertRaises(ValueError):
+            basin_entropy(ECA(30), size=None)
+
+    def test_basin_entropy_fixed_sized(self):
+        """
+        ``basin_entropy`` should raise an error if ``net`` is a fized sized network
+        and ``size`` is not ``None``
+        """
+        with self.assertRaises(ValueError):
+            basin_entropy(MockFixedSizedNetwork, size=5)
+
+    def test_basin_entropy_transition_graph(self):
+        """
+        test ``basin_entropy`` on ``s_pombe`` transition graph
+        """
+        from_graph = basin_entropy(transition_graph(s_pombe))
+        from_network = basin_entropy(s_pombe)
+
+        self.assertAlmostEqual(from_network, from_graph)
+
+    def test_basin_entropy_eca(self):
+        """
+        test ``basin_entropy`` on ECAs
+        """
+        networks = [(ECA(30), 2, 1.5), (ECA(30), 3, 0.),
+                    (ECA(30), 4, 1.186278124459133),
+                    (ECA(30), 5, 0.3372900666170139),
+                    (ECA(30), 6, 0.23187232431271465),
+                    (ECA(110), 2, 0.),(ECA(110), 3, 0.),
+                    (ECA(110), 4, 1.561278124459133),
+                    (ECA(110), 5, 0.),
+                    (ECA(110), 6, 1.4690124052234232)]
+
+        for net, width, entropy in networks:
+            self.assertAlmostEqual(basin_entropy(net, size=width), entropy)
+
+    def test_basin_entropy_wtnetwork(self):
+        """
+        test ``basin_entropy`` on WTNetworks
+        """
+        networks = [(s_pombe, 1.2218888338849747),
+                    (s_cerevisiae, 0.7838577302128783),
+                    (c_elegans, 0.8542673572822357),
+                    ]
+    
+        for net, entropy in networks:
+            self.assertAlmostEqual(basin_entropy(net), entropy)
+
+    def test_basin_entropy_wtnetwork_base10(self):
+        """
+        test ``basin_entropy`` on WTNetworks with different base
+        """
+        networks = [(s_pombe, 0.36782519036626099),
+                    (s_cerevisiae, 0.2359646891271609),
+                    (c_elegans, 0.2571600988585521),
+                    ]
+    
+        for net, entropy in networks:
+            self.assertAlmostEqual(basin_entropy(net, base=10), entropy)
 
     def test_timeseries_not_network(self):
         """

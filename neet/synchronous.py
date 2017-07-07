@@ -4,6 +4,7 @@
 import copy
 import networkx as nx
 import numpy as np
+import pyinform as pi
 from .interfaces import is_network, is_fixed_sized
 
 def trajectory(net, state, timesteps=1, encode=False):
@@ -200,6 +201,40 @@ def basins(net, size=None):
     """
     graph = transition_graph(net, size=size)
     return nx.weakly_connected_component_subgraphs(graph)
+
+def basin_entropy(net, size=None, base=2):
+    """
+    Calculate the basin entropy.
+    
+    Reference:
+    P. Krawitz and I. Shmulevich, ``Basin Entropy in Boolean Network Ensembles.''
+    Phys. Rev. Lett. 98, 158701 (2007).  http://dx.doi.org/10.1103/PhysRevLett.98.158701
+
+    .. rubric:: Example:
+
+    ::
+
+        >>> from neet.automata import ECA
+        >>> from neet.boolean.examples import s_pombe
+        >>> basin_entropy(s_pombe)
+        1.2218888338849747
+        >>> basin_entropy(s_pombe, base=10)
+        0.367825190366261
+        >>> basin_entropy(ECA(30), size=5)
+        0.3372900666170139
+        
+    :param net: the network or landscape transition_graph
+    :param size: the size of the network (``None`` if fixed sized)
+    :param base: base of logarithm used to calculate entropy (2 for bits)
+    :returns: value of basin entropy
+    :raises TypeError: if ``net`` is not a network or a ``networkx.DiGraph``
+    :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
+    :raises ValueError: if ``net`` is a transition graph and ``size`` is not ``None``
+    :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
+    """
+    sizes = [ len(basin) for basin in basins(net, size=size) ]
+    d = pi.Dist(sizes)
+    return pi.shannon.entropy(d, b=base)
 
 def timeseries(net, timesteps, size=None):
     """
