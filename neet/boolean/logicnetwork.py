@@ -1,7 +1,7 @@
 # Copyright 2017 ELIFE. All rights reserved.
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
-import numpy as np
+import re
 from neet.statespace import StateSpace
 
 
@@ -12,7 +12,7 @@ class LogicNetwork(object):
     or ``1``.
     """
 
-    def __init__(self, table):
+    def __init__(self, table, names=None):
         """
         Construct a network from a logic truth table.
 
@@ -50,33 +50,44 @@ class LogicNetwork(object):
 
             >>> net = LogicNetwork([((1, 2), {'01', '10'}),
                                     ((0, 2), {(0, 1), '10', [1, 1]}),
-                                    ((0, 1), {'11'})])
+                                    ((0, 1), {'11'})], ['A', 'B'])
             >>> net.size
             3
+            >>> net.names
+            ['A', 'B']
             >>> net.table
             [((1, 2), {'01', '10'}), ((0, 2), {'01', '10', '11'}), ((0, 1), {'11'})]
 
         """
         if not isinstance(table, (list, tuple)):
-            raise TypeError("table must be a list or tuple.")
+            raise TypeError("table must be a list or tuple")
 
         self.size = len(table)
+
+        if names:
+            if not isinstance(names, (list, tuple)):
+                raise TypeError("names must be a list or tuple")
+            elif len(names) != self.size:
+                raise ValueError("number of names must match network size")
+            else:
+                self.names = list(names)
+
         self.state_space = StateSpace(self.size, base=2)
         self._encoded_table = []
 
         for row in table:
             # Validate mask.
             if not (isinstance(row, (list, tuple)) and len(row) == 2):
-                raise ValueError("Invalid table format.")
+                raise ValueError("Invalid table format")
             # Encode the mask.
             mask_code = 0
             for idx in row[0]:
                 if idx >= self.size:
-                    raise IndexError("mask index out of range.")
+                    raise IndexError("mask index out of range")
                 mask_code += 2 ** idx  # Low order, low index.
             # Validate truth table of the sub net.
             if not isinstance(row[1], (list, tuple, set)):
-                raise ValueError("Invalid table format.")
+                raise ValueError("Invalid table format")
             # Encode each condition of truth table.
             encoded_sub_table = set()
             for condition in row[1]:
@@ -86,15 +97,14 @@ class LogicNetwork(object):
                 encoded_sub_table.add(encoded_condition)
             self._encoded_table.append((mask_code, encoded_sub_table))
         # Store positive truth table for human reader.
-        self.table = table
+        self.table = list(table)
 
     def _update(self, net_state, index=None):
         """
         Update node states according to the truth table. Core update function.
 
         If `index` is provided, update only node at `index`. If `index` is not
-        provided, update all ndoes. `pin` provides the indices of which the
-        nodes' states are forced to remain unchanged.
+        provided, update all ndoes. The input `net_state` is not modified.
 
         :param net_state: a sequence of binary node states
         :type net_state: sequence
@@ -154,13 +164,13 @@ class LogicNetwork(object):
 
         return new_net_state
 
-    def update(self, net_state, index=None, pin=None):
+    def update(self, net_state, index=None, pin=[]):
         """
         Update node states according to the truth table.
 
         If `index` is provided, update only node at `index`. If `index` is not
         provided, update all ndoes. `pin` provides the indices of which the
-        nodes' states are forced to remain unchanged.
+        nodes' states are forced to remain unchanged. Update is inplace.
 
         :param net_state: a sequence of binary node states
         :type net_state: sequence
@@ -210,20 +220,128 @@ class LogicNetwork(object):
             [0, 0, 0]
         """
         if net_state not in self.state_space:
-            raise ValueError("the provided state is not in the network's state space")
+            raise ValueError(
+                "the provided state is not in the network's state space")
 
         new_net_state = self._update(net_state, index)
 
-        if pin:
-            for idx in pin:
-                new_net_state[idx] = net_state[idx]
+        for idx in range(self.size):
+            if idx not in pin:
+                net_state[idx] = new_net_state[idx]
 
-        return new_net_state
+        return net_state
 
     @classmethod
-    def read_table(cls, table_file):
+    def read(cls, table_file):
         """
+        Read a network from a logic table file.
+
+        A logic table file starts with a table title which contains names of
+        all nodes. It is a line marked by `##` at the begining with node names
+        seperated by commas or spaces. This line is required. For artificial
+        network without node names, arbitrary names will be put in place, e.g.:
+
+        `## A B C D`
+
+        Following are the sub-tables of logic conditions for every node. Each
+        sub-table nominates a node and its logically connected nodes in par-
+        enthesis as a comment line:
+
+        `# A (B C)`
+
+        The rest of the sub-table are states of those nodes in parenthesis
+        (B, C) that would activate the state of A. States that would deactive A
+        should not be included in the sub-table.
+
+        A complete logic table with 3 nodes A, B, C would look like this:
+
+        '''
+        ## A B C
+        # A (B C)
+        1 0
+        1 1
+        # B (A)
+        1
+        # C (B C A)
+        1 0 1
+        0 1 0
+        0 1 1
+        '''
+
+        Custom comments can be added above the table title, but not below.
+
+        :returns: a :class:LogicNetwork
+
+        .. rubric:: Examples:
+
+        ::
+
+            >>> net = LogicNetwork.read('myeloid-table.txt')
+            >>> net.size
+            >>> net.names
         """
-        # read table from table_file
-        # return cls.(table)
-        pass
+        names_format = re.compile(r'^\s*##[^#]+$')
+        node_title_format = re.compile(
+            r'^\s*#\s*(\S+)\s*\((\s*(\S+\s*)+)\)\s*$')
+
+        with open(table_file, 'r') as f:
+            lines = f.read().splitlines()
+            # Search for node names.
+            i = 0
+            names = []
+            while not names:
+                try:
+                    if names_format.match(lines[i]):
+                        names = re.split(r'\s*,\s*|\s+', lines[i].strip())[1:]
+                    i += 1
+                except IndexError:
+                    raise FormatError("node names not found in file")
+
+            table = [()] * len(names)
+            # Create condition tables for each node.
+            for line in lines[i:]:
+                node_title = node_title_format.match(line)
+                if node_title:
+                    node_name = node_title.group(1)
+                    # Read specifications for node.
+                    if node_name not in names:
+                        raise FormatError(
+                            "'{}' not in node names".format(node_name))
+                    node_index = names.index(node_name)
+                    sub_net_nodes = re.split(
+                        r'\s*,\s*|\s+', node_title.group(2).strip())
+                    table[node_index] = (
+                        tuple([names.index(node) for node in sub_net_nodes]), set())
+                elif re.match(r'^\s*#.*$', line):
+                    # Skip a comment.
+                    continue
+                else:
+                    # Read activation conditions for node.
+                    try:
+                        if line.strip():
+                            condition = re.split(r'\s*,\s*|\s+', line.strip())
+                        else:
+                            # Skip an empty line.
+                            continue
+
+                        if len(condition) != len(table[node_index][0]):
+                            raise FormatError(
+                                "number of states and nodes must match")
+                        for state in condition:
+                            if state not in ('0', '1'):
+                                raise FormatError("node state must be binary")
+                        table[node_index][1].add(''.join(condition))
+
+                    except NameError:  # node_index not defined
+                        raise FormatError(
+                            "node must be specified before logic conditions")
+
+        if not all(table):
+            raise FormatError(
+                "logic conditions must be provided for all nodes")
+        return cls(table, names)
+
+
+class FormatError(Exception):
+    """Exception for errors in logic table's format"""
+    pass

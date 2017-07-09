@@ -1,0 +1,39 @@
+## GATA-2, GATA-1, FOG-1, EKLF, Fli-1, SCL, C/EBPa, PU.1, cJun, EgrNab, Gfi-1
+# GATA-2 (GATA-2, GATA-1, FOG-1, PU.1)
+1 1 0 0
+1 0 1 0
+1 0 0 0
+# GATA-1 (GATA-1, GATA-2, Fli-1, PU.1)
+1 0 0 0
+0 1 0 0
+0 0 1 0
+1 1 0 0
+1 0 1 0
+0 1 1 0
+1 1 1 0
+# FOG-1 (GATA-1)
+1
+# EKLF (GATA-1, Fli-1)
+1 0
+# Fli-1 (GATA-1, EKLF)
+1 0
+# SCL (GATA-1, PU.1)
+1 0
+# C/EBPa (C/EBPa, GATA-1, FOG-1, SCL)
+1 0 0 0
+1 1 0 0
+1 0 1 0
+1 0 0 1
+1 1 1 0
+1 1 0 1
+1 0 1 1
+# PU.1 (C/EBPa, PU.1, GATA-1, GATA-2)
+1 0 0 0
+0 1 0 0
+1 1 0 0
+# cJun (PU.1, Gfi-1)
+1 0
+# EgrNab (PU.1, cJun, Gfi-1)
+1 1 0
+# Gfi-1 (C/EBPa, EgrNab)
+1 0
