@@ -339,9 +339,11 @@ class LogicNetwork(object):
                         raise FormatError(
                             "node must be specified before logic conditions")
 
-        if not all(table):
-            raise FormatError(
-                "logic conditions must be provided for all nodes")
+        # If no truth table is provided for a node, that node is considered
+        # an "external" node, i.e, its state stays on and off by itself.
+        for i, sub_table in enumerate(table):
+            if not sub_table:  # Empty truth table.
+                table[i] = ((i), {'1'})
         return cls(table, names)
 
 
