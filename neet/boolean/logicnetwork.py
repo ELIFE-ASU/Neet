@@ -28,6 +28,7 @@ class LogicNetwork(object):
         being the binary state of corresponding node in `A`.
 
         :param table: the logic table
+        :param names: names of nodes, default None
 
         .. rubric:: Examples
 
