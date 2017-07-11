@@ -165,7 +165,7 @@ class LogicNetwork(object):
 
         return new_net_state
 
-    def update(self, net_state, index=None, pin=[]):
+    def update(self, net_state, index=None, pin=None):
         """
         Update node states according to the truth table.
 
@@ -226,6 +226,8 @@ class LogicNetwork(object):
 
         new_net_state = self._update(net_state, index)
 
+        if pin is None:
+            pin = []
         for idx in range(self.size):
             if idx not in pin:
                 net_state[idx] = new_net_state[idx]
