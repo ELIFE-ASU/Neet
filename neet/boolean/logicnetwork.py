@@ -237,7 +237,7 @@ class LogicNetwork(object):
     @classmethod
     def read_table(cls, table_file):
         """
-        Read a network from a logic table file.
+        Read a network from a truth table file.
 
         A logic table file starts with a table title which contains names of
         all nodes. It is a line marked by `##` at the begining with node names
@@ -273,6 +273,7 @@ class LogicNetwork(object):
 
         Custom comments can be added above the table title, but not below.
 
+        :param table_file: a truth table file
         :returns: a :class:LogicNetwork
 
         .. rubric:: Examples:
@@ -281,7 +282,10 @@ class LogicNetwork(object):
 
             >>> net = LogicNetwork.read('myeloid-table.txt')
             >>> net.size
+            11
             >>> net.names
+            ['GATA-2', 'GATA-1', 'FOG-1', 'EKLF', 'Fli-1', 'SCL', 'C/EBPa',
+             'PU.1', 'cJun', 'EgrNab', 'Gfi-1']
         """
         names_format = re.compile(r'^\s*##[^#]+$')
         node_title_format = re.compile(
@@ -349,6 +353,31 @@ class LogicNetwork(object):
     @classmethod
     def read_logic(cls, logic_file, external_nodes_file=None):
         """
+        Read a network from a file of logic equations.
+
+        A logic equations has the form of `A = B AND ( C OR D )`, each term
+        being separated from paranthesis and logic operators with at least a
+        space. The optional `external_nodes_file` takes a file that contains
+        nodes in a column whose states do not depend on any nodes. These are
+        considered "external" nodes. Equivalently, such a node would have a
+        logic equation `A = A`, for its state stays on or off unless being set
+        externally, but now the node had to be excluded from `external_nodes_file`
+        to avoid duplication and confusion.
+
+        :param logic_file: a .txt file of logic equations
+        :param external_nodes_file: a .txt file of external nodes
+        :returns: a :class:LogicNetwork
+
+        .. rubric:: Basic Use:
+
+        ::
+
+            >>> net = LogicNetwork.read_logic('myeloid-logic.txt')
+            >>> net.size
+            11
+            >>> net.names
+            ['GATA-2', 'GATA-1', 'FOG-1', 'EKLF', 'Fli-1', 'SCL', 'C/EBPa',
+             'PU.1', 'cJun', 'EgrNab', 'Gfi-1']
         """
         names = []
         expressions = []
