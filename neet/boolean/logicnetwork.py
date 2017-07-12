@@ -235,7 +235,7 @@ class LogicNetwork(object):
         return net_state
 
     @classmethod
-    def read(cls, table_file):
+    def read_table(cls, table_file):
         """
         Read a network from a logic table file.
 
@@ -340,10 +340,68 @@ class LogicNetwork(object):
                             "node must be specified before logic conditions")
 
         # If no truth table is provided for a node, that node is considered
-        # an "external" node, i.e, its state stays on and off by itself.
+        # an "external" node, i.e, its state stays on or off by itself.
         for i, sub_table in enumerate(table):
             if not sub_table:  # Empty truth table.
                 table[i] = ((i), {'1'})
+        return cls(table, names)
+
+    @classmethod
+    def read_logic(cls, logic_file, external_nodes_file=None):
+        """
+        """
+        names = []
+        expressions = []
+        with open(logic_file) as eq_file:
+            for eq in eq_file:
+                name, expr = eq.split('=')
+                names.append(name.strip())
+                expressions.append(expr.strip())
+
+        if external_nodes_file:
+            with open(external_nodes_file) as extra_file:
+                extras = [name.strip() for name in extra_file]
+            names += extras
+
+        ops = {'AND', 'OR', 'NOT'}
+
+        table = []
+        for expr in expressions:
+            sub_nodes = []
+            conditions = set()
+
+            expr_split = expr.split()
+            for i, item in enumerate(expr_split):
+                if item not in ops and item not in '()':
+                    if item not in names:
+                        raise ValueError("unknow component '{}'".format(item))
+                    if item not in sub_nodes:
+                        expr_split[i] = '{' + str(len(sub_nodes)) + '}'
+                        sub_nodes.append(item)
+                    else:
+                        expr_split[i] = '{' + str(sub_nodes.index(item)) + '}'
+                else:
+                    expr_split[i] = item.lower()
+            logic_expr = ' '.join(expr_split)
+
+            indices = tuple([names.index(node) for node in sub_nodes])
+
+            for dec_state in range(2**len(sub_nodes)):
+                bin_state = '{0:0{1}b}'.format(dec_state, len(sub_nodes))
+                try:
+                    if eval(logic_expr.format(*bin_state)):
+                        conditions.add(bin_state)
+                except IndexError:
+                    print(logic_expr, bin_state)
+                    raise IndexError
+
+            table.append((indices, conditions))
+
+        # Add empty logic tables for external components.
+        if external_nodes_file:
+            for i in range(len(extras)):
+                table.append(((len(names) - len(extras) + i), set('1')))
+
         return cls(table, names)
 
 

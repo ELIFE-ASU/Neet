@@ -122,6 +122,8 @@ mouse_cortical_post_final_7C = WTNetwork.read(
 """
 Differentiation control network for *myeloid* progenitors.
 """
-MYELOID_LOGIC_TABLE = join(DATA_PATH, "myeloid-logic_table.txt")
+MYELOID_TRUTH_TABLE = join(DATA_PATH, "myeloid-truth_table.txt")
+MYELOID_LOGIC_EXPRESSIONS = join(DATA_PATH, "myeloid-logic_expressions.txt")
 
-myeloid = LogicNetwork.read(MYELOID_LOGIC_TABLE)
+myeloid = LogicNetwork.read_table(MYELOID_TRUTH_TABLE)
+myeloid_from_expr = LogicNetwork.read_logic(MYELOID_LOGIC_EXPRESSIONS)
