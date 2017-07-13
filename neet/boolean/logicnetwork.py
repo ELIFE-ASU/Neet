@@ -417,12 +417,8 @@ class LogicNetwork(object):
 
             for dec_state in range(2**len(sub_nodes)):
                 bin_state = '{0:0{1}b}'.format(dec_state, len(sub_nodes))
-                try:
-                    if eval(logic_expr.format(*bin_state)):
-                        conditions.add(bin_state)
-                except IndexError:
-                    print(logic_expr, bin_state)
-                    raise IndexError
+                if eval(logic_expr.format(*bin_state)):
+                    conditions.add(bin_state)
 
             table.append((indices, conditions))
 
