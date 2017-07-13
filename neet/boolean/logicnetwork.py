@@ -280,7 +280,7 @@ class LogicNetwork(object):
 
         ::
 
-            >>> net = LogicNetwork.read('myeloid-table.txt')
+            >>> net = LogicNetwork.read('myeloid-truth_table.txt')
             >>> net.size
             11
             >>> net.names
@@ -372,7 +372,7 @@ class LogicNetwork(object):
 
         ::
 
-            >>> net = LogicNetwork.read_logic('myeloid-logic.txt')
+            >>> net = LogicNetwork.read_logic('myeloid-logic_expressions.txt')
             >>> net.size
             11
             >>> net.names
