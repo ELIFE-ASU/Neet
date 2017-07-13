@@ -403,7 +403,7 @@ class LogicNetwork(object):
             for i, item in enumerate(expr_split):
                 if item not in ops and item not in '()':
                     if item not in names:
-                        raise ValueError("unknow component '{}'".format(item))
+                        raise ValueError("unknown component '{}'".format(item))
                     if item not in sub_nodes:
                         expr_split[i] = '{' + str(len(sub_nodes)) + '}'
                         sub_nodes.append(item)
