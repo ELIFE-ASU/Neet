@@ -356,7 +356,7 @@ class LogicNetwork(object):
         Read a network from a file of logic equations.
 
         A logic equations has the form of `A = B AND ( C OR D )`, each term
-        being separated from paranthesis and logic operators with at least a
+        being separated from parantheses and logic operators with at least a
         space. The optional `external_nodes_file` takes a file that contains
         nodes in a column whose states do not depend on any nodes. These are
         considered "external" nodes. Equivalently, such a node would have a
