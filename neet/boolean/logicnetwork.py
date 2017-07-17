@@ -73,7 +73,7 @@ class LogicNetwork(object):
             else:
                 self.names = list(names)
 
-        self.state_space = StateSpace(self.size, base=2)
+        self._state_space = StateSpace(self.size, base=2)
         self._encoded_table = []
 
         for row in table:
@@ -99,6 +99,9 @@ class LogicNetwork(object):
             self._encoded_table.append((mask_code, encoded_sub_table))
         # Store positive truth table for human reader.
         self.table = list(table)
+
+    def state_space(self):
+        return self._state_space
 
     def _update(self, net_state, index=None):
         """
