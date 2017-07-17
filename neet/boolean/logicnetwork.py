@@ -152,7 +152,7 @@ class LogicNetwork(object):
             >>> net._update([0, 0, 1], 1)
             [0, 1, 1]
         """
-        encoded_state = self.state_space.encode(net_state)
+        encoded_state = self.state_space().encode(net_state)
 
         new_net_state = net_state[:]  # Python 2.7
 
@@ -223,7 +223,7 @@ class LogicNetwork(object):
             >>> net.update([0, 0, 1], pin=[0, 1])
             [0, 0, 0]
         """
-        if net_state not in self.state_space:
+        if net_state not in self.state_space():
             raise ValueError(
                 "the provided state is not in the network's state space")
 

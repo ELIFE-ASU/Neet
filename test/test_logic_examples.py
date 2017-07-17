@@ -32,7 +32,7 @@ class TestLogicExamples(unittest.TestCase):
             self.assertEqual(ex.myeloid.update(state[:]), state)
 
         # Assert non-attractors.
-        for state in ex.myeloid.state_space:
+        for state in ex.myeloid.state_space():
             if state not in attractors:
                 self.assertNotEqual(ex.myeloid.update(state[:]), state)
 
@@ -52,7 +52,7 @@ class TestLogicExamples(unittest.TestCase):
             self.assertEqual(ex.myeloid_from_expr.update(state[:]), state)
 
         # Assert non-attractors.
-        for state in ex.myeloid.state_space:
+        for state in ex.myeloid.state_space():
             if state not in attractors:
                 self.assertNotEqual(
                     ex.myeloid_from_expr.update(state[:]), state)
