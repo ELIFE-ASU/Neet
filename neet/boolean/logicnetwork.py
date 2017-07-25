@@ -428,7 +428,7 @@ class LogicNetwork(object):
         # Add empty logic tables for external components.
         if external_nodes_file:
             for i in range(len(extras)):
-                table.append(((len(names) - len(extras) + i), set('1')))
+                table.append((((len(names) - len(extras) + i),), set('1')))
 
         return cls(table, names)
 
