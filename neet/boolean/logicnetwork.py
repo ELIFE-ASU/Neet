@@ -50,7 +50,7 @@ class LogicNetwork(object):
         ::
 
             >>> net = LogicNetwork([((1, 2), {'01', '10'}),
-                                    ((0, 2), {(0, 1), '10', [1, 1]}),
+                                    ((0, 2), ((0, 1), '10', [1, 1]),
                                     ((0, 1), {'11'})], ['A', 'B'])
             >>> net.size
             3
@@ -98,7 +98,12 @@ class LogicNetwork(object):
                 encoded_sub_table.add(encoded_condition)
             self._encoded_table.append((mask_code, encoded_sub_table))
         # Store positive truth table for human reader.
-        self.table = list(table)
+        self.table = []
+        for row in table:
+            conditions = set()
+            for condition in row[1]:
+                conditions.add(''.join([str(int(s)) for s in condition]))
+            self.table.append((row[0], conditions))
 
     def state_space(self):
         return self._state_space
