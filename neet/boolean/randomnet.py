@@ -47,7 +47,7 @@ def random_logic_fixed_connections(logic_net, p=0.5):
 
         conditions = set()
         for state in StateSpace(len(indices)):
-            if random.random() > p:
+            if random.random() < p:
                 conditions.add(tuple(state))
 
         new_table.append((indices, conditions))
@@ -76,7 +76,7 @@ def random_logic_free_connections(logic_net, p=0.5):
 
         conditions = set()
         for state in StateSpace(n_indices):
-            if random.random() > p:
+            if random.random() < p:
                 conditions.add(tuple(state))
 
         new_table.append((indices, conditions))
