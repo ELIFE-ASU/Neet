@@ -230,6 +230,67 @@ class TestSynchronous(unittest.TestCase):
         self.assertEqual(volume, graph.number_of_nodes())
         self.assertEqual(volume, graph.number_of_edges())
 
+    def test_attractors_with_basins_eca(self):
+        """
+        test ``attractors_with_basins`` on ECA
+        """
+        networks = [(ECA(30), 2, [2, 1, 1]), (ECA(30), 3, [8]),
+                    (ECA(30), 4, [2, 12, 1, 1]), (ECA(30), 5, [2, 30]),
+                    (ECA(30), 6, [62, 1, 1]), (ECA(110), 2, [4]),
+                    (ECA(110), 3, [8]), (ECA(110), 4, [4, 6, 6]),
+                    (ECA(110), 5, [32]), (ECA(110), 6, [10, 27, 27])]
+
+        networks = [(ECA(30), 2, [([0], 2), ([1], 1), ([2], 1)]), 
+                    (ECA(30), 3, [([0], 8)]),
+                    (ECA(30), 4, [([0], 2), ([1, 11, 8, 13, 4, 14, 2, 7], 12), ([5], 1), ([10], 1)]), 
+                    (ECA(30), 5, [([0], 2), ([25, 14, 19, 28, 7], 30)]),
+                    (ECA(30), 6, [([0], 62), ([21], 1), ([42], 1)]), 
+                    (ECA(110), 2, [([0], 4)]),
+                    (ECA(110), 3, [([0], 8)]), 
+                    (ECA(110), 4, [([0], 4), ([13, 7], 6), ([11, 14], 6)]),
+                    (ECA(110), 5, [([0], 32)]), 
+                    (ECA(110), 6, [([0], 10),
+                                   ([37, 55, 28, 22, 31, 49, 25, 61, 7], 27),
+                                   ([35, 50, 59, 14, 11, 47, 56, 44, 62], 27)])]
+
+        for net, width, attractors_with_basin_sizes in networks:
+            output = [(a, len(b)) for (a, b) in attractors_with_basins(net,width)]
+            self.assertEqual(attractors_with_basin_sizes, output)
+
+    def test_attractors_with_basins_wtnetwork(self):
+        """
+        test ``attractors_with_basins`` on WTNetworks
+        """
+        networks = [(s_pombe, [([76], 378),
+                               ([4], 2),
+                               ([8], 2),
+                               ([12], 2),
+                               ([384, 110, 144], 104),
+                               ([68], 6),
+                               ([72], 6),
+                               ([132], 2),
+                               ([136], 2),
+                               ([140], 2),
+                               ([196], 2),
+                               ([200], 2),
+                               ([204], 2)]),
+                    (s_cerevisiae, [([0], 7),
+                               ([272], 1764),
+                               ([12], 151),
+                               ([16], 1),
+                               ([256], 9),
+                               ([274], 109),
+                               ([258], 7)]),
+                    (c_elegans, [([0], 4), 
+                               ([46], 219), 
+                               ([14], 12), 
+                               ([142], 5), 
+                               ([174], 16)])]
+
+        for net, attractors_with_basin_sizes in networks:
+            output = [(a, len(b)) for (a, b) in attractors_with_basins(net)]
+            self.assertEqual(attractors_with_basin_sizes, output)
+
     def test_attractors_invalid_net(self):
         """
         ``attractors`` should raise an error if ``net`` is neither a network
