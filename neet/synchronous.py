@@ -111,9 +111,9 @@ def transitions(net, size=None, encode=False):
         state_space = net.state_space(size)
 
     for state in state_space:
-        net.update(state)
+        net._unsafe_update(state)
         if encode:
-            yield state_space.encode(state)
+            yield state_space._unsafe_encode(state)
         else:
             yield state
 
