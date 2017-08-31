@@ -291,8 +291,14 @@ def timeseries(net, timesteps, size=None):
     shape = (state_space.ndim, state_space.volume, timesteps+1)
     series = np.empty(shape, dtype=np.int)
 
+    trans = list(transitions(net, size=size, encode=False))
+    encoded_trans = [state_space._unsafe_encode(state) for state in trans]
+
     for (index, init) in enumerate(state_space):
-        traj = trajectory(net, init, timesteps=timesteps, encode=False)
-        for (time, state) in enumerate(traj):
-            series[:, index, time] = state
+        k = index
+        series[:, index, 0] = init[:]
+        for time in range(1, timesteps + 1):
+            series[:, index, time] = trans[k][:]
+            k = encoded_trans[k]
+
     return series
