@@ -50,14 +50,22 @@ def trajectory(net, state, timesteps=1, encode=False):
         else:
             state_space = net.state_space(len(state))
 
-        yield state_space.encode(state)
-        for _ in range(timesteps):
-            net.update(state)
-            yield state_space.encode(state)
+        yield state_space._unsafe_encode(state)
+
+        net.update(state)
+        yield state_space._unsafe_encode(state)
+
+        for _ in range(1,timesteps):
+            net._unsafe_update(state)
+            yield state_space._unsafe_encode(state)
     else:
         yield copy.copy(state)
-        for _ in range(timesteps):
-            net.update(state)
+
+        net.update(state)
+        yield copy.copy(state)
+
+        for _ in range(1, timesteps):
+            net._unsafe_update(state)
             yield copy.copy(state)
 
 def transitions(net, size=None, encode=False):
