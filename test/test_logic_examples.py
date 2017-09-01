@@ -32,6 +32,27 @@ class TestLogicExamples(unittest.TestCase):
             self.assertEqual(ex.myeloid.update(state[:]), state)
 
         # Assert non-attractors.
-        for state in ex.myeloid.state_space:
+        for state in ex.myeloid.state_space():
             if state not in attractors:
                 self.assertNotEqual(ex.myeloid.update(state[:]), state)
+
+    def test_myeloid_logic_expressions(self):
+        self.assertEqual(['GATA-2', 'GATA-1', 'FOG-1', 'EKLF', 'Fli-1', 'SCL',
+                          'C/EBPa', 'PU.1', 'cJun', 'EgrNab', 'Gfi-1'],
+                         ex.myeloid_from_expr.names)
+        self.assertEqual(ex.myeloid_from_expr.table, ex.myeloid.table)
+        # Assert attractors.
+        attractors = ([0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0],
+                      [0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+                      [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0],
+                      [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1],
+                      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                      [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0])
+        for state in attractors:
+            self.assertEqual(ex.myeloid_from_expr.update(state[:]), state)
+
+        # Assert non-attractors.
+        for state in ex.myeloid.state_space():
+            if state not in attractors:
+                self.assertNotEqual(
+                    ex.myeloid_from_expr.update(state[:]), state)
