@@ -24,8 +24,8 @@ def sensitivity(net, state):
     ::
 
         >>> from neet.boolean.examples import s_pombe
-        >>> sensitivity(s_pombe,[0,0,0,0,0,1,1,1,1])
-        7 (XXX update)
+        >>> sensitivity(s_pombe,[0,0,0,0,0,1,1,0,0])
+        1.0
 
     net    : NEET boolean network
     state  : A single network state, represented as a list of node states
@@ -40,7 +40,7 @@ def sensitivity(net, state):
     nextState = net.update(state)
 
     # count sum of differences found in neighbors of the original
-    s = 0
+    s = 0.
     for neighbor in neighbors:
         newState = net.update(neighbor)
         s += boolean_distance(newState, nextState)
@@ -95,18 +95,18 @@ def average_sensitivity(net, states=None, weights=None):
 
     ::
 
-        >>> from neet.boolean.examples import s_pombe
-        >>> average_sensitivity(s_pombe)
-        6.0
+        >>> from neet.boolean.examples import c_elegans
+        >>> average_sensitivity(c_elegans)
+        1.265625
+        >>> average_sensitivity(c_elegans,states=[[0,0,0,0,0,0,0,0],
+        [1,1,1,1,1,1,1,1]])
+        1.5
+        >>> average_sensitivity(c_elegans,states=[[0,0,0,0,0,0,0,0],
+        [1,1,1,1,1,1,1,1]],weights=[0.9,0.1])
+        1.7
         >>> average_sensitivity(s_pombe,states=[[0,0,0,0,0,0,0,0,0],
-        [0,1,0,1,0,1,0,1,0]])
-        5.5
-        >>> average_sensitivity(s_pombe,states=[[0,0,0,0,0,0,0,0,0],
-        [0,1,0,1,0,1,0,1,0]],weights=[0.9,0.1])
-        3.75
-        >>> average_sensitivity(s_pombe,states=[[0,0,0,0,0,0,0,0,0],
-        [0,1,0,1,0,1,0,1,0]],weights=[9,1])
-        3.75
+        [1,1,1,1,1,1,1,1]],weights=[9,1])
+        1.7
 
     net    : NEET boolean network
     states : Optional list or generator of states.  If None, all states are used.
@@ -133,7 +133,7 @@ def average_sensitivity(net, states=None, weights=None):
         sensList.append(sensitivity(net, state))
 
     if weights is not None:
-        sensList = 1. / np.sum(weights) * \
+        sensList = 1. * len(sensList) / np.sum(weights) * \
             np.array(weights) * np.array(sensList)
 
     return np.mean(sensList)
