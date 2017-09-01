@@ -15,6 +15,9 @@ def sensitivity(net, state):
         http://doi.org/10.1103/PhysRevLett.93.048701
 
     The sensitivity of a Boolean function f on state vector x is the number of Hamming neighbors of x on which the function value is different than on x.
+    
+    This calculates the average sensitivity over all N boolean functions, 
+    where N is the size of net.
 
     .. rubric:: Examples
 
@@ -22,7 +25,7 @@ def sensitivity(net, state):
 
         >>> from neet.boolean.examples import s_pombe
         >>> sensitivity(s_pombe,[0,0,0,0,0,1,1,1,1])
-        7
+        7 (XXX update)
 
     net    : NEET boolean network
     state  : A single network state, represented as a list of node states
@@ -36,15 +39,19 @@ def sensitivity(net, state):
 
     nextState = net.update(state)
 
-    # count number of neighbors that update to a different state than original
+    # count sum of differences found in neighbors of the original
     s = 0
     for neighbor in neighbors:
         newState = net.update(neighbor)
-        if not np.array_equal(newState, nextState):
-            s += 1
+        s += boolean_distance(newState, nextState)
 
-    return s
+    return s / net.size
 
+def boolean_distance(state1,state2):
+    """
+    Boolean distance between two states.
+    """
+    return np.sum(abs(np.array(state1)-np.array(state2)))
 
 def hamming_neighbors(state):
     """
