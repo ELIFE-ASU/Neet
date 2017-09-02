@@ -49,7 +49,7 @@ class TestSensitivityWTNetwork(unittest.TestCase):
 
     def test_sensitivity(self):
         net = NB.WTNetwork([[1, -1], [0, 1]], [0.5, 0])
-        self.assertEqual(2, sensitivity(net, [0, 0]))
+        self.assertEqual(1.0, sensitivity(net, [0, 0]))
 
     def test_average_sensitivity_net_type(self):
         with self.assertRaises(TypeError):
@@ -67,4 +67,4 @@ class TestSensitivityWTNetwork(unittest.TestCase):
 
     def test_average_sensitivity(self):
         net = NB.WTNetwork([[1, -1], [0, 1]], [0.5, 0])
-        self.assertEqual(1.5, average_sensitivity(net))
+        self.assertEqual(1.0, average_sensitivity(net))
