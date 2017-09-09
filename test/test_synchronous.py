@@ -4,16 +4,18 @@
 import unittest
 from collections import Counter
 from neet.automata import ECA
-from neet.boolean import WTNetwork
+from neet.boolean import WTNetwork, LogicNetwork
 from neet.boolean.examples import s_pombe, s_cerevisiae, c_elegans
 from neet.synchronous import *
 import numpy as np
 from .mock import MockObject, MockFixedSizedNetwork
 
+
 class TestSynchronous(unittest.TestCase):
     """
     Unit tests for the ``neet.synchronous`` module
     """
+
     def test_trajectory_not_network(self):
         """
         ``trajectory`` should raise a type error if ``net`` is not a network
@@ -110,6 +112,21 @@ class TestSynchronous(unittest.TestCase):
         self.assertEqual([0, 0], state)
         self.assertEqual([0, 2, 2, 2], got)
 
+    def test_trajectory_logicnetwork(self):
+        """
+        test `trajectory` on `LogicNetwork`s
+        """
+        net = LogicNetwork([((1, 2), {'01', '10'}),
+                            ((0, 2), {'01', '10', '11'}),
+                            ((0, 1), {'11'})])
+        state = [0, 1, 0]
+        got = list(trajectory(net, state, 3))
+        self.assertEqual([[0, 1, 0], [1, 0, 0], [0, 1, 0], [1, 0, 0]], got)
+        self.assertEqual([0, 1, 0], state)
+
+        got = list(trajectory(net, state, 3, encode=True))
+        self.assertEqual([2, 1, 2, 1], got)
+
     def test_transitions_not_network(self):
         """
         ``transitions`` should raise a type error if ``net`` is not a network
@@ -189,6 +206,22 @@ class TestSynchronous(unittest.TestCase):
 
         got = list(transitions(net, encode=True))
         self.assertEqual([2, 1, 2, 3], got)
+
+    def test_transitions_logicnetwork(self):
+        """
+        test `transitions` on `LogicNetwork`s
+        """
+        net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
+        got = list(transitions(net))
+        self.assertEqual([[1, 0], [1, 1], [1, 0], [1, 1]], got)
+
+    def test_transitions_logicnetwork_encoded(self):
+        """
+        test `transitions` on `LogicNetwork`s, states encoded
+        """
+        net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
+        got = list(transitions(net, encode=True))
+        self.assertEqual([1, 3, 1, 3], got)
 
     def test_transition_graph_not_network(self):
         """
@@ -405,7 +438,7 @@ class TestSynchronous(unittest.TestCase):
                     (ECA(30), 4, 1.186278124459133),
                     (ECA(30), 5, 0.3372900666170139),
                     (ECA(30), 6, 0.23187232431271465),
-                    (ECA(110), 2, 0.),(ECA(110), 3, 0.),
+                    (ECA(110), 2, 0.), (ECA(110), 3, 0.),
                     (ECA(110), 4, 1.561278124459133),
                     (ECA(110), 5, 0.),
                     (ECA(110), 6, 1.4690124052234232)]
@@ -421,7 +454,7 @@ class TestSynchronous(unittest.TestCase):
                     (s_cerevisiae, 0.7838577302128783),
                     (c_elegans, 0.8542673572822357),
                     ]
-    
+
         for net, entropy in networks:
             self.assertAlmostEqual(basin_entropy(net), entropy)
 
@@ -433,7 +466,7 @@ class TestSynchronous(unittest.TestCase):
                     (s_cerevisiae, 0.2359646891271609),
                     (c_elegans, 0.2571600988585521),
                     ]
-    
+
         for net, entropy in networks:
             self.assertAlmostEqual(basin_entropy(net, base=10), entropy)
 
@@ -481,7 +514,7 @@ class TestSynchronous(unittest.TestCase):
         for size in [5, 7, 11]:
             time = 10
             series = timeseries(rule, timesteps=time, size=size)
-            self.assertEqual((size, 2**size, time+1), series.shape)
+            self.assertEqual((size, 2**size, time + 1), series.shape)
             for index, state in enumerate(rule.state_space(size)):
                 for t, expect in enumerate(trajectory(rule, state, timesteps=time)):
                     got = series[:, index, t]
@@ -494,7 +527,7 @@ class TestSynchronous(unittest.TestCase):
         for (net, size) in [(s_pombe, 9), (s_cerevisiae, 11), (c_elegans, 8)]:
             time = 10
             series = timeseries(net, timesteps=time)
-            self.assertEqual((size, 2**size, time+1), series.shape)
+            self.assertEqual((size, 2**size, time + 1), series.shape)
             for index, state in enumerate(net.state_space()):
                 for t, expect in enumerate(trajectory(net, state, timesteps=time)):
                     got = series[:, index, t]
