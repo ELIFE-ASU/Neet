@@ -129,19 +129,19 @@ class LogicNetwork(object):
         ::
 
             >>> net = LogicNetwork([((0,), {'0'})])
-            >>> net._update([0], 0)
+            >>> net._unsafe_update([0], 0)
             [1]
-            >>> net._update([1])
+            >>> net._unsafe_update([1])
             [0]
 
         ::
 
             >>> net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
-            >>> net._update([1, 0], 0))
+            >>> net._unsafe_update([1, 0], 0))
             [1, 0]
-            >>> net._update([1, 0], 1))
+            >>> net._unsafe_update([1, 0], 1))
             [1, 1]
-            >>> net._update([0, 0])
+            >>> net._unsafe_update([0, 0])
             [1, 0]
 
         ::
@@ -151,12 +151,20 @@ class LogicNetwork(object):
                                     ((0, 1), {'11'})])
             >>> net.size
             3
-            >>> net._update([0, 1, 0])
+            >>> net._unsafe_update([0, 1, 0])
             [1, 0, 0]
-            >>> net._update([0, 0, 1])
+            >>> net._unsafe_update([0, 0, 1])
             [1, 1, 0]
-            >>> net._update([0, 0, 1], 1)
+            >>> net._unsafe_update([0, 0, 1], 1)
             [0, 1, 1]
+            >>> net._unsafe_update([0, 0, 1], pin=[1])
+            [1, 0, 0]
+            >>> net._unsafe_update([0, 0, 1], pin=[0, 1])
+            [0, 0, 0]
+            >>> net._unsafe_update([0, 0, 1], values={0: 0})
+            [0, 1, 0]
+            >>> net._unsafe_update([0, 0, 1], pin=[1], values={0: 0})
+            [0, 0, 0]
         """
         encoded_state = self.state_space().encode(net_state)
 
@@ -234,6 +242,10 @@ class LogicNetwork(object):
             >>> net.update([0, 0, 1], pin=[1])
             [1, 0, 0]
             >>> net.update([0, 0, 1], pin=[0, 1])
+            [0, 0, 0]
+            >>> net.update([0, 0, 1], values={0: 0})
+            [0, 1, 0]
+            >>> net.update([0, 0, 1], pin=[1], values={0: 0})
             [0, 0, 0]
         """
         if net_state not in self.state_space():
