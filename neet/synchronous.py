@@ -50,14 +50,22 @@ def trajectory(net, state, timesteps=1, encode=False):
         else:
             state_space = net.state_space(len(state))
 
-        yield state_space.encode(state)
-        for _ in range(timesteps):
-            net.update(state)
-            yield state_space.encode(state)
+        yield state_space._unsafe_encode(state)
+
+        net.update(state)
+        yield state_space._unsafe_encode(state)
+
+        for _ in range(1,timesteps):
+            net._unsafe_update(state)
+            yield state_space._unsafe_encode(state)
     else:
         yield copy.copy(state)
-        for _ in range(timesteps):
-            net.update(state)
+
+        net.update(state)
+        yield copy.copy(state)
+
+        for _ in range(1, timesteps):
+            net._unsafe_update(state)
             yield copy.copy(state)
 
 def transitions(net, size=None, encode=False):
@@ -103,9 +111,9 @@ def transitions(net, size=None, encode=False):
         state_space = net.state_space(size)
 
     for state in state_space:
-        net.update(state)
+        net._unsafe_update(state)
         if encode:
-            yield state_space.encode(state)
+            yield state_space._unsafe_encode(state)
         else:
             yield state
 
@@ -283,8 +291,14 @@ def timeseries(net, timesteps, size=None):
     shape = (state_space.ndim, state_space.volume, timesteps+1)
     series = np.empty(shape, dtype=np.int)
 
+    trans = list(transitions(net, size=size, encode=False))
+    encoded_trans = [state_space._unsafe_encode(state) for state in trans]
+
     for (index, init) in enumerate(state_space):
-        traj = trajectory(net, init, timesteps=timesteps, encode=False)
-        for (time, state) in enumerate(traj):
-            series[:, index, time] = state
+        k = index
+        series[:, index, 0] = init[:]
+        for time in range(1, timesteps + 1):
+            series[:, index, time] = trans[k][:]
+            k = encoded_trans[k]
+
     return series

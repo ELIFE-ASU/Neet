@@ -140,6 +140,47 @@ class StateSpace(object):
             else:
                 i += 1
 
+    def _unsafe_encode(self, state):
+        """
+        Encode a state as an integer consistent with the state space, without
+        checking the validity of the arguments.
+
+        .. rubric:: Examples:
+
+        ::
+
+            >>> space = StateSpace(3, base=2)
+            >>> states = list(space)
+            >>> list(map(space._unsafe_encode, states))
+            [0, 1, 2, 3, 4, 5, 6, 7]
+
+        ::
+
+            >>> space = StateSpace([2,3,4])
+            >>> states = list(space)
+            >>> list(map(space._unsafe_encode, states))
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+
+
+        :param state: the state to encode
+        :type state: list
+        :returns: a unique integer encoding of the state
+        :raises ValueError: if ``state`` has an incorrect length
+        """
+        encoded, place = 0, 1
+
+        if self.is_uniform:
+            base = self.base
+            for x in state:
+                encoded += place * x
+                place *= base
+        else:
+            for (x, b) in zip(state, self.bases):
+                encoded += place * x
+                place *= b
+
+        return encoded
+
     def encode(self, state):
         """
         Encode a state as an integer consistent with the state space.
@@ -166,24 +207,10 @@ class StateSpace(object):
         :returns: a unique integer encoding of the state
         :raises ValueError: if ``state`` has an incorrect length
         """
-        if len(state) != self.ndim:
-            raise ValueError("state has the wrong length")
-        encoded, place = 0, 1
-        if self.is_uniform:
-            base = self.base
-            for i in range(self.ndim):
-                if state[i] < 0 or state[i] >= base:
-                    raise ValueError("invalid node state")
-                encoded += place * state[i]
-                place *= base
-        else:
-            for i in range(self.ndim):
-                base = self.bases[i]
-                if state[i] < 0 or state[i] >= base:
-                    raise ValueError("invalid node state")
-                encoded += place * state[i]
-                place *= base
-        return encoded
+        if state not in self:
+            raise ValueError("state is not in state space")
+
+        return self._unsafe_encode(state)
 
     def decode(self, encoded):
         """
