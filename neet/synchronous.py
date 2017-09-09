@@ -152,6 +152,60 @@ def transition_graph(net, size=None):
     else:
         raise TypeError("net must be a network or a networkx DiGraph")
 
+def attractors_with_basins(net, size=None):
+    """
+    Find the attractor states of a network with their corresponding basins. 
+    A generator of tuples is returned, where the first element is the list
+    of attractor states for the basin given in the second element. Each 
+    attractor represented as a ``list`` of "encoded" states. Each basin 
+    represented as a ``networkx.DiGraph`` whose nodes are the "encoded" 
+    network states (ie. ``([attractor_states], networkx.DiGraph)``).
+
+    .. rubric:: Example:
+
+    ::
+
+        >>> from neet.automata import ECA
+        >>> from neet.boolean.examples import s_pombe
+        >>> list(attractors_with_basins(s_pombe))
+        [([76], <networkx.classes.digraph.DiGraph at 0x10ec755d0>),
+         ([4], <networkx.classes.digraph.DiGraph at 0x10ec759d0>),
+         ([8], <networkx.classes.digraph.DiGraph at 0x10ec75190>),
+         ([12], <networkx.classes.digraph.DiGraph at 0x10ec75950>),
+         ([384, 110, 144], <networkx.classes.digraph.DiGraph at 0x10ec75f90>),
+         ([68], <networkx.classes.digraph.DiGraph at 0x10ec75c50>),
+         ([72], <networkx.classes.digraph.DiGraph at 0x10ec75890>),
+         ([132], <networkx.classes.digraph.DiGraph at 0x10ec75fd0>),
+         ([136], <networkx.classes.digraph.DiGraph at 0x10ec75550>),
+         ([140], <networkx.classes.digraph.DiGraph at 0x10ec75d10>),
+         ([196], <networkx.classes.digraph.DiGraph at 0x10ec75cd0>),
+         ([200], <networkx.classes.digraph.DiGraph at 0x10ec756d0>),
+         ([204], <networkx.classes.digraph.DiGraph at 0x10ec75210>)]
+        >>> list(attractors_with_basins(ECA(30), size=5))
+        [([0], <networkx.classes.digraph.DiGraph at 0x10c93d910>),
+         ([25, 14, 19, 28, 7], <networkx.classes.digraph.DiGraph at 0x10c93d890>)]
+
+    :param net: the network or the transition graph
+    :param size: the size of the network (``None`` if fixed sized)
+    :returns: a generator of tuples ``([attractor_states], networkx.DiGraph)``
+    :raises TypeError: if ``net`` is not a network or a ``networkx.DiGraph``
+    :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
+    :raises ValueError: if ``net`` is a transition graph and ``size`` is not ``None``
+    :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
+    """
+
+    ## Simple_cycles returns a list of lists (one list per connected subgraph of 
+        ## the graph). Because we know we're calling simple_cycles for a single
+        ## connected subgraph, we use next() to return only the first attractor
+        ## list (eg. [attractor_states]). Elsewise, we'd return [[attractor_states]].
+    
+    ## Python 3
+    ## return map(lambda basin: (next(nx.simple_cycles(basin)),basin), basins(graph,size=size))
+    
+    ## Python 2
+    for basin in basins(net, size=size):
+        yield (next(nx.simple_cycles(basin)),basin)    
+
 def attractors(net, size=None):
     """
     Find the attractor states of a network. A generator of the attractors is
@@ -178,6 +232,8 @@ def attractors(net, size=None):
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
     graph = transition_graph(net, size=size)
+    ## Can also use nx.attracting_components(graph) here. 
+    ## Returns list of sets instead of list of lists.
     return nx.simple_cycles(graph)
 
 def basins(net, size=None):

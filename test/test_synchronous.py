@@ -263,6 +263,37 @@ class TestSynchronous(unittest.TestCase):
         self.assertEqual(volume, graph.number_of_nodes())
         self.assertEqual(volume, graph.number_of_edges())
 
+    def test_attractors_with_basins_eca(self):
+        """
+        test ``attractors_with_basins`` on ECA
+        """
+        networks = [(ECA(30), 2),
+                    (ECA(30), 3), 
+                    (ECA(30), 4),
+                    (ECA(30), 5),
+                    (ECA(30), 6), 
+                    (ECA(110), 2), 
+                    (ECA(110), 3), 
+                    (ECA(110), 4), 
+                    (ECA(110), 5), 
+                    (ECA(110), 6)]
+        
+        for net,width in networks:        
+            expected_output = list(map(lambda basin: (next(nx.simple_cycles(basin)), len(basin)), basins(net,width)))
+            output = [(a, len(b)) for (a, b) in attractors_with_basins(net,width)]
+            self.assertEqual(expected_output, output)
+
+    def test_attractors_with_basins_wtnetwork(self):
+        """
+        test ``attractors_with_basins`` on WTNetworks
+        """
+        networks = [s_pombe,s_cerevisiae,c_elegans]
+
+        for net in networks:
+            expected_output = list(map(lambda basin: (next(nx.simple_cycles(basin)), len(basin)), basins(net)))
+            output = [(a, len(b)) for (a, b) in attractors_with_basins(net)]
+            self.assertEqual(expected_output, output)
+
     def test_attractors_invalid_net(self):
         """
         ``attractors`` should raise an error if ``net`` is neither a network
