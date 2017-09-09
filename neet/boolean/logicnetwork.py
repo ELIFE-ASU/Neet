@@ -284,7 +284,7 @@ class LogicNetwork(object):
         A complete logic table with 3 nodes A, B, C would look like this:
 
         '''
-        # A B C
+        ## A B C
         # A (B C)
         1 0
         1 1
