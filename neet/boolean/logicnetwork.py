@@ -108,7 +108,7 @@ class LogicNetwork(object):
     def state_space(self):
         return self._state_space
 
-    def _update(self, net_state, index=None):
+    def _unsafe_update(self, net_state, index=None, pin=None, values=None):
         """
         Update node states according to the truth table. Core update function.
 
@@ -128,19 +128,19 @@ class LogicNetwork(object):
         ::
 
             >>> net = LogicNetwork([((0,), {'0'})])
-            >>> net._update([0], 0)
+            >>> net._unsafe_update([0], 0)
             [1]
-            >>> net._update([1])
+            >>> net._unsafe_update([1])
             [0]
 
         ::
 
             >>> net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
-            >>> net._update([1, 0], 0))
+            >>> net._unsafe_update([1, 0], 0))
             [1, 0]
-            >>> net._update([1, 0], 1))
+            >>> net._unsafe_update([1, 0], 1))
             [1, 1]
-            >>> net._update([0, 0])
+            >>> net._unsafe_update([0, 0])
             [1, 0]
 
         ::
@@ -150,30 +150,45 @@ class LogicNetwork(object):
                                     ((0, 1), {'11'})])
             >>> net.size
             3
-            >>> net._update([0, 1, 0])
+            >>> net._unsafe_update([0, 1, 0])
             [1, 0, 0]
-            >>> net._update([0, 0, 1])
+            >>> net._unsafe_update([0, 0, 1])
             [1, 1, 0]
-            >>> net._update([0, 0, 1], 1)
+            >>> net._unsafe_update([0, 0, 1], 1)
             [0, 1, 1]
+            >>> net._unsafe_update([0, 0, 1], pin=[1])
+            [1, 0, 0]
+            >>> net._unsafe_update([0, 0, 1], pin=[0, 1])
+            [0, 0, 0]
+            >>> net._unsafe_update([0, 0, 1], values={0: 0})
+            [0, 1, 0]
+            >>> net._unsafe_update([0, 0, 1], pin=[1], values={0: 0})
+            [0, 0, 0]
         """
         encoded_state = self.state_space().encode(net_state)
-
-        new_net_state = net_state[:]  # Python 2.7
 
         if index is None:
             indices = range(self.size)
         else:
             indices = [index]
 
+        if pin is None:
+            pin = []
+
         for idx in indices:
+            if idx in pin:
+                continue
             mask, condition = self._encoded_table[idx]
             sub_net_state = mask & encoded_state
-            new_net_state[idx] = 1 if sub_net_state in condition else 0
+            net_state[idx] = 1 if sub_net_state in condition else 0
 
-        return new_net_state
+        if values:
+            for k, v in values.items():
+                net_state[k] = v
 
-    def update(self, net_state, index=None, pin=None):
+        return net_state
+
+    def update(self, net_state, index=None, pin=None, values=None):
         """
         Update node states according to the truth table.
 
@@ -227,20 +242,22 @@ class LogicNetwork(object):
             [1, 0, 0]
             >>> net.update([0, 0, 1], pin=[0, 1])
             [0, 0, 0]
+            >>> net.update([0, 0, 1], values={0: 0})
+            [0, 1, 0]
+            >>> net.update([0, 0, 1], pin=[1], values={0: 0})
+            [0, 0, 0]
         """
         if net_state not in self.state_space():
             raise ValueError(
                 "the provided state is not in the network's state space")
 
-        new_net_state = self._update(net_state, index)
+        if values and any([v not in (0, 1) for v in values.values()]):
+            raise ValueError("invalid state in values argument")
 
-        if pin is None:
-            pin = []
-        for idx in range(self.size):
-            if idx not in pin:
-                net_state[idx] = new_net_state[idx]
+        if pin and values and any([k in pin for k in values]):
+            raise ValueError("cannot set a value for a pinned state")
 
-        return net_state
+        return self._unsafe_update(net_state, index, pin, values)
 
     @classmethod
     def read_table(cls, table_file):
