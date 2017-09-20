@@ -177,8 +177,53 @@ def attractors(net, size=None):
     :raises ValueError: if ``net`` is a transition graph and ``size`` is not ``None``
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
-    graph = transition_graph(net, size=size)
-    return nx.simple_cycles(graph)
+
+    def recurse(trans, seen, attractor, attractor_number, cycle, state):
+        seen[state] = True
+        terminus = next_state = trans[state]
+        in_attractor = False
+
+        if seen[next_state]:
+            if attractor[next_state] == 0:
+                attractor[state] = attractor_number
+                cycle.append(state)
+                in_attractor = (terminus != state)
+            else:
+                attractor[state] = attractor[next_state]
+        else:
+            attractor[state], terminus, in_attractor = recurse(trans, seen, attractor, attractor_number, cycle, next_state)
+            if in_attractor:
+                cycle.append(state)
+                in_attractor = (terminus != state)
+
+        return attractor[state], terminus, in_attractor
+
+    if isinstance(net, nx.DiGraph):
+        for attr in nx.simple_cycles(net):
+            yield attr
+    elif not is_network(net):
+        raise TypeError("net must be a network or a networkx DiGraph")
+    elif is_fixed_sized(net) and size is not None:
+        raise ValueError("fixed sized networks require size is None")
+    elif not is_fixed_sized(net) and size is None:
+        raise ValueError("variable sized networks require a size")
+    else:
+        trans = list(transitions(net, size=size, encode=True))
+        seen = np.zeros(len(trans), dtype=np.bool)
+        attractor = np.zeros(len(trans), dtype=np.int)
+        attractor_number = 1
+
+        unseen = np.where(seen == False)[0]
+
+        while len(unseen) != 0:
+            state = unseen[0]
+            cycle = []
+            attr, _, _ = recurse(trans, seen, attractor, attractor_number, cycle, state)
+            if attr == attractor_number:
+                attractor_number += 1
+            unseen = np.where(seen == False)[0]
+            if len(cycle) != 0:
+                yield cycle
 
 def basins(net, size=None):
     """
