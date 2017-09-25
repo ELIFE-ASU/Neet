@@ -322,9 +322,11 @@ class TestSynchronous(unittest.TestCase):
         att_from_graph = list(attractors(transition_graph(s_pombe)))
         att_from_network = list(attractors(s_pombe))
 
-        att_from_graph = list(map(lambda attr: attr.sort(), att_from_graph))
+        for (a, b) in zip(att_from_graph, att_from_network):
+            a.sort()
+            b.sort()
+
         att_from_graph.sort()
-        att_from_network = list(map(lambda attr: attr.sort(), att_from_network))
         att_from_network.sort()
 
         self.assertEqual(att_from_network, att_from_graph)
