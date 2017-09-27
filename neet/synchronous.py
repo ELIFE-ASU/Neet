@@ -164,10 +164,10 @@ def attractors(net, size=None):
         >>> from neet.automata import ECA
         >>> from neet.boolean.examples import s_pombe
         >>> list(attractors(s_pombe))
-        [[204], [200], [196], [140], [136], [132], [72], [68], [384, 110, 144],
-        [12], [8], [4], [76]]
+        [[76], [4], [8], [12], [144, 110, 384], [68], [72], [132], [136],
+        [140], [196], [200], [204]]
         >>> list(attractors(ECA(30), size=5))
-        [[7, 25, 14, 19, 28], [0]]
+        [[0], [14, 25, 7, 28, 19]]
 
     :param net: the network or the transition graph
     :param size: the size of the network (``None`` if fixed sized)
@@ -177,27 +177,6 @@ def attractors(net, size=None):
     :raises ValueError: if ``net`` is a transition graph and ``size`` is not ``None``
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
-
-    def recurse(trans, seen, attractor, attractor_number, cycle, state):
-        seen[state] = True
-        terminus = next_state = trans[state]
-        in_attractor = False
-
-        if seen[next_state]:
-            if attractor[next_state] == 0:
-                attractor[state] = attractor_number
-                cycle.append(state)
-                in_attractor = (terminus != state)
-            else:
-                attractor[state] = attractor[next_state]
-        else:
-            attractor[state], terminus, in_attractor = recurse(trans, seen, attractor, attractor_number, cycle, next_state)
-            if in_attractor:
-                cycle.append(state)
-                in_attractor = (terminus != state)
-
-        return attractor[state], terminus, in_attractor
-
     if isinstance(net, nx.DiGraph):
         for attr in nx.simple_cycles(net):
             yield attr
@@ -210,18 +189,42 @@ def attractors(net, size=None):
     else:
         trans = list(transitions(net, size=size, encode=True))
         seen = np.zeros(len(trans), dtype=np.bool)
-        attractor = np.zeros(len(trans), dtype=np.int)
-        attractor_number = 1
+        basins = np.zeros(len(trans), dtype=np.int)
+        basin_number = 1
 
-        unseen = np.where(seen == False)[0]
-
-        while len(unseen) != 0:
-            state = unseen[0]
+        initial_state = 0
+        while initial_state < len(trans):
+            state_stack = []
             cycle = []
-            attr, _, _ = recurse(trans, seen, attractor, attractor_number, cycle, state)
-            if attr == attractor_number:
-                attractor_number += 1
-            unseen = np.where(seen == False)[0]
+            in_cycle = False
+            state = initial_state
+            terminus = next_state = trans[state]
+            seen[state] = True
+            while not seen[next_state]:
+                state_stack.append(state)
+                state = next_state
+                terminus = next_state = trans[state]
+                seen[state] = True
+
+            if basins[next_state] == 0:
+                basin = basin_number
+                cycle.append(state)
+                in_cycle = (terminus != state)
+            else:
+                basin = basins[next_state]
+
+            basins[state] = basin
+
+            while len(state_stack) != 0:
+                state = state_stack.pop()
+                basins[state] = basin
+                if in_cycle:
+                    cycle.append(state)
+                    in_cycle = (terminus != state)
+
+            while initial_state < len(seen) and seen[initial_state]:
+                initial_state += 1
+
             if len(cycle) != 0:
                 yield cycle
 
