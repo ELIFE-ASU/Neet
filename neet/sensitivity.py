@@ -69,7 +69,10 @@ def boolean_distance(state1,state2):
     """
     Boolean distance between two states.
     """
-    return np.sum(abs(np.array(state1)-np.array(state2)))
+    out = 0
+    for i in range(len(state1)):
+        out += (state1[i]+state2[i])%2
+    return out
 
 def hamming_neighbors(state):
     """
