@@ -46,12 +46,24 @@ def sensitivity(net, state, transitions=None):
     s = 0.
     for neighbor in neighbors:
         if transitions is not None:
-            newState = transitions[net.state_space().encode(neighbor)]
+            newState = transitions[_fast_encode(neighbor)]
         else:
             newState = net.update(neighbor)
         s += boolean_distance(newState, nextState)
 
     return s / net.size
+
+def _fast_encode(state):
+    """
+    Quickly find encoding of a binary state.
+    
+    Same result as net.state_space().encode(state).
+    """
+    # see https://stackoverflow.com/questions/12461361/bits-list-to-integer-in-python
+    out = 0
+    for bit in state[::-1]:
+        out = (out << 1) | bit
+    return out
 
 def boolean_distance(state1,state2):
     """
