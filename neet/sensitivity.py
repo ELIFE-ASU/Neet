@@ -4,8 +4,11 @@
 from .interfaces import is_boolean_network
 import numpy as np
 
+from .synchronous import transitions
+#from .statespace import encode,decode
 
-def sensitivity(net, state):
+
+def sensitivity(net, state, transitions=None):
     """
     Calculate Boolean network sensitivity, as defined in, e.g.,
 
@@ -42,7 +45,10 @@ def sensitivity(net, state):
     # count sum of differences found in neighbors of the original
     s = 0.
     for neighbor in neighbors:
-        newState = net.update(neighbor)
+        if transitions is not None:
+            newState = transitions[net.state_space().encode(neighbor)]
+        else:
+            newState = net.update(neighbor)
         s += boolean_distance(newState, nextState)
 
     return s / net.size
@@ -77,8 +83,7 @@ def hamming_neighbors(state):
 
     return neighbors
 
-
-def average_sensitivity(net, states=None, weights=None):
+def average_sensitivity(net, states=None, weights=None, calc_trans=True):
     """
     Calculate average Boolean network sensitivity, as defined in, e.g.,
 
@@ -116,6 +121,12 @@ def average_sensitivity(net, states=None, weights=None):
 
     if not is_boolean_network(net):
         raise(TypeError("net must be a boolean network"))
+    
+    # optionally pre-calculate transitions
+    if calc_trans:
+        trans = list(transitions(net))
+    else:
+        trans = None
 
     if states is None:
         states = net.state_space()
@@ -130,7 +141,7 @@ def average_sensitivity(net, states=None, weights=None):
 
     sensList = []
     for state in states:
-        sensList.append(sensitivity(net, state))
+        sensList.append(sensitivity(net, state, trans))
 
     if weights is not None:
         sensList = 1. * len(sensList) / np.sum(weights) * \
