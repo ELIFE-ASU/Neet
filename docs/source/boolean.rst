@@ -30,22 +30,28 @@ Logic-based Networks
 Example Networks
 ^^^^^^^^^^^^^^^^
 
-.. automodule:: neet.boolean.examples
+    .. automodule:: neet.boolean.examples
 
 Yeast Networks
 """"""""""""""
 
-    .. autoattribute:: neet.boolean.examples.s_pombe
+        .. autoattribute:: neet.boolean.examples.s_pombe
         :annotation: = <neet.boolean.WTNetwork object>
 
-    .. autoattribute:: neet.boolean.examples.s_cerevisiae
+        .. autoattribute:: neet.boolean.examples.s_cerevisiae
         :annotation: = <neet.boolean.WTNetwork object>
-        
+
 p53 Networks
 """"""""""""
 
-    .. autoattribute:: neet.boolean.examples.p53_no_dmg
+        .. autoattribute:: neet.boolean.examples.p53_no_dmg
         :annotation: = <neet.boolean.WTNetwork object>
 
-    .. autoattribute:: neet.boolean.examples.p53_dmg
-        :annotation: = <neet.boolean.WTNetwork object>        
+        .. autoattribute:: neet.boolean.examples.p53_dmg
+        :annotation: = <neet.boolean.WTNetwork object>
+
+
+Random networks
+^^^^^^^^^^^^^^^
+
+    .. automodule:: neet.boolean.rannetwork
