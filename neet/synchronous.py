@@ -164,10 +164,10 @@ def attractors(net, size=None):
         >>> from neet.automata import ECA
         >>> from neet.boolean.examples import s_pombe
         >>> list(attractors(s_pombe))
-        [[204], [200], [196], [140], [136], [132], [72], [68], [384, 110, 144],
-        [12], [8], [4], [76]]
+        [[76], [4], [8], [12], [144, 110, 384], [68], [72], [132], [136],
+        [140], [196], [200], [204]]
         >>> list(attractors(ECA(30), size=5))
-        [[7, 25, 14, 19, 28], [0]]
+        [[0], [14, 25, 7, 28, 19]]
 
     :param net: the network or the transition graph
     :param size: the size of the network (``None`` if fixed sized)
@@ -177,8 +177,88 @@ def attractors(net, size=None):
     :raises ValueError: if ``net`` is a transition graph and ``size`` is not ``None``
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
-    graph = transition_graph(net, size=size)
-    return nx.simple_cycles(graph)
+    if isinstance(net, nx.DiGraph):
+        for attr in nx.simple_cycles(net):
+            yield attr
+    elif not is_network(net):
+        raise TypeError("net must be a network or a networkx DiGraph")
+    elif is_fixed_sized(net) and size is not None:
+        raise ValueError("fixed sized networks require size is None")
+    elif not is_fixed_sized(net) and size is None:
+        raise ValueError("variable sized networks require a size")
+    else:
+        # Get the state transitions
+        # (array of next state indexed by current state)
+        trans = list(transitions(net, size=size, encode=True))
+        # Create an array to store whether a given state has visited
+        visited = np.zeros(len(trans), dtype=np.bool)
+        # Create an array to store which attractor basin each state is in
+        basins = np.zeros(len(trans), dtype=np.int)
+        # Create a counter to keep track of how many basins have been visited
+        basin_number = 1
+
+        # Start at state 0
+        initial_state = 0
+        # While the initial state is a state of the system
+        while initial_state < len(trans):
+            # Create a stack to store the state so far visited
+            state_stack = []
+            # Create a array to store the states in the attractor cycle
+            cycle = []
+            # Create a flag to signify whether the current state is part of the cycle
+            in_cycle = False
+            # Set the current state to the initial state
+            state = initial_state
+            # Store the next state and terminus variables to the next state
+            terminus = next_state = trans[state]
+            # Set the visited flag of the current state
+            visited[state] = True
+            # While the next state hasn't been visited
+            while not visited[next_state]:
+                # Push the current state onto the stack
+                state_stack.append(state)
+                # Set the current state to the next state
+                state = next_state
+                # Update the terminus and next_state variables
+                terminus = next_state = trans[state]
+                # Update the visited flag for the current state
+                visited[state] = True
+
+            # If the next state hasn't been assigned a basin yet
+            if basins[next_state] == 0:
+                # Set the current basin to the basin number
+                basin = basin_number
+                # Add the current state to the attractor cycle
+                cycle.append(state)
+                # We're still in the cycle until the current state is equal to the terminus
+                in_cycle = (terminus != state)
+            else:
+                # Set the current basin to the basin of next_state
+                basin = basins[next_state]
+
+            # Set the basin of the current state
+            basins[state] = basin
+
+            # While we still have states on the stack
+            while len(state_stack) != 0:
+                # Pop the current state off of the top of the stack
+                state = state_stack.pop()
+                # Set the basin of the current state
+                basins[state] = basin
+                # If we're still in the cycle
+                if in_cycle:
+                    # Add the current state to the attractor cycle
+                    cycle.append(state)
+                    # We're still in the cycle until the current state is equal to the terminus
+                    in_cycle = (terminus != state)
+
+            # Find the next unvisited initial state
+            while initial_state < len(visited) and visited[initial_state]:
+                initial_state += 1
+
+            # Yield the cycle if we found one
+            if len(cycle) != 0:
+                yield cycle
 
 def basins(net, size=None):
     """
