@@ -61,7 +61,7 @@ class TestBooleanExamples(unittest.TestCase):
         Test that all examples have name, description, and citation metadata.
         """
         for net in all_example_networks():
-            self.assertTrue(net.metadata.has_key('name'))
-            self.assertTrue(net.metadata.has_key('description'))
-            self.assertTrue(net.metadata.has_key('citation'))
+            self.assertTrue('name' in net.metadata)
+            self.assertTrue('description' in net.metadata)
+            self.assertTrue('citation' in net.metadata)
 
