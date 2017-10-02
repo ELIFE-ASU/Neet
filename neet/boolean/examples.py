@@ -62,7 +62,7 @@ p53_no_dmg = WTNetwork.read(P53_NO_DMG_NODES, P53_NO_DMG_EDGES)
 p53_no_dmg.metadata.update( {
     'name': 'p53_no_dmg',
     'description': 'The p53 GRN with no damage present.',
-    'citation': '',
+    'citation': 'Choi, Minsoo, Jue Shi, Sung Hoon Jung, Xi Chen, and Kwang-Hyun Cho. Attractor Landscape Analysis Reveals Feedback Loops in the p53 Network That Control the Cellular Response to DNA Damage. Science Signaling 5, no. 251 (2012): ra83. doi:10.1126/scisignal.2003363.',
     } )
 
 # Get the path of the nodes and edges files for the p53 GRN w/damage
@@ -75,7 +75,7 @@ p53_dmg = WTNetwork.read(P53_DMG_NODES, P53_DMG_EDGES)
 p53_dmg.metadata.update( {
     'name': 'p53_dmg',
     'description': 'The p53 GRN with damage present.',
-    'citation': '',
+    'citation': 'Choi, Minsoo, Jue Shi, Sung Hoon Jung, Xi Chen, and Kwang-Hyun Cho. Attractor Landscape Analysis Reveals Feedback Loops in the p53 Network That Control the Cellular Response to DNA Damage. Science Signaling 5, no. 251 (2012): ra83. doi:10.1126/scisignal.2003363.',
     } )
 
 # Get the path of the nodes and edges files for the mouse cortical gene regulatory network
