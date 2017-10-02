@@ -76,3 +76,9 @@ class TestLogicNetwork(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             net.update([0, 0, 1], pin=[0], values={0: 1})
+
+    def test_has_metadata(self):
+        net = LogicNetwork([((0,), {'0'})])
+        self.assertTrue(hasattr(net,'metadata'))
+        self.assertEqual(type(net.metadata),dict)
+
