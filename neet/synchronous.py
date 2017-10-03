@@ -422,31 +422,6 @@ class Landscape(object):
 
         self.__setup()
 
-    def __setup(self):
-        """
-        Compute all of the relavent computable values for the network:
-            * transitions
-        """
-        net = self.__net
-
-        if is_fixed_sized(self.__net):
-            state_space = net.state_space()
-        else:
-            state_space = net.state_space(self.__size)
-
-        volume = state_space.volume
-        self.__volume = volume
-
-        update = net._unsafe_update
-        encode = state_space._unsafe_encode
-
-        transitions = np.empty(volume, dtype=np.int)
-        for (i, state) in enumerate(state_space):
-            update(state)
-            transitions[i] = encode(state)
-
-        self.__transitions = transitions
-
     @property
     def network(self):
         """
@@ -475,6 +450,19 @@ class Landscape(object):
          return self.__volume
 
     @property
+    def state_space(self):
+        """
+        Get the state space associated with the landscape
+
+        :return: the dynamical system's StateSpace
+        """
+        net = self.__net
+        if is_fixed_sized(net):
+            return net.state_space()
+        else:
+            return net.state_space(self.__size)
+
+    @property
     def transitions(self):
         """
         Get the transitions array of the landscape. That is, return the
@@ -484,3 +472,24 @@ class Landscape(object):
         :return: the state transitions array
         """
         return self.__transitions
+
+    def __setup(self):
+        """
+        Compute all of the relavent computable values for the network:
+            * transitions
+        """
+        net = self.network
+        state_space = self.state_space
+
+        volume = state_space.volume
+
+        update = net._unsafe_update
+        encode = state_space._unsafe_encode
+
+        transitions = np.empty(volume, dtype=np.int)
+        for (i, state) in enumerate(state_space):
+            update(state)
+            transitions[i] = encode(state)
+
+        self.__volume = volume
+        self.__transitions = transitions
