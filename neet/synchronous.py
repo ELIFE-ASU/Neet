@@ -382,3 +382,35 @@ def timeseries(net, timesteps, size=None):
             k = encoded_trans[k]
 
     return series
+
+class Landscape(object):
+    """
+    The ``Landscape`` class represents the structure and topology of the
+    "landscape" of state transitions. That is, it is the state space
+    together with information about state transitions and the topology of
+    the state transition graph.
+    """
+    def __init__(self, net, size=None):
+        """
+        Construct the landscape for a network.
+        
+        ::
+        
+            >>> Landscape(s_pombe)
+            <neet.synchronous.Landscape object at 0x101c74810>
+            >>> Landscape(ECA(30), size=5)
+            <neet.synchronous.Landscape object at 0x10415b6d0>
+
+        :param net: the network
+        :param size: the size of the network (``None`` if fixed sized)
+        :raises TypeError: if ``net`` is not a network
+        :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
+        :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
+        """
+
+        if not is_network(net):
+            raise TypeError("net is not a network")
+        elif is_fixed_sized(net) and size is not None:
+            raise ValueError("size must be None for fixed sized networks")
+        elif not is_fixed_sized(net) and size is None:
+            raise ValueError("size must not be None for variable sized networks")
