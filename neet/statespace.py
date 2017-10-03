@@ -33,7 +33,7 @@ class StateSpace(object):
         ::
 
             >>> spec = StateSpace([2, 3, 4])
-            >>> (spec.is_uniform, spec.bases, spec.ndim)
+            >>> (spec.is_uniform, spec.base, spec.ndim)
             (False, [2, 3, 4], 3)
 
         :param spec: the number of nodes or an array of node bases
@@ -55,17 +55,17 @@ class StateSpace(object):
             elif base < 1:
                 raise ValueError("base must be positive, nonzero")
 
-            self.is_uniform = True
-            self.ndim = spec
-            self.base = base
-            self.volume = base**spec
+            self.__is_uniform = True
+            self.__ndim = spec
+            self.__base = base
+            self.__volume = base**spec
 
         elif isinstance(spec, list):
             if len(spec) == 0:
                 raise ValueError("bases cannot be an empty")
             else:
-                self.is_uniform = True
-                self.volume = 1
+                self.__is_uniform = True
+                self.__volume = 1
                 first_base = spec[0]
                 if base is not None and first_base != base:
                     raise ValueError("base does not match base of spec")
@@ -75,18 +75,52 @@ class StateSpace(object):
                     elif spec_base < 1:
                         msg = "spec may only contain positive, nonzero elements"
                         raise ValueError(msg)
-                    if self.is_uniform and spec_base != first_base:
-                        self.is_uniform = False
+                    if self.__is_uniform and spec_base != first_base:
+                        self.__is_uniform = False
                         if base is not None:
                             raise ValueError("b does not match base of spec")
-                    self.volume *= spec_base
-                self.ndim = len(spec)
-                if self.is_uniform:
-                    self.base = first_base
+                    self.__volume *= spec_base
+                self.__ndim = len(spec)
+                if self.__is_uniform:
+                    self.__base = first_base
                 else:
-                    self.bases = spec[:]
+                    self.__base = spec[:]
         else:
             raise TypeError("spec must be an int or a list")
+
+    @property
+    def is_uniform(self):
+        """
+        Get whether every direction in the state space has the same base.
+
+        :return: whether or not the state space is uniform
+        """
+        return self.__is_uniform
+
+    @property
+    def ndim(self):
+        """
+        Get the dimensionality of the state space.
+
+        :return: the dimension of the state space
+        """
+        return self.__ndim
+
+    @property
+    def base(self):
+        """
+        Get the base of each direction of the state space.
+
+        If the state space is not uniform, the result is a list of bases
+        (one for each dimension). Otherwise, the result is an integer.
+
+        :return: the bases of each dimension
+        """
+        return self.__base
+
+    @property
+    def volume(self):
+        return self.__volume
 
     def __iter__(self):
         """
@@ -130,7 +164,7 @@ class StateSpace(object):
         yield state[:]
         i = 0
         while i != self.ndim:
-            base = self.base if self.is_uniform else self.bases[i]
+            base = self.__base if self.__is_uniform else self.__base[i]
             if state[i] + 1 < base:
                 state[i] += 1
                 for j in range(i):
@@ -169,13 +203,13 @@ class StateSpace(object):
         """
         encoded, place = 0, 1
 
+        base = self.__base
         if self.is_uniform:
-            base = self.base
             for x in state:
                 encoded += place * x
                 place *= base
         else:
-            for (x, b) in zip(state, self.bases):
+            for (x, b) in zip(state, base):
                 encoded += place * x
                 place *= b
 
@@ -238,17 +272,18 @@ class StateSpace(object):
         :type encoded: int
         :returns: the decoded state as a list
         """
-        state = [0] * self.ndim
+        state = [0] * self.__ndim
+        base = self.__base
         if self.is_uniform:
-            base = self.base
-            for i in range(self.ndim):
-                state[i] = encoded % base
-                encoded = int(encoded / base)
+            b = base
+            for i in range(self.__ndim):
+                state[i] = encoded % b
+                encoded = int(encoded / b)
         else:
-            for i in range(self.ndim):
-                base = self.bases[i]
-                state[i] = encoded % base
-                encoded = int(encoded / base)
+            for i in range(self.__ndim):
+                b = base[i]
+                state[i] = encoded % b
+                encoded = int(encoded / b)
         return state
 
     def __contains__(self, states):
@@ -286,7 +321,7 @@ class StateSpace(object):
                     if state not in range(self.base):
                         return False
             else:
-                for state, base in zip(states, self.bases):
+                for state, base in zip(states, self.base):
                     if state not in range(base):
                         return False
         except TypeError:

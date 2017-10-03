@@ -85,7 +85,7 @@ class TestStateSpace(unittest.TestCase):
     def test_nonuniform_bases(self):
         spec = StateSpace([1, 2, 3, 2, 1])
         self.assertFalse(spec.is_uniform)
-        self.assertEqual([1, 2, 3, 2, 1], spec.bases)
+        self.assertEqual([1, 2, 3, 2, 1], spec.base)
         self.assertEqual(5, spec.ndim)
         self.assertEqual(12, spec.volume)
 
