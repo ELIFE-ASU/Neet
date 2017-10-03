@@ -573,3 +573,36 @@ class Landscape(StateSpace):
         self.__basins = basins
         self.__attractors = np.asarray(attractors)
         self.__expounded = True
+
+    def trajectory(self, init, timesteps=None, encode=None):
+        decoded = isinstance(init, list) or isinstance(init, np.ndarray)
+
+        if decoded:
+            if init == []:
+                raise ValueError("initial state cannot be empty")
+            elif encode is None:
+                encode = False
+            init = self.encode(init)
+        elif encode is None:
+            encode = True
+
+        trans = self.__transitions
+        if timesteps is not None:
+            if timesteps < 1:
+                raise ValueError("number of steps must be positive, non-zero")
+
+            path = [init] * (timesteps + 1)
+            for i in range(1, len(path)):
+                path[i] = trans[path[i-1]]
+        else:
+            path = [init]
+            state = trans[init]
+            while state not in path:
+                path.append(state)
+                state = trans[state]
+
+        if not encode:
+            decode = self.decode
+            path = [ decode(state) for state in path ]
+
+        return path

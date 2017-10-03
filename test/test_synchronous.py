@@ -693,3 +693,172 @@ class TestLandscape(unittest.TestCase):
             unique = list(set(landscape.basins))
             unique.sort()
             self.assertEqual(list(range(size)), unique)
+
+    def test_trajectory_too_short(self):
+        landscape = Landscape(ECA(30), size=3)
+        with self.assertRaises(ValueError):
+            landscape.trajectory([0, 0, 0], timesteps=-1)
+
+        with self.assertRaises(ValueError):
+            landscape.trajectory([0, 0, 0], timesteps=0)
+
+    def test_trajectory_eca(self):
+        landscape = Landscape(ECA(30), size=3)
+
+        with self.assertRaises(ValueError):
+            landscape.trajectory([])
+
+        with self.assertRaises(ValueError):
+            landscape.trajectory([0, 1])
+
+        xs = [0, 1, 0]
+
+        got = landscape.trajectory(xs)
+        self.assertEqual([0, 1, 0], xs)
+        self.assertEqual([[0, 1, 0], [1, 1, 1], [0, 0, 0]], got)
+
+        got = landscape.trajectory(xs, timesteps=5)
+        self.assertEqual([0, 1, 0], xs)
+        self.assertEqual([[0, 1, 0], [1, 1, 1], [0, 0, 0],
+                          [0, 0, 0], [0, 0, 0], [0, 0, 0]], got)
+
+        got = landscape.trajectory(xs, encode=False)
+        self.assertEqual([0, 1, 0], xs)
+        self.assertEqual([[0, 1, 0], [1, 1, 1], [0, 0, 0]], got)
+
+        got = landscape.trajectory(xs, timesteps=5, encode=False)
+        self.assertEqual([0, 1, 0], xs)
+        self.assertEqual([[0, 1, 0], [1, 1, 1], [0, 0, 0],
+                          [0, 0, 0], [0, 0, 0], [0, 0, 0]], got)
+
+        got = landscape.trajectory(xs, encode=True)
+        self.assertEqual([0, 1, 0], xs)
+        self.assertEqual([2, 7, 0], list(got))
+
+        got = landscape.trajectory(xs, timesteps=5, encode=True)
+        self.assertEqual([0, 1, 0], xs)
+        self.assertEqual([2, 7, 0, 0, 0, 0], list(got))
+
+        xs = 2
+        got = landscape.trajectory(xs)
+        self.assertEqual([2, 7, 0], list(got))
+
+        got = landscape.trajectory(xs, timesteps=5)
+        self.assertEqual([2, 7, 0, 0, 0, 0], list(got))
+
+        got = landscape.trajectory(xs, encode=True)
+        self.assertEqual([2, 7, 0], list(got))
+
+        got = landscape.trajectory(xs, timesteps=5, encode=True)
+        self.assertEqual([2, 7, 0, 0, 0, 0], list(got))
+
+        got = landscape.trajectory(xs, encode=False)
+        self.assertEqual([[0, 1, 0], [1, 1, 1], [0, 0, 0]], got)
+
+        got = landscape.trajectory(xs, timesteps=5, encode=False)
+        self.assertEqual([[0, 1, 0], [1, 1, 1], [0, 0, 0],
+                          [0, 0, 0], [0, 0, 0], [0, 0, 0]], got)
+
+    def test_trajectory_wtnetwork(self):
+        net = WTNetwork(
+            weights=[[1, 0], [-1, 0]],
+            thresholds=[0.5, 0.0],
+            theta=WTNetwork.positive_threshold
+        )
+
+        landscape = Landscape(net)
+
+        state = [0, 0]
+        got = landscape.trajectory(state)
+        self.assertEqual([0, 0], state)
+        self.assertEqual([[0, 0], [0, 1]], got)
+
+        got = landscape.trajectory(state, timesteps=3)
+        self.assertEqual([0, 0], state)
+        self.assertEqual([[0, 0], [0, 1], [0, 1], [0, 1]], got)
+
+        got = landscape.trajectory(state, encode=False)
+        self.assertEqual([0, 0], state)
+        self.assertEqual([[0, 0], [0, 1]], got)
+
+        got = landscape.trajectory(state, timesteps=3, encode=False)
+        self.assertEqual([0, 0], state)
+        self.assertEqual([[0, 0], [0, 1], [0, 1], [0, 1]], got)
+
+        got = landscape.trajectory(state, encode=True)
+        self.assertEqual([0, 0], state)
+        self.assertEqual([0, 2], got)
+
+        got = landscape.trajectory(state, timesteps=3, encode=True)
+        self.assertEqual([0, 0], state)
+        self.assertEqual([0, 2, 2, 2], got)
+
+        state = 0
+        got = landscape.trajectory(state)
+        self.assertEqual([0, 2], got)
+
+        got = landscape.trajectory(state, timesteps=3)
+        self.assertEqual([0, 2, 2, 2], got)
+
+        got = landscape.trajectory(state, encode=True)
+        self.assertEqual([0, 2], got)
+
+        got = landscape.trajectory(state, timesteps=3, encode=True)
+        self.assertEqual([0, 2, 2, 2], got)
+
+        got = landscape.trajectory(state, encode=False)
+        self.assertEqual([[0, 0], [0, 1]], got)
+
+        got = landscape.trajectory(state, timesteps=3, encode=False)
+        self.assertEqual([[0, 0], [0, 1], [0, 1], [0, 1]], got)
+
+    def test_trajectory_logicnetwork(self):
+        net = LogicNetwork([((1, 2), {'01', '10'}),
+                            ((0, 2), {'01', '10', '11'}),
+                            ((0, 1), {'11'})])
+
+        landscape = Landscape(net)
+
+        state = [0, 1, 0]
+        got = landscape.trajectory(state, encode=False)
+        self.assertEqual([0, 1, 0], state)
+        self.assertEqual([[0, 1, 0], [1, 0, 0]], got)
+
+        got = landscape.trajectory(state, timesteps=3, encode=False)
+        self.assertEqual([0, 1, 0], state)
+        self.assertEqual([[0, 1, 0], [1, 0, 0], [0, 1, 0], [1, 0, 0]], got)
+
+        got = landscape.trajectory(state)
+        self.assertEqual([0, 1, 0], state)
+        self.assertEqual([[0, 1, 0], [1, 0, 0]], got)
+
+        got = landscape.trajectory(state, timesteps=3)
+        self.assertEqual([0, 1, 0], state)
+        self.assertEqual([[0, 1, 0], [1, 0, 0], [0, 1, 0], [1, 0, 0]], got)
+
+        got = landscape.trajectory(state, encode=True)
+        self.assertEqual([0, 1, 0], state)
+        self.assertEqual([2, 1], got)
+
+        got = landscape.trajectory(state, timesteps=3, encode=True)
+        self.assertEqual([0, 1, 0], state)
+        self.assertEqual([2, 1, 2, 1], got)
+
+        state = 2
+        got = landscape.trajectory(state)
+        self.assertEqual([2, 1], got)
+
+        got = landscape.trajectory(state, timesteps=3)
+        self.assertEqual([2, 1, 2, 1], got)
+
+        got = landscape.trajectory(state, encode=True)
+        self.assertEqual([2, 1], got)
+
+        got = landscape.trajectory(state, timesteps=3, encode=True)
+        self.assertEqual([2, 1, 2, 1], got)
+
+        got = landscape.trajectory(state, encode=False)
+        self.assertEqual([[0, 1, 0], [1, 0, 0]], got)
+
+        got = landscape.trajectory(state, timesteps=3, encode=False)
+        self.assertEqual([[0, 1, 0], [1, 0, 0], [0, 1, 0], [1, 0, 0]], got)
