@@ -471,6 +471,14 @@ class Landscape(StateSpace):
             self.__expound()
         return self.__attractors
 
+    @property
+    def basins(self):
+        """
+        """
+        if not self.__expounded:
+            self.__expound()
+        return self.__basins
+
     def __setup(self):
         """
         Compute all of the relavent computable values for the network:
@@ -491,9 +499,9 @@ class Landscape(StateSpace):
         # Create an array to store whether a given state has visited
         visited = np.zeros(self.volume, dtype=np.bool)
         # Create an array to store which attractor basin each state is in
-        basins = np.zeros(self.volume, dtype=np.int)
+        basins = np.full(self.volume, -1, dtype=np.int)
         # Create a counter to keep track of how many basins have been visited
-        basin_number = 1
+        basin_number = 0
         # Create a list of attractor cycles
         attractors = []
 
@@ -525,9 +533,11 @@ class Landscape(StateSpace):
                 visited[state] = True
 
             # If the next state hasn't been assigned a basin yet
-            if basins[next_state] == 0:
+            if basins[next_state] == -1:
                 # Set the current basin to the basin number
                 basin = basin_number
+                # Increment the basin number
+                basin_number += 1
                 # Add the current state to the attractor cycle
                 cycle.append(state)
                 # We're still in the cycle until the current state is equal to the terminus
