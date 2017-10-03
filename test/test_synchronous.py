@@ -580,3 +580,58 @@ class TestLandscape(unittest.TestCase):
         """
         with self.assertRaises(ValueError):
             Landscape(MockFixedSizedNetwork(), size=3)
+
+    def test_transitions_eca(self):
+        ca = ECA(30)
+
+        l = Landscape(ca, size=1)
+        self.assertEqual(ca, l.network)
+        self.assertEqual(1, l.size)
+        self.assertEqual([0, 0], list(l.transitions))
+
+        l = Landscape(ca, size=2)
+        self.assertEqual(ca, l.network)
+        self.assertEqual(2, l.size)
+        self.assertEqual([0, 1, 2, 0], list(l.transitions))
+
+        l = Landscape(ca, size=3)
+        self.assertEqual(ca, l.network)
+        self.assertEqual(3, l.size)
+        self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], list(l.transitions))
+
+        l = Landscape(ca, size=10)
+        trans = l.transitions
+        self.assertEqual(ca, l.network)
+        self.assertEqual(10, l.size)
+        self.assertEqual(1024, len(trans))
+        self.assertEqual([0, 515, 7, 517, 14, 525, 11, 521, 28, 543], list(trans[:10]))
+        self.assertEqual([18, 16, 13, 14, 10, 8, 7, 4, 2, 0], list(trans[-10:]))
+
+    def test_transitions_wtnetwork(self):
+        net = WTNetwork(
+            weights=[[1, 0], [-1, 1]],
+            thresholds=[0.5, 0.0],
+            theta=WTNetwork.positive_threshold
+        )
+
+        l = Landscape(net)
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size);
+        self.assertEqual([2,1,2,3], list(l.transitions))
+
+    def test_transitions_logicnetwork(self):
+        net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
+
+        l = Landscape(net)
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size)
+        self.assertEqual([1, 3, 1, 3], list(l.transitions))
+
+    def test_transitions_spombe(self):
+        l = Landscape(s_pombe)
+        self.assertEqual(s_pombe, l.network)
+        self.assertEqual(9, l.size)
+        trans = l.transitions
+        self.assertEqual(512, len(trans))
+        self.assertEqual([2, 2, 130, 130, 4, 0, 128, 128, 8, 0], list(trans[:10]))
+        self.assertEqual([464, 464, 344, 336, 464, 464, 348, 336, 464, 464], list(trans[-10:]))
