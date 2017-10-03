@@ -427,6 +427,8 @@ class Landscape(StateSpace):
 
         self.__net = net
 
+        self.__expounded = False
+
         self.__setup()
 
     @property
@@ -458,6 +460,17 @@ class Landscape(StateSpace):
         """
         return self.__transitions
 
+    @property
+    def attractors(self):
+        """
+        Get the attractor cycles of the landscape.
+
+        :return: an array of cycles, each an array
+        """
+        if not self.__expounded:
+            self.__expound()
+        return self.__attractors
+
     def __setup(self):
         """
         Compute all of the relavent computable values for the network:
@@ -467,7 +480,86 @@ class Landscape(StateSpace):
         encode = self._unsafe_encode
 
         transitions = np.empty(self.volume, dtype=np.int)
-        for (i, state) in enumerate(self):
+        for i, state in enumerate(self):
             transitions[i] = encode(update(state))
 
         self.__transitions = transitions
+
+    def __expound(self):
+        # Get the state transitions
+        trans = self.__transitions
+        # Create an array to store whether a given state has visited
+        visited = np.zeros(self.volume, dtype=np.bool)
+        # Create an array to store which attractor basin each state is in
+        basins = np.zeros(self.volume, dtype=np.int)
+        # Create a counter to keep track of how many basins have been visited
+        basin_number = 1
+        # Create a list of attractor cycles
+        attractors = []
+
+        # Start at state 0
+        initial_state = 0
+        # While the initial state is a state of the system
+        while initial_state < len(trans):
+            # Create a stack to store the state so far visited
+            state_stack = []
+            # Create a array to store the states in the attractor cycle
+            cycle = []
+            # Create a flag to signify whether the current state is part of the cycle
+            in_cycle = False
+            # Set the current state to the initial state
+            state = initial_state
+            # Store the next state and terminus variables to the next state
+            terminus = next_state = trans[state]
+            # Set the visited flag of the current state
+            visited[state] = True
+            # While the next state hasn't been visited
+            while not visited[next_state]:
+                # Push the current state onto the stack
+                state_stack.append(state)
+                # Set the current state to the next state
+                state = next_state
+                # Update the terminus and next_state variables
+                terminus = next_state = trans[state]
+                # Update the visited flag for the current state
+                visited[state] = True
+
+            # If the next state hasn't been assigned a basin yet
+            if basins[next_state] == 0:
+                # Set the current basin to the basin number
+                basin = basin_number
+                # Add the current state to the attractor cycle
+                cycle.append(state)
+                # We're still in the cycle until the current state is equal to the terminus
+                in_cycle = (terminus != state)
+            else:
+                # Set the current basin to the basin of next_state
+                basin = basins[next_state]
+
+            # Set the basin of the current state
+            basins[state] = basin
+
+            # While we still have states on the stack
+            while len(state_stack) != 0:
+                # Pop the current state off of the top of the stack
+                state = state_stack.pop()
+                # Set the basin of the current state
+                basins[state] = basin
+                # If we're still in the cycle
+                if in_cycle:
+                    # Add the current state to the attractor cycle
+                    cycle.append(state)
+                    # We're still in the cycle until the current state is equal to the terminus
+                    in_cycle = (terminus != state)
+
+            # Find the next unvisited initial state
+            while initial_state < len(visited) and visited[initial_state]:
+                initial_state += 1
+
+            # Yield the cycle if we found one
+            if len(cycle) != 0:
+                attractors.append(np.asarray(cycle, dtype=np.int))
+
+        self.__basins = basins
+        self.__attractors = np.asarray(attractors)
+        self.__expounded = True
