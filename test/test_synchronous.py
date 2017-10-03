@@ -651,3 +651,19 @@ class TestLandscape(unittest.TestCase):
         self.assertEqual(list(space), list(l))
         self.assertEqual([ space.encode(state) for state in space ],
                          [ l.encode(state) for state in l])
+
+    def test_attractors_eca(self):
+        networks = [(ECA(30), 2, 3), (ECA(30), 3, 1), (ECA(30), 4, 4),
+                    (ECA(30), 5, 2), (ECA(30), 6, 3), (ECA(110), 2, 1),
+                    (ECA(110), 3, 1), (ECA(110), 4, 3), (ECA(110), 5, 1),
+                    (ECA(110), 6, 3)]
+
+        for rule, width, size in networks:
+            landscape = Landscape(rule, size=width)
+            self.assertEqual(size, len(landscape.attractors))
+
+    def test_attractors_wtnetworks(self):
+        networks = [(s_pombe, 13), (s_cerevisiae, 7), (c_elegans, 5)]
+        for net, size in networks:
+            landscape = Landscape(net)
+            self.assertEqual(size, len(landscape.attractors))
