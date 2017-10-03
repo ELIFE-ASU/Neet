@@ -5,6 +5,7 @@ import copy
 import networkx as nx
 import numpy as np
 import pyinform as pi
+from .statespace import StateSpace
 from .interfaces import is_network, is_fixed_sized
 
 def trajectory(net, state, timesteps=1, encode=False):
@@ -383,7 +384,7 @@ def timeseries(net, timesteps, size=None):
 
     return series
 
-class Landscape(object):
+class Landscape(StateSpace):
     """
     The ``Landscape`` class represents the structure and topology of the
     "landscape" of state transitions. That is, it is the state space
@@ -413,12 +414,18 @@ class Landscape(object):
         elif is_fixed_sized(net):
             if size is not None:
                 raise ValueError("size must be None for fixed sized networks")
-            size = net.size
-        elif size is None:
+            state_space = net.state_space()
+        else:
+            if size is None:
                 raise ValueError("size must not be None for variable sized networks")
+            state_space = net.state_space(size)
+
+        if state_space.is_uniform:
+            super(Landscape, self).__init__(state_space.ndim, state_space.base)
+        else:
+            super(Landscape, self).__init__(state_space.bases)
 
         self.__net = net
-        self.__size = size
 
         self.__setup()
 
@@ -438,29 +445,7 @@ class Landscape(object):
 
         :return: the size of the dynamical network
         """
-        return self.__size
-
-    @property
-    def volume(self):
-         """
-         Get the volume of the state space, i.e. number of network states.
-
-         :return: the volume of the state space
-         """
-         return self.__volume
-
-    @property
-    def state_space(self):
-        """
-        Get the state space associated with the landscape
-
-        :return: the dynamical system's StateSpace
-        """
-        net = self.__net
-        if is_fixed_sized(net):
-            return net.state_space()
-        else:
-            return net.state_space(self.__size)
+        return self.ndim
 
     @property
     def transitions(self):
@@ -478,18 +463,11 @@ class Landscape(object):
         Compute all of the relavent computable values for the network:
             * transitions
         """
-        net = self.network
-        state_space = self.state_space
+        update = self.__net._unsafe_update
+        encode = self._unsafe_encode
 
-        volume = state_space.volume
+        transitions = np.empty(self.volume, dtype=np.int)
+        for (i, state) in enumerate(self):
+            transitions[i] = encode(update(state))
 
-        update = net._unsafe_update
-        encode = state_space._unsafe_encode
-
-        transitions = np.empty(volume, dtype=np.int)
-        for (i, state) in enumerate(state_space):
-            update(state)
-            transitions[i] = encode(state)
-
-        self.__volume = volume
         self.__transitions = transitions

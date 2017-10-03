@@ -635,3 +635,19 @@ class TestLandscape(unittest.TestCase):
         self.assertEqual(512, len(trans))
         self.assertEqual([2, 2, 130, 130, 4, 0, 128, 128, 8, 0], list(trans[:10]))
         self.assertEqual([464, 464, 344, 336, 464, 464, 348, 336, 464, 464], list(trans[-10:]))
+
+    def test_is_state_space(self):
+        self.assertTrue(issubclass(Landscape, StateSpace))
+
+        space = s_pombe.state_space()
+        l = Landscape(s_pombe)
+        self.assertEqual(list(space), list(l))
+        self.assertEqual([ space.encode(state) for state in space ],
+                         [ l.encode(state) for state in l])
+
+        ca = ECA(30)
+        space = ca.state_space(10)
+        l = Landscape(ca, size=10)
+        self.assertEqual(list(space), list(l))
+        self.assertEqual([ space.encode(state) for state in space ],
+                         [ l.encode(state) for state in l])
