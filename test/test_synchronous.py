@@ -8,8 +8,7 @@ from neet.boolean import WTNetwork, LogicNetwork
 from neet.boolean.examples import s_pombe, s_cerevisiae, c_elegans
 from neet.synchronous import *
 import numpy as np
-from .mock import MockObject, MockFixedSizedNetwork
-
+from .mock import MockObject, MockNetwork, MockFixedSizedNetwork
 
 class TestSynchronous(unittest.TestCase):
     """
@@ -540,3 +539,44 @@ class TestSynchronous(unittest.TestCase):
                 for t, expect in enumerate(trajectory(net, state, timesteps=time)):
                     got = series[:, index, t]
                     self.assertTrue(np.array_equal(expect, got))
+
+
+class TestLandscape(unittest.TestCase):
+    """
+    Test the ``neet.synchronous.Landscape`` class
+    """
+    def test_canary(self):
+        """
+        Canary test
+        """
+        self.assertTrue(True)
+
+    def test_init_not_network(self):
+        """
+        ``Landscape.__init__`` should raise a type error if ``net`` is not a
+        network.
+        """
+        with self.assertRaises(TypeError):
+            Landscape(MockObject())
+
+        with self.assertRaises(TypeError):
+            Landscape(MockObject(), size=5)
+
+    def test_init_not_fixed_sized(self):
+        """
+        ``Landscape.__init__`` should raise a value error if ``net`` is not
+        fixed sized and ``size`` is ``None``.
+        """
+        with self.assertRaises(ValueError):
+            Landscape(MockNetwork())
+
+        with self.assertRaises(ValueError):
+            Landscape(MockNetwork(), size=None)
+
+    def test_init_fixed_sized(self):
+        """
+        ``Landscape.__init__`` should raise a value errorif ``net`` is fixed
+        sized, but ``size`` is not ``None``.
+        """
+        with self.assertRaises(ValueError):
+            Landscape(MockFixedSizedNetwork(), size=3)
