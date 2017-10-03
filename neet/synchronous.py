@@ -293,7 +293,7 @@ def basins(net, size=None):
 def basin_entropy(net, size=None, base=2):
     """
     Calculate the basin entropy.
-    
+
     Reference:
     P. Krawitz and I. Shmulevich, ``Basin Entropy in Boolean Network Ensembles.''
     Phys. Rev. Lett. 98, 158701 (2007).  http://dx.doi.org/10.1103/PhysRevLett.98.158701
@@ -310,7 +310,7 @@ def basin_entropy(net, size=None, base=2):
         0.367825190366261
         >>> basin_entropy(ECA(30), size=5)
         0.3372900666170139
-        
+
     :param net: the network or landscape transition_graph
     :param size: the size of the network (``None`` if fixed sized)
     :param base: base of logarithm used to calculate entropy (2 for bits)
@@ -393,9 +393,9 @@ class Landscape(object):
     def __init__(self, net, size=None):
         """
         Construct the landscape for a network.
-        
+
         ::
-        
+
             >>> Landscape(s_pombe)
             <neet.synchronous.Landscape object at 0x101c74810>
             >>> Landscape(ECA(30), size=5)
@@ -410,7 +410,77 @@ class Landscape(object):
 
         if not is_network(net):
             raise TypeError("net is not a network")
-        elif is_fixed_sized(net) and size is not None:
-            raise ValueError("size must be None for fixed sized networks")
-        elif not is_fixed_sized(net) and size is None:
-            raise ValueError("size must not be None for variable sized networks")
+        elif is_fixed_sized(net):
+            if size is not None:
+                raise ValueError("size must be None for fixed sized networks")
+            size = net.size
+        elif size is None:
+                raise ValueError("size must not be None for variable sized networks")
+
+        self.__net = net
+        self.__size = size
+
+        self.__setup()
+
+    def __setup(self):
+        """
+        Compute all of the relavent computable values for the network:
+            * transitions
+        """
+        net = self.__net
+
+        if is_fixed_sized(self.__net):
+            state_space = net.state_space()
+        else:
+            state_space = net.state_space(self.__size)
+
+        volume = state_space.volume
+        self.__volume = volume
+
+        update = net._unsafe_update
+        encode = state_space._unsafe_encode
+
+        transitions = np.empty(volume, dtype=np.int)
+        for (i, state) in enumerate(state_space):
+            update(state)
+            transitions[i] = encode(state)
+
+        self.__transitions = transitions
+
+    @property
+    def network(self):
+        """
+        Get the landscape's dynamical network.
+
+        :return: the dynamical network
+        """
+        return self.__net
+
+    @property
+    def size(self):
+        """
+        Get the size of the dynamical network, i.e.. number of nodes.
+
+        :return: the size of the dynamical network
+        """
+        return self.__size
+
+    @property
+    def volume(self):
+         """
+         Get the volume of the state space, i.e. number of network states.
+
+         :return: the volume of the state space
+         """
+         return self.__volume
+
+    @property
+    def transitions(self):
+        """
+        Get the transitions array of the landscape. That is, return the
+        array of state whose indices are initial states and values are
+        the subsequent state.
+
+        :return: the state transitions array
+        """
+        return self.__transitions
