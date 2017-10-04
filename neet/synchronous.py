@@ -643,3 +643,16 @@ class Landscape(StateSpace):
                 k = trans[k]
 
         return series
+
+    def basin_entropy(self, base=None):
+        if not self.__expounded:
+            self.__expound()
+        dist = pi.Dist(self.__basin_sizes)
+
+        if base is None:
+            base = len(dist)
+
+        if len(dist) < 2:
+            return 0.0
+        else:
+            return pi.shannon.entropy(dist, b=base)
