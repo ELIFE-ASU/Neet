@@ -493,6 +493,12 @@ class Landscape(StateSpace):
         return self.__in_degrees
 
     @property
+    def heights(self):
+        if not self.__expounded:
+            self.__expound()
+        return self.__heights
+
+    @property
     def graph(self):
         if self.__graph is None:
             self.__graph = nx.DiGraph(list(enumerate(self.__transitions)))
@@ -521,6 +527,8 @@ class Landscape(StateSpace):
         basins = np.full(self.volume, -1, dtype=np.int)
         # Create an array to store the in-degree of each state
         in_degrees = np.zeros(self.volume, dtype=np.int)
+        # Create an array to store the height of each state
+        heights = np.zeros(self.volume, dtype=np.int)
         # Create a counter to keep track of how many basins have been visited
         basin_number = 0
         # Create a list of basin sizes
@@ -574,6 +582,8 @@ class Landscape(StateSpace):
             else:
                 # Set the current basin to the basin of next_state
                 basin = basins[next_state]
+                # Set the state's height to one create than the next state's
+                heights[state] = heights[next_state] + 1
 
             # Set the basin of the current state
             basins[state] = basin
@@ -582,6 +592,8 @@ class Landscape(StateSpace):
 
             # While we still have states on the stack
             while len(state_stack) != 0:
+                # Save the current state as the next state
+                next_state = state
                 # Pop the current state off of the top of the stack
                 state = state_stack.pop()
                 # Set the basin of the current state
@@ -594,12 +606,15 @@ class Landscape(StateSpace):
                     cycle.append(state)
                     # We're still in the cycle until the current state is equal to the terminus
                     in_cycle = (terminus != state)
+                else:
+                    # Set the state's height to one create than the next state's
+                    heights[state] = heights[next_state] + 1
 
             # Find the next unvisited initial state
             while initial_state < len(visited) and visited[initial_state]:
                 initial_state += 1
 
-            # Yield the cycle if we found one
+            # If the cycle isn't empty, append it to the attractors list
             if len(cycle) != 0:
                 attractors.append(np.asarray(cycle, dtype=np.int))
 
@@ -607,6 +622,7 @@ class Landscape(StateSpace):
         self.__basin_sizes = np.asarray(basin_sizes)
         self.__attractors = np.asarray(attractors)
         self.__in_degrees = in_degrees
+        self.__heights = heights
         self.__expounded = True
 
     def trajectory(self, init, timesteps=None, encode=None):

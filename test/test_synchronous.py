@@ -967,3 +967,28 @@ class TestLandscape(unittest.TestCase):
             for i in range(landscape.volume):
                 in_degrees[i] = np.count_nonzero(landscape.transitions == i)
             self.assertEqual(list(in_degrees), list(landscape.in_degrees))
+
+    def test_heights(self):
+        for code in [30, 110, 21, 43]:
+            for size in range(2,7):
+                landscape = Landscape(ECA(code), size=size)
+                heights = [0] * landscape.volume
+                for i in range(landscape.volume):
+                    b = landscape.basins[i]
+                    state = i
+                    while state not in landscape.attractors[b]:
+                        heights[i] += 1
+                        state = landscape.transitions[state]
+                self.assertEqual(heights, list(landscape.heights))
+
+
+        for net in [s_pombe, s_cerevisiae, c_elegans]:
+            landscape = Landscape(net)
+            heights = [0] * landscape.volume
+            for i in range(landscape.volume):
+                b = landscape.basins[i]
+                state = i
+                while state not in landscape.attractors[b]:
+                    heights[i] += 1
+                    state = landscape.transitions[state]
+            self.assertEqual(heights, list(landscape.heights))
