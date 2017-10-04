@@ -499,6 +499,12 @@ class Landscape(StateSpace):
         return self.__heights
 
     @property
+    def attractor_lengths(self):
+        if not self.__expounded:
+            self.__expound()
+        return self.__attractor_lengths
+
+    @property
     def graph(self):
         if self.__graph is None:
             self.__graph = nx.DiGraph(list(enumerate(self.__transitions)))
@@ -535,6 +541,8 @@ class Landscape(StateSpace):
         basin_sizes = []
         # Create a list of attractor cycles
         attractors = []
+        # Create a list of attractor lengths
+        attractor_lengths = []
 
         # Start at state 0
         initial_state = 0
@@ -575,6 +583,8 @@ class Landscape(StateSpace):
                 basin_number += 1
                 # Add a new basin size
                 basin_sizes.append(0)
+                # Add a new attractor length
+                attractor_lengths.append(1)
                 # Add the current state to the attractor cycle
                 cycle.append(state)
                 # We're still in the cycle until the current state is equal to the terminus
@@ -604,6 +614,8 @@ class Landscape(StateSpace):
                 if in_cycle:
                     # Add the current state to the attractor cycle
                     cycle.append(state)
+                    # Increment the current attractor length
+                    attractor_lengths[basin] += 1
                     # We're still in the cycle until the current state is equal to the terminus
                     in_cycle = (terminus != state)
                 else:
@@ -621,6 +633,7 @@ class Landscape(StateSpace):
         self.__basins = basins
         self.__basin_sizes = np.asarray(basin_sizes)
         self.__attractors = np.asarray(attractors)
+        self.__attractor_lengths = np.asarray(attractor_lengths)
         self.__in_degrees = in_degrees
         self.__heights = heights
         self.__expounded = True

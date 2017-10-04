@@ -992,3 +992,15 @@ class TestLandscape(unittest.TestCase):
                     heights[i] += 1
                     state = landscape.transitions[state]
             self.assertEqual(heights, list(landscape.heights))
+
+    def test_attractor_lengths(self):
+        for code in [30, 110, 21, 43]:
+            for size in range(2,7):
+                landscape = Landscape(ECA(code), size=size)
+                lengths = list(map(len, landscape.attractors))
+                self.assertEqual(lengths, list(landscape.attractor_lengths))
+
+        for net in [s_pombe, s_cerevisiae, c_elegans]:
+            landscape = Landscape(net)
+            lengths = list(map(len, landscape.attractors))
+            self.assertEqual(lengths, list(landscape.attractor_lengths))
