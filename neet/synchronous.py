@@ -487,6 +487,12 @@ class Landscape(StateSpace):
         return self.__basin_sizes
 
     @property
+    def in_degrees(self):
+        if not self.__expounded:
+            self.__expound()
+        return self.__in_degrees
+
+    @property
     def graph(self):
         if self.__graph is None:
             self.__graph = nx.DiGraph(list(enumerate(self.__transitions)))
@@ -513,6 +519,8 @@ class Landscape(StateSpace):
         visited = np.zeros(self.volume, dtype=np.bool)
         # Create an array to store which attractor basin each state is in
         basins = np.full(self.volume, -1, dtype=np.int)
+        # Create an array to store the in-degree of each state
+        in_degrees = np.zeros(self.volume, dtype=np.int)
         # Create a counter to keep track of how many basins have been visited
         basin_number = 0
         # Create a list of basin sizes
@@ -536,6 +544,8 @@ class Landscape(StateSpace):
             terminus = next_state = trans[state]
             # Set the visited flag of the current state
             visited[state] = True
+            # Increment in-degree
+            in_degrees[next_state] += 1
             # While the next state hasn't been visited
             while not visited[next_state]:
                 # Push the current state onto the stack
@@ -546,6 +556,8 @@ class Landscape(StateSpace):
                 terminus = next_state = trans[state]
                 # Update the visited flag for the current state
                 visited[state] = True
+                # Increment in-degree
+                in_degrees[next_state] += 1
 
             # If the next state hasn't been assigned a basin yet
             if basins[next_state] == -1:
@@ -594,6 +606,7 @@ class Landscape(StateSpace):
         self.__basins = basins
         self.__basin_sizes = np.asarray(basin_sizes)
         self.__attractors = np.asarray(attractors)
+        self.__in_degrees = in_degrees
         self.__expounded = True
 
     def trajectory(self, init, timesteps=None, encode=None):

@@ -951,3 +951,19 @@ class TestLandscape(unittest.TestCase):
             g = landscape.graph
             self.assertEqual(landscape.volume, g.number_of_nodes())
             self.assertEqual(landscape.volume, g.number_of_edges())
+
+    def test_in_degree(self):
+        for code in [30, 110, 21, 43]:
+            for size in range(2,7):
+                landscape = Landscape(ECA(code), size=size)
+                in_degrees = np.empty(landscape.volume, dtype=np.int)
+                for i in range(landscape.volume):
+                    in_degrees[i] = np.count_nonzero(landscape.transitions == i)
+                self.assertEqual(list(in_degrees), list(landscape.in_degrees))
+
+        for net in [s_pombe, s_cerevisiae, c_elegans]:
+            landscape = Landscape(net)
+            in_degrees = np.empty(landscape.volume, dtype=np.int)
+            for i in range(landscape.volume):
+                in_degrees[i] = np.count_nonzero(landscape.transitions == i)
+            self.assertEqual(list(in_degrees), list(landscape.in_degrees))
