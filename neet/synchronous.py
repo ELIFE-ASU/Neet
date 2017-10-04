@@ -505,6 +505,12 @@ class Landscape(StateSpace):
         return self.__attractor_lengths
 
     @property
+    def recurrence_times(self):
+        if not self.__expounded:
+            self.__expound()
+        return self.__recurrence_times
+
+    @property
     def graph(self):
         if self.__graph is None:
             self.__graph = nx.DiGraph(list(enumerate(self.__transitions)))
@@ -535,6 +541,8 @@ class Landscape(StateSpace):
         in_degrees = np.zeros(self.volume, dtype=np.int)
         # Create an array to store the height of each state
         heights = np.zeros(self.volume, dtype=np.int)
+        # Create an array to store the recurrence time of each state
+        recurrence_times = np.zeros(self.volume, dtype=np.int)
         # Create a counter to keep track of how many basins have been visited
         basin_number = 0
         # Create a list of basin sizes
@@ -587,13 +595,17 @@ class Landscape(StateSpace):
                 attractor_lengths.append(1)
                 # Add the current state to the attractor cycle
                 cycle.append(state)
+                # Set the current state's recurrence time
+                recurrence_times[state] = 0
                 # We're still in the cycle until the current state is equal to the terminus
                 in_cycle = (terminus != state)
             else:
                 # Set the current basin to the basin of next_state
                 basin = basins[next_state]
-                # Set the state's height to one create than the next state's
+                # Set the state's height to one greater than the next state's
                 heights[state] = heights[next_state] + 1
+                # Set the state's recurrence time to one greater than the next state's
+                recurrence_times[state] = recurrence_times[next_state] + 1
 
             # Set the basin of the current state
             basins[state] = basin
@@ -618,9 +630,15 @@ class Landscape(StateSpace):
                     attractor_lengths[basin] += 1
                     # We're still in the cycle until the current state is equal to the terminus
                     in_cycle = (terminus != state)
+                    # Set the cycle state's recurrence times
+                    if not in_cycle:
+                        for cycle_state in cycle:
+                            recurrence_times[cycle_state] = attractor_lengths[basin] - 1
                 else:
                     # Set the state's height to one create than the next state's
                     heights[state] = heights[next_state] + 1
+                    # Set the state's recurrence time to one greater than the next state's
+                    recurrence_times[state] = recurrence_times[next_state] + 1
 
             # Find the next unvisited initial state
             while initial_state < len(visited) and visited[initial_state]:
@@ -636,6 +654,7 @@ class Landscape(StateSpace):
         self.__attractor_lengths = np.asarray(attractor_lengths)
         self.__in_degrees = in_degrees
         self.__heights = heights
+        self.__recurrence_times = np.asarray(recurrence_times)
         self.__expounded = True
 
     def trajectory(self, init, timesteps=None, encode=None):

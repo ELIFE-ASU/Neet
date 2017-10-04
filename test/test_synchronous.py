@@ -1004,3 +1004,21 @@ class TestLandscape(unittest.TestCase):
             landscape = Landscape(net)
             lengths = list(map(len, landscape.attractors))
             self.assertEqual(lengths, list(landscape.attractor_lengths))
+
+    def test_recurrence_times(self):
+        for code in [30, 110, 21, 43]:
+            for size in range(2,7):
+                landscape = Landscape(ECA(code), size=size)
+                recurrence_times = [0] * landscape.volume
+                for i in range(landscape.volume):
+                    b = landscape.basins[i]
+                    recurrence_times[i] = landscape.heights[i] + landscape.attractor_lengths[b] - 1
+                self.assertEqual(recurrence_times, list(landscape.recurrence_times))
+
+        for net in [s_pombe, s_cerevisiae, c_elegans]:
+            landscape = Landscape(net)
+            recurrence_times = [0] * landscape.volume
+            for i in range(landscape.volume):
+                b = landscape.basins[i]
+                recurrence_times[i] = landscape.heights[i] + landscape.attractor_lengths[b] - 1
+            self.assertEqual(recurrence_times, list(landscape.recurrence_times))
