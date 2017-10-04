@@ -428,6 +428,7 @@ class Landscape(StateSpace):
         self.__net = net
 
         self.__expounded = False
+        self.__graph = None
 
         self.__setup()
 
@@ -484,6 +485,12 @@ class Landscape(StateSpace):
         if not self.__expounded:
             self.__expound()
         return self.__basin_sizes
+
+    @property
+    def graph(self):
+        if self.__graph is None:
+            self.__graph = nx.DiGraph(list(enumerate(self.__transitions)))
+        return self.__graph
 
     def __setup(self):
         """

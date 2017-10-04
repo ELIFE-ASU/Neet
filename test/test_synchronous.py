@@ -937,3 +937,17 @@ class TestLandscape(unittest.TestCase):
         for net, entropy in networks:
             landscape = Landscape(net)
             self.assertAlmostEqual(entropy, landscape.basin_entropy(base=10), places=6)
+
+    def test_graph_eca(self):
+        for size in range(2, 7):
+            landscape = Landscape(ECA(30), size=size)
+            g = landscape.graph
+            self.assertEqual(landscape.volume, g.number_of_nodes())
+            self.assertEqual(landscape.volume, g.number_of_edges())
+
+    def test_graph_wtnetworks(self):
+        for net in [s_pombe, s_cerevisiae, c_elegans]:
+            landscape = Landscape(net)
+            g = landscape.graph
+            self.assertEqual(landscape.volume, g.number_of_nodes())
+            self.assertEqual(landscape.volume, g.number_of_edges())
