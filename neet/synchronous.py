@@ -606,3 +606,25 @@ class Landscape(StateSpace):
             path = [ decode(state) for state in path ]
 
         return path
+
+    def timeseries(self, timesteps):
+        if timesteps < 1:
+            raise ValueError("number of steps must be positive, non-zero")
+
+        trans = self.__transitions
+        decode = self.decode
+        encode = self._unsafe_encode
+        decoded_trans = [ decode(state) for state in trans ]
+        encoded_trans = [ encode(state) for state in decoded_trans ]
+
+        shape = (self.ndim, self.volume, timesteps + 1)
+        series = np.empty(shape, dtype=np.int)
+
+        for index, init in enumerate(self):
+            k = index
+            series[:, index, 0] = init[:]
+            for time in range(1, timesteps + 1):
+                series[:, index, time] = decoded_trans[k][:]
+                k = trans[k]
+
+        return series

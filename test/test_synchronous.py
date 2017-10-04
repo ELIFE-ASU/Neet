@@ -862,3 +862,34 @@ class TestLandscape(unittest.TestCase):
 
         got = landscape.trajectory(state, timesteps=3, encode=False)
         self.assertEqual([[0, 1, 0], [1, 0, 0], [0, 1, 0], [1, 0, 0]], got)
+
+    def test_timeseries_too_short(self):
+        landscape = Landscape(ECA(30), size=3)
+        with self.assertRaises(ValueError):
+            landscape.timeseries(-1)
+
+        with self.assertRaises(ValueError):
+            landscape.timeseries(0)
+
+    def test_timeseries_eca(self):
+        rule = ECA(30)
+        for size in [5, 7, 11]:
+            landscape = Landscape(rule, size=size)
+            time = 10
+            series = landscape.timeseries(time)
+            self.assertEqual((size, 2**size, time + 1), series.shape)
+            for index, state in enumerate(rule.state_space(size)):
+                for t, expect in enumerate(landscape.trajectory(state, timesteps=time)):
+                    got = series[:, index, t]
+                    self.assertTrue(np.array_equal(expect, got))
+
+    def test_timeseries_wtnetworks(self):
+        for (net, size) in [(s_pombe, 9), (s_cerevisiae, 11), (c_elegans, 8)]:
+            landscape = Landscape(net)
+            time = 10
+            series = landscape.timeseries(time)
+            self.assertEqual((size, 2**size, time + 1), series.shape)
+            for index, state in enumerate(net.state_space()):
+                for t, expect in enumerate(landscape.trajectory(state, timesteps=time)):
+                    got = series[:, index, t]
+                    self.assertTrue(np.array_equal(expect, got))
