@@ -479,6 +479,12 @@ class Landscape(StateSpace):
             self.__expound()
         return self.__basins
 
+    @property
+    def basin_sizes(self):
+        if not self.__expounded:
+            self.__expound()
+        return self.__basin_sizes
+
     def __setup(self):
         """
         Compute all of the relavent computable values for the network:
@@ -502,6 +508,8 @@ class Landscape(StateSpace):
         basins = np.full(self.volume, -1, dtype=np.int)
         # Create a counter to keep track of how many basins have been visited
         basin_number = 0
+        # Create a list of basin sizes
+        basin_sizes = []
         # Create a list of attractor cycles
         attractors = []
 
@@ -538,6 +546,8 @@ class Landscape(StateSpace):
                 basin = basin_number
                 # Increment the basin number
                 basin_number += 1
+                # Add a new basin size
+                basin_sizes.append(0)
                 # Add the current state to the attractor cycle
                 cycle.append(state)
                 # We're still in the cycle until the current state is equal to the terminus
@@ -548,6 +558,8 @@ class Landscape(StateSpace):
 
             # Set the basin of the current state
             basins[state] = basin
+            # Increment the basin size
+            basin_sizes[basin] += 1
 
             # While we still have states on the stack
             while len(state_stack) != 0:
@@ -555,6 +567,8 @@ class Landscape(StateSpace):
                 state = state_stack.pop()
                 # Set the basin of the current state
                 basins[state] = basin
+                # Increment the basin_size
+                basin_sizes[basin] += 1
                 # If we're still in the cycle
                 if in_cycle:
                     # Add the current state to the attractor cycle
@@ -571,6 +585,7 @@ class Landscape(StateSpace):
                 attractors.append(np.asarray(cycle, dtype=np.int))
 
         self.__basins = basins
+        self.__basin_sizes = np.asarray(basin_sizes)
         self.__attractors = np.asarray(attractors)
         self.__expounded = True
 

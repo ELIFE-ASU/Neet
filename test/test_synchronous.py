@@ -884,7 +884,7 @@ class TestLandscape(unittest.TestCase):
                     self.assertTrue(np.array_equal(expect, got))
 
     def test_timeseries_wtnetworks(self):
-        for (net, size) in [(s_pombe, 9), (s_cerevisiae, 11), (c_elegans, 8)]:
+        for net, size in [(s_pombe, 9), (s_cerevisiae, 11), (c_elegans, 8)]:
             landscape = Landscape(net)
             time = 10
             series = landscape.timeseries(time)
@@ -893,3 +893,12 @@ class TestLandscape(unittest.TestCase):
                 for t, expect in enumerate(landscape.trajectory(state, timesteps=time)):
                     got = series[:, index, t]
                     self.assertTrue(np.array_equal(expect, got))
+
+    def test_basin_sizes(self):
+        for net in [s_pombe, s_cerevisiae, c_elegans]:
+            landscape = Landscape(net)
+            basins = landscape.basins
+            histogram = [0] * (np.max(basins) + 1)
+            for b in basins:
+                histogram[b] += 1
+            self.assertEqual(histogram, list(landscape.basin_sizes))
