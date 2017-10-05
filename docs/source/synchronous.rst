@@ -31,6 +31,8 @@ Synchronous Landscape Analysis Functions
 
     .. autofunction:: neet.synchronous.basins
 
+    .. autofunction:: neet.synchronous.basin_entropy
+
 Attractor Landscape
 ^^^^^^^^^^^^^^^^^^^
 
