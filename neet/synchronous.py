@@ -1024,7 +1024,7 @@ class Landscape(StateSpace):
 
         return series
 
-    def basin_entropy(self, base=None):
+    def basin_entropy(self, base=2.0):
         """
         Compute the basin entropy of the landscape [Krawitz2007]_.
 
@@ -1044,7 +1044,7 @@ class Landscape(StateSpace):
             >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.basin_entropy()
-            0.33020098338442544
+            1.2218888338849747
             >>> landscape.basin_entropy(base=2)
             1.2218888338849747
             >>> landscape.basin_entropy(base=10)
@@ -1059,11 +1059,4 @@ class Landscape(StateSpace):
         if not self.__expounded:
             self.__expound()
         dist = pi.Dist(self.__basin_sizes)
-
-        if base is None:
-            base = len(dist)
-
-        if len(dist) < 2:
-            return 0.0
-        else:
-            return pi.shannon.entropy(dist, b=base)
+        return pi.shannon.entropy(dist, b=base)
