@@ -293,11 +293,7 @@ def basins(net, size=None):
 
 def basin_entropy(net, size=None, base=2):
     """
-    Calculate the basin entropy.
-
-    Reference:
-    P. Krawitz and I. Shmulevich, ``Basin Entropy in Boolean Network Ensembles.''
-    Phys. Rev. Lett. 98, 158701 (2007).  http://dx.doi.org/10.1103/PhysRevLett.98.158701
+    Calculate the basin entropy [Krawitz2007]_.
 
     .. rubric:: Example:
 
