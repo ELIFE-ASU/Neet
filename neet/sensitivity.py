@@ -215,7 +215,11 @@ def hamming_neighbors(state):
 
     return neighbors
 
-def average_sensitivity(net, states=None, weights=None, calc_trans=True):
+def average_sensitivity(net,**kwargs):
+    Q = Qij(net,**kwargs)
+    return np.sum(Q)/net.size
+
+def average_sensitivity_slow(net, states=None, weights=None, calc_trans=True):
     """
     Calculate average Boolean network sensitivity, as defined in, e.g.,
 
