@@ -4,6 +4,7 @@
 from .interfaces import is_boolean_network
 import numpy as np
 import numpy.linalg as linalg
+import copy
 
 from .synchronous import transitions
 #from .statespace import encode,decode
@@ -80,7 +81,7 @@ def differenceMatrix(net, state, transitions=None):
         
     return Q
 
-def Qij(net,states=None,calc_trans=True):
+def QijSlow(net,states=None,calc_trans=True):
     """
     Averaged over all possible states, what is the probability
     that node i's state is changed by a single bit flip of node j?
@@ -99,6 +100,66 @@ def Qij(net,states=None,calc_trans=True):
     for state in states:
         Q += differenceMatrix(net, state, trans) / states.volume
 
+    return Q
+
+def statesLimited(nodes,state0):
+    """
+    All possible states that vary only nodes with given indices.
+    """
+    if len(nodes) == 0:
+        return [state0]
+    for i in nodes:
+        stateFlipped = copy.copy(state0)
+        stateFlipped[nodes[0]] = (stateFlipped[nodes[0]]+1)%2
+        return statesLimited(nodes[1:],state0) + statesLimited(nodes[1:],stateFlipped)
+
+#def transitionsLimited(net,nodes,state0):
+#    states = statesLimited(nodes,state0)
+#    transitions = []
+#    for state in states:
+#        transitions.append( net.update(state) )
+#    return transitions
+
+def connections(net,nodei):
+    return net.table[nodei][0]
+
+def Qij(net):
+    """
+    Averaged over all possible states, what is the probability
+    that node i's state is changed by a single bit flip of node j?
+    
+    Fast version that uses connectivity matrix
+    """
+    N = net.size
+    Q = np.zeros((N,N))
+
+    state0 = np.zeros(N,dtype=int)
+
+    for i in range(N):
+        #nodesInfluencingI = filter(lambda a: a>0,adjacencyMat)
+        nodesInfluencingI = connections(net,i)
+        #trans = transitionsLimited(net,nodesInfluencingI,state0)
+        for jindex,j in enumerate(nodesInfluencingI):
+        
+            # for each state of other nodes, does j matter?
+            otherNodes = list(copy.copy(nodesInfluencingI))
+            otherNodes.pop(jindex)
+            otherNodeStates = statesLimited(otherNodes,state0)
+            for state in otherNodeStates:
+                # (might be able to do faster by calculating transitions once
+                #  for each i)
+                # (also we only need the update for node i)
+                # start with two states, one with j on and one with j off
+                jOff = copy.copy(state)
+                jOff[j] = 0
+                jOffNext = net.update(jOff)[i]
+                jOn = copy.copy(state)
+                jOn[j] = 1
+                jOnNext = net.update(jOn)[i]
+                # are the results different?
+                Q[i,j] += (jOffNext + jOnNext)%2
+            Q[i,j] /= float(len(otherNodeStates))
+        
     return Q
 
 def lambdaQ(net,**kwargs):
