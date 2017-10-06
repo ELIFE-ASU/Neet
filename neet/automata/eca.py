@@ -173,7 +173,7 @@ class ECA(object):
             >>> ca.boundary = (1,1)
             >>> ca._unsafe_update(xs, pin=[4])
             [0, 1, 0, 1, 0]
-        
+
         .. rubric:: Value Fixing:
 
             >>> ca.boundary = None
@@ -273,7 +273,7 @@ class ECA(object):
             >>> ca.boundary = (1,1)
             >>> ca.update(xs, pin=[4])
             [0, 1, 0, 1, 0]
-        
+
         .. rubric:: Value Fixing:
 
             >>> ca.boundary = None

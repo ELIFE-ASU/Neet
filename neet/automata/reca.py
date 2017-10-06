@@ -150,50 +150,7 @@ class RewiredECA(eca.ECA):
 
         :returns: :class:`StateSpace`
         """
-        return StateSpace(self.__size, b=2)
-
-    def check_lattice(self, lattice):
-        r"""
-        Check the validity of the provided lattice
-
-        .. rubric:: Examples:
-
-        ::
-
-            >>> RewiredECA(30, size=1).check_lattice([0])
-            True
-            >>> RewiredECA(30, size=2).check_lattice([1,0])
-            True
-            >>> RewiredECA(30, size=3).check_lattice([0,0,1])
-            True
-
-        ::
-
-            >>> RewiredECA(30, size=3).check_lattice([])
-            Traceback (most recent call last):
-                ...
-            ValueError: lattice must be of length 3
-            >>> RewiredECA(30, size=3).check_lattice([0,0,2])
-            Traceback (most recent call last):
-                ...
-            ValueError: invalid value "2" in lattice
-            >>> RewiredECA(30, size=3).check_lattice(5)
-            Traceback (most recent call last):
-                ...
-            TypeError: 'int' object is not iterable
-            >>> RewiredECA(30, size=3).check_lattice("elife")
-            Traceback (most recent call last):
-                ...
-            ValueError: invalid value "e" in lattice
-
-        :returns: ``True`` if the lattice is valid, otherwise an error is raised
-        :raises ValueError: if ``len(lattice) != self.size``
-        :raises TypeError: if ``lattice`` is not iterable
-        :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
-        """
-        if len(lattice) != self.size:
-            raise ValueError("lattice must be of length {}".format(self.size))
-        super(RewiredECA, self).check_lattice(lattice)
+        return StateSpace(self.__size, base=2)
 
     def _unsafe_update(self, lattice):
         """
@@ -241,5 +198,8 @@ class RewiredECA(eca.ECA):
         :raises TypeError: if ``lattice`` is not iterable
         :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
         """
-        self.check_lattice(lattice)
+        size = len(lattice)
+        if lattice not in self.state_space():
+            raise ValueError("the provided state is not in the RewiredECA's state space")
+
         return self._unsafe_update(lattice)
