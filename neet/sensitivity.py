@@ -3,6 +3,7 @@
 # license that can be found in the LICENSE file.
 from .interfaces import is_boolean_network
 import numpy as np
+import numpy.linalg as linalg
 
 from .synchronous import transitions
 #from .statespace import encode,decode
@@ -100,6 +101,13 @@ def Qij(net,states=None,calc_trans=True):
 
     return Q
 
+def lambdaQ(net,**kwargs):
+    """
+    Calculate sensitivity eigenvalue (largest eigenvalue of sensitivity
+    matrix Qij).
+    """
+    Q = Qij(net,**kwargs)
+    return max(np.sort(abs(linalg.eigvals(Q))))
 
 def _fast_encode(state):
     """
