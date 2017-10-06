@@ -5,7 +5,7 @@
 The examples module provides a collection of pre-loaded model networks such
 as :py:attr:`s_pombe` (fission yeast) and :py:attr:`s_cerevisiae` (budding yeast).
 """
-from neet.boolean import WTNetwork
+from neet.boolean import WTNetwork, LogicNetwork
 from os.path import dirname, abspath, realpath, join
 
 # Determine the path to the "data" directory of the neet.boolean module
@@ -58,65 +58,72 @@ p53_dmg = WTNetwork.read(P53_DMG_NODES, P53_DMG_EDGES)
 # Get the path of the nodes and edges files for the mouse cortical gene regulatory network
 # Edges are from either figure 7B or 7C (Giacomantonio, 2010)
 
-MOUSE_CORTICAL_ANT_INIT_NODES = join(DATA_PATH, "mouse_cortical_anterior_init-nodes.txt")
-MOUSE_CORTICAL_ANT_FINAL_NODES = join(DATA_PATH, "mouse_cortical_anterior_final-nodes.txt")
-MOUSE_CORTICAL_POST_INIT_NODES = join(DATA_PATH, "mouse_cortical_posterior_init-nodes.txt")
-MOUSE_CORTICAL_POST_FINAL_NODES = join(DATA_PATH, "mouse_cortical_posterior_final-nodes.txt")
+MOUSE_CORTICAL_ANT_INIT_NODES = join(
+    DATA_PATH, "mouse_cortical_anterior_init-nodes.txt")
+MOUSE_CORTICAL_ANT_FINAL_NODES = join(
+    DATA_PATH, "mouse_cortical_anterior_final-nodes.txt")
+MOUSE_CORTICAL_POST_INIT_NODES = join(
+    DATA_PATH, "mouse_cortical_posterior_init-nodes.txt")
+MOUSE_CORTICAL_POST_FINAL_NODES = join(
+    DATA_PATH, "mouse_cortical_posterior_final-nodes.txt")
 MOUSE_CORTICAL_7B_EDGES = join(DATA_PATH, "mouse_cortical_fig_7B-edges.txt")
 MOUSE_CORTICAL_7C_EDGES = join(DATA_PATH, "mouse_cortical_fig_7C-edges.txt")
 
-## Anterior mouse cortical networks ---------------------------------------------------------------
+# Anterior mouse cortical networks ---------------------------------------------------------------
 """
 The gene regulatory network for *mouse cortical* (anterior, initial, 7B edges).
 """
-mouse_cortical_ant_init_7B = WTNetwork.read(MOUSE_CORTICAL_ANT_INIT_NODES, MOUSE_CORTICAL_7B_EDGES)
+mouse_cortical_ant_init_7B = WTNetwork.read(
+    MOUSE_CORTICAL_ANT_INIT_NODES, MOUSE_CORTICAL_7B_EDGES)
 
 """
 The gene regulatory network for *mouse cortical* (anterior, final, 7B edges).
 """
-mouse_cortical_ant_final_7B = WTNetwork.read(MOUSE_CORTICAL_ANT_FINAL_NODES, MOUSE_CORTICAL_7B_EDGES)
+mouse_cortical_ant_final_7B = WTNetwork.read(
+    MOUSE_CORTICAL_ANT_FINAL_NODES, MOUSE_CORTICAL_7B_EDGES)
 
 """
 The gene regulatory network for *mouse cortical* (anterior, initial, 7C edges).
 """
-mouse_cortical_ant_init_7C = WTNetwork.read(MOUSE_CORTICAL_ANT_INIT_NODES, MOUSE_CORTICAL_7C_EDGES)
+mouse_cortical_ant_init_7C = WTNetwork.read(
+    MOUSE_CORTICAL_ANT_INIT_NODES, MOUSE_CORTICAL_7C_EDGES)
 
 """
 The gene regulatory network for *mouse cortical* (anterior, final, 7C edges).
 """
-mouse_cortical_ant_final_7C = WTNetwork.read(MOUSE_CORTICAL_ANT_FINAL_NODES, MOUSE_CORTICAL_7C_EDGES)
+mouse_cortical_ant_final_7C = WTNetwork.read(
+    MOUSE_CORTICAL_ANT_FINAL_NODES, MOUSE_CORTICAL_7C_EDGES)
 
-## Posterior mouse coritical networks ---------------------------------------------------------------
+# Posterior mouse coritical networks ---------------------------------------------------------------
 """
 The gene regulatory network for *mouse cortical* (posterior, initial, 7B edges).
 """
-mouse_cortical_post_init_7B = WTNetwork.read(MOUSE_CORTICAL_POST_INIT_NODES, MOUSE_CORTICAL_7B_EDGES)
+mouse_cortical_post_init_7B = WTNetwork.read(
+    MOUSE_CORTICAL_POST_INIT_NODES, MOUSE_CORTICAL_7B_EDGES)
 
 """
 The gene regulatory network for *mouse cortical* (posterior, final, 7B edges).
 """
-mouse_cortical_post_final_7B = WTNetwork.read(MOUSE_CORTICAL_POST_FINAL_NODES, MOUSE_CORTICAL_7B_EDGES)
+mouse_cortical_post_final_7B = WTNetwork.read(
+    MOUSE_CORTICAL_POST_FINAL_NODES, MOUSE_CORTICAL_7B_EDGES)
 
 """
 The gene regulatory network for *mouse cortical* (posterior, initial, 7C edges).
 """
-mouse_cortical_post_init_7C = WTNetwork.read(MOUSE_CORTICAL_POST_INIT_NODES, MOUSE_CORTICAL_7C_EDGES)
+mouse_cortical_post_init_7C = WTNetwork.read(
+    MOUSE_CORTICAL_POST_INIT_NODES, MOUSE_CORTICAL_7C_EDGES)
 
 """
 The gene regulatory network for *mouse cortical* (posterior, final, 7C edges).
 """
-mouse_cortical_post_final_7C = WTNetwork.read(MOUSE_CORTICAL_POST_FINAL_NODES, MOUSE_CORTICAL_7C_EDGES)
+mouse_cortical_post_final_7C = WTNetwork.read(
+    MOUSE_CORTICAL_POST_FINAL_NODES, MOUSE_CORTICAL_7C_EDGES)
 
+"""
+Differentiation control network for *myeloid* progenitors.
+"""
+MYELOID_TRUTH_TABLE = join(DATA_PATH, "myeloid-truth_table.txt")
+MYELOID_LOGIC_EXPRESSIONS = join(DATA_PATH, "myeloid-logic_expressions.txt")
 
-
-
-
-
-
-
-
-
-
-
-
-
+myeloid = LogicNetwork.read_table(MYELOID_TRUTH_TABLE)
+myeloid_from_expr = LogicNetwork.read_logic(MYELOID_LOGIC_EXPRESSIONS)

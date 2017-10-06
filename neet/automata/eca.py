@@ -124,70 +124,21 @@ class ECA(object):
             >>> eca.state_space(3)
             <neet.states.StateSpace object at 0x000001C0BDA38550>
             >>> space = eca.state_space(3)
-            >>> list(space.states())
+            >>> list(space)
             [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
 
         :param n: the number of nodes in the lattice
         :type n: int
         :raises ValueError: if ``n < 1``
         """
-        return StateSpace(n, b=2)
+        return StateSpace(n, base=2)
 
-    @classmethod
-    def check_lattice(self, lattice):
-        """
-        Check the validity of the provided lattice
-
-        .. rubric:: Examples:
-
-        ::
-
-            >>> ECA.check_lattice([0])
-            True
-            >>> ECA.check_lattice([1,0])
-            True
-            >>> ECA.check_lattice([0,0,1])
-            True
-
-        ::
-
-            >>> ECA.check_lattice([])
-            Traceback (most recent call last):
-                ...
-            ValueError: lattice is empty
-            >>> ECA.check_lattice([0,0,2])
-            Traceback (most recent call last):
-                ...
-            ValueError: invalid value "2" in lattice
-            >>> ECA.check_lattice(5)
-            Traceback (most recent call last):
-                ...
-            TypeError: 'int' object is not iterable
-            >>> ECA.check_lattice("elife")
-            Traceback (most recent call last):
-                ...
-            ValueError: invalid value "e" in lattice
-
-        :returns: ``True`` if the lattice is valid, otherwise an error is raised
-        :raises ValueError: if ``lattice`` is empty
-        :raises TypeError: if ``lattice`` is not iterable
-        :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
-        """
-        if len(lattice) == 0:
-            raise(ValueError("lattice is empty"))
-
-        for x in lattice:
-            if x != 0 and x != 1:
-                raise(ValueError("invalid value \"{}\" in lattice".format(x)))
-
-        return True
-
-    def _unsafe_update(self, lattice, index=None):
+    def _unsafe_update(self, lattice, index=None, pin=None, values=None):
         """
         Update the state of the ``lattice``, in place, without
         checking the validity of the arguments.
 
-        .. rubric:: Examples:
+        .. rubric:: Basic Use:
 
         ::
 
@@ -195,79 +146,115 @@ class ECA(object):
             >>> xs = [0,0,1,0,0]
             >>> ca._unsafe_update(xs)
             [0, 1, 1, 1, 0]
-            >>> xs
-            [0, 1, 1, 1, 0]
-            >>> ca.boundary = (0,1)
-            >>> ca._unsafe_update(xs)
-            [1, 1, 0, 0, 0]
+            >>> ca.boundary = (1,1)
+            >>> ca._unsafe_update([0,0,1,0,0])
+            [1, 1, 1, 1, 1]
+
+        .. rubric:: Single-Node Update:
 
         ::
 
-            >>> ca = ECA(30)
+            >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
             >>> ca._unsafe_update(xs, index=1)
             [0, 1, 1, 0, 0]
             >>> xs
             [0, 1, 1, 0, 0]
-            >>> ca.boundary = (0,1)
+            >>> ca.boundary = (1,1)
             >>> ca._unsafe_update(xs, index=-1)
             [0, 1, 1, 0, 1]
 
-        ::
+        .. rubric:: State Pinning:
 
-            >>> xs = [0,0,2,0,0]
-            >>> ca._unsafe_update(xs)
-            >>> xs
-            [0, 1, 1, 0, 1]
+            >>> ca.boundary = None
+            >>> xs = [0,0,1,0,0]
+            >>> ca._unsafe_update(xs, pin=[-2])
+            [0, 1, 1, 0, 0]
+            >>> ca.boundary = (1,1)
+            >>> ca._unsafe_update(xs, pin=[4])
+            [0, 1, 0, 1, 0]
+        
+        .. rubric:: Value Fixing:
+
+            >>> ca.boundary = None
+            >>> xs = [0,0,1,0,0]
+            >>> ca._unsafe_update(xs, values={0:1,-2:0})
+            [1, 1, 1, 0, 0]
+            >>> ca.boundary = (1,1)
+            >>> xs = [1,1,1,0,0]
+            >>> ca._unsafe_update(xs, values={1:0,-1:0})
+            [0, 0, 0, 1, 0]
 
         :param lattice: the one-dimensional sequence of states
         :type lattice: sequence
         :param index: the index to update (or None)
-        :type index: int
+        :param pin: a sequence of indicies to pin (or None)
+        :param values: a dictionary of index-value pairs to fix after update
         :returns: the updated lattice
         """
+        pin_states = pin is not None and pin != []
         if self.boundary:
-            left  = self.__boundary[0]
+            left = self.__boundary[0]
             right = self.__boundary[1]
         else:
-            left  = lattice[-1]
+            left = lattice[-1]
             right = lattice[0]
         code = self.code
         if index is None:
-            d = 2 * left + lattice[0]
+            if pin_states:
+                pinned = np.asarray(lattice)[pin]
+            temp = 2 * left + lattice[0]
             for i in range(1, len(lattice)):
-                d = 7 & (2 * d + lattice[i])
-                lattice[i-1] = 1 & (code >> d)
-            d = 7 & (2 * d + right)
-            lattice[-1] = 1 & (code >> d)
+                temp = 7 & (2 * temp + lattice[i])
+                lattice[i-1] = 1 & (code >> temp)
+            temp = 7 & (2 * temp + right)
+            lattice[-1] = 1 & (code >> temp)
+            if pin_states:
+                for (j, i) in enumerate(pin):
+                    lattice[i] = pinned[j]
         else:
             if index < 0:
                 index += len(lattice)
 
             if index == 0:
-                d = left
+                temp = left
             else:
-                d = lattice[index-1]
+                temp = lattice[index-1]
 
-            d = 2 * d + lattice[index]
+            temp = 2 * temp + lattice[index]
 
             if index + 1 == len(lattice):
-                d = 2 * d + right
+                temp = 2 * temp + right
             else:
-                d = 2 * d + lattice[index+1]
+                temp = 2 * temp + lattice[index+1]
 
-            lattice[index] = 1 & (code >> (7 & d))
+            lattice[index] = 1 & (code >> (7 & temp))
+        if values is not None:
+            for key in values:
+                lattice[key] = values[key]
         return lattice
 
-    def update(self, lattice, index=None):
+    def update(self, lattice, index=None, pin=None, values=None):
         """
         Update the state of the ``lattice`` in place.
 
-        .. rubric:: Examples:
+        .. rubric:: Basic Use:
 
         ::
 
             >>> ca = ECA(30)
+            >>> xs = [0,0,1,0,0]
+            >>> ca.update(xs)
+            [0, 1, 1, 1, 0]
+            >>> ca.boundary = (1,1)
+            >>> ca.update([0,0,1,0,0])
+            [1, 1, 1, 1, 1]
+
+        .. rubric:: Single-Node Update:
+
+        ::
+
+            >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
             >>> ca.update(xs, index=1)
             [0, 1, 1, 0, 0]
@@ -276,6 +263,29 @@ class ECA(object):
             >>> ca.boundary = (1,1)
             >>> ca.update(xs, index=-1)
             [0, 1, 1, 0, 1]
+
+        .. rubric:: State Pinning:
+
+            >>> ca.boundary = None
+            >>> xs = [0,0,1,0,0]
+            >>> ca.update(xs, pin=[-2])
+            [0, 1, 1, 0, 0]
+            >>> ca.boundary = (1,1)
+            >>> ca.update(xs, pin=[4])
+            [0, 1, 0, 1, 0]
+        
+        .. rubric:: Value Fixing:
+
+            >>> ca.boundary = None
+            >>> xs = [0,0,1,0,0]
+            >>> ca.update(xs, values={0:1,-2:0})
+            [1, 1, 1, 0, 0]
+            >>> ca.boundary = (1,1)
+            >>> xs = [1,1,1,0,0]
+            >>> ca.update(xs, values={1:0,-1:0})
+            [0, 0, 0, 1, 0]
+
+        .. rubric:: Erroneous Usage:
 
         ::
 
@@ -293,18 +303,49 @@ class ECA(object):
             Traceback (most recent call last):
                   ...
             IndexError: list index out of range
+            >>> ca.update([0,0,1,0,0,], index=1, pin=[0])
+                ...
+            ValueError: cannot provide both the index and pin arguments
+            >>> ca.update([0,0,1,0,0], index=1, values={0:0})
+                ...
+            ValueError: cannot provide both the index and values arguments
+            >>> ca.update([0,0,1,0,0], pin=[2], values={2:0})
+                ...
+            ValueError: cannot set a value for a pinned state
+            >>> ca.update([0,0,1,0,0], values={2:2})
+                ...
+            ValueError: invalid state in values argument
 
         :param lattice: the one-dimensional sequence of states
-        :type lattice: sequence
         :param index: the index to update (or None)
-        :type index: int
+        :param pin: a sequence of indicies to pin (or None)
+        :param values: a dictionary of index-value pairs to fix after update
         :returns: the updated lattice
-        :raises ValueError: if ``lattice`` is empty
-        :raises TypeError: if ``lattice`` is not iterable
-        :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
+        :raises ValueError: if ``lattice`` is not in the ECA's state space
         :raises IndexError: if ``index is not None and index > len(states)``
+        :raises ValueError: if ``index`` and ``pin`` are both provided
+        :raises ValueError: if ``index`` and ``values`` are both provided
+        :raises ValueError: if an element of ``pin`` is a key in ``values``
+        :raises ValueError: if a value in ``values`` is not binary (0 or 1)
         """
-        ECA.check_lattice(lattice)
-        if index is not None and index < -len(lattice):
-            raise(IndexError("lattice index out of range"))
-        return self._unsafe_update(lattice, index)
+        size = len(lattice)
+        if lattice not in self.state_space(size):
+            raise ValueError("the provided state is not in the ECA's state space")
+
+        if index is not None:
+            if index < -size:
+                raise IndexError("lattice index out of range")
+            elif pin is not None and pin != []:
+                raise ValueError("cannot provide both the index and pin arguments")
+            elif values is not None and values != {}:
+                raise ValueError("cannot provide both the index and values arguments")
+        elif pin is not None and values is not None:
+            for key in values.keys():
+                for key in pin:
+                    raise ValueError("cannot set a value for a pinned state")
+        if values is not None:
+            for val in values.values():
+                if val != 0 and val != 1:
+                    raise ValueError("invalid state in values argument")
+
+        return self._unsafe_update(lattice, index, pin, values)

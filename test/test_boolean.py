@@ -143,59 +143,11 @@ class TestWTNetwork(unittest.TestCase):
 
     def test_state_space(self):
         net = bnet.WTNetwork([[1]])
-        self.assertEqual(2, len(list(net.state_space().states())))
+        self.assertEqual(2, len(list(net.state_space())))
         net = bnet.WTNetwork([[1,0],[1,1]])
-        self.assertEqual(4, len(list(net.state_space().states())))
+        self.assertEqual(4, len(list(net.state_space())))
         net = bnet.WTNetwork([[1,0,0],[0,1,0],[0,0,1]])
-        self.assertEqual(8, len(list(net.state_space().states())))
-
-
-    def test_check_states_nonsense(self):
-        net = bnet.WTNetwork([[1,0],[1,1]])
-
-        with self.assertRaises(TypeError):
-            net.check_states(5)
-
-        with self.assertRaises(ValueError):
-            net.check_states("elife")
-
-
-    def test_check_states_list(self):
-        net = bnet.WTNetwork([[1,0],[1,1]])
-
-        with self.assertRaises(ValueError):
-            net.check_states([])
-
-        with self.assertRaises(ValueError):
-            net.check_states([[]])
-
-        with self.assertRaises(ValueError):
-            net.check_states([0])
-
-        with self.assertRaises(ValueError):
-            net.check_states([0,2])
-
-        self.assertTrue(net.check_states([0,0]))
-        self.assertTrue(net.check_states([1,1]))
-
-
-    def test_check_states_numpy(self):
-        net = bnet.WTNetwork(np.asarray([[1,0],[1,1]]))
-
-        with self.assertRaises(ValueError):
-            net.check_states(np.asarray([]))
-
-        with self.assertRaises(ValueError):
-            net.check_states(np.asarray([[]]))
-
-        with self.assertRaises(ValueError):
-            net.check_states(np.asarray([0]))
-
-        with self.assertRaises(ValueError):
-            net.check_states(np.asarray([0,2]))
-
-        self.assertTrue(net.check_states(np.asarray([0,0])))
-        self.assertTrue(net.check_states(np.asarray([1,1])))
+        self.assertEqual(8, len(list(net.state_space())))
 
 
     def test_update_empty_states(self):
@@ -438,7 +390,7 @@ class TestWTNetwork(unittest.TestCase):
             [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
 
         self.assertEqual(9, net.size)
-        self.assertEqual(512, len(list(net.state_space().states())))
+        self.assertEqual(512, len(list(net.state_space())))
 
         init = [1,0,1,1,0,0,1,0,0]
         bio_sequence = [[0,0,0,0,0,0,1,0,0],
@@ -468,7 +420,7 @@ class TestWTNetwork(unittest.TestCase):
             [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
 
         self.assertEqual(9, net.size)
-        self.assertEqual(512, len(list(net.state_space().states())))
+        self.assertEqual(512, len(list(net.state_space())))
 
         init = np.asarray([1,0,1,1,0,0,1,0,0])
         bio_sequence = np.asarray([[0,0,0,0,0,0,1,0,0],
@@ -583,6 +535,7 @@ class TestWTNetwork(unittest.TestCase):
         xs = [0,0]
         self.assertEqual([0,0], net.update(xs, pin=[1]))
 
+
     def test_pinning_s_pombe(self):
         from neet.boolean.examples import s_pombe
         self.assertEqual(
@@ -600,4 +553,83 @@ class TestWTNetwork(unittest.TestCase):
         self.assertEqual(
             [0, 0, 0, 0, 0, 0, 1, 0, 1],
             s_pombe.update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
+        )
+
+
+    def test_update_values_none(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
+          theta=bnet.WTNetwork.positive_threshold)
+        xs = [0,0]
+        self.assertEqual([0,1], net.update(xs, values=None))
+        xs = [0,0]
+        self.assertEqual([0,1], net.update(xs, values={}))
+
+
+    def test_update_invalid_values(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
+          theta=bnet.WTNetwork.positive_threshold)
+        with self.assertRaises(ValueError):
+          net.update([0,0], values={0: 2})
+        with self.assertRaises(ValueError):
+          net.update([0,0], values={0: -1})
+
+
+    def test_update_pin_invalid_indicies(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
+          theta=bnet.WTNetwork.positive_threshold)
+        with self.assertRaises(IndexError):
+          net.update([0,0], values={-3: 0})
+        with self.assertRaises(IndexError):
+          net.update([0,0], values={2: 0})
+
+
+    def test_update_values_index_clash(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
+          theta=bnet.WTNetwork.positive_threshold)
+        with self.assertRaises(ValueError):
+          net.update([0,0], index=0, values={0: 1})
+        with self.assertRaises(ValueError):
+          net.update([0,0], index=1, values={1: 0})
+        with self.assertRaises(ValueError):
+          net.update([0,0], index=1, values={0: 0, 1: 0})
+
+
+    def test_update_values_pin_clash(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
+          theta=bnet.WTNetwork.positive_threshold)
+        with self.assertRaises(ValueError):
+          net.update([0,0], pin=[0], values={0: 1})
+        with self.assertRaises(ValueError):
+          net.update([0,0], pin=[1], values={1: 0})
+        with self.assertRaises(ValueError):
+          net.update([0,0], pin=[1], values={0: 0, 1: 0})
+        with self.assertRaises(ValueError):
+          net.update([0,0], pin=[1, 0], values={0: 0})
+
+
+    def test_update_values(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
+          theta=bnet.WTNetwork.negative_threshold)
+
+        xs = [1,1]
+        self.assertEqual([1,1], net.update(xs, values={1: 1}))
+
+        net.theta = bnet.WTNetwork.positive_threshold
+        xs = [0,0]
+        self.assertEqual([1,1], net.update(xs, values={0: 1}))
+
+
+    def test_values_s_pombe(self):
+        from neet.boolean.examples import s_pombe
+        self.assertEqual(
+            [0, 1, 0, 0, 1, 0, 0, 0, 0],
+            s_pombe.update([0,0,0,0,1,0,0,0,0], values={1:1,4:1,-1:0})
+        )
+        self.assertEqual(
+            [0, 1, 0, 1, 0, 0, 1, 1, 0],
+            s_pombe.update([0,0,0,0,0,0,0,0,1], values={2:0,-2:1})
+        )
+        self.assertEqual(
+            [0, 0, 0, 0, 0, 0, 1, 0, 0],
+            s_pombe.update([0,0,0,0,0,0,0,0,1], values={1: 0, 2:0, 3:0})
         )

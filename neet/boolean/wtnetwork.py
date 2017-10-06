@@ -133,48 +133,16 @@ class WTNetwork(object):
             >>> net.state_space()
             <neet.statespace.StateSpace object at 0x00000193E4DA84A8>
             >>> space = net.state_space()
-            >>> list(space.states())
+            >>> list(space)
             [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
 
         :param n: the number of nodes in the lattice
         :type n: int
         :raises ValueError: if ``n < 1``
         """
-        return StateSpace(self.size, b=2)
+        return StateSpace(self.size, base=2)
 
-    def check_states(self, states):
-        """
-        Check the validity of the provided states.
-
-        .. rubric:: Examples;
-
-        ::
-
-            >>> WTNetwork(3).check_states([0,0,0])
-            True
-            >>> WTNetwork(3).check_states([0,0])
-            Traceback (most recent call last):
-                ...
-            ValueError: incorrect number of states in array
-            >>> WTNetwork(3).check_states([1,2,1])
-                ...
-            ValueError: invalid node state in states
-
-        :returns: ``True`` if the ``states`` are valid, otherwise an error is raised
-        :param states: the one-dimensional sequence of node states
-        :type states: sequence
-        :raises TypeError: if ``states`` is not iterable
-        :raises ValueError: if ``len(states)`` is not the number of nodes in the network
-        :raises ValueError: if ``states[i] not in [0,1]`` for any node ``i``
-        """
-        if len(states) != self.size:
-            raise(ValueError("incorrect number of states in array"))
-        for x in states:
-            if x !=0 and x != 1:
-                raise(ValueError("invalid node state in states"))
-        return True
-
-    def _unsafe_update(self, states, index=None, pin=None):
+    def _unsafe_update(self, states, index=None, pin=None, values=None):
         """
         Update ``states``, in place, according to the network update rules
         without checking the validity of the arguments.
@@ -218,6 +186,15 @@ class WTNetwork(object):
             >>> net._unsafe_update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
             [0, 0, 0, 0, 0, 0, 1, 0, 1]
 
+        .. rubric:: Value Fixing:
+
+            >>> net.update([0,0,0,0,1,0,0,0,0], values={0:1, 2:1})
+            [1, 0, 1, 0, 0, 0, 0, 0, 1]
+            >>> net.update([0,0,0,0,0,0,0,0,1], values={0:1, 1:0, 2:0})
+            [1, 0, 0, 1, 0, 0, 1, 0, 0]
+            >>> net.update([0,0,0,0,0,0,0,0,1], values={-1:1, -2:1})
+            [0, 1, 1, 1, 0, 0, 1, 1, 1]
+
         .. rubric:: Erroneous Usage:
 
         ::
@@ -238,11 +215,9 @@ class WTNetwork(object):
             IndexError: index 10 is out of bounds for axis 1 with size 9
 
         :param states: the one-dimensional sequence of node states
-        :type states: sequence
         :param index: the index to update or None
-        :type index: int or None
         :param pin: the indices to pin (fix to their current state) or None
-        :type pin: sequence
+        :param values: a dictionary of index-value pairs to fix after update
         :returns: the updated states
         """
         pin_states = pin is not None and pin != []
@@ -252,16 +227,18 @@ class WTNetwork(object):
             temp = np.dot(self.weights, states) - self.thresholds
             self.theta(temp, states)
             if pin_states:
-                for (j,i) in enumerate(pin):
+                for (j, i) in enumerate(pin):
                     states[i] = pinned[j]
-            return states
         else:
             temp = np.dot(self.weights[index], states) - self.thresholds[index]
             states[index] = self.theta(temp, states[index])
-            return states
+        if values is not None:
+            for key in values:
+                states[key] = values[key]
+        return states
 
 
-    def update(self, states, index=None, pin=None):
+    def update(self, states, index=None, pin=None, values=None):
         """
         Update ``states``, in place, according to the network update rules.
 
@@ -303,6 +280,15 @@ class WTNetwork(object):
             >>> net.update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
             [0, 0, 0, 0, 0, 0, 1, 0, 1]
 
+        .. rubric:: Value Fixing:
+
+            >>> net.update([0,0,0,0,1,0,0,0,0], values={0:1, 2:1})
+            [1, 0, 1, 0, 0, 0, 0, 0, 1]
+            >>> net.update([0,0,0,0,0,0,0,0,1], values={0:1, 1:0, 2:0})
+            [1, 0, 0, 1, 0, 0, 1, 0, 0]
+            >>> net.update([0,0,0,0,0,0,0,0,1], values={-1:1, -2:1})
+            [0, 1, 1, 1, 0, 0, 1, 1, 1]
+
         .. rubric:: Erroneous Usage:
 
         ::
@@ -327,27 +313,48 @@ class WTNetwork(object):
             Traceback (most recent call last):
                 ...
             IndexError: index 10 is out of bounds for axis 1 with size 9
+            >>> net.update([0,0,0,0,1,0,0,0,0], index=1, values={1:0,3:0,2:1})
+            Traceback (most recent call last):
+                ...
+            ValueError: cannot provide both the index and values arguments
+            >>> net.update([0,0,0,0,1,0,0,0,0], pin=[1], values={1:0,3:0,2:1})
+            Traceback (most recent call last):
+                ...
+            ValueError: cannot set a value for a pinned state
+            >>> net.update([0,0,0,0,1,0,0,0,0], values={1:2})
+            Traceback (most recent call last):
+                ...
+            ValueError: invalid state in values argument
 
         :param states: the one-dimensional sequence of node states
-        :type states: sequence
         :param index: the index to update (or None)
-        :type index: int or None
         :param pin: the indices to pin (or None)
-        :type pin: sequence
+        :param values: a dictionary of index-value pairs to set after update
         :returns: the updated states
-        :raises TypeError: if ``states`` is not iterable
-        :raises ValueError: if ``len(states)`` is not the number of nodes in the network
-        :raises ValueError: if ``states[i] not in [0,1]`` for any node ``i``
-        :raises IndexError: if ``index is not None and index > len(states)``
-        :raises ValueError: if both ``index`` and ``pin`` are provided
-        :raises IndexError: if any element of ``pin`` is greater than ``len(states)``
+        :raises ValueError: if ``states`` is not in the network's state space
+        :raises ValueError: if ``index`` and ``pin`` are both provided
+        :raises ValueError: if ``index`` and ``values`` are both provided
+        :raises ValueError: if an element of ``pin`` is a key in ``values``
+        :raises ValueError: if a value in ``values`` is not binary (0 or 1)
         """
-        self.check_states(states)
+        if states not in self.state_space():
+            raise ValueError("the provided state is not in the network's state space")
 
-        if (index is not None) and (pin is not None and pin != []):
-            raise(ValueError("cannot provide both the index and pin arguments"))
+        if index is not None:
+            if pin is not None and pin != []:
+                raise ValueError("cannot provide both the index and pin arguments")
+            elif values is not None and values != {}:
+                raise ValueError("cannot provide both the index and values arguments")
+        elif pin is not None and values is not None:
+            for k in values.keys():
+                if k in pin:
+                    raise ValueError("cannot set a value for a pinned state")
+        if values is not None:
+            for val in values.values():
+                if val != 0 and val != 1:
+                    raise ValueError("invalid state in values argument")
 
-        return self._unsafe_update(states, index, pin)
+        return self._unsafe_update(states, index, pin, values)
 
     @staticmethod
     def read(nodes_file, edges_file):

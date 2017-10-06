@@ -2,6 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import copy
+from collections import defaultdict
 from .interfaces import is_network, is_fixed_sized
 
 def transitions(net, size=None, require_update=False, encoded=False):
@@ -28,26 +29,30 @@ def transitions(net, size=None, require_update=False, encoded=False):
     else:
         raise ValueError("must provide a size if network is variable-sized")
 
-    for state in state_space.states():
-        count = 0
-        next_states = dict()
-        encoded_states = dict()
-        for node in range(size):
+    for state in state_space:
+        next_states = defaultdict(float)
+
+        node, count = 0, 0
+
+        next_state = copy.copy(state)
+        net.update(next_state, index=node)
+        state_code = tuple(next_state)
+        if (not require_update) or next_state[node] != state[node]:
+            next_states[state_code] += 1.0
+            count += 1
+
+        for node in range(1,size):
             next_state = copy.copy(state)
-            net.update(next_state, index=node)
-            state_code = state_space.encode(next_state)
+            net._unsafe_update(next_state, index=node)
+            state_code = tuple(next_state)
             if (not require_update) or next_state[node] != state[node]:
-                if state_code in next_states:
-                    next_states[state_code] += 1.0
-                else:
-                    next_states[state_code] = 1.0
-                    encoded_states[state_code] = next_state
+                next_states[state_code] += 1.0
                 count += 1
 
         if encoded:
-            states = list(next_states.keys())
+            states = [state_space._unsafe_encode(state) for state in next_states.keys()]
         else:
-            states = [encoded_states[state] for state in next_states.keys()]
+            states = [list(state) for state in next_states.keys()]
 
         probabilities = [n / count for n in next_states.values()]
 

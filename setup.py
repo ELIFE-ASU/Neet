@@ -19,7 +19,7 @@ setup(
     maintainer_email='doug@dglmoore.com',
     url='https://github.com/elife-asu/neet',
     license=LICENSE,
-    requires=['numpy', 'networkx'],
+    requires=['numpy', 'networkx', 'pyinform'],
     packages=['neet', 'neet.automata', 'neet.boolean'],
     package_data={'neet.boolean': ['data/*.txt', 'data/*.dat']},
     test_suite='test',

@@ -17,4 +17,3 @@ Rewired Elementary Cellular Automata
 
     .. autoclass:: neet.automata.RewiredECA
         :members: __init__, code, boundary, size, wiring, state_space
-
