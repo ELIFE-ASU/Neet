@@ -53,6 +53,54 @@ def sensitivity(net, state, transitions=None):
 
     return s / net.size
 
+def differenceMatrix(net, state, transitions=None):
+    """
+    Returns matrix Qij answering the question:
+    Starting at the given state, does flipping the state of node j
+    change the state of node i?
+    """
+    # set up empty matrix
+    N = len(state)
+    Q = np.empty((N,N))
+    
+    # list Hamming neighbors (in order!)
+    neighbors = hamming_neighbors(state)
+
+    nextState = net.update(state)
+
+    # count sum of differences found in neighbors of the original
+    s = 0.
+    for j,neighbor in enumerate(neighbors):
+        if transitions is not None:
+            newState = transitions[_fast_encode(neighbor)]
+        else:
+            newState = net.update(neighbor)
+        Q[:,j] = [ ( nextState[i] + newState[i] )%2 for i in range(N) ]
+        
+    return Q
+
+def Qij(net,states=None,calc_trans=True):
+    """
+    Averaged over all possible states, what is the probability
+    that node i's state is changed by a single bit flip of node j?
+    """
+    # optionally pre-calculate transitions
+    if calc_trans:
+        trans = list(transitions(net))
+    else:
+        trans = None
+
+    if states is None:
+        states = net.state_space()
+
+    N = net.size
+    Q = np.zeros((N,N))
+    for state in states:
+        Q += differenceMatrix(net, state, trans) / states.volume
+
+    return Q
+
+
 def _fast_encode(state):
     """
     Quickly find encoding of a binary state.
