@@ -68,3 +68,21 @@ class TestSensitivityWTNetwork(unittest.TestCase):
     def test_average_sensitivity(self):
         net = NB.WTNetwork([[1, -1], [0, 1]], [0.5, 0])
         self.assertEqual(1.0, average_sensitivity(net))
+
+    def test_sensitivity_s_pombe(self):
+        from neet.boolean.examples import s_pombe
+        s = sensitivity(s_pombe,[0,0,0,0,0,1,1,0,0])
+        self.assertAlmostEqual(s,1.0)
+
+    def test_average_sensitivity_c_elegans(self):
+        from neet.boolean.examples import c_elegans
+        
+        s = average_sensitivity(c_elegans)
+        self.assertAlmostEqual(s,1.265625)
+
+        s = average_sensitivity(c_elegans,
+                                states=[[0,0,0,0,0,0,0,0],
+                                        [1,1,1,1,1,1,1,1]],
+                                weights=[9,1])
+        self.assertAlmostEqual(s,1.7)
+        

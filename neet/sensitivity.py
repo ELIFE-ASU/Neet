@@ -7,7 +7,6 @@ import numpy.linalg as linalg
 import copy
 
 from .synchronous import transitions
-#from .statespace import encode,decode
 
 
 def sensitivity(net, state, transitions=None):
@@ -57,7 +56,7 @@ def sensitivity(net, state, transitions=None):
 
 def differenceMatrix(net, state, transitions=None):
     """
-    Returns matrix Qij answering the question:
+    Returns matrix answering the question:
     Starting at the given state, does flipping the state of node j
     change the state of node i?
     """
@@ -70,7 +69,7 @@ def differenceMatrix(net, state, transitions=None):
 
     nextState = net.update(state)
 
-    # count sum of differences found in neighbors of the original
+    # count differences found in neighbors of the original
     s = 0.
     for j,neighbor in enumerate(neighbors):
         if transitions is not None:
@@ -81,28 +80,7 @@ def differenceMatrix(net, state, transitions=None):
         
     return Q
 
-def QijSlow(net,states=None,calc_trans=True):
-    """
-    Averaged over all possible states, what is the probability
-    that node i's state is changed by a single bit flip of node j?
-    """
-    # optionally pre-calculate transitions
-    if calc_trans:
-        trans = list(transitions(net))
-    else:
-        trans = None
-
-    if states is None:
-        states = net.state_space()
-
-    N = net.size
-    Q = np.zeros((N,N))
-    for state in states:
-        Q += differenceMatrix(net, state, trans) / states.volume
-
-    return Q
-
-def statesLimited(nodes,state0):
+def _states_limited(nodes,state0):
     """
     All possible states that vary only nodes with given indices.
     """
@@ -111,55 +89,77 @@ def statesLimited(nodes,state0):
     for i in nodes:
         stateFlipped = copy.copy(state0)
         stateFlipped[nodes[0]] = (stateFlipped[nodes[0]]+1)%2
-        return statesLimited(nodes[1:],state0) + statesLimited(nodes[1:],stateFlipped)
-
-#def transitionsLimited(net,nodes,state0):
-#    states = statesLimited(nodes,state0)
-#    transitions = []
-#    for state in states:
-#        transitions.append( net.update(state) )
-#    return transitions
+        return _states_limited(nodes[1:],state0) + _states_limited(nodes[1:],stateFlipped)
 
 def connections(net,nodei):
     return net.table[nodei][0]
 
-def Qij(net):
+def Qij(net,states=None,weights=None,calc_trans=True):
     """
-    Averaged over all possible states, what is the probability
+    Averaged over states, what is the probability
     that node i's state is changed by a single bit flip of node j?
     
-    Fast version that uses connectivity matrix
+    states (None)       : If None, average over all possible states. (For logic
+                          networks, this case uses an algorithm that makes use of
+                          sparse connectivity to be much more efficient.)  
+                          Otherwise, providing a list of states will calculate 
+                          the average over only those states.
+    calc_trans (True)   : Optionally pre-calculate all transitions.  Only used
+                          when states argument is not None.
     """
     N = net.size
     Q = np.zeros((N,N))
 
-    state0 = np.zeros(N,dtype=int)
+    if (states is not None) or (not hasattr(net,'table')):
+        # optionally pre-calculate transitions
+        if calc_trans:
+            trans = list(transitions(net))
+        else:
+            trans = None
+    
+        # currently changes state generators to lists.
+        # is there a way to avoid this?
+        if states is None:
+            states = list(net.state_space())
 
-    for i in range(N):
-        #nodesInfluencingI = filter(lambda a: a>0,adjacencyMat)
-        nodesInfluencingI = connections(net,i)
-        #trans = transitionsLimited(net,nodesInfluencingI,state0)
-        for jindex,j in enumerate(nodesInfluencingI):
-        
-            # for each state of other nodes, does j matter?
-            otherNodes = list(copy.copy(nodesInfluencingI))
-            otherNodes.pop(jindex)
-            otherNodeStates = statesLimited(otherNodes,state0)
-            for state in otherNodeStates:
-                # (might be able to do faster by calculating transitions once
-                #  for each i)
-                # (also we only need the update for node i)
-                # start with two states, one with j on and one with j off
-                jOff = copy.copy(state)
-                jOff[j] = 0
-                jOffNext = net.update(jOff)[i]
-                jOn = copy.copy(state)
-                jOn[j] = 1
-                jOnNext = net.update(jOn)[i]
-                # are the results different?
-                Q[i,j] += (jOffNext + jOnNext)%2
-            Q[i,j] /= float(len(otherNodeStates))
-        
+        if weights is not None:
+            states = list(states)
+            weights = list(weights)
+            if len(states) != len(weights):
+                raise(ValueError("Length of weights and states must match"))
+        else:
+            weights = np.ones_like(states)
+
+        norm = np.sum(weights)
+        for i,state in enumerate(states):
+            Q += weights[i] * differenceMatrix(net, state, trans) / norm
+
+    else: # make use of sparse connectivity to be more efficient
+        state0 = np.zeros(N,dtype=int)
+
+        for i in range(N):
+            nodesInfluencingI = connections(net,i)
+            for jindex,j in enumerate(nodesInfluencingI):
+            
+                # for each state of other nodes, does j matter?
+                otherNodes = list(copy.copy(nodesInfluencingI))
+                otherNodes.pop(jindex)
+                otherNodeStates = _states_limited(otherNodes,state0)
+                for state in otherNodeStates:
+                    # (might be able to do faster by calculating transitions once
+                    #  for each i)
+                    # (also we only need the update for node i)
+                    # start with two states, one with j on and one with j off
+                    jOff = copy.copy(state)
+                    jOff[j] = 0
+                    jOffNext = net.update(jOff)[i]
+                    jOn = copy.copy(state)
+                    jOn[j] = 1
+                    jOnNext = net.update(jOn)[i]
+                    # are the results different?
+                    Q[i,j] += (jOffNext + jOnNext)%2
+                Q[i,j] /= float(len(otherNodeStates))
+            
     return Q
 
 def lambdaQ(net,**kwargs):
@@ -215,11 +215,7 @@ def hamming_neighbors(state):
 
     return neighbors
 
-def average_sensitivity(net,**kwargs):
-    Q = Qij(net,**kwargs)
-    return np.sum(Q)/net.size
-
-def average_sensitivity_slow(net, states=None, weights=None, calc_trans=True):
+def average_sensitivity(net, states=None, weights=None, calc_trans=True):
     """
     Calculate average Boolean network sensitivity, as defined in, e.g.,
 
@@ -252,35 +248,41 @@ def average_sensitivity_slow(net, states=None, weights=None, calc_trans=True):
     net    : NEET boolean network
     states : Optional list or generator of states.  If None, all states are used.
     weights: Optional list or generator of weights for each state.  
-             If None, each state is equally weighted.
+             If None, each state is equally weighted.  If states and weights are
+             both None, an algorithm is used to efficiently make use of sparse
+             connectivity.
     """
 
     if not is_boolean_network(net):
         raise(TypeError("net must be a boolean network"))
     
-    # optionally pre-calculate transitions
-    if calc_trans:
-        trans = list(transitions(net))
-    else:
-        trans = None
-
-    if states is None:
-        states = net.state_space()
-
-    if weights is not None:
-        # currently changes generators to lists when weights are given.
-        # is there a way to avoid this?
-        states = list(states)
-        weights = list(weights)
-        if len(states) != len(weights):
-            raise(ValueError("Length of weights and states must match"))
-
-    sensList = []
-    for state in states:
-        sensList.append(sensitivity(net, state, trans))
-
-    if weights is not None:
-        sensList = 1. * len(sensList) / np.sum(weights) * \
-            np.array(weights) * np.array(sensList)
-
-    return np.mean(sensList)
+    Q = Qij(net,states=states,weights=weights,calc_trans=calc_trans)
+    
+    return np.sum(Q)/net.size
+    
+#        # optionally pre-calculate transitions
+#        if calc_trans:
+#            trans = list(transitions(net))
+#        else:
+#            trans = None
+#
+#        if states is None:
+#            states = net.state_space()
+#
+#        if weights is not None:
+#            # currently changes generators to lists when weights are given.
+#            # is there a way to avoid this?
+#            states = list(states)
+#            weights = list(weights)
+#            if len(states) != len(weights):
+#                raise(ValueError("Length of weights and states must match"))
+#
+#        sensList = []
+#        for state in states:
+#            sensList.append(sensitivity(net, state, trans))
+#
+#        if weights is not None:
+#            sensList = 1. * len(sensList) / np.sum(weights) * \
+#                np.array(weights) * np.array(sensList)
+#
+#        return np.mean(sensList)
