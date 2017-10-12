@@ -110,7 +110,9 @@ def average_difference_matrix(net,states=None,weights=None,calc_trans=True):
     N = net.size
     Q = np.zeros((N,N))
 
-    if (states is not None) or (not hasattr(net,'table')):
+    if (states is not None) or (weights is not None) or (not hasattr(net,'table')):
+        # explicitly calculate difference matrix for each state
+    
         # optionally pre-calculate transitions
         if calc_trans:
             trans = list(transitions(net))
@@ -121,14 +123,16 @@ def average_difference_matrix(net,states=None,weights=None,calc_trans=True):
         # is there a way to avoid this?
         if states is None:
             states = list(net.state_space())
-
-        if weights is not None:
-            states = list(states)
-            weights = list(weights)
-            if len(states) != len(weights):
-                raise(ValueError("Length of weights and states must match"))
         else:
+            states = list(states)
+
+        if weights is None:
             weights = np.ones_like(states)
+        else:
+            weights = list(weights)
+
+        if len(states) != len(weights):
+            raise(ValueError("Length of weights and states must match"))
 
         norm = np.sum(weights)
         for i,state in enumerate(states):
