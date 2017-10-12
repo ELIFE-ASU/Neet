@@ -152,7 +152,7 @@ class RewiredECA(eca.ECA):
         """
         return StateSpace(self.__size, base=2)
 
-    def _unsafe_update(self, lattice):
+    def _unsafe_update(self, lattice, index=None):
         """
         Update the state of the ``lattice``, in place, without
         checking the validity of the arguments.
@@ -169,26 +169,43 @@ class RewiredECA(eca.ECA):
         else:
             left = lattice[-1]
             right = lattice[0]
+
         code = self.code
         wiring = self.wiring
-        temp = np.copy(lattice)
         size = len(lattice)
-        for j in range(size):
+
+        if index is None:
+            temp = np.copy(lattice)
+            for j in range(size):
+                shift = 0
+                for i in range(3):
+                    k = wiring[i, j]
+                    if k == -1:
+                        shift = 2 * shift + left
+                    elif k == size:
+                        shift = 2 * shift + right
+                    else:
+                        shift = 2 * shift + lattice[k]
+                temp[j] = 1 & (code >> (7 & shift))
+            lattice[:] = temp[:]
+        else:
+            if index < 0:
+                index += len(lattice)
             shift = 0
             for i in range(3):
-                k = wiring[i, j]
+                k = wiring[i, index]
                 if k == -1:
                     shift = 2 * shift + left
                 elif k == size:
                     shift = 2 * shift + right
                 else:
                     shift = 2 * shift + lattice[k]
-            temp[j] = 1 & (code >> (7 & shift))
-        lattice[:] = temp[:]
+                lattice[index] = 1 & (code >> (7 & shift))
+
         return lattice
 
-    def update(self, lattice):
-        r"""
+    def update(self, lattice, index=None):
+        """
         Update the state of the ``lattice`` in place.
 
         :param lattice: the one-dimensional sequence of states
@@ -202,4 +219,7 @@ class RewiredECA(eca.ECA):
         if lattice not in self.state_space():
             raise ValueError("the provided state is not in the RewiredECA's state space")
 
-        return self._unsafe_update(lattice)
+        if index is not None and index < -size:
+            raise IndexError("lattice index out of range")
+
+        return self._unsafe_update(lattice, index=index)

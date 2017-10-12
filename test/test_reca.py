@@ -228,3 +228,35 @@ class TestRewiredECA(unittest.TestCase):
         self.assertEqual([0, 1, 1, 1, 0], reca.update(state))
         self.assertEqual([0, 1, 0, 0, 1], reca.update(state))
         self.assertEqual([0, 0, 1, 1, 1], reca.update(state))
+
+
+    def test_reca_invalid_index(self):
+        """
+        Test for invalid index arguments
+        """
+        reca = RewiredECA(30, wiring=[
+            [0, 4, 1, 2, 3], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
+        ])
+
+        with self.assertRaises(IndexError):
+            reca.update([0, 0, 0, 0, 1], index=6)
+
+        with self.assertRaises(IndexError):
+            reca.update([0, 0, 0, 0, 1], index=-6)
+
+
+    def test_reca_index(self):
+        """
+        Test the index argument
+        """
+        reca = RewiredECA(30, wiring=[
+            [0, 4, 1, 2, 3], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
+        ])
+
+        state = [0, 0, 0, 0, 1]
+        self.assertEqual([0, 0, 0, 1, 1], reca.update(state, index=3))
+        self.assertEqual([0, 0, 1, 1, 1], reca.update(state, index=2))
+        self.assertEqual([0, 0, 1, 1, 0], reca.update(state, index=-1))
+        self.assertEqual([0, 1, 1, 1, 0], reca.update(state, index=1))
+        self.assertEqual([0, 1, 0, 1, 0], reca.update(state, index=-3))
+        self.assertEqual([0, 1, 0, 1, 0], reca.update(state, index=0))
