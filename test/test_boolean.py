@@ -633,3 +633,8 @@ class TestWTNetwork(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 1, 0, 0],
             s_pombe.update([0,0,0,0,0,0,0,0,1], values={1: 0, 2:0, 3:0})
         )
+
+    def test_has_metadata(self):
+        net = bnet.WTNetwork([[1]])
+        self.assertTrue(hasattr(net,'metadata'))
+        self.assertEqual(type(net.metadata),dict)
