@@ -54,7 +54,7 @@ def sensitivity(net, state, transitions=None):
 
     return s / net.size
 
-def differenceMatrix(net, state, transitions=None):
+def difference_matrix(net, state, transitions=None):
     """
     Returns matrix answering the question:
     Starting at the given state, does flipping the state of node j
@@ -94,7 +94,7 @@ def _states_limited(nodes,state0):
 def connections(net,nodei):
     return net.table[nodei][0]
 
-def Qij(net,states=None,weights=None,calc_trans=True):
+def average_difference_matrix(net,states=None,weights=None,calc_trans=True):
     """
     Averaged over states, what is the probability
     that node i's state is changed by a single bit flip of node j?
@@ -132,7 +132,7 @@ def Qij(net,states=None,weights=None,calc_trans=True):
 
         norm = np.sum(weights)
         for i,state in enumerate(states):
-            Q += weights[i] * differenceMatrix(net, state, trans) / norm
+            Q += weights[i] * difference_matrix(net, state, trans) / norm
 
     else: # make use of sparse connectivity to be more efficient
         state0 = np.zeros(N,dtype=int)
@@ -164,10 +164,10 @@ def Qij(net,states=None,weights=None,calc_trans=True):
 
 def lambdaQ(net,**kwargs):
     """
-    Calculate sensitivity eigenvalue (largest eigenvalue of sensitivity
-    matrix Qij).
+    Calculate sensitivity eigenvalue, the largest eigenvalue of the sensitivity
+    matrix average_difference_matrix.
     """
-    Q = Qij(net,**kwargs)
+    Q = average_difference_matrix(net,**kwargs)
     return max(np.sort(abs(linalg.eigvals(Q))))
 
 def _fast_encode(state):
@@ -256,7 +256,8 @@ def average_sensitivity(net, states=None, weights=None, calc_trans=True):
     if not is_boolean_network(net):
         raise(TypeError("net must be a boolean network"))
     
-    Q = Qij(net,states=states,weights=weights,calc_trans=calc_trans)
+    Q = average_difference_matrix(net,states=states,weights=weights,
+                                  calc_trans=calc_trans)
     
     return np.sum(Q)/net.size
     
