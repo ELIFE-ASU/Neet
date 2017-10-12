@@ -102,6 +102,8 @@ class WTNetwork(object):
         elif names is not None and len(names) != self.size:
             raise(ValueError("either all or none of the nodes may have a name"))
 
+        self.metadata = {}
+
     @property
     def size(self):
         """

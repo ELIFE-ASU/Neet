@@ -104,6 +104,8 @@ class LogicNetwork(object):
             for condition in row[1]:
                 conditions.add(''.join([str(int(s)) for s in condition]))
             self.table.append((row[0], conditions))
+            
+        self.metadata = {}
 
     def state_space(self):
         return self._state_space
