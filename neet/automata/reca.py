@@ -84,7 +84,7 @@ class RewiredECA(eca.ECA):
                 raise ValueError("invalid input node in wiring")
             elif np.any(wiring_array > shape[1]):
                 raise ValueError("invalid input node in wiring")
-            self.__size = shape[1]
+            self.__size = int(shape[1])
             self.__wiring = wiring_array
         else:
             raise ValueError("either size or wiring must be provided")
