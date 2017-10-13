@@ -85,4 +85,30 @@ class TestSensitivityWTNetwork(unittest.TestCase):
                                         [1,1,1,1,1,1,1,1]],
                                 weights=[9,1])
         self.assertAlmostEqual(s,1.7)
+    
+    def test_lambdaQ_c_elegans(self):
+        from neet.boolean.examples import c_elegans
+        l = lambdaQ(c_elegans)
+        self.assertAlmostEqual(l,1.263099227661824)
+
+    def test_average_sensitivity_logic_network(self):
+        net = NB.LogicNetwork([((1, 2), {'01', '10'}),
+                               ((0, 2), ((0, 1), '10', [1, 1])),
+                               ((0, 1), {'11'})])
+        
+        s = average_sensitivity(net)
+        self.assertAlmostEqual(s,1.3333333333333333)
+
+        s = average_sensitivity(net,weights=np.ones(8))
+        self.assertAlmostEqual(s,1.3333333333333333)
+
+        s = average_sensitivity(net,states=net.state_space())
+        self.assertAlmostEqual(s,1.3333333333333333)
+
+    def test_lambdaQ_logic_network(self):
+        net = NB.LogicNetwork([((1, 2), {'01', '10'}),
+                               ((0, 2), ((0, 1), '10', [1, 1])),
+                               ((0, 1), {'11'})])
+        l = lambdaQ(net)
+        self.assertAlmostEqual(l,1.2807764064044149)
         
