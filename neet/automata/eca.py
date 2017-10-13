@@ -341,7 +341,7 @@ class ECA(object):
                 raise ValueError("cannot provide both the index and values arguments")
         elif pin is not None and values is not None:
             for key in values.keys():
-                for key in pin:
+                if key in pin:
                     raise ValueError("cannot set a value for a pinned state")
         if values is not None:
             for val in values.values():
