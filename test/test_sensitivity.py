@@ -3,6 +3,7 @@
 # license that can be found in the LICENSE file.
 import unittest
 from neet.sensitivity import *
+from neet.sensitivity import _hamming_neighbors
 from neet.statespace import StateSpace
 import neet.boolean as NB
 
@@ -34,10 +35,10 @@ class TestSensitivityWTNetwork(unittest.TestCase):
 
     def test_hamming_neighbors_input(self):
         with self.assertRaises(ValueError):
-            hamming_neighbors([0, 1, 2])
+            _hamming_neighbors([0, 1, 2])
 
         with self.assertRaises(ValueError):
-            hamming_neighbors([[0, 0, 1], [1, 0, 0]])
+            _hamming_neighbors([[0, 0, 1], [1, 0, 0]])
 
     def test_hamming_neighbors_example(self):
         state = [0, 1, 1, 0]
@@ -45,7 +46,7 @@ class TestSensitivityWTNetwork(unittest.TestCase):
                      [0, 0, 1, 0],
                      [0, 1, 0, 0],
                      [0, 1, 1, 1]]
-        self.assertTrue(np.array_equal(neighbors, hamming_neighbors(state)))
+        self.assertTrue(np.array_equal(neighbors, _hamming_neighbors(state)))
 
     def test_sensitivity(self):
         net = NB.WTNetwork([[1, -1], [0, 1]], [0.5, 0])

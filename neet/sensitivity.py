@@ -39,7 +39,7 @@ def sensitivity(net, state, transitions=None):
         raise(TypeError("net must be a boolean network"))
 
     # list Hamming neighbors
-    neighbors = hamming_neighbors(state)
+    neighbors = _hamming_neighbors(state)
 
     nextState = net.update(state)
 
@@ -50,7 +50,7 @@ def sensitivity(net, state, transitions=None):
             newState = transitions[_fast_encode(neighbor)]
         else:
             newState = net.update(neighbor)
-        s += boolean_distance(newState, nextState)
+        s += _boolean_distance(newState, nextState)
 
     return s / net.size
 
@@ -65,7 +65,7 @@ def difference_matrix(net, state, transitions=None):
     Q = np.empty((N,N))
     
     # list Hamming neighbors (in order!)
-    neighbors = hamming_neighbors(state)
+    neighbors = _hamming_neighbors(state)
 
     nextState = net.update(state)
 
@@ -91,7 +91,7 @@ def _states_limited(nodes,state0):
         stateFlipped[nodes[0]] = (stateFlipped[nodes[0]]+1)%2
         return _states_limited(nodes[1:],state0) + _states_limited(nodes[1:],stateFlipped)
 
-def connections(net,nodei):
+def _connections(net,nodei):
     return net.table[nodei][0]
 
 def average_difference_matrix(net,states=None,weights=None,calc_trans=True):
@@ -142,7 +142,7 @@ def average_difference_matrix(net,states=None,weights=None,calc_trans=True):
         state0 = np.zeros(N,dtype=int)
 
         for i in range(N):
-            nodesInfluencingI = connections(net,i)
+            nodesInfluencingI = _connections(net,i)
             for jindex,j in enumerate(nodesInfluencingI):
             
                 # for each state of other nodes, does j matter?
@@ -170,6 +170,13 @@ def lambdaQ(net,**kwargs):
     """
     Calculate sensitivity eigenvalue, the largest eigenvalue of the sensitivity
     matrix average_difference_matrix.
+    
+    This is analogous to the eigenvalue calculated in
+    
+        Pomerance, A, E Ott, M Girvan, and W Losert. ``The Effect of Network
+        Topology on the Stability of Discrete State Models of Genetic Control.''
+        Proc. Natl. Acad. Sci. USA 106, no. 20 (2009): 8209-14.
+        http://www.pnas.org/content/106/20/8209.full.
     """
     Q = average_difference_matrix(net,**kwargs)
     return max(np.sort(abs(linalg.eigvals(Q))))
@@ -186,7 +193,7 @@ def _fast_encode(state):
         out = (out << 1) | bit
     return out
 
-def boolean_distance(state1,state2):
+def _boolean_distance(state1,state2):
     """
     Boolean distance between two states.
     """
@@ -195,7 +202,7 @@ def boolean_distance(state1,state2):
         out += (state1[i]+state2[i])%2
     return out
 
-def hamming_neighbors(state):
+def _hamming_neighbors(state):
     """
     Return Hamming neighbors of a boolean state.
 
@@ -203,7 +210,7 @@ def hamming_neighbors(state):
 
     ::
 
-        >>> hamming_neighbors([0,0,1])
+        >>> _hamming_neighbors([0,0,1])
         array([[1, 0, 1],
                [0, 1, 1],
                [0, 0, 0]])
@@ -265,29 +272,3 @@ def average_sensitivity(net, states=None, weights=None, calc_trans=True):
     
     return np.sum(Q)/net.size
     
-#        # optionally pre-calculate transitions
-#        if calc_trans:
-#            trans = list(transitions(net))
-#        else:
-#            trans = None
-#
-#        if states is None:
-#            states = net.state_space()
-#
-#        if weights is not None:
-#            # currently changes generators to lists when weights are given.
-#            # is there a way to avoid this?
-#            states = list(states)
-#            weights = list(weights)
-#            if len(states) != len(weights):
-#                raise(ValueError("Length of weights and states must match"))
-#
-#        sensList = []
-#        for state in states:
-#            sensList.append(sensitivity(net, state, trans))
-#
-#        if weights is not None:
-#            sensList = 1. * len(sensList) / np.sum(weights) * \
-#                np.array(weights) * np.array(sensList)
-#
-#        return np.mean(sensList)
