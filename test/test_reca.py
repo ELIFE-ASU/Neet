@@ -260,3 +260,40 @@ class TestRewiredECA(unittest.TestCase):
         self.assertEqual([0, 1, 1, 1, 0], reca.update(state, index=1))
         self.assertEqual([0, 1, 0, 1, 0], reca.update(state, index=-3))
         self.assertEqual([0, 1, 0, 1, 0], reca.update(state, index=0))
+
+
+    def test_reca_pin_none(self):
+        reca = RewiredECA(30, size=5)
+
+        xs = [0,0,1,0,0]
+        self.assertEqual([0,1,1,1,0], reca.update(xs, pin=None))
+        self.assertEqual([1,1,0,0,1], reca.update(xs, pin=[]))
+
+
+    def test_reca_pin_index_clash(self):
+        reca = RewiredECA(30, size=5)
+
+        with self.assertRaises(ValueError):
+            reca.update([0,0,0,0,0], index=0, pin=[1])
+        with self.assertRaises(ValueError):
+            reca.update([0,0,0,0,0], index=1, pin=[1])
+        with self.assertRaises(ValueError):
+            reca.update([0,0,0,0,0], index=1, pin=[0,1])
+
+
+    def test_reca_pin(self):
+        reca = RewiredECA(30, wiring=[
+            [-1, 4, 1, 2, -1], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
+        ])
+
+        xs = [0,0,1,0,0]
+        self.assertEqual([0,0,1,1,0], reca.update(xs, pin=[1]))
+        self.assertEqual([0,1,1,1,0], reca.update(xs, pin=[3]))
+        self.assertEqual([0,1,1,1,0], reca.update(xs, pin=[3,2]))
+        self.assertEqual([0,1,0,1,0], reca.update(xs, pin=[-2]))
+
+        reca.boundary = (1,1)
+        xs = [0,0,1,0,0]
+        self.assertEqual([1,0,1,0,0], reca.update(xs, pin=[1,3]))
+        self.assertEqual([1,1,1,0,0], reca.update(xs, pin=[-2,-5]))
+        self.assertEqual([1,1,1,1,0], reca.update(xs, pin=[0,2]))

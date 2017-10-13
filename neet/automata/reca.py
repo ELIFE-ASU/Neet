@@ -152,7 +152,7 @@ class RewiredECA(eca.ECA):
         """
         return StateSpace(self.__size, base=2)
 
-    def _unsafe_update(self, lattice, index=None):
+    def _unsafe_update(self, lattice, index=None, pin=None):
         """
         Update the state of the ``lattice``, in place, without
         checking the validity of the arguments.
@@ -163,6 +163,7 @@ class RewiredECA(eca.ECA):
         :type lattice: sequence
         :returns: the updated lattice
         """
+        pin_states = pin is not None and pin != []
         if self.boundary:
             left = self.boundary[0]
             right = self.boundary[1]
@@ -175,6 +176,8 @@ class RewiredECA(eca.ECA):
         size = len(lattice)
 
         if index is None:
+            if pin_states:
+                pinned = np.asarray(lattice)[pin]
             temp = np.copy(lattice)
             for j in range(size):
                 shift = 0
@@ -188,6 +191,9 @@ class RewiredECA(eca.ECA):
                         shift = 2 * shift + lattice[k]
                 temp[j] = 1 & (code >> (7 & shift))
             lattice[:] = temp[:]
+            if pin_states:
+                for j, i in enumerate(pin):
+                    lattice[i] = pinned[j]
         else:
             if index < 0:
                 index += len(lattice)
@@ -204,7 +210,7 @@ class RewiredECA(eca.ECA):
 
         return lattice
 
-    def update(self, lattice, index=None):
+    def update(self, lattice, index=None, pin=None):
         """
         Update the state of the ``lattice`` in place.
 
@@ -219,7 +225,10 @@ class RewiredECA(eca.ECA):
         if lattice not in self.state_space():
             raise ValueError("the provided state is not in the RewiredECA's state space")
 
-        if index is not None and index < -size:
-            raise IndexError("lattice index out of range")
+        if index is not None:
+            if index < -size:
+                raise IndexError("lattice index out of range")
+            elif pin is not None and pin != []:
+                raise ValueError("cannot provide both the index and pin arguments")
 
-        return self._unsafe_update(lattice, index=index)
+        return self._unsafe_update(lattice, index=index, pin=pin)
