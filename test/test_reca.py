@@ -297,3 +297,69 @@ class TestRewiredECA(unittest.TestCase):
         self.assertEqual([1,0,1,0,0], reca.update(xs, pin=[1,3]))
         self.assertEqual([1,1,1,0,0], reca.update(xs, pin=[-2,-5]))
         self.assertEqual([1,1,1,1,0], reca.update(xs, pin=[0,2]))
+
+
+    def test_reca_values_none(self):
+        reca = RewiredECA(30, size=5)
+
+        xs = [0,0,1,0,0]
+        self.assertEqual([0,1,1,1,0], reca.update(xs, values=None))
+        self.assertEqual([1,1,0,0,1], reca.update(xs, values={}))
+
+
+    def test_reca_invalid_values(self):
+        reca = RewiredECA(30, size=5)
+
+        with self.assertRaises(ValueError):
+            reca.update([0,0,0,0,0], values={0: 2})
+
+        with self.assertRaises(ValueError):
+            reca.update([0,0,0,0,0], values={0: -1})
+
+
+    def test_reca_values_index_clash(self):
+        reca = RewiredECA(30, size=5)
+
+        with self.assertRaises(ValueError):
+            reca.update([0,0,0,0,0], index=0, values={0: 1})
+
+        with self.assertRaises(ValueError):
+            reca.update([0,0,0,0,0], index=1, values={1: 0})
+
+        with self.assertRaises(ValueError):
+            reca.update([0,0,0,0,0], index=1, values={0: 0, 1: 0})
+
+
+    def test_reca_values_pin_clash(self):
+        reca = RewiredECA(30, size=5)
+
+        with self.assertRaises(ValueError):
+            reca.update([0,0,0,0,0], pin=[0], values={0: 1})
+
+        with self.assertRaises(ValueError):
+            reca.update([0,0,0,0,0], pin=[1], values={1: 0})
+
+        with self.assertRaises(ValueError):
+            reca.update([0,0,0,0,0], pin=[1], values={0: 0, 1: 0})
+
+        with self.assertRaises(ValueError):
+            reca.update([0,0,0,0,0], pin=[1, 0], values={0: 0, 1: 0})
+
+
+    def test_reca_values(self):
+        reca = RewiredECA(30, wiring=[
+            [-1,  4,  1,  2, -1], [ 0,  1,  2,  3,  4], [ 0,  2,  3,  4,  5]
+        ])
+
+        xs = [0,0,1,0,0]
+        self.assertEqual([1,1,1,1,0], reca.update(xs, values={ 0: 1}))
+        self.assertEqual([1,1,0,0,0], reca.update(xs, values={-1: 0}))
+        self.assertEqual([1,1,1,1,1], reca.update(xs, values={-2: 1}))
+        self.assertEqual([1,0,1,0,0], reca.update(xs, values={ 2: 1,-5: 1}))
+
+        reca.boundary = (1,1)
+        xs = [0,0,1,0,0]
+        self.assertEqual([0,1,1,1,0], reca.update(xs, values={ 0: 0}))
+        self.assertEqual([1,1,0,0,1], reca.update(xs, values={-1: 1}))
+        self.assertEqual([0,0,1,0,0], reca.update(xs, values={-2: 0}))
+        self.assertEqual([0,1,0,1,0], reca.update(xs, values={ 2: 0,-5: 0}))
