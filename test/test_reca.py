@@ -263,6 +263,9 @@ class TestRewiredECA(unittest.TestCase):
 
 
     def test_reca_pin_none(self):
+        """
+        Ensure that pin behaves correctly for nil arguments
+        """
         reca = RewiredECA(30, size=5)
 
         xs = [0,0,1,0,0]
@@ -271,6 +274,9 @@ class TestRewiredECA(unittest.TestCase):
 
 
     def test_reca_pin_index_clash(self):
+        """
+        Ensure ValueError is raised when index and pin are provided
+        """
         reca = RewiredECA(30, size=5)
 
         with self.assertRaises(ValueError):
@@ -282,6 +288,9 @@ class TestRewiredECA(unittest.TestCase):
 
 
     def test_reca_pin(self):
+        """
+        Test the pin argument
+        """
         reca = RewiredECA(30, wiring=[
             [-1, 4, 1, 2, -1], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
         ])
@@ -300,6 +309,9 @@ class TestRewiredECA(unittest.TestCase):
 
 
     def test_reca_values_none(self):
+        """
+        Ensure that values behaves correctly for nil arguments
+        """
         reca = RewiredECA(30, size=5)
 
         xs = [0,0,1,0,0]
@@ -308,6 +320,9 @@ class TestRewiredECA(unittest.TestCase):
 
 
     def test_reca_invalid_values(self):
+        """
+        Ensure ValueError is raised for invalid values
+        """
         reca = RewiredECA(30, size=5)
 
         with self.assertRaises(ValueError):
@@ -318,6 +333,9 @@ class TestRewiredECA(unittest.TestCase):
 
 
     def test_reca_values_index_clash(self):
+        """
+        Ensure ValueError is raised when index and values are both provided
+        """
         reca = RewiredECA(30, size=5)
 
         with self.assertRaises(ValueError):
@@ -331,6 +349,9 @@ class TestRewiredECA(unittest.TestCase):
 
 
     def test_reca_values_pin_clash(self):
+        """
+        Ensure ValueError is raised when pin and values are both provided
+        """
         reca = RewiredECA(30, size=5)
 
         with self.assertRaises(ValueError):
@@ -347,6 +368,9 @@ class TestRewiredECA(unittest.TestCase):
 
 
     def test_reca_values(self):
+        """
+        Test the values argument
+        """
         reca = RewiredECA(30, wiring=[
             [-1,  4,  1,  2, -1], [ 0,  1,  2,  3,  4], [ 0,  2,  3,  4,  5]
         ])

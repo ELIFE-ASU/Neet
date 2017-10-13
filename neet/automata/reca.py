@@ -157,10 +157,10 @@ class RewiredECA(eca.ECA):
         Update the state of the ``lattice``, in place, without
         checking the validity of the arguments.
 
-        .. rubric:: Examples:
-
         :param lattice: the one-dimensional sequence of states
-        :type lattice: sequence
+        :param index: the index to update (optional)
+        :param pin: a sequence of indices to fix (optional)
+        :param values: a dict of index/value pairs to set (optional)
         :returns: the updated lattice
         """
         pin_states = pin is not None and pin != []
@@ -218,12 +218,29 @@ class RewiredECA(eca.ECA):
         """
         Update the state of the ``lattice`` in place.
 
+        .. rubric:: Examples:
+
+            >>> from neet.automata.reca import RewiredECA
+            >>> reca = RewiredECA(30, size=5)
+            >>> reca.update([1,0,0,0,0])
+            [1, 1, 0, 0, 1]
+            >>> reca.wiring[:,:] = [[-1, 4, 1, 2, -1], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]]
+            >>> reca.update([0,0,1,0,0])
+            [1, 0, 0, 0, 1]
+            >>> reca.update([1,1,1,1,1])
+            [0, 0, 0, 0, 0]
+            >>> reca.update([1,1,1,1,1], index=3)
+            [1, 1, 0, 1, 1]
+            >>> reca.update([1,1,1,1,1], pin=[1,3])
+            [0, 1, 0, 1, 0]
+            >>> reca.update([1,1,1,1,1], values={0: 1, -1: 1})
+            [1, 0, 0, 0, 1]
+
         :param lattice: the one-dimensional sequence of states
-        :type lattice: sequence
+        :param index: the index to update (optional)
+        :param pin: a sequence of indices to fix (optional)
+        :param values: a dict of index/value pairs to set (optional)
         :returns: the updated lattice
-        :raises ValueError: if ``len(lattice) != self.size``
-        :raises TypeError: if ``lattice`` is not iterable
-        :raises ValueError: unless :math:`lattice[i] \in \{0,1\}` for all :math:`i`
         """
         size = len(lattice)
         if lattice not in self.state_space():
