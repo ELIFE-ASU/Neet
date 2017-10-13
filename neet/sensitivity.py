@@ -179,7 +179,7 @@ def lambdaQ(net,**kwargs):
         http://www.pnas.org/content/106/20/8209.full.
     """
     Q = average_difference_matrix(net,**kwargs)
-    return max(np.sort(abs(linalg.eigvals(Q))))
+    return max(abs(linalg.eigvals(Q)))
 
 def _fast_encode(state):
     """
