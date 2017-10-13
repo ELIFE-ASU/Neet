@@ -127,12 +127,12 @@ def average_difference_matrix(net,states=None,weights=None,calc_trans=True):
             states = list(states)
 
         if weights is None:
-            weights = np.ones_like(states)
+            weights = np.ones(len(states))
         else:
             weights = list(weights)
 
-        if len(states) != len(weights):
-            raise(ValueError("Length of weights and states must match"))
+        if np.shape(weights) != (len(states),):
+            raise(ValueError("Weights must be a 1D array with length same as states"))
 
         norm = np.sum(weights)
         for i,state in enumerate(states):
