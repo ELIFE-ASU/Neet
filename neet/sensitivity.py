@@ -199,7 +199,7 @@ def _boolean_distance(state1,state2):
     """
     out = 0
     for i in range(len(state1)):
-        out += (state1[i]+state2[i])%2
+        out += state1[i] ^ state2[i]
     return out
 
 def _hamming_neighbors(state):
