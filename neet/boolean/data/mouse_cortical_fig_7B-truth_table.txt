@@ -1,0 +1,21 @@
+## gF, gE, gP, gC, gS, pF, pE, pP, pC, pS
+# gF (pS)
+1
+# gE (pF, pP)
+0 0
+# gP (pF, pC)
+1 0
+# gC (pF, pP, pS)
+0 0 0
+# gS (pC, pE)
+0 0
+# pF (gF)
+1
+# pE (gE)
+1
+# pP (gP)
+1
+# pC (gC)
+1
+# pS (gS)
+1

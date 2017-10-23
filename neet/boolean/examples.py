@@ -79,108 +79,33 @@ p53_dmg.metadata.update( {
     } )
 
 # Get the path of the nodes and edges files for the mouse cortical gene regulatory network
-# Edges are from either figure 7B or 7C (Giacomantonio, 2010)
-
-MOUSE_CORTICAL_ANT_INIT_NODES = join(
-    DATA_PATH, "mouse_cortical_anterior_init-nodes.txt")
-MOUSE_CORTICAL_ANT_FINAL_NODES = join(
-    DATA_PATH, "mouse_cortical_anterior_final-nodes.txt")
-MOUSE_CORTICAL_POST_INIT_NODES = join(
-    DATA_PATH, "mouse_cortical_posterior_init-nodes.txt")
-MOUSE_CORTICAL_POST_FINAL_NODES = join(
-    DATA_PATH, "mouse_cortical_posterior_final-nodes.txt")
-MOUSE_CORTICAL_7B_EDGES = join(DATA_PATH, "mouse_cortical_fig_7B-edges.txt")
-MOUSE_CORTICAL_7C_EDGES = join(DATA_PATH, "mouse_cortical_fig_7C-edges.txt")
-
-# Anterior mouse cortical networks ---------------------------------------------------------------
 """
-The gene regulatory network for *mouse cortical* (anterior, initial, 7B edges).
+The gene regulatory network for *mouse cortical* (7B edges)
 """
-mouse_cortical_ant_init_7B = WTNetwork.read(
-    MOUSE_CORTICAL_ANT_INIT_NODES, MOUSE_CORTICAL_7B_EDGES)
-mouse_cortical_ant_init_7B.metadata.update( {
-    'name': 'mouse_cortical_ant_init_7B',
-    'description': 'The gene regulatory network for *mouse cortical* (anterior, initial, 7B edges).',
-    'citation': '',
+MOUSE_CORTICAL_7B_TRUTH_TABLE = join(DATA_PATH, "mouse_cortical_fig_7B-truth_table.txt")
+MOUSE_CORTICAL_7B_EXPRESSIONS = join(DATA_PATH, "mouse_cortical_fig_7B-logic_expressions.txt")
+
+mouse_cortical_7B = LogicNetwork.read_table(MOUSE_CORTICAL_7B_TRUTH_TABLE)
+mouse_cortical_7B.metadata.update( {
+    'name': 'mouse_cortical_fig_7B',
+    'description': 'The gene regulatory network for *mouse cortical* (Taken from figure 7B in citation below).',
+    'citation': 'Giacomantonio, Clare E., and Geoffrey J. Goodhill. "A Boolean model of the gene regulatory network underlying Mammalian cortical area development." PLoS computational biology 6, no. 9 (2010): e1000936. doi:10.1371/journal.pcbi.1000936',
     } )
+mouse_cortical_7B_from_expr = LogicNetwork.read_logic(MOUSE_CORTICAL_7B_EXPRESSIONS)
 
 """
-The gene regulatory network for *mouse cortical* (anterior, final, 7B edges).
+The gene regulatory network for *mouse cortical* (7C edges)
 """
-mouse_cortical_ant_final_7B = WTNetwork.read(
-    MOUSE_CORTICAL_ANT_FINAL_NODES, MOUSE_CORTICAL_7B_EDGES)
-mouse_cortical_ant_final_7B.metadata.update( {
-    'name': 'mouse_cortical_ant_final_7B',
-    'description': 'The gene regulatory network for *mouse cortical* (anterior, final, 7B edges).',
-    'citation': '',
-    } )
+MOUSE_CORTICAL_7C_TRUTH_TABLE = join(DATA_PATH, "mouse_cortical_fig_7C-truth_table.txt")
+MOUSE_CORTICAL_7C_EXPRESSIONS = join(DATA_PATH, "mouse_cortical_fig_7C-logic_expressions.txt")
 
-"""
-The gene regulatory network for *mouse cortical* (anterior, initial, 7C edges).
-"""
-mouse_cortical_ant_init_7C = WTNetwork.read(
-    MOUSE_CORTICAL_ANT_INIT_NODES, MOUSE_CORTICAL_7C_EDGES)
-mouse_cortical_ant_init_7C.metadata.update( {
-    'name': 'mouse_cortical_ant_init_7C',
-    'description': 'The gene regulatory network for *mouse cortical* (anterior, initial, 7C edges).',
-    'citation': '',
+mouse_cortical_7C = LogicNetwork.read_table(MOUSE_CORTICAL_7C_TRUTH_TABLE)
+mouse_cortical_7C.metadata.update( {
+    'name': 'mouse_cortical_fig_7C',
+    'description': 'The gene regulatory network for *mouse cortical* (Taken from figure 7C in citation below).',
+    'citation': 'Giacomantonio, Clare E., and Geoffrey J. Goodhill. "A Boolean model of the gene regulatory network underlying Mammalian cortical area development." PLoS computational biology 6, no. 9 (2010): e1000936. doi:10.1371/journal.pcbi.1000936',
     } )
-
-"""
-The gene regulatory network for *mouse cortical* (anterior, final, 7C edges).
-"""
-mouse_cortical_ant_final_7C = WTNetwork.read(
-    MOUSE_CORTICAL_ANT_FINAL_NODES, MOUSE_CORTICAL_7C_EDGES)
-mouse_cortical_ant_final_7C.metadata.update( {
-    'name': 'mouse_cortical_ant_final_7C',
-    'description': 'The gene regulatory network for *mouse cortical* (anterior, final, 7C edges).',
-    'citation': '',
-    } )
-
-# Posterior mouse coritical networks ---------------------------------------------------------------
-"""
-The gene regulatory network for *mouse cortical* (posterior, initial, 7B edges).
-"""
-mouse_cortical_post_init_7B = WTNetwork.read(
-    MOUSE_CORTICAL_POST_INIT_NODES, MOUSE_CORTICAL_7B_EDGES)
-mouse_cortical_post_init_7B.metadata.update( {
-    'name': 'mouse_cortical_post_init_7B',
-    'description': 'The gene regulatory network for *mouse cortical* (posterior, initial, 7B edges).',
-    'citation': '',
-    } )
-
-"""
-The gene regulatory network for *mouse cortical* (posterior, final, 7B edges).
-"""
-mouse_cortical_post_final_7B = WTNetwork.read(
-    MOUSE_CORTICAL_POST_FINAL_NODES, MOUSE_CORTICAL_7B_EDGES)
-mouse_cortical_post_final_7B.metadata.update( {
-    'name': 'mouse_cortical_post_final_7B',
-    'description': 'The gene regulatory network for *mouse cortical* (posterior, final, 7B edges).',
-    'citation': '',
-    } )
-
-"""
-The gene regulatory network for *mouse cortical* (posterior, initial, 7C edges).
-"""
-mouse_cortical_post_init_7C = WTNetwork.read(
-    MOUSE_CORTICAL_POST_INIT_NODES, MOUSE_CORTICAL_7C_EDGES)
-mouse_cortical_post_init_7C.metadata.update( {
-    'name': 'mouse_cortical_post_init_7C',
-    'description': 'The gene regulatory network for *mouse cortical* (posterior, initial, 7C edges).',
-    'citation': '',
-    } )
-
-"""
-The gene regulatory network for *mouse cortical* (posterior, final, 7C edges).
-"""
-mouse_cortical_post_final_7C = WTNetwork.read(
-    MOUSE_CORTICAL_POST_FINAL_NODES, MOUSE_CORTICAL_7C_EDGES)
-mouse_cortical_post_final_7C.metadata.update( {
-    'name': 'mouse_cortical_post_final_7C',
-    'description': 'The gene regulatory network for *mouse cortical* (posterior, final, 7C edges).',
-    'citation': '',
-    } )
+mouse_cortical_7C_from_expr = LogicNetwork.read_logic(MOUSE_CORTICAL_7C_EXPRESSIONS)
 
 """
 Differentiation control network for *myeloid* progenitors.
