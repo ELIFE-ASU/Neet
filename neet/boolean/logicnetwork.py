@@ -269,7 +269,7 @@ class LogicNetwork(object):
         A logic table file starts with a table title which contains names of
         all nodes. It is a line marked by `##` at the begining with node names
         seperated by commas or spaces. This line is required. For artificial
-        network without node names, arbitrary names will be put in place, e.g.:
+        network without node names, arbitrary names must be put in place, e.g.:
 
         `## A B C D`
 
@@ -374,7 +374,7 @@ class LogicNetwork(object):
         # an "external" node, i.e, its state stays on or off by itself.
         for i, sub_table in enumerate(table):
             if not sub_table:  # Empty truth table.
-                table[i] = ((i), {'1'})
+                table[i] = ((i,), {'1'})
         return cls(table, names)
 
     @classmethod
