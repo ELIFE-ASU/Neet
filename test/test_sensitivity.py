@@ -3,6 +3,7 @@
 # license that can be found in the LICENSE file.
 import unittest
 from neet.sensitivity import *
+from neet.sensitivity import _hamming_neighbors
 from neet.statespace import StateSpace
 import neet.boolean as NB
 
@@ -34,10 +35,10 @@ class TestSensitivityWTNetwork(unittest.TestCase):
 
     def test_hamming_neighbors_input(self):
         with self.assertRaises(ValueError):
-            hamming_neighbors([0, 1, 2])
+            _hamming_neighbors([0, 1, 2])
 
         with self.assertRaises(ValueError):
-            hamming_neighbors([[0, 0, 1], [1, 0, 0]])
+            _hamming_neighbors([[0, 0, 1], [1, 0, 0]])
 
     def test_hamming_neighbors_example(self):
         state = [0, 1, 1, 0]
@@ -45,7 +46,7 @@ class TestSensitivityWTNetwork(unittest.TestCase):
                      [0, 0, 1, 0],
                      [0, 1, 0, 0],
                      [0, 1, 1, 1]]
-        self.assertTrue(np.array_equal(neighbors, hamming_neighbors(state)))
+        self.assertTrue(np.array_equal(neighbors, _hamming_neighbors(state)))
 
     def test_sensitivity(self):
         net = NB.WTNetwork([[1, -1], [0, 1]], [0.5, 0])
@@ -68,3 +69,47 @@ class TestSensitivityWTNetwork(unittest.TestCase):
     def test_average_sensitivity(self):
         net = NB.WTNetwork([[1, -1], [0, 1]], [0.5, 0])
         self.assertEqual(1.0, average_sensitivity(net))
+
+    def test_sensitivity_s_pombe(self):
+        from neet.boolean.examples import s_pombe
+        s = sensitivity(s_pombe,[0,0,0,0,0,1,1,0,0])
+        self.assertAlmostEqual(s,1.0)
+
+    def test_average_sensitivity_c_elegans(self):
+        from neet.boolean.examples import c_elegans
+        
+        s = average_sensitivity(c_elegans)
+        self.assertAlmostEqual(s,1.265625)
+
+        s = average_sensitivity(c_elegans,
+                                states=[[0,0,0,0,0,0,0,0],
+                                        [1,1,1,1,1,1,1,1]],
+                                weights=[9,1])
+        self.assertAlmostEqual(s,1.7)
+    
+    def test_lambdaQ_c_elegans(self):
+        from neet.boolean.examples import c_elegans
+        l = lambdaQ(c_elegans)
+        self.assertAlmostEqual(l,1.263099227661824)
+
+    def test_average_sensitivity_logic_network(self):
+        net = NB.LogicNetwork([((1, 2), {'01', '10'}),
+                               ((0, 2), ((0, 1), '10', [1, 1])),
+                               ((0, 1), {'11'})])
+        
+        s = average_sensitivity(net)
+        self.assertAlmostEqual(s,1.3333333333333333)
+
+        s = average_sensitivity(net,weights=np.ones(8))
+        self.assertAlmostEqual(s,1.3333333333333333)
+
+        s = average_sensitivity(net,states=net.state_space())
+        self.assertAlmostEqual(s,1.3333333333333333)
+
+    def test_lambdaQ_logic_network(self):
+        net = NB.LogicNetwork([((1, 2), {'01', '10'}),
+                               ((0, 2), ((0, 1), '10', [1, 1])),
+                               ((0, 1), {'11'})])
+        l = lambdaQ(net)
+        self.assertAlmostEqual(l,1.2807764064044149)
+        
