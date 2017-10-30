@@ -3,6 +3,7 @@
 # license that can be found in the LICENSE file.
 import re
 from neet.statespace import StateSpace
+from neet.exceptions import FormatError
 
 
 class LogicNetwork(object):
@@ -298,7 +299,9 @@ class LogicNetwork(object):
         0 1 1
         '''
 
-        Custom comments can be added above the table title, but not below.
+        Custom comments can be added above or below the table title (as long 
+        as they are preceeded with more or less than two # (eg # or ### but 
+        not ##)).
 
         :param table_file: a truth table file
         :returns: a :class:LogicNetwork
@@ -375,6 +378,7 @@ class LogicNetwork(object):
         for i, sub_table in enumerate(table):
             if not sub_table:  # Empty truth table.
                 table[i] = ((i,), {'1'})
+
         return cls(table, names)
 
     @classmethod
@@ -455,8 +459,3 @@ class LogicNetwork(object):
                 table.append((((len(names) - len(extras) + i),), set('1')))
 
         return cls(table, names)
-
-
-class FormatError(Exception):
-    """Exception for errors in logic table's format"""
-    pass

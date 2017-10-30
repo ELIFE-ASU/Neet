@@ -1,0 +1,16 @@
+# this is my custom comment
+### another comment
+## A B C D
+# does it 
+# A (B C)
+1 0
+1 1
+# B (A)
+1
+# C (B C A)
+#hello
+1 0 1
+0 1 0
+0 1 1
+# another comment
+## another 

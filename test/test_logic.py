@@ -4,6 +4,9 @@
 """Unit test for LogicNetwork"""
 import unittest
 from neet.boolean import LogicNetwork
+from neet.exceptions import FormatError
+
+import neet.boolean.examples as ex
 
 
 class TestLogicNetwork(unittest.TestCase):
@@ -82,3 +85,90 @@ class TestLogicNetwork(unittest.TestCase):
         self.assertTrue(hasattr(net,'metadata'))
         self.assertEqual(type(net.metadata),dict)
 
+    
+
+    def test_logic_simple_read(self):
+        from os.path import dirname, abspath, realpath, join
+
+        ## Determine the path to the "data" directory of the neet.test module
+        DATA_PATH = join(dirname(abspath(realpath(__file__))), "data")
+
+        ## Test simple network read in
+        SIMPLE_TRUTH_TABLE = join(DATA_PATH, "test_simple-truth_table.txt")
+        simple = LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
+
+        self.assertEqual(simple.names, ['A', 'B', 'C', 'D'])
+        self.assertEqual(simple.table, [((1, 2), set(['11', '10'])), 
+                                        ((0,), set(['1'])), 
+                                        ((1, 2, 0), set(['010', '011', '101'])), 
+                                        ((3,), set(['1']))])
+
+    def test_logic_simple_read_no_commas(self):
+        from os.path import dirname, abspath, realpath, join
+
+        ## Determine the path to the "data" directory of the neet.test module
+        DATA_PATH = join(dirname(abspath(realpath(__file__))), "data")
+
+        ## Test simple network read in (no commas)
+        SIMPLE_TRUTH_TABLE = join(DATA_PATH, "test_simple_no_commas-truth_table.txt")
+        simple = LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
+
+        self.assertEqual(simple.names, ['A', 'B', 'C', 'D'])
+        self.assertEqual(simple.table, [((1, 2), set(['11', '10'])), 
+                                        ((0,), set(['1'])), 
+                                        ((1, 2, 0), set(['010', '011', '101'])), 
+                                        ((3,), set(['1']))])
+
+    def test_logic_simple_read_no_header(self):
+        from os.path import dirname, abspath, realpath, join
+
+        ## Determine the path to the "data" directory of the neet.test module
+        DATA_PATH = join(dirname(abspath(realpath(__file__))), "data")
+
+        ## Test simple network read in (no header)
+        SIMPLE_TRUTH_TABLE = join(DATA_PATH, "test_simple_no_header-truth_table.txt")
+        with self.assertRaises(FormatError):
+            simple = LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
+
+    def test_logic_simple_read_no_node_headers(self):
+        from os.path import dirname, abspath, realpath, join
+
+        ## Determine the path to the "data" directory of the neet.test module
+        DATA_PATH = join(dirname(abspath(realpath(__file__))), "data")
+
+        ## Test simple network read in (no header)
+        SIMPLE_TRUTH_TABLE = join(DATA_PATH, "test_simple_no_node_headers-truth_table.txt")
+        with self.assertRaises(FormatError):
+            simple = LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
+
+    def test_logic_simple_read_empty(self):
+        from os.path import dirname, abspath, realpath, join
+
+        ## Determine the path to the "data" directory of the neet.test module
+        DATA_PATH = join(dirname(abspath(realpath(__file__))), "data")
+
+        ## Test simple network read in (no header)
+        SIMPLE_TRUTH_TABLE = join(DATA_PATH, "test_simple_empty-truth_table.txt")
+        simple = LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
+
+        self.assertEqual(simple.names, ['A', 'B', 'C', 'D'])
+        self.assertEqual(simple.table, [((0,), set(['1'])), 
+                                        ((1,), set(['1'])), 
+                                        ((2,), set(['1'])), 
+                                        ((3,), set(['1']))])
+
+    def test_logic_simple_read_custom_comment(self):
+        from os.path import dirname, abspath, realpath, join
+
+        ## Determine the path to the "data" directory of the neet.test module
+        DATA_PATH = join(dirname(abspath(realpath(__file__))), "data")
+
+        ## Test simple network read in (no header)
+        SIMPLE_TRUTH_TABLE = join(DATA_PATH, "test_simple_custom_comment-truth_table.txt")
+        simple = LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
+
+        self.assertEqual(simple.names, ['A', 'B', 'C', 'D'])
+        self.assertEqual(simple.table, [((1, 2), set(['11', '10'])), 
+                                        ((0,), set(['1'])), 
+                                        ((1, 2, 0), set(['010', '011', '101'])), 
+                                        ((3,), set(['1']))])
