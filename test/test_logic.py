@@ -6,9 +6,6 @@ import unittest
 from neet.boolean import LogicNetwork
 from neet.exceptions import FormatError
 
-import neet.boolean.examples as ex
-
-
 class TestLogicNetwork(unittest.TestCase):
     def test_is_network(self):
         from neet.interfaces import is_network
