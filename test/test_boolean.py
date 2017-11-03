@@ -638,3 +638,59 @@ class TestWTNetwork(unittest.TestCase):
         net = bnet.WTNetwork([[1]])
         self.assertTrue(hasattr(net,'metadata'))
         self.assertEqual(type(net.metadata),dict)
+
+    def test_neighbors(self):
+
+        net = bnet.WTNetwork(
+            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
+             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+
+        self.assertEqual(net.neighbors(index=2,direction='in'),set([0,1,5,8]))
+        self.assertEqual(net.neighbors(index=2,direction='out'),set([1,5]))
+        self.assertEqual(net.neighbors(index=2,direction='both'),set([0, 1, 5, 8]))
+
+        self.assertEqual(net.neighbors(direction='in'),[set([0]), 
+                                                        set([2, 3, 4]), 
+                                                        set([0, 1, 5, 8]), 
+                                                        set([0, 1, 5, 8]), 
+                                                        set([4, 5]), 
+                                                        set([2, 3, 4, 6, 7]), 
+                                                        set([8, 1]), 
+                                                        set([8, 1]), 
+                                                        set([8, 4])])
+
+        self.assertEqual(net.neighbors(direction='out'),[set([0, 2, 3]), 
+                                                         set([2, 3, 6, 7]), 
+                                                         set([1, 5]), 
+                                                         set([1, 5]), 
+                                                         set([8, 1, 4, 5]), 
+                                                         set([2, 3, 4]), 
+                                                         set([5]), 
+                                                         set([5]), 
+                                                         set([8, 2, 3, 6, 7])])
+
+        self.assertEqual(net.neighbors(direction='both'),[set([0, 2, 3]), 
+                                                          set([2, 3, 4, 6, 7]), 
+                                                          set([0, 1, 5, 8]), 
+                                                          set([0, 1, 5, 8]), 
+                                                          set([1, 4, 5, 8]), 
+                                                          set([2, 3, 4, 6, 7]), 
+                                                          set([8, 1, 5]), 
+                                                          set([8, 1, 5]), 
+                                                          set([2, 3, 4, 6, 7, 8])])
+
+        
+
+        with self.assertRaises(IndexError):
+            self.assertEqual(net.neighbors(index=2.0,direction='in'))
+
+        with self.assertRaises(IndexError):
+            self.assertEqual(net.neighbors(index='2',direction='in'))

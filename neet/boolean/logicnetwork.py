@@ -459,3 +459,139 @@ class LogicNetwork(object):
                 table.append((((len(names) - len(extras) + i),), set('1')))
 
         return cls(table, names)
+
+    # def _incoming_neighbors(self,index=None):
+    #     if index:
+    #         return list(self.table[index][0])
+    #     else:
+    #         return [list(row[0]) for row in self.table]
+
+    def _incoming_neighbors_one_node(self,index):
+        """
+        Return the set of all neighbor nodes, where
+        edge(neighbor_node-->index) exists.
+
+        It is possible to call the neighbors of an index which is greater
+        than the size of the network, in the case of networks which have
+        fixed boundary conditions.
+
+        The left boundary is at ``index==size+1``
+        The right boundary is at ``index==size``
+
+        eg. ``if size(net)==3 and boundary!=None:``
+        The organization of the neighbors list is as follows:
+        ``[node_0|node_1|node_2|left_boundary|right_boundary]``
+
+        :param index: node index
+        :returns: the set of all node indices which point toward the index node
+
+        .. rubric:: Basic Use:
+
+        ::
+
+            >>> net = LogicNetwork([((1, 2), set(['11', '10'])), 
+                            ((0,), set(['1'])), 
+                            ((0, 1, 2), set(['010', '011', '101'])), 
+                            ((3,), set(['1']))])
+            >>> net._incoming_neighbors_one_node(2)
+            set([0, 1, 2])
+        """
+        return set(self.table[index][0])
+
+    def _outgoing_neighbors_one_node(self,index):
+        """
+        Return the set of all neighbor nodes, where
+        edge(index-->neighbor_node) exists.
+
+        It is possible to call the neighbors of an index which is greater
+        than the size of the network, in the case of networks which have
+        fixed boundary conditions.
+
+        The left boundary is at ``index==size+1``
+        The right boundary is at ``index==size``
+
+        eg. ``if size(net)==3 and boundary!=None:``
+        The organization of the neighbors list is as follows:
+        ``[node_0|node_1|node_2|left_boundary|right_boundary]``
+        
+        :param index: node index
+        :returns: the set of all node indices which the index node points to
+
+        .. rubric:: Basic Use:
+
+        ::
+
+            >>> net = LogicNetwork([((1, 2), set(['11', '10'])), 
+                            ((0,), set(['1'])), 
+                            ((0, 1, 2), set(['010', '011', '101'])), 
+                            ((3,), set(['1']))])
+            >>> net._outgoing_neighbors_one_node(2)
+            set([0, 2])
+        """
+        outgoing_neighbors = []
+        for i, incoming_neighbors in enumerate([list(row[0]) for row in self.table]):
+            if index in incoming_neighbors:
+                outgoing_neighbors.append(i)
+        
+        return set(outgoing_neighbors)
+
+
+    def neighbors(self,index=None,direction='both'):
+        """
+        Return a list of neighbors for each node.
+
+        It is possible to call the neighbors of an index which is greater
+        than the size of the network, in the case of networks which have
+        fixed boundary conditions.
+
+        The left boundary is at ``index==size+1``
+        The right boundary is at ``index==size``
+
+        eg. ``if size(net)==3 and boundary!=None:``
+        The organization of the neighbors list is as follows:
+        ``[node_0|node_1|node_2|left_boundary|right_boundary]``
+        
+        :param index: node index
+        :param direction: type of node neighbors to return (can be 'in','out', or 'both')
+        :returns: a set (if index!=None) or list of sets of neighbors of a node or network or nodes
+
+        .. rubric:: Basic Use:
+
+        ::
+
+            >>> net = LogicNetwork([((1, 2), set(['11', '10'])), 
+                            ((0,), set(['1'])), 
+                            ((0, 1, 2), set(['010', '011', '101'])), 
+                            ((3,), set(['1']))])
+            >>> net.neighbors(index=2,direction='in')
+            set([0,1,2])
+            >>> net.neighbors(index=2,direction='out'),set([0,2])
+            >>> net.neighbors(direction='in')
+            [set([1, 2]), set([0]), set([0, 1, 2]), set([3])]
+            >>> net.neighbors(direction='out')
+            [set([1, 2]), set([0, 2]), set([0, 2]), set([3])]
+            >>> net.neighbors(direction='both')
+            [set([1, 2]), set([0, 2]), set([0, 1, 2]), set([3])]
+        """
+        if direction == 'in':
+            if index:
+                return self._incoming_neighbors_one_node(index)
+            else:
+                return [self._incoming_neighbors_one_node(node) for node in range(len(self.table))]
+
+        elif direction == 'out':
+            if index:
+                return self._outgoing_neighbors_one_node(index)
+            else:
+                return [self._outgoing_neighbors_one_node(node) for node in range(len(self.table))]
+
+        elif direction == 'both':
+            if index:
+                return self._incoming_neighbors_one_node(index)|self._outgoing_neighbors_one_node(index)
+                       
+            else:
+                in_nodes = [self._incoming_neighbors_one_node(node) for node in range(len(self.table))]
+                out_nodes = [self._outgoing_neighbors_one_node(node) for node in range(len(self.table))]
+                return [in_nodes[i]|out_nodes[i] for i in range(len(in_nodes))]
+
+

@@ -580,3 +580,178 @@ class WTNetwork(object):
                 return 0
             else:
                 return 1
+
+    def _incoming_neighbors_one_node(self,index):
+        """
+        Return the set of all neighbor nodes, where
+        edge(neighbor_node-->index) exists.
+
+        It is possible to call the neighbors of an index which is greater
+        than the size of the network, in the case of networks which have
+        fixed boundary conditions.
+
+        The left boundary is at ``index==size+1``
+        The right boundary is at ``index==size``
+
+        eg. ``if size(net)==3 and boundary!=None:``
+        The organization of the neighbors list is as follows:
+        ``[node_0|node_1|node_2|left_boundary|right_boundary]``
+
+        :param index: node index
+        :returns: the set of all node indices which point toward the index node
+
+        .. rubric:: Basic Use:
+
+        ::
+
+            >>> net = WTNetwork(
+            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
+             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+            >>> net._incoming_neighbors_one_node(2)
+            set([0, 1, 5, 8])
+        """
+        return set([i for i,e in enumerate(self.weights[index,:]) if e!=0])
+
+    def _outgoing_neighbors_one_node(self,index):
+        """
+        Return the set of all neighbor nodes, where
+        edge(index-->neighbor_node) exists.
+
+        It is possible to call the neighbors of an index which is greater
+        than the size of the network, in the case of networks which have
+        fixed boundary conditions.
+
+        The left boundary is at ``index==size+1``
+        The right boundary is at ``index==size``
+
+        eg. ``if size(net)==3 and boundary!=None:``
+        The organization of the neighbors list is as follows:
+        ``[node_0|node_1|node_2|left_boundary|right_boundary]``
+        
+        :param index: node index
+        :returns: the set of all node indices which the index node points to
+
+        .. rubric:: Basic Use:
+
+        ::
+
+            >>> net = WTNetwork(
+            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
+             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+            >>> net._outgoing_neighbors_one_node(2)
+            set([1, 5])
+        """
+        return set([i for i,e in enumerate(self.weights[:,index]) if e!=0])
+        # outgoing_neighbors = []
+        # for i, incoming_neighbors in enumerate([list(row[0]) for row in self.table]):
+        #     if index in incoming_neighbors:
+        #         outgoing_neighbors.append(i)
+        
+        # return set(outgoing_neighbors)
+
+
+    def neighbors(self,index=None,direction='both'):
+        """
+        Return a list of neighbors for each node.
+
+        It is possible to call the neighbors of an index which is greater
+        than the size of the network, in the case of networks which have
+        fixed boundary conditions.
+
+        The left boundary is at ``index==size+1``
+        The right boundary is at ``index==size``
+
+        eg. ``if size(net)==3 and boundary!=None:``
+        The organization of the neighbors list is as follows:
+        ``[node_0|node_1|node_2|left_boundary|right_boundary]``
+        
+        :param index: node index
+        :param direction: type of node neighbors to return (can be 'in','out', or 'both')
+        :returns: a set (if index!=None) or list of sets of neighbors of a node or network or nodes
+
+        .. rubric:: Basic Use:
+
+        ::
+
+            >>> net = WTNetwork(
+            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
+             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+            >>> net.neighbors(index=2,direction='in')
+            set([0,1,5,8])
+            >>> net.neighbors(index=2,direction='out')
+            set([1,5])
+            >>> net.neighbors(direction='in')
+            [set([0]), 
+            set([2, 3, 4]), 
+            set([0, 1, 5, 8]), 
+            set([0, 1, 5, 8]), 
+            set([4, 5]), 
+            set([2, 3, 4, 6, 7]), 
+            set([8, 1]), 
+            set([8, 1]), 
+            set([8, 4])]
+            >>> net.neighbors(direction='out')
+            [set([0, 2, 3]), 
+             set([2, 3, 6, 7]), 
+             set([1, 5]), 
+             set([1, 5]), 
+             set([8, 1, 4, 5]), 
+             set([2, 3, 4]), 
+             set([5]), 
+             set([5]), 
+             set([8, 2, 3, 6, 7])]
+            >>> net.neighbors(direction='both')
+            [set([0, 2, 3]), 
+             set([2, 3, 4, 6, 7]), 
+             set([0, 1, 5, 8]), 
+             set([0, 1, 5, 8]), 
+             set([1, 4, 5, 8]), 
+             set([2, 3, 4, 6, 7]), 
+             set([8, 1, 5]), 
+             set([8, 1, 5]), 
+             set([2, 3, 4, 6, 7, 8])]
+        """
+        if direction == 'in':
+            if index:
+                return self._incoming_neighbors_one_node(index)
+            else:
+                return [self._incoming_neighbors_one_node(node) for node in range(self.size)]
+
+        if direction == 'out':
+            if index:
+                return self._outgoing_neighbors_one_node(index)
+            else:
+                return [self._outgoing_neighbors_one_node(node) for node in range(self.size)]
+
+        if direction == 'both':
+            if index:
+                return self._incoming_neighbors_one_node(index)|self._outgoing_neighbors_one_node(index)
+                       
+            else:
+                in_nodes = [self._incoming_neighbors_one_node(node) for node in range(self.size)]
+                out_nodes = [self._outgoing_neighbors_one_node(node) for node in range(self.size)]
+                return [in_nodes[i]|out_nodes[i] for i in range(self.size)]
