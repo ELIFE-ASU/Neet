@@ -17,6 +17,9 @@ class TestCore(unittest.TestCase):
         def state_space(self):
             return StateSpace(1)
 
+        def neighbors(self):
+            pass
+
     class FixedSizeNetwork(IsNetwork):
         def size(self):
             return 5
@@ -35,12 +38,18 @@ class TestCore(unittest.TestCase):
         def state_space(self):
             return StateSpace(1, base=3)
 
+        def neighbors(self):
+            pass
+
     class MultipleBaseNetwork(object):
         def update(self, lattice):
             pass
 
         def state_space(self):
             return StateSpace([1, 2, 3])
+
+        def neighbors(self):
+            pass
 
     def test_is_network(self):
         net = self.IsNetwork()
@@ -102,8 +111,14 @@ class TestCore(unittest.TestCase):
 
         self.assertTrue(neighbors(net),[set([0])])
 
-    def test_neighbors_no_attribute(self):
+    def test_neighbors_IsNetwork(self):
         net = self.IsNetwork()
+
+        # with self.assertRaises(AttributeError):
+        #     neighbors(net)
+
+    def test_neighbors_IsNotNetwork(self):
+        net = self.IsNotNetwork()
 
         with self.assertRaises(AttributeError):
             neighbors(net)

@@ -34,7 +34,7 @@ def is_network(thing):
     :param thing: an object or a type
     :returns: ``True`` if ``thing`` has the minimum interface of a network
     """
-    return hasattr(thing, 'update') and hasattr(thing, 'state_space')
+    return hasattr(thing, 'update') and hasattr(thing, 'state_space') and hasattr(thing, 'neighbors')
 
 
 def is_fixed_sized(thing):
