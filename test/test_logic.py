@@ -171,7 +171,7 @@ class TestLogicNetwork(unittest.TestCase):
                                         ((1, 2, 0), set(['010', '011', '101'])), 
                                         ((3,), set(['1']))])
 
-    def test_neighbors(self):
+    def test_neighbors_in(self):
 
         net = LogicNetwork([((1, 2), set(['11', '10'])), 
                             ((0,), set(['1'])), 
@@ -179,15 +179,39 @@ class TestLogicNetwork(unittest.TestCase):
                             ((3,), set(['1']))])
 
         self.assertEqual(net.neighbors(index=2,direction='in'),set([0,1,2]))
-        self.assertEqual(net.neighbors(index=2,direction='out'),set([0,2]))
+
         self.assertEqual(net.neighbors(direction='in'),[set([1, 2]), 
                                                         set([0]), 
                                                         set([0, 1, 2]), 
                                                         set([3])])
+
+        with self.assertRaises(TypeError):
+            self.assertEqual(net.neighbors(index=2.0,direction='in'))
+
+        with self.assertRaises(TypeError):
+            self.assertEqual(net.neighbors(index='2',direction='in'))
+
+    def test_neighbors_out(self):
+
+        net = LogicNetwork([((1, 2), set(['11', '10'])), 
+                            ((0,), set(['1'])), 
+                            ((0, 1, 2), set(['010', '011', '101'])), 
+                            ((3,), set(['1']))])
+
+        self.assertEqual(net.neighbors(index=2,direction='out'),set([0,2]))
+
         self.assertEqual(net.neighbors(direction='out'),[set([1, 2]), 
                                                          set([0, 2]), 
                                                          set([0, 2]), 
                                                          set([3])])
+
+        
+    def test_neighbors_both(self):
+        
+        net = LogicNetwork([((1, 2), set(['11', '10'])), 
+                            ((0,), set(['1'])), 
+                            ((0, 1, 2), set(['010', '011', '101'])), 
+                            ((3,), set(['1']))])
 
         self.assertEqual(net.neighbors(direction='both'),[set([1, 2]), 
                                                           set([0, 2]), 
@@ -196,10 +220,6 @@ class TestLogicNetwork(unittest.TestCase):
 
         self.assertEqual(net.neighbors(index=2,direction='both'),set([0, 1, 2]))
 
-        with self.assertRaises(TypeError):
-            self.assertEqual(net.neighbors(index=2.0,direction='in'))
 
-        with self.assertRaises(TypeError):
-            self.assertEqual(net.neighbors(index='2',direction='in'))
 
 

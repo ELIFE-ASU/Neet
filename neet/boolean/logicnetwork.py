@@ -471,17 +471,6 @@ class LogicNetwork(object):
         Return the set of all neighbor nodes, where
         edge(neighbor_node-->index) exists.
 
-        It is possible to call the neighbors of an index which is greater
-        than the size of the network, in the case of networks which have
-        fixed boundary conditions.
-
-        The left boundary is at ``index==size+1``
-        The right boundary is at ``index==size``
-
-        eg. ``if size(net)==3 and boundary!=None:``
-        The organization of the neighbors list is as follows:
-        ``[node_0|node_1|node_2|left_boundary|right_boundary]``
-
         :param index: node index
         :returns: the set of all node indices which point toward the index node
 
@@ -502,17 +491,6 @@ class LogicNetwork(object):
         """
         Return the set of all neighbor nodes, where
         edge(index-->neighbor_node) exists.
-
-        It is possible to call the neighbors of an index which is greater
-        than the size of the network, in the case of networks which have
-        fixed boundary conditions.
-
-        The left boundary is at ``index==size+1``
-        The right boundary is at ``index==size``
-
-        eg. ``if size(net)==3 and boundary!=None:``
-        The organization of the neighbors list is as follows:
-        ``[node_0|node_1|node_2|left_boundary|right_boundary]``
         
         :param index: node index
         :returns: the set of all node indices which the index node points to
@@ -538,18 +516,8 @@ class LogicNetwork(object):
 
     def neighbors(self,index=None,direction='both'):
         """
-        Return a list of neighbors for each node.
-
-        It is possible to call the neighbors of an index which is greater
-        than the size of the network, in the case of networks which have
-        fixed boundary conditions.
-
-        The left boundary is at ``index==size+1``
-        The right boundary is at ``index==size``
-
-        eg. ``if size(net)==3 and boundary!=None:``
-        The organization of the neighbors list is as follows:
-        ``[node_0|node_1|node_2|left_boundary|right_boundary]``
+        Return a set of neighbors for a specified node, or a list of sets of
+        neighbors for all nodes in the network.
         
         :param index: node index
         :param direction: type of node neighbors to return (can be 'in','out', or 'both')

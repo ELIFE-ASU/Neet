@@ -4,6 +4,8 @@
 import unittest
 from neet.interfaces import *
 from neet.statespace import StateSpace
+import neet.automata as ca
+import neet.boolean as bnet
 import numpy as np
 
 
@@ -78,3 +80,33 @@ class TestCore(unittest.TestCase):
 
         not_bool_net = self.MultipleBaseNetwork()
         self.assertFalse(is_boolean_network(not_bool_net))
+
+    def test_neighbors_ECA(self):
+        eca = ca.ECA(30)
+
+        self.assertTrue(neighbors(eca,size=4),[set([0, 1, 3]), 
+                                               set([0, 1, 2]), 
+                                               set([1, 2, 3]), 
+                                               set([0, 2, 3])])
+
+        with self.assertRaises(AttributeError):
+            neighbors(eca)
+
+    def test_neighbors_WTNetwork(self):
+        net = bnet.WTNetwork([[1]])
+
+        self.assertTrue(neighbors(net),[set([0])])
+
+    def test_neighbors_LogicNetwork(self):
+        net = bnet.LogicNetwork([((0,), {'0'})])
+
+        self.assertTrue(neighbors(net),[set([0])])
+
+    def test_neighbors_no_attribute(self):
+        net = self.IsNetwork()
+
+        with self.assertRaises(AttributeError):
+            neighbors(net)
+
+
+

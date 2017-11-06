@@ -602,7 +602,8 @@ class ECA(object):
 
     def neighbors(self,size,index=None,direction='both'):
         """
-        Return a list of neighbors for each node.
+        Return a set of neighbors for a specified node, or a list of sets of
+        neighbors for all nodes in the network.
 
         It is possible to call the neighbors of an index which is greater
         than the size of the network, in the case of networks which have
@@ -619,9 +620,6 @@ class ECA(object):
         :param index: node index
         :param direction: type of node neighbors to return (can be 'in','out', or 'both')
         :returns: a set (if index!=None) or list of sets of neighbors of a node or network or nodes
-
-        :param index: node index
-        :returns: the set of all node indices which point toward the index node
         :raises ValueError: if ``index >= size and boundary==None``
         :raises ValueError: if ``index >= size+2 and boundary!=None``
 

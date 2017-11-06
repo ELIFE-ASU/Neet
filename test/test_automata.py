@@ -342,7 +342,7 @@ class TestECA(unittest.TestCase):
         xs = [0,0,0,0,0]
         self.assertEqual([1,0,1,0,1], eca.update(xs, values={2:1}))
 
-    def test_neighbors(self):
+    def test_neighbors_in(self):
 
         net = ca.ECA(30)
 
@@ -350,11 +350,64 @@ class TestECA(unittest.TestCase):
         self.assertEqual(net.neighbors(3,direction='in'),[set([0, 1, 2]),  
                                                         set([0, 1, 2]), 
                                                         set([0, 1, 2])])
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors(3,index=3,direction='in'))
+
+        net.boundary = (1,1)
+
+        self.assertEqual(net.neighbors(3,index=2,direction='in'),set([1,2,3]))
+        self.assertEqual(net.neighbors(3,index=3,direction='in'),set([]))
+
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors(3,index=5,direction='in'))
+
+        with self.assertRaises(TypeError):
+            self.assertEqual(net.neighbors(3,index='2',direction='in'))
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors(3,index=-1,direction='in'))
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors(0,index=1,direction='in'))
+
+
+    def test_neighbors_out(self):
+
+        net = ca.ECA(30)
+
         self.assertEqual(net.neighbors(3,index=2,direction='out'),set([0,1,2]))
         self.assertEqual(net.neighbors(4,direction='out'),[set([0, 1, 3]), 
                                                          set([0,1,2]), 
                                                          set([1,2,3]), 
                                                          set([0,2,3])])
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors(3,index=3,direction='out'))
+
+        net.boundary = (1,1)
+
+        self.assertEqual(net.neighbors(3,index=2,direction='out'),set([1,2]))
+        self.assertEqual(net.neighbors(3,index=3,direction='out'),set([2]))
+        self.assertEqual(net.neighbors(3,index=4,direction='out'),set([0]))
+
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors(3,index=5,direction='out'))
+
+        with self.assertRaises(TypeError):
+            self.assertEqual(net.neighbors(3,index='2',direction='out'))
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors(3,index=-1,direction='out'))
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors(0,index=1,direction='out'))
+
+
+    def test_neighbors_both(self):
+
+        net = ca.ECA(30)
 
         self.assertEqual(net.neighbors(4,direction='both'),[set([0, 1, 3]), 
                                                          set([0,1,2]), 
@@ -363,44 +416,9 @@ class TestECA(unittest.TestCase):
 
         self.assertEqual(net.neighbors(4,index=2,direction='both'),set([1,2,3]))
 
-        with self.assertRaises(ValueError):
-            self.assertEqual(net.neighbors(3,index=3,direction='in'))
-
-        with self.assertRaises(ValueError):
-            self.assertEqual(net.neighbors(3,index=3,direction='out'))
-
-        ## Add fixed-boundary
         net.boundary = (1,1)
-
-        self.assertEqual(net.neighbors(3,index=2,direction='in'),set([1,2,3]))
-        self.assertEqual(net.neighbors(3,index=3,direction='in'),set([]))
-
-        self.assertEqual(net.neighbors(3,index=2,direction='out'),set([1,2]))
-        self.assertEqual(net.neighbors(3,index=3,direction='out'),set([2]))
-        self.assertEqual(net.neighbors(3,index=4,direction='out'),set([0]))
 
         self.assertEqual(net.neighbors(3,index=4,direction='both'),set([0]))
 
-        with self.assertRaises(ValueError):
-            self.assertEqual(net.neighbors(3,index=5,direction='in'))
 
-        with self.assertRaises(ValueError):
-            self.assertEqual(net.neighbors(3,index=5,direction='out'))
 
-        with self.assertRaises(TypeError):
-            self.assertEqual(net.neighbors(3,index='2',direction='in'))
-
-        with self.assertRaises(TypeError):
-            self.assertEqual(net.neighbors(3,index='2',direction='out'))
-
-        with self.assertRaises(ValueError):
-            self.assertEqual(net.neighbors(3,index=-1,direction='in'))
-
-        with self.assertRaises(ValueError):
-            self.assertEqual(net.neighbors(3,index=-1,direction='out'))
-
-        with self.assertRaises(ValueError):
-            self.assertEqual(net.neighbors(0,index=1,direction='in'))
-
-        with self.assertRaises(ValueError):
-            self.assertEqual(net.neighbors(0,index=1,direction='out'))
