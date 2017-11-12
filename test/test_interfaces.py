@@ -4,6 +4,8 @@
 import unittest
 from neet.interfaces import *
 from neet.statespace import StateSpace
+import neet.automata as ca
+import neet.boolean as bnet
 import numpy as np
 
 
@@ -14,6 +16,9 @@ class TestCore(unittest.TestCase):
 
         def state_space(self):
             return StateSpace(1)
+
+        def neighbors(self):
+            pass
 
     class FixedSizeNetwork(IsNetwork):
         def size(self):
@@ -33,12 +38,18 @@ class TestCore(unittest.TestCase):
         def state_space(self):
             return StateSpace(1, base=3)
 
+        def neighbors(self):
+            pass
+
     class MultipleBaseNetwork(object):
         def update(self, lattice):
             pass
 
         def state_space(self):
             return StateSpace([1, 2, 3])
+
+        def neighbors(self):
+            pass
 
     def test_is_network(self):
         net = self.IsNetwork()
@@ -78,3 +89,39 @@ class TestCore(unittest.TestCase):
 
         not_bool_net = self.MultipleBaseNetwork()
         self.assertFalse(is_boolean_network(not_bool_net))
+
+    def test_neighbors_ECA(self):
+        eca = ca.ECA(30)
+
+        self.assertTrue(neighbors(eca,size=4),[set([0, 1, 3]), 
+                                               set([0, 1, 2]), 
+                                               set([1, 2, 3]), 
+                                               set([0, 2, 3])])
+
+        with self.assertRaises(AttributeError):
+            neighbors(eca)
+
+    def test_neighbors_WTNetwork(self):
+        net = bnet.WTNetwork([[1]])
+
+        self.assertTrue(neighbors(net),[set([0])])
+
+    def test_neighbors_LogicNetwork(self):
+        net = bnet.LogicNetwork([((0,), {'0'})])
+
+        self.assertTrue(neighbors(net),[set([0])])
+
+    def test_neighbors_IsNetwork(self):
+        net = self.IsNetwork()
+
+        # with self.assertRaises(AttributeError):
+        #     neighbors(net)
+
+    def test_neighbors_IsNotNetwork(self):
+        net = self.IsNotNetwork()
+
+        with self.assertRaises(AttributeError):
+            neighbors(net)
+
+
+
