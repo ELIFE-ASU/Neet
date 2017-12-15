@@ -1,0 +1,10 @@
+gF = pS
+gE = NOT ( pF OR pP OR pS )
+gP = pF AND NOT pE
+gC = NOT ( pF OR pP )
+gS = NOT ( pC OR pE )
+pF = gF
+pE = gE
+pP = gP
+pC = gC
+pS = gS

@@ -3,6 +3,7 @@
 # license that can be found in the LICENSE file.
 import re
 from neet.statespace import StateSpace
+from neet.exceptions import FormatError
 
 
 class LogicNetwork(object):
@@ -50,7 +51,7 @@ class LogicNetwork(object):
         ::
 
             >>> net = LogicNetwork([((1, 2), {'01', '10'}),
-                                    ((0, 2), ((0, 1), '10', [1, 1]),
+                                    ((0, 2), ((0, 1), '10', [1, 1])),
                                     ((0, 1), {'11'})], ['A', 'B'])
             >>> net.size
             3
@@ -269,7 +270,7 @@ class LogicNetwork(object):
         A logic table file starts with a table title which contains names of
         all nodes. It is a line marked by `##` at the begining with node names
         seperated by commas or spaces. This line is required. For artificial
-        network without node names, arbitrary names will be put in place, e.g.:
+        network without node names, arbitrary names must be put in place, e.g.:
 
         `## A B C D`
 
@@ -298,7 +299,9 @@ class LogicNetwork(object):
         0 1 1
         '''
 
-        Custom comments can be added above the table title, but not below.
+        Custom comments can be added above or below the table title (as long 
+        as they are preceeded with more or less than two # (eg # or ### but 
+        not ##)).
 
         :param table_file: a truth table file
         :returns: a :class:LogicNetwork
@@ -374,7 +377,8 @@ class LogicNetwork(object):
         # an "external" node, i.e, its state stays on or off by itself.
         for i, sub_table in enumerate(table):
             if not sub_table:  # Empty truth table.
-                table[i] = ((i), {'1'})
+                table[i] = ((i,), {'1'})
+
         return cls(table, names)
 
     @classmethod
@@ -456,7 +460,106 @@ class LogicNetwork(object):
 
         return cls(table, names)
 
+    # def _incoming_neighbors(self,index=None):
+    #     if index:
+    #         return list(self.table[index][0])
+    #     else:
+    #         return [list(row[0]) for row in self.table]
 
-class FormatError(Exception):
-    """Exception for errors in logic table's format"""
-    pass
+    def _incoming_neighbors_one_node(self,index):
+        """
+        Return the set of all neighbor nodes, where
+        edge(neighbor_node-->index) exists.
+
+        :param index: node index
+        :returns: the set of all node indices which point toward the index node
+
+        .. rubric:: Basic Use:
+
+        ::
+
+            >>> net = LogicNetwork([((1, 2), set(['11', '10'])), 
+                            ((0,), set(['1'])), 
+                            ((0, 1, 2), set(['010', '011', '101'])), 
+                            ((3,), set(['1']))])
+            >>> net._incoming_neighbors_one_node(2)
+            set([0, 1, 2])
+        """
+        return set(self.table[index][0])
+
+    def _outgoing_neighbors_one_node(self,index):
+        """
+        Return the set of all neighbor nodes, where
+        edge(index-->neighbor_node) exists.
+        
+        :param index: node index
+        :returns: the set of all node indices which the index node points to
+
+        .. rubric:: Basic Use:
+
+        ::
+
+            >>> net = LogicNetwork([((1, 2), set(['11', '10'])), 
+                            ((0,), set(['1'])), 
+                            ((0, 1, 2), set(['010', '011', '101'])), 
+                            ((3,), set(['1']))])
+            >>> net._outgoing_neighbors_one_node(2)
+            set([0, 2])
+        """
+        outgoing_neighbors = []
+        for i, incoming_neighbors in enumerate([list(row[0]) for row in self.table]):
+            if index in incoming_neighbors:
+                outgoing_neighbors.append(i)
+        
+        return set(outgoing_neighbors)
+
+
+    def neighbors(self,index=None,direction='both'):
+        """
+        Return a set of neighbors for a specified node, or a list of sets of
+        neighbors for all nodes in the network.
+        
+        :param index: node index
+        :param direction: type of node neighbors to return (can be 'in','out', or 'both')
+        :returns: a set (if index!=None) or list of sets of neighbors of a node or network or nodes
+
+        .. rubric:: Basic Use:
+
+        ::
+
+            >>> net = LogicNetwork([((1, 2), set(['11', '10'])), 
+                            ((0,), set(['1'])), 
+                            ((0, 1, 2), set(['010', '011', '101'])), 
+                            ((3,), set(['1']))])
+            >>> net.neighbors(index=2,direction='in')
+            set([0,1,2])
+            >>> net.neighbors(index=2,direction='out'),set([0,2])
+            >>> net.neighbors(direction='in')
+            [set([1, 2]), set([0]), set([0, 1, 2]), set([3])]
+            >>> net.neighbors(direction='out')
+            [set([1, 2]), set([0, 2]), set([0, 2]), set([3])]
+            >>> net.neighbors(direction='both')
+            [set([1, 2]), set([0, 2]), set([0, 1, 2]), set([3])]
+        """
+        if direction == 'in':
+            if index:
+                return self._incoming_neighbors_one_node(index)
+            else:
+                return [self._incoming_neighbors_one_node(node) for node in range(len(self.table))]
+
+        elif direction == 'out':
+            if index:
+                return self._outgoing_neighbors_one_node(index)
+            else:
+                return [self._outgoing_neighbors_one_node(node) for node in range(len(self.table))]
+
+        elif direction == 'both':
+            if index:
+                return self._incoming_neighbors_one_node(index)|self._outgoing_neighbors_one_node(index)
+                       
+            else:
+                in_nodes = [self._incoming_neighbors_one_node(node) for node in range(len(self.table))]
+                out_nodes = [self._outgoing_neighbors_one_node(node) for node in range(len(self.table))]
+                return [in_nodes[i]|out_nodes[i] for i in range(len(in_nodes))]
+
+
