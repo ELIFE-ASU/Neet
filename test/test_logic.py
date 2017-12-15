@@ -204,8 +204,7 @@ class TestLogicNetwork(unittest.TestCase):
                                                          set([0, 2]), 
                                                          set([0, 2]), 
                                                          set([3])])
-
-        
+       
     def test_neighbors_both(self):
         
         net = LogicNetwork([((1, 2), set(['11', '10'])), 
@@ -220,6 +219,16 @@ class TestLogicNetwork(unittest.TestCase):
 
         self.assertEqual(net.neighbors(index=2,direction='both'),set([0, 1, 2]))
 
+    def test_node_dependency(self):
+        net = LogicNetwork([((1, 2), set(['11', '10'])), 
+                            ((0,), set(['1'])), 
+                            ((0, 1, 2), set(['010', '011', '101', '100'])), 
+                            ((3,), set(['1']))])
 
+        self.assertTrue(net.is_dependent(0, 1))
+        self.assertFalse(net.is_dependent(0, 2))
+        self.assertFalse(net.is_dependent(0, 3))
 
-
+        self.assertFalse(net.is_dependent(2, 2))
+        self.assertTrue(net.is_dependent(2, 0))
+        self.assertTrue(net.is_dependent(2, 1))

@@ -124,6 +124,8 @@ class LogicNetwork(object):
         :type index: int or None
         :param pin: the indices to pin (or None)
         :type pin: sequence
+        :param values: override values
+        :type values: dict
         :returns: the updated states
 
         .. rubric:: Basic Use:
@@ -205,6 +207,8 @@ class LogicNetwork(object):
         :type index: int or None
         :param pin: the indices to pin (or None)
         :type pin: sequence
+        :param values: override values
+        :type values: dict
         :returns: the updated states
 
         .. rubric:: Basic Use:
@@ -460,6 +464,31 @@ class LogicNetwork(object):
 
         return cls(table, names)
 
+    def is_dependent(self, target, source):
+        """
+        Return True if state of `target` is influenced by the state of `source`.
+
+        :param target: index of the target node
+        :param source: index of the source node
+        """
+        sub_table = self.table[target]
+        if source not in sub_table[0]: # No explicit dependency.
+            return False
+        
+        # Determine implicit dependency.
+        i = sub_table[0].index(source)
+        counter = {}
+        for state in sub_table[1]:
+            state_sans_source = state[:i] + state[i+1:] # State excluding source.
+            if int(state[i]) == 1:
+                counter[state_sans_source] = counter.get(state_sans_source, 0) + 1
+            else:
+                counter[state_sans_source] = counter.get(state_sans_source, 0) - 1
+
+        if any(counter.values()): # States uneven.
+            return True
+        return False
+
     # def _incoming_neighbors(self,index=None):
     #     if index:
     #         return list(self.table[index][0])
@@ -512,7 +541,6 @@ class LogicNetwork(object):
                 outgoing_neighbors.append(i)
         
         return set(outgoing_neighbors)
-
 
     def neighbors(self,index=None,direction='both'):
         """
