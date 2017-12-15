@@ -2,7 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import numpy as np
-from .statespace import StateSpace
+from neet.statespace import StateSpace
 
 class ECA(object):
     """
@@ -173,7 +173,7 @@ class ECA(object):
             >>> ca.boundary = (1,1)
             >>> ca._unsafe_update(xs, pin=[4])
             [0, 1, 0, 1, 0]
-        
+
         .. rubric:: Value Fixing:
 
             >>> ca.boundary = None
@@ -273,7 +273,7 @@ class ECA(object):
             >>> ca.boundary = (1,1)
             >>> ca.update(xs, pin=[4])
             [0, 1, 0, 1, 0]
-        
+
         .. rubric:: Value Fixing:
 
             >>> ca.boundary = None
@@ -341,7 +341,7 @@ class ECA(object):
                 raise ValueError("cannot provide both the index and values arguments")
         elif pin is not None and values is not None:
             for key in values.keys():
-                for key in pin:
+                if key in pin:
                     raise ValueError("cannot set a value for a pinned state")
         if values is not None:
             for val in values.values():

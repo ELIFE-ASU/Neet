@@ -133,7 +133,7 @@ class WTNetwork(object):
 
             >>> net = WTNetwork(3)
             >>> net.state_space()
-            <neet.landscape.StateSpace object at 0x00000193E4DA84A8>
+            <neet.statespace.StateSpace object at 0x00000193E4DA84A8>
             >>> space = net.state_space()
             >>> list(space)
             [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
