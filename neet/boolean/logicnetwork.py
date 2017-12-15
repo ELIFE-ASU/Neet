@@ -13,7 +13,7 @@ class LogicNetwork(object):
     or ``1``.
     """
 
-    def __init__(self, table, names=None):
+    def __init__(self, table, names=None, reduced=False):
         """
         Construct a network from a logic truth table.
 
@@ -74,22 +74,36 @@ class LogicNetwork(object):
             else:
                 self.names = list(names)
 
-        self._state_space = StateSpace(self.size, base=2)
-        self._encoded_table = []
-
+        # Store positive truth table for human reader.
+        self.table = []
         for row in table:
-            # Validate mask.
+            # Validate incoming indices.
             if not (isinstance(row, (list, tuple)) and len(row) == 2):
                 raise ValueError("Invalid table format")
-            # Encode the mask.
-            mask_code = 0
             for idx in row[0]:
                 if idx >= self.size:
                     raise IndexError("mask index out of range")
-                mask_code += 2 ** idx  # Low order, low index.
             # Validate truth table of the sub net.
             if not isinstance(row[1], (list, tuple, set)):
                 raise ValueError("Invalid table format")
+            conditions = set()
+            for condition in row[1]:
+                conditions.add(''.join([str(int(s)) for s in condition]))
+            self.table.append((row[0], conditions))
+
+        if reduced:
+            self.reduce_table()
+
+        self._state_space = StateSpace(self.size, base=2)
+
+        # Encode truth table for faster computation.
+        self._encoded_table = []
+
+        for row in self.table:
+            # Encode the mask.
+            mask_code = 0
+            for idx in row[0]:
+                mask_code += 2 ** idx  # Low order, low index.
             # Encode each condition of truth table.
             encoded_sub_table = set()
             for condition in row[1]:
@@ -98,15 +112,66 @@ class LogicNetwork(object):
                     encoded_condition += 2 ** idx if int(state) else 0
                 encoded_sub_table.add(encoded_condition)
             self._encoded_table.append((mask_code, encoded_sub_table))
-        # Store positive truth table for human reader.
-        self.table = []
-        for row in table:
-            conditions = set()
-            for condition in row[1]:
-                conditions.add(''.join([str(int(s)) for s in condition]))
-            self.table.append((row[0], conditions))
-            
+           
         self.metadata = {}
+
+    def is_dependent(self, target, source):
+        """
+        Return True if state of `target` is influenced by the state of `source`.
+
+        :param target: index of the target node
+        :param source: index of the source node
+        """
+        sub_table = self.table[target]
+        if source not in sub_table[0]: # No explicit dependency.
+            return False
+        
+        # Determine implicit dependency.
+        i = sub_table[0].index(source)
+        counter = {}
+        for state in sub_table[1]:
+            state_sans_source = state[:i] + state[i+1:] # State excluding source.
+            if int(state[i]) == 1:
+                counter[state_sans_source] = counter.get(state_sans_source, 0) + 1
+            else:
+                counter[state_sans_source] = counter.get(state_sans_source, 0) - 1
+
+        if any(counter.values()): # States uneven.
+            return True
+        return False
+
+    def reduce_table(self):
+        """
+        Reduce truth table by removing input nodes which have no logic influence
+        from the truth table of each node.
+        """
+        reduced_table = []
+        for node, (sources, conditions) in enumerate(self.table):
+            reduced_sources = []
+            reduced_indices = []
+            for idx, source in enumerate(sources):
+                if self.is_dependent(node, source):
+                    reduced_sources.append(source)
+                    reduced_indices.append(idx)
+
+            if reduced_sources: # Node state is influenced by other nodes.
+                reduced_conditions = set()
+                for condition in conditions:
+                    reduced_condition = ''.join([str(condition[idx])
+                                                 for idx in reduced_indices])
+                    reduced_conditions.add(reduced_condition)
+            else: # Node state is not influenced by other nodes including itself.
+                reduced_sources = (node, )
+                if node in sources: 
+                    # Node is always activated no matter its previous state.
+                    reduced_conditions = {'0', '1'}
+                else:
+                    # Node state is not changed.
+                    reduced_conditions = {'1'}
+
+            reduced_table.append((tuple(reduced_sources), reduced_conditions))
+
+        self.table = reduced_table
 
     def state_space(self):
         return self._state_space
@@ -267,7 +332,7 @@ class LogicNetwork(object):
         return self._unsafe_update(net_state, index, pin, values)
 
     @classmethod
-    def read_table(cls, table_file):
+    def read_table(cls, table_file, reduced=False):
         """
         Read a network from a truth table file.
 
@@ -383,7 +448,7 @@ class LogicNetwork(object):
             if not sub_table:  # Empty truth table.
                 table[i] = ((i,), {'1'})
 
-        return cls(table, names)
+        return cls(table, names, reduced)
 
     @classmethod
     def read_logic(cls, logic_file, external_nodes_file=None):
@@ -462,32 +527,7 @@ class LogicNetwork(object):
             for i in range(len(extras)):
                 table.append((((len(names) - len(extras) + i),), set('1')))
 
-        return cls(table, names)
-
-    def is_dependent(self, target, source):
-        """
-        Return True if state of `target` is influenced by the state of `source`.
-
-        :param target: index of the target node
-        :param source: index of the source node
-        """
-        sub_table = self.table[target]
-        if source not in sub_table[0]: # No explicit dependency.
-            return False
-        
-        # Determine implicit dependency.
-        i = sub_table[0].index(source)
-        counter = {}
-        for state in sub_table[1]:
-            state_sans_source = state[:i] + state[i+1:] # State excluding source.
-            if int(state[i]) == 1:
-                counter[state_sans_source] = counter.get(state_sans_source, 0) + 1
-            else:
-                counter[state_sans_source] = counter.get(state_sans_source, 0) - 1
-
-        if any(counter.values()): # States uneven.
-            return True
-        return False
+        return cls(table, names, reduced=True)
 
     # def _incoming_neighbors(self,index=None):
     #     if index:

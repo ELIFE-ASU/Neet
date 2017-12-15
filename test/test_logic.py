@@ -220,15 +220,40 @@ class TestLogicNetwork(unittest.TestCase):
         self.assertEqual(net.neighbors(index=2,direction='both'),set([0, 1, 2]))
 
     def test_node_dependency(self):
-        net = LogicNetwork([((1, 2), set(['11', '10'])), 
-                            ((0,), set(['1'])), 
-                            ((0, 1, 2), set(['010', '011', '101', '100'])), 
-                            ((3,), set(['1']))])
+        net = LogicNetwork([((1, 2), {'11', '10'}), 
+                            ((0,), {'1'}), 
+                            ((0, 1, 2), {'010', '011', '101', '100'})])
 
         self.assertTrue(net.is_dependent(0, 1))
         self.assertFalse(net.is_dependent(0, 2))
-        self.assertFalse(net.is_dependent(0, 3))
 
         self.assertFalse(net.is_dependent(2, 2))
         self.assertTrue(net.is_dependent(2, 0))
         self.assertTrue(net.is_dependent(2, 1))
+
+    def test_reduce_table(self):
+        net = LogicNetwork([((1, 2), {'11', '10'}),
+                            ((0,), {'1'}),
+                            ((0, 1, 2), {'010', '011', '101', '100'})],
+                           reduced=True)
+
+        self.assertEqual(net.table,
+                         [((1,), {'1'}),
+                          ((0,), {'1'}),
+                          ((0, 1), {'01', '10'})])
+
+        net = LogicNetwork([((0, 1), {'00', '01', '10', '11'}),
+                            ((1,), {'1'})],
+                           reduced=True)
+
+        self.assertEqual(net.table,
+                         [((0,), {'0', '1'}),
+                          ((1,), {'1'})])
+
+        net = LogicNetwork([((1,), {'0', '1'}),
+                            ((1,), {'1'})],
+                           reduced=True)
+
+        self.assertEqual(net.table,
+                         [((0,), {'1'}),
+                          ((1,), {'1'})])
