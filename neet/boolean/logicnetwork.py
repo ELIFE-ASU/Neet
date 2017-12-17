@@ -97,23 +97,25 @@ class LogicNetwork(object):
         self._state_space = StateSpace(self.size, base=2)
 
         # Encode truth table for faster computation.
-        self._encoded_table = []
+        self._encode_table()
 
-        for row in self.table:
+        self.metadata = {}
+
+    def _encode_table(self):
+        self._encoded_table = []
+        for indices, conditions in self.table:
             # Encode the mask.
             mask_code = 0
-            for idx in row[0]:
+            for idx in indices:
                 mask_code += 2 ** idx  # Low order, low index.
             # Encode each condition of truth table.
             encoded_sub_table = set()
-            for condition in row[1]:
+            for condition in conditions:
                 encoded_condition = 0
-                for idx, state in zip(row[0], condition):
+                for idx, state in zip(indices, condition):
                     encoded_condition += 2 ** idx if int(state) else 0
                 encoded_sub_table.add(encoded_condition)
             self._encoded_table.append((mask_code, encoded_sub_table))
-           
-        self.metadata = {}
 
     def is_dependent(self, target, source):
         """
@@ -123,20 +125,23 @@ class LogicNetwork(object):
         :param source: index of the source node
         """
         sub_table = self.table[target]
-        if source not in sub_table[0]: # No explicit dependency.
+        if source not in sub_table[0]:  # No explicit dependency.
             return False
-        
+
         # Determine implicit dependency.
         i = sub_table[0].index(source)
         counter = {}
         for state in sub_table[1]:
-            state_sans_source = state[:i] + state[i+1:] # State excluding source.
+            # State excluding source.
+            state_sans_source = state[:i] + state[i + 1:]
             if int(state[i]) == 1:
-                counter[state_sans_source] = counter.get(state_sans_source, 0) + 1
+                counter[state_sans_source] = counter.get(
+                    state_sans_source, 0) + 1
             else:
-                counter[state_sans_source] = counter.get(state_sans_source, 0) - 1
+                counter[state_sans_source] = counter.get(
+                    state_sans_source, 0) - 1
 
-        if any(counter.values()): # States uneven.
+        if any(counter.values()):  # States uneven.
             return True
         return False
 
@@ -154,15 +159,15 @@ class LogicNetwork(object):
                     reduced_sources.append(source)
                     reduced_indices.append(idx)
 
-            if reduced_sources: # Node state is influenced by other nodes.
+            if reduced_sources:  # Node state is influenced by other nodes.
                 reduced_conditions = set()
                 for condition in conditions:
                     reduced_condition = ''.join([str(condition[idx])
                                                  for idx in reduced_indices])
                     reduced_conditions.add(reduced_condition)
-            else: # Node state is not influenced by other nodes including itself.
+            else:  # Node state is not influenced by other nodes including itself.
                 reduced_sources = (node, )
-                if node in sources: 
+                if node in sources:
                     # Node is always activated no matter its previous state.
                     reduced_conditions = {'0', '1'}
                 else:
@@ -172,6 +177,8 @@ class LogicNetwork(object):
             reduced_table.append((tuple(reduced_sources), reduced_conditions))
 
         self.table = reduced_table
+
+        self._encode_table()
 
     def state_space(self):
         return self._state_space
@@ -535,7 +542,7 @@ class LogicNetwork(object):
     #     else:
     #         return [list(row[0]) for row in self.table]
 
-    def _incoming_neighbors_one_node(self,index):
+    def _incoming_neighbors_one_node(self, index):
         """
         Return the set of all neighbor nodes, where
         edge(neighbor_node-->index) exists.
@@ -556,11 +563,11 @@ class LogicNetwork(object):
         """
         return set(self.table[index][0])
 
-    def _outgoing_neighbors_one_node(self,index):
+    def _outgoing_neighbors_one_node(self, index):
         """
         Return the set of all neighbor nodes, where
         edge(index-->neighbor_node) exists.
-        
+
         :param index: node index
         :returns: the set of all node indices which the index node points to
 
@@ -579,14 +586,14 @@ class LogicNetwork(object):
         for i, incoming_neighbors in enumerate([list(row[0]) for row in self.table]):
             if index in incoming_neighbors:
                 outgoing_neighbors.append(i)
-        
+
         return set(outgoing_neighbors)
 
-    def neighbors(self,index=None,direction='both'):
+    def neighbors(self, index=None, direction='both'):
         """
         Return a set of neighbors for a specified node, or a list of sets of
         neighbors for all nodes in the network.
-        
+
         :param index: node index
         :param direction: type of node neighbors to return (can be 'in','out', or 'both')
         :returns: a set (if index!=None) or list of sets of neighbors of a node or network or nodes
@@ -623,11 +630,11 @@ class LogicNetwork(object):
 
         elif direction == 'both':
             if index:
-                return self._incoming_neighbors_one_node(index)|self._outgoing_neighbors_one_node(index)
-                       
+                return self._incoming_neighbors_one_node(index) | self._outgoing_neighbors_one_node(index)
+
             else:
-                in_nodes = [self._incoming_neighbors_one_node(node) for node in range(len(self.table))]
-                out_nodes = [self._outgoing_neighbors_one_node(node) for node in range(len(self.table))]
-                return [in_nodes[i]|out_nodes[i] for i in range(len(in_nodes))]
-
-
+                in_nodes = [self._incoming_neighbors_one_node(
+                    node) for node in range(len(self.table))]
+                out_nodes = [self._outgoing_neighbors_one_node(
+                    node) for node in range(len(self.table))]
+                return [in_nodes[i] | out_nodes[i] for i in range(len(in_nodes))]
