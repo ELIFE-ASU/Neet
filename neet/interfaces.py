@@ -2,6 +2,8 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 
+import networkx as nx
+
 def is_network(thing):
     """
     Determine whether an *object* or *type* meets the interface requirement of
@@ -122,3 +124,24 @@ def neighbors(net,index=None,direction='both',**kwargs):
 
     else:
         return net.neighbors(index=index,direction=direction)
+
+def to_networkx_graph(net):
+    """
+    Return networkx graph given neet network.  Requires networkx.
+    """
+    edges = []
+    names = net.names
+    for i,jSet in enumerate(net.neighbors(direction='out')):
+        for j in jSet:
+            edges.append((names[i],names[j]))
+    return nx.DiGraph(edges,name=net.metadata.get('name'))
+
+def draw(net,filename=None):
+    """
+    Output pdf with simple network drawing.  Requires networkx and pygraphviz.
+    """
+    if filename is None: filename = net.metadata.get('name','network')+'.pdf'
+    g = to_networkx_graph(net)
+    nx.nx_agraph.view_pygraphviz(g,prog='circo',path=filename)
+
+
