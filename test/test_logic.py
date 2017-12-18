@@ -6,6 +6,7 @@ import unittest
 from neet.boolean import LogicNetwork
 from neet.exceptions import FormatError
 
+
 class TestLogicNetwork(unittest.TestCase):
     def test_is_network(self):
         from neet.interfaces import is_network
@@ -79,147 +80,205 @@ class TestLogicNetwork(unittest.TestCase):
 
     def test_has_metadata(self):
         net = LogicNetwork([((0,), {'0'})])
-        self.assertTrue(hasattr(net,'metadata'))
-        self.assertEqual(type(net.metadata),dict)
-
-    
+        self.assertTrue(hasattr(net, 'metadata'))
+        self.assertEqual(type(net.metadata), dict)
 
     def test_logic_simple_read(self):
         from os.path import dirname, abspath, realpath, join
 
-        ## Determine the path to the "data" directory of the neet.test module
+        # Determine the path to the "data" directory of the neet.test module
         DATA_PATH = join(dirname(abspath(realpath(__file__))), "data")
 
-        ## Test simple network read in
+        # Test simple network read in
         SIMPLE_TRUTH_TABLE = join(DATA_PATH, "test_simple-truth_table.txt")
         simple = LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
 
         self.assertEqual(simple.names, ['A', 'B', 'C', 'D'])
-        self.assertEqual(simple.table, [((1, 2), set(['11', '10'])), 
-                                        ((0,), set(['1'])), 
-                                        ((1, 2, 0), set(['010', '011', '101'])), 
+        self.assertEqual(simple.table, [((1, 2), set(['11', '10'])),
+                                        ((0,), set(['1'])),
+                                        ((1, 2, 0), set(
+                                            ['010', '011', '101'])),
                                         ((3,), set(['1']))])
         simple.neighbors()
 
     def test_logic_simple_read_no_commas(self):
         from os.path import dirname, abspath, realpath, join
 
-        ## Determine the path to the "data" directory of the neet.test module
+        # Determine the path to the "data" directory of the neet.test module
         DATA_PATH = join(dirname(abspath(realpath(__file__))), "data")
 
-        ## Test simple network read in (no commas)
-        SIMPLE_TRUTH_TABLE = join(DATA_PATH, "test_simple_no_commas-truth_table.txt")
+        # Test simple network read in (no commas)
+        SIMPLE_TRUTH_TABLE = join(
+            DATA_PATH, "test_simple_no_commas-truth_table.txt")
         simple = LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
 
         self.assertEqual(simple.names, ['A', 'B', 'C', 'D'])
-        self.assertEqual(simple.table, [((1, 2), set(['11', '10'])), 
-                                        ((0,), set(['1'])), 
-                                        ((1, 2, 0), set(['010', '011', '101'])), 
+        self.assertEqual(simple.table, [((1, 2), set(['11', '10'])),
+                                        ((0,), set(['1'])),
+                                        ((1, 2, 0), set(
+                                            ['010', '011', '101'])),
                                         ((3,), set(['1']))])
 
     def test_logic_simple_read_no_header(self):
         from os.path import dirname, abspath, realpath, join
 
-        ## Determine the path to the "data" directory of the neet.test module
+        # Determine the path to the "data" directory of the neet.test module
         DATA_PATH = join(dirname(abspath(realpath(__file__))), "data")
 
-        ## Test simple network read in (no header)
-        SIMPLE_TRUTH_TABLE = join(DATA_PATH, "test_simple_no_header-truth_table.txt")
+        # Test simple network read in (no header)
+        SIMPLE_TRUTH_TABLE = join(
+            DATA_PATH, "test_simple_no_header-truth_table.txt")
         with self.assertRaises(FormatError):
             simple = LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
 
     def test_logic_simple_read_no_node_headers(self):
         from os.path import dirname, abspath, realpath, join
 
-        ## Determine the path to the "data" directory of the neet.test module
+        # Determine the path to the "data" directory of the neet.test module
         DATA_PATH = join(dirname(abspath(realpath(__file__))), "data")
 
-        ## Test simple network read in (no header)
-        SIMPLE_TRUTH_TABLE = join(DATA_PATH, "test_simple_no_node_headers-truth_table.txt")
+        # Test simple network read in (no header)
+        SIMPLE_TRUTH_TABLE = join(
+            DATA_PATH, "test_simple_no_node_headers-truth_table.txt")
         with self.assertRaises(FormatError):
             simple = LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
 
     def test_logic_simple_read_empty(self):
         from os.path import dirname, abspath, realpath, join
 
-        ## Determine the path to the "data" directory of the neet.test module
+        # Determine the path to the "data" directory of the neet.test module
         DATA_PATH = join(dirname(abspath(realpath(__file__))), "data")
 
-        ## Test simple network read in (no header)
-        SIMPLE_TRUTH_TABLE = join(DATA_PATH, "test_simple_empty-truth_table.txt")
+        # Test simple network read in (no header)
+        SIMPLE_TRUTH_TABLE = join(
+            DATA_PATH, "test_simple_empty-truth_table.txt")
         simple = LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
 
         self.assertEqual(simple.names, ['A', 'B', 'C', 'D'])
-        self.assertEqual(simple.table, [((0,), set(['1'])), 
-                                        ((1,), set(['1'])), 
-                                        ((2,), set(['1'])), 
+        self.assertEqual(simple.table, [((0,), set(['1'])),
+                                        ((1,), set(['1'])),
+                                        ((2,), set(['1'])),
                                         ((3,), set(['1']))])
 
     def test_logic_simple_read_custom_comment(self):
         from os.path import dirname, abspath, realpath, join
 
-        ## Determine the path to the "data" directory of the neet.test module
+        # Determine the path to the "data" directory of the neet.test module
         DATA_PATH = join(dirname(abspath(realpath(__file__))), "data")
 
-        ## Test simple network read in (no header)
-        SIMPLE_TRUTH_TABLE = join(DATA_PATH, "test_simple_custom_comment-truth_table.txt")
+        # Test simple network read in (no header)
+        SIMPLE_TRUTH_TABLE = join(
+            DATA_PATH, "test_simple_custom_comment-truth_table.txt")
         simple = LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
 
         self.assertEqual(simple.names, ['A', 'B', 'C', 'D'])
-        self.assertEqual(simple.table, [((1, 2), set(['11', '10'])), 
-                                        ((0,), set(['1'])), 
-                                        ((1, 2, 0), set(['010', '011', '101'])), 
+        self.assertEqual(simple.table, [((1, 2), set(['11', '10'])),
+                                        ((0,), set(['1'])),
+                                        ((1, 2, 0), set(
+                                            ['010', '011', '101'])),
                                         ((3,), set(['1']))])
 
     def test_neighbors_in(self):
 
-        net = LogicNetwork([((1, 2), set(['11', '10'])), 
-                            ((0,), set(['1'])), 
-                            ((0, 1, 2), set(['010', '011', '101'])), 
+        net = LogicNetwork([((1, 2), set(['11', '10'])),
+                            ((0,), set(['1'])),
+                            ((0, 1, 2), set(['010', '011', '101'])),
                             ((3,), set(['1']))])
 
-        self.assertEqual(net.neighbors(index=2,direction='in'),set([0,1,2]))
+        self.assertEqual(net.neighbors(
+            index=2, direction='in'), set([0, 1, 2]))
 
-        self.assertEqual(net.neighbors(direction='in'),[set([1, 2]), 
-                                                        set([0]), 
-                                                        set([0, 1, 2]), 
-                                                        set([3])])
-
-        with self.assertRaises(TypeError):
-            self.assertEqual(net.neighbors(index=2.0,direction='in'))
+        self.assertEqual(net.neighbors(direction='in'), [set([1, 2]),
+                                                         set([0]),
+                                                         set([0, 1, 2]),
+                                                         set([3])])
 
         with self.assertRaises(TypeError):
-            self.assertEqual(net.neighbors(index='2',direction='in'))
+            self.assertEqual(net.neighbors(index=2.0, direction='in'))
+
+        with self.assertRaises(TypeError):
+            self.assertEqual(net.neighbors(index='2', direction='in'))
 
     def test_neighbors_out(self):
 
-        net = LogicNetwork([((1, 2), set(['11', '10'])), 
-                            ((0,), set(['1'])), 
-                            ((0, 1, 2), set(['010', '011', '101'])), 
+        net = LogicNetwork([((1, 2), set(['11', '10'])),
+                            ((0,), set(['1'])),
+                            ((0, 1, 2), set(['010', '011', '101'])),
                             ((3,), set(['1']))])
 
-        self.assertEqual(net.neighbors(index=2,direction='out'),set([0,2]))
+        self.assertEqual(net.neighbors(index=2, direction='out'), set([0, 2]))
 
-        self.assertEqual(net.neighbors(direction='out'),[set([1, 2]), 
-                                                         set([0, 2]), 
-                                                         set([0, 2]), 
-                                                         set([3])])
-
-        
-    def test_neighbors_both(self):
-        
-        net = LogicNetwork([((1, 2), set(['11', '10'])), 
-                            ((0,), set(['1'])), 
-                            ((0, 1, 2), set(['010', '011', '101'])), 
-                            ((3,), set(['1']))])
-
-        self.assertEqual(net.neighbors(direction='both'),[set([1, 2]), 
-                                                          set([0, 2]), 
-                                                          set([0, 1, 2]), 
+        self.assertEqual(net.neighbors(direction='out'), [set([1, 2]),
+                                                          set([0, 2]),
+                                                          set([0, 2]),
                                                           set([3])])
 
-        self.assertEqual(net.neighbors(index=2,direction='both'),set([0, 1, 2]))
+    def test_neighbors_both(self):
 
+        net = LogicNetwork([((1, 2), set(['11', '10'])),
+                            ((0,), set(['1'])),
+                            ((0, 1, 2), set(['010', '011', '101'])),
+                            ((3,), set(['1']))])
 
+        self.assertEqual(net.neighbors(direction='both'), [set([1, 2]),
+                                                           set([0, 2]),
+                                                           set([0, 1, 2]),
+                                                           set([3])])
 
+        self.assertEqual(net.neighbors(
+            index=2, direction='both'), set([0, 1, 2]))
 
+    def test_node_dependency(self):
+        net = LogicNetwork([((1, 2), {'11', '10'}),
+                            ((0,), {'1'}),
+                            ((0, 1, 2), {'010', '011', '101', '100'})])
+
+        self.assertTrue(net.is_dependent(0, 1))
+        self.assertFalse(net.is_dependent(0, 2))
+
+        self.assertFalse(net.is_dependent(2, 2))
+        self.assertTrue(net.is_dependent(2, 0))
+        self.assertTrue(net.is_dependent(2, 1))
+
+    def test_reduce_table(self):
+        table = [((1, 2), {'11', '10'}),
+                 ((0,), {'1'}),
+                 ((0, 1, 2), {'010', '011', '101', '100'})]
+        net = LogicNetwork(table, reduced=True)
+
+        reduced_table = [((1,), {'1'}),
+                         ((0,), {'1'}),
+                         ((0, 1), {'01', '10'})]
+        self.assertEqual(net.table, reduced_table)
+
+        net = LogicNetwork(table)
+        self.assertEqual(net.table, table)
+        self.assertEqual(net._encoded_table,
+                         [(6, {6, 2}), (1, {1}), (7, {2, 6, 5, 1})])
+
+        net.reduce_table()
+        self.assertEqual(net.table, reduced_table)
+        self.assertEqual(net._encoded_table,
+                         [(2, {2}), (1, {1}), (3, {2, 1})])
+
+        net.reduce_table()
+        self.assertEqual(net.table,
+                         [((1,), {'1'}),
+                          ((0,), {'1'}),
+                          ((0, 1), {'01', '10'})])
+
+        net = LogicNetwork([((0, 1), {'00', '01', '10', '11'}),
+                            ((1,), {'1'})],
+                           reduced=True)
+
+        self.assertEqual(net.table,
+                         [((0,), {'0', '1'}),
+                          ((1,), {'1'})])
+
+        net = LogicNetwork([((1,), {'0', '1'}),
+                            ((1,), {'1'})],
+                           reduced=True)
+
+        self.assertEqual(net.table,
+                         [((0,), {'1'}),
+                          ((1,), {'1'})])
