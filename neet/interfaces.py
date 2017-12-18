@@ -139,8 +139,12 @@ def to_networkx_graph(net):
 def draw(net,format='pdf',filename=None):
     """
     Output a file with a simple network drawing.  
+    
     Requires networkx and pygraphviz.
-    Supported image formats are determined by pygraphviz.
+    
+    Supported image formats are determined by graphviz.  In particular,
+    pdf support requires 'cairo' and 'pango' to be installed prior to
+    graphviz installation.
     """
     if filename is None: filename = net.metadata.get('name','network')
     if not filename.endswith('.'+format): filename += '.'+format
