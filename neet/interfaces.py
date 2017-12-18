@@ -136,11 +136,14 @@ def to_networkx_graph(net):
             edges.append((names[i],names[j]))
     return nx.DiGraph(edges,name=net.metadata.get('name'))
 
-def draw(net,filename=None):
+def draw(net,format='pdf',filename=None):
     """
-    Output pdf with simple network drawing.  Requires networkx and pygraphviz.
+    Output a file with a simple network drawing.  
+    Requires networkx and pygraphviz.
+    Supported image formats are determined by pygraphviz.
     """
-    if filename is None: filename = net.metadata.get('name','network')+'.pdf'
+    if filename is None: filename = net.metadata.get('name','network')
+    if not filename.endswith('.'+format): filename += '.'+format
     g = to_networkx_graph(net)
     nx.nx_agraph.view_pygraphviz(g,prog='circo',path=filename)
 
