@@ -27,4 +27,4 @@ def wt_to_logic(net):
 
         truth_table.append((indices, conditions))
 
-    return LogicNetwork(truth_table)
+    return LogicNetwork(truth_table, reduced=True)
