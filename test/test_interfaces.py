@@ -93,7 +93,7 @@ class TestCore(unittest.TestCase):
     def test_neighbors_ECA(self):
         eca = ca.ECA(30)
 
-        self.assertTrue(neighbors(eca,size=4),[set([0, 1, 3]), 
+        self.assertEqual(neighbors(eca,size=4),[set([0, 1, 3]),
                                                set([0, 1, 2]), 
                                                set([1, 2, 3]), 
                                                set([0, 2, 3])])
