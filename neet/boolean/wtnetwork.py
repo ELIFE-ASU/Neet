@@ -704,19 +704,19 @@ class WTNetwork(object):
              set([2, 3, 4, 6, 7, 8])]
         """
         if direction == 'in':
-            if index:
+            if index is not None:
                 return self._incoming_neighbors_one_node(index)
             else:
                 return [self._incoming_neighbors_one_node(node) for node in range(self.size)]
 
         if direction == 'out':
-            if index:
+            if index is not None:
                 return self._outgoing_neighbors_one_node(index)
             else:
                 return [self._outgoing_neighbors_one_node(node) for node in range(self.size)]
 
         if direction == 'both':
-            if index:
+            if index is not None:
                 return self._incoming_neighbors_one_node(index)|self._outgoing_neighbors_one_node(index)
                        
             else:

@@ -617,19 +617,19 @@ class LogicNetwork(object):
             [set([1, 2]), set([0, 2]), set([0, 1, 2]), set([3])]
         """
         if direction == 'in':
-            if index:
+            if index is not None:
                 return self._incoming_neighbors_one_node(index)
             else:
                 return [self._incoming_neighbors_one_node(node) for node in range(len(self.table))]
 
         elif direction == 'out':
-            if index:
+            if index is not None:
                 return self._outgoing_neighbors_one_node(index)
             else:
                 return [self._outgoing_neighbors_one_node(node) for node in range(len(self.table))]
 
         elif direction == 'both':
-            if index:
+            if index is not None:
                 return self._incoming_neighbors_one_node(index) | self._outgoing_neighbors_one_node(index)
 
             else:

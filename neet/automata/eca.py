@@ -654,19 +654,19 @@ class ECA(object):
             ValueError: index must be <size if self.boundary==None
         """
         if direction == 'in':
-            if index:
+            if index is not None:
                 return self._incoming_neighbors_one_node(size,index)
             else:
                 return [self._incoming_neighbors_one_node(size,node) for node in range(size)]
 
         if direction == 'out':
-            if index:
+            if index is not None:
                 return self._outgoing_neighbors_one_node(size,index)
             else:
                 return [self._outgoing_neighbors_one_node(size,node) for node in range(size)]
 
         if direction == 'both':
-            if index:
+            if index is not None:
                 return self._incoming_neighbors_one_node(size,index)|self._outgoing_neighbors_one_node(size,index)
                        
             else:
