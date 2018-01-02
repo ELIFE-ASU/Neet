@@ -91,9 +91,6 @@ def _states_limited(nodes,state0):
         stateFlipped[nodes[0]] = (stateFlipped[nodes[0]]+1)%2
         return _states_limited(nodes[1:],state0) + _states_limited(nodes[1:],stateFlipped)
 
-def _connections(net,nodei):
-    return net.table[nodei][0]
-
 def average_difference_matrix(net,states=None,weights=None,calc_trans=True):
     """
     Averaged over states, what is the probability
@@ -110,7 +107,7 @@ def average_difference_matrix(net,states=None,weights=None,calc_trans=True):
     N = net.size
     Q = np.zeros((N,N))
 
-    if (states is not None) or (weights is not None) or (not hasattr(net,'table')):
+    if (states is not None) or (weights is not None):
         # explicitly calculate difference matrix for each state
     
         # optionally pre-calculate transitions
@@ -142,7 +139,7 @@ def average_difference_matrix(net,states=None,weights=None,calc_trans=True):
         state0 = np.zeros(N,dtype=int)
 
         for i in range(N):
-            nodesInfluencingI = _connections(net,i)
+            nodesInfluencingI = list(net.neighbors(index=i,direction='in'))
             for jindex,j in enumerate(nodesInfluencingI):
             
                 # for each state of other nodes, does j matter?
