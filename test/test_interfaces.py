@@ -102,14 +102,26 @@ class TestCore(unittest.TestCase):
             neighbors(eca)
 
     def test_neighbors_WTNetwork(self):
-        net = bnet.WTNetwork([[1]])
+        net = bnet.WTNetwork([[1,0],[1,1]])
 
-        self.assertTrue(neighbors(net),[set([0])])
+        self.assertEqual(neighbors(net),[set([0,1]),set([0,1])])
+        # test kwargs
+        self.assertEqual(neighbors(net,direction='in'),
+                        [set([0]),set([0,1])])
+        self.assertEqual(neighbors(net,direction='out'),
+                        [set([0,1]),set([1])])
+        self.assertEqual(neighbors(net,index=0),set([0,1]))
 
     def test_neighbors_LogicNetwork(self):
-        net = bnet.LogicNetwork([((0,), {'0'})])
+        net = bnet.LogicNetwork([((0,1), {'00', '11'}), ((1,), {'1'})])
 
-        self.assertTrue(neighbors(net),[set([0])])
+        self.assertEqual(neighbors(net),[set([0,1]),set([0,1])])
+        # test kwargs
+        self.assertEqual(neighbors(net,direction='in'),
+                         [set([0,1]),set([1])])
+        self.assertEqual(neighbors(net,direction='out'),
+                         [set([0]),set([0,1])])
+        self.assertEqual(neighbors(net,index=0),set([0,1]))
 
     def test_neighbors_IsNetwork(self):
         net = self.IsNetwork()
