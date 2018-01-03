@@ -102,7 +102,7 @@ def average_difference_matrix(net,states=None,weights=None,calc_trans=True):
                           Otherwise, providing a list of states will calculate 
                           the average over only those states.
     calc_trans (True)   : Optionally pre-calculate all transitions.  Only used
-                          when states argument is not None.
+                          when states or weights argument is not None.
     """
     N = net.size
     Q = np.zeros((N,N))

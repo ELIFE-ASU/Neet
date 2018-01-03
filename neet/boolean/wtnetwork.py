@@ -607,7 +607,10 @@ class WTNetwork(object):
             >>> net._incoming_neighbors_one_node(2)
             set([0, 1, 5, 8])
         """
-        return set([i for i,e in enumerate(self.weights[index,:]) if e!=0])
+        if self.theta is type(self).split_threshold:
+            return set([i for i,e in enumerate(self.weights[index,:]) if e!=0 or i==index])
+        else:
+            return set([i for i,e in enumerate(self.weights[index,:]) if e!=0])
 
     def _outgoing_neighbors_one_node(self,index):
         """
@@ -635,7 +638,10 @@ class WTNetwork(object):
             >>> net._outgoing_neighbors_one_node(2)
             set([1, 5])
         """
-        return set([i for i,e in enumerate(self.weights[:,index]) if e!=0])
+        if self.theta is type(self).split_threshold:
+            return set([i for i,e in enumerate(self.weights[:,index]) if e!=0 or i==index])
+        else:
+            return set([i for i,e in enumerate(self.weights[:,index]) if e!=0])
         # outgoing_neighbors = []
         # for i, incoming_neighbors in enumerate([list(row[0]) for row in self.table]):
         #     if index in incoming_neighbors:
