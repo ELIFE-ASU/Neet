@@ -545,7 +545,7 @@ class LogicNetwork(object):
     #     else:
     #         return [list(row[0]) for row in self.table]
 
-    def _incoming_neighbors_one_node(self, index):
+    def incoming_neighbors(self, index):
         """
         Return the set of all neighbor nodes, where
         edge(neighbor_node-->index) exists.
@@ -557,16 +557,16 @@ class LogicNetwork(object):
 
         ::
 
-            >>> net = LogicNetwork([((1, 2), set(['11', '10'])), 
-                            ((0,), set(['1'])), 
-                            ((0, 1, 2), set(['010', '011', '101'])), 
+            >>> net = LogicNetwork([((1, 2), set(['11', '10'])),
+                            ((0,), set(['1'])),
+                            ((0, 1, 2), set(['010', '011', '101'])),
                             ((3,), set(['1']))])
-            >>> net._incoming_neighbors_one_node(2)
+            >>> net.incoming_neighbors(2)
             set([0, 1, 2])
         """
         return set(self.table[index][0])
 
-    def _outgoing_neighbors_one_node(self, index):
+    def outgoing_neighbors(self, index):
         """
         Return the set of all neighbor nodes, where
         edge(index-->neighbor_node) exists.
@@ -578,28 +578,28 @@ class LogicNetwork(object):
 
         ::
 
-            >>> net = LogicNetwork([((1, 2), set(['11', '10'])), 
-                            ((0,), set(['1'])), 
-                            ((0, 1, 2), set(['010', '011', '101'])), 
+            >>> net = LogicNetwork([((1, 2), set(['11', '10'])),
+                            ((0,), set(['1'])),
+                            ((0, 1, 2), set(['010', '011', '101'])),
                             ((3,), set(['1']))])
-            >>> net._outgoing_neighbors_one_node(2)
+            >>> net.outgoing_neighbors(2)
             set([0, 2])
         """
         outgoing_neighbors = []
-        for i, incoming_neighbors in enumerate([list(row[0]) for row in self.table]):
+        for i, incoming_neighbors in enumerate([row[0] for row in self.table]):
             if index in incoming_neighbors:
                 outgoing_neighbors.append(i)
 
         return set(outgoing_neighbors)
 
-    def neighbors(self, index=None, direction='both'):
+    def neighbors(self, index):
         """
         Return a set of neighbors for a specified node, or a list of sets of
         neighbors for all nodes in the network.
 
         :param index: node index
         :param direction: type of node neighbors to return (can be 'in','out', or 'both')
-        :returns: a set (if index!=None) or list of sets of neighbors of a node or network or nodes
+        :returns: a set of neighbors of a node
 
         .. rubric:: Basic Use:
 
@@ -609,35 +609,7 @@ class LogicNetwork(object):
                             ((0,), set(['1'])), 
                             ((0, 1, 2), set(['010', '011', '101'])), 
                             ((3,), set(['1']))])
-            >>> net.neighbors(index=2,direction='in')
-            set([0,1,2])
-            >>> net.neighbors(index=2,direction='out'),set([0,2])
-            >>> net.neighbors(direction='in')
-            [set([1, 2]), set([0]), set([0, 1, 2]), set([3])]
-            >>> net.neighbors(direction='out')
-            [set([1, 2]), set([0, 2]), set([0, 2]), set([3])]
-            >>> net.neighbors(direction='both')
-            [set([1, 2]), set([0, 2]), set([0, 1, 2]), set([3])]
+            >>> net.neighbors(2)
+            set([0,2])
         """
-        if direction == 'in':
-            if index:
-                return self._incoming_neighbors_one_node(index)
-            else:
-                return [self._incoming_neighbors_one_node(node) for node in range(len(self.table))]
-
-        elif direction == 'out':
-            if index:
-                return self._outgoing_neighbors_one_node(index)
-            else:
-                return [self._outgoing_neighbors_one_node(node) for node in range(len(self.table))]
-
-        elif direction == 'both':
-            if index:
-                return self._incoming_neighbors_one_node(index) | self._outgoing_neighbors_one_node(index)
-
-            else:
-                in_nodes = [self._incoming_neighbors_one_node(
-                    node) for node in range(len(self.table))]
-                out_nodes = [self._outgoing_neighbors_one_node(
-                    node) for node in range(len(self.table))]
-                return [in_nodes[i] | out_nodes[i] for i in range(len(in_nodes))]
+        return self.incoming_neighbors(index) | self.outgoing_neighbors(index)
