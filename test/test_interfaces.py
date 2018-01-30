@@ -96,7 +96,7 @@ class TestCore(unittest.TestCase):
         self.assertTrue(neighbors(eca, 1, size=4), set([0, 1, 2]))
 
         with self.assertRaises(AttributeError):
-            neighbors(eca)
+            neighbors(eca, 1)
 
     def test_neighbors_WTNetwork(self):
         net = bnet.WTNetwork([[1]])
@@ -114,8 +114,8 @@ class TestCore(unittest.TestCase):
         # with self.assertRaises(AttributeError):
         #     neighbors(net)
 
-    def test_neighbors_IsNotNetwork(self):
-        net = self.IsNotNetwork()
-
-        with self.assertRaises(AttributeError):
-            neighbors(net)
+    # def test_neighbors_IsNotNetwork(self):
+    #     net = self.IsNotNetwork()
+    #
+    #     with self.assertRaises(AttributeError):
+    #         neighbors(net)
