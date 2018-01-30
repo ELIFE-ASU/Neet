@@ -545,7 +545,7 @@ class LogicNetwork(object):
     #     else:
     #         return [list(row[0]) for row in self.table]
 
-    def incoming_neighbors(self, index):
+    def neighbors_in(self, index):
         """
         Return the set of all neighbor nodes, where
         edge(neighbor_node-->index) exists.
@@ -561,12 +561,12 @@ class LogicNetwork(object):
                             ((0,), set(['1'])),
                             ((0, 1, 2), set(['010', '011', '101'])),
                             ((3,), set(['1']))])
-            >>> net.incoming_neighbors(2)
+            >>> net.neighbors_in(2)
             set([0, 1, 2])
         """
         return set(self.table[index][0])
 
-    def outgoing_neighbors(self, index):
+    def neighbors_out(self, index):
         """
         Return the set of all neighbor nodes, where
         edge(index-->neighbor_node) exists.
@@ -582,15 +582,15 @@ class LogicNetwork(object):
                             ((0,), set(['1'])),
                             ((0, 1, 2), set(['010', '011', '101'])),
                             ((3,), set(['1']))])
-            >>> net.outgoing_neighbors(2)
+            >>> net.neighbors_out(2)
             set([0, 2])
         """
-        outgoing_neighbors = []
+        outgoing_neighbors = set()
         for i, incoming_neighbors in enumerate([row[0] for row in self.table]):
             if index in incoming_neighbors:
-                outgoing_neighbors.append(i)
+                outgoing_neighbors.add(i)
 
-        return set(outgoing_neighbors)
+        return outgoing_neighbors
 
     def neighbors(self, index):
         """
@@ -612,4 +612,4 @@ class LogicNetwork(object):
             >>> net.neighbors(2)
             set([0, 2])
         """
-        return self.incoming_neighbors(index) | self.outgoing_neighbors(index)
+        return self.neighbors_in(index) | self.neighbors_in(index)

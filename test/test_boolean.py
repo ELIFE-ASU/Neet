@@ -653,23 +653,13 @@ class TestWTNetwork(unittest.TestCase):
              [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
             [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
 
-        self.assertEqual(net.neighbors(index=2,direction='in'),set([0,1,5,8]))
-        
-        self.assertEqual(net.neighbors(direction='in'),[set([0]), 
-                                                        set([2, 3, 4]), 
-                                                        set([0, 1, 5, 8]), 
-                                                        set([0, 1, 5, 8]), 
-                                                        set([4, 5]), 
-                                                        set([2, 3, 4, 6, 7]), 
-                                                        set([8, 1]), 
-                                                        set([8, 1]), 
-                                                        set([8, 4])])
+        self.assertEqual(net.neighbors_in(2),set([0,1,5,8]))
 
         with self.assertRaises(IndexError):
-            self.assertEqual(net.neighbors(index=2.0,direction='in'))
+            self.assertEqual(net.neighbors_in(2.0))
 
         with self.assertRaises(IndexError):
-            self.assertEqual(net.neighbors(index='2',direction='in'))
+            self.assertEqual(net.neighbors_in('2'))
 
     def test_neighbors_out(self):
 
@@ -685,17 +675,7 @@ class TestWTNetwork(unittest.TestCase):
              [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
             [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
 
-        self.assertEqual(net.neighbors(index=2,direction='out'),set([1,5]))
-
-        self.assertEqual(net.neighbors(direction='out'),[set([0, 2, 3]), 
-                                                         set([2, 3, 6, 7]), 
-                                                         set([1, 5]), 
-                                                         set([1, 5]), 
-                                                         set([8, 1, 4, 5]), 
-                                                         set([2, 3, 4]), 
-                                                         set([5]), 
-                                                         set([5]), 
-                                                         set([8, 2, 3, 6, 7])])
+        self.assertEqual(net.neighbors_out(2),set([1,5]))
       
     def test_neighbors_both(self):
 
@@ -711,17 +691,7 @@ class TestWTNetwork(unittest.TestCase):
              [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
             [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
 
-        self.assertEqual(net.neighbors(index=2,direction='both'),set([0, 1, 5, 8]))
-
-        self.assertEqual(net.neighbors(direction='both'),[set([0, 2, 3]), 
-                                                          set([2, 3, 4, 6, 7]), 
-                                                          set([0, 1, 5, 8]), 
-                                                          set([0, 1, 5, 8]), 
-                                                          set([1, 4, 5, 8]), 
-                                                          set([2, 3, 4, 6, 7]), 
-                                                          set([8, 1, 5]), 
-                                                          set([8, 1, 5]), 
-                                                          set([2, 3, 4, 6, 7, 8])])
+        self.assertEqual(net.neighbors(2),set([0, 1, 5, 8]))
 
         
 

@@ -582,7 +582,7 @@ class WTNetwork(object):
             else:
                 return 1
 
-    def incoming_neighbors(self, index):
+    def neighbors_in(self, index):
         """
         Return the set of all neighbor nodes, where
         edge(neighbor_node-->index) exists.
@@ -603,13 +603,14 @@ class WTNetwork(object):
              [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
              [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
              [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
-             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]])
-            >>> net.incoming_neighbors(2)
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+            >>> net.neighbors_in(2)
             set([0, 1, 5, 8])
         """
         return set(np.flatnonzero(self.weights[index]))
 
-    def outgoing_neighbors(self, index):
+    def neighbors_out(self, index):
         """
         Return the set of all neighbor nodes, where
         edge(index-->neighbor_node) exists.
@@ -630,8 +631,9 @@ class WTNetwork(object):
              [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
              [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
              [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
-             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]])
-            >>> net.outgoing_neighbors(2)
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+            >>> net.neighbors_out(2)
             set([1, 5])
         """
         return set(np.flatnonzero(self.weights[:, index]))
@@ -658,8 +660,9 @@ class WTNetwork(object):
              [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
              [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
              [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
-             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]])
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
             >>> net.neighbors(2)
             set([0, 1, 5, 8])
         """
-        return self.incoming_neighbors(index) | self.outgoing_neighbors(index)
+        return self.neighbors_in(index) | self.neighbors_out(index)

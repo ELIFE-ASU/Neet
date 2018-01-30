@@ -2,6 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 
+
 def is_network(thing):
     """
     Determine whether an *object* or *type* meets the interface requirement of
@@ -74,12 +75,13 @@ def is_boolean_network(thing):
     # Boolean networks have a single base equal to 2
     return is_network(thing) and hasattr(thing.state_space(), 'base') and thing.state_space().base == 2
 
-def neighbors(net,index=None,direction='both',**kwargs):
+
+def neighbors(net, index=None, direction='both', **kwargs):
     """
     Return a set of neighbors for a specified node, or a list of sets of
     neighbors for all nodes in the network.
 
-    For ECAs it is possible to call the neighbors of an index which is 
+    For ECAs it is possible to call the neighbors of an index which is
     greater than the size of the network, in the case of networks which have
     fixed boundary conditions.
 
@@ -89,7 +91,7 @@ def neighbors(net,index=None,direction='both',**kwargs):
     eg. ``if size(eca)==3 and boundary!=None:``
     The organization of the neighbors list is as follows:
     ``[node_0|node_1|node_2|left_boundary|right_boundary]``
-    
+
     :param index: node index, if neighbors desired for one node only
     :param direction: type of node neighbors to return (can be 'in','out', or 'both')
     :kwarg size: size of ECA, required if network is an ECA
@@ -112,13 +114,18 @@ def neighbors(net,index=None,direction='both',**kwargs):
     docstrings for more details and basic use examples.
 
     """
+    if direction not in ('in', 'out', 'both'):
+        raise ValueError('direction must be "in", "out" or "both"')
+
+    neighbor_types = {'in': net.neighbors_in,
+                      'out': net.neighbors_out,
+                      'both': net.neighbors}
 
     if net.__class__.__name__ == 'ECA':
-
         if 'size' not in kwargs:
             raise AttributeError("A `size` kwarg is required for returning an ECA's neighbors")
         else:
-            return net.neighbors(kwargs['size'],index=index,direction=direction)
+            return neighbor_types[direction](index, size=kwargs['size'])
 
     else:
-        return net.neighbors(index=index,direction=direction)
+        return neighbor_types[direction](index)

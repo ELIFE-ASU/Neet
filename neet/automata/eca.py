@@ -351,7 +351,7 @@ class ECA(object):
 
         return self._unsafe_update(lattice, index, pin, values)
 
-    def incoming_neighbors(self, index, size):
+    def neighbors_in(self, index, size):
         """
         Return the set of all incoming neighbor nodes.
 
@@ -372,14 +372,14 @@ class ECA(object):
         ::
 
             >>> net = ECA(30)
-            >>> net.incoming_neighbors(1, size=3)
+            >>> net.neighbors_in(1, size=3)
             set([0, 1, 2])
-            >>> net.incoming_neighbors(2, size=3)
+            >>> net.neighbors_in(2, size=3)
             set([0, 1, 2])
             >>> net.boundary = (1,1)
-            >>> net.incoming_neighbors(2, size=3)
+            >>> net.neighbors_in(2, size=3)
             set([1, 2, 3])
-            >>> net.incoming_neighbors(0, 3)
+            >>> net.neighbors_in(0, 3)
             set([-1, 0, 1])
 
         .. rubric:: Erroneous Usage:
@@ -387,7 +387,7 @@ class ECA(object):
         ::
 
             >>> net = ECA(30,boundary=(1, 1))
-            >>> net.incoming_neighbors(5, 3)
+            >>> net.neighbors_in(5, 3)
             Traceback (most recent call last):
                 ...
             ValueError: index must be a non-negative integer less than size
@@ -414,7 +414,7 @@ class ECA(object):
 
         return set([left, index, right])
 
-    def outgoing_neighbors(self, index, size):
+    def neighbors_out(self, index, size):
         """
         Return the set of all outgoing neighbor nodes.
 
@@ -430,14 +430,14 @@ class ECA(object):
         ::
 
             >>> net = ECA(30)
-            >>> net.outgoing_neighbors(1, 3)
+            >>> net.neighbors_out(1, 3)
             set([0, 1, 2])
-            >>> net.outgoing_neighbors(2, 3)
+            >>> net.neighbors_out(2, 3)
             set([0, 1, 2])
             >>> net.boundary = (1, 1)
-            >>> net.outgoing_neighbors(2, 3)
+            >>> net.neighbors_out(2, 3)
             set([1, 2])
-            >>> net.outgoing_beighbors(0, 3)
+            >>> net.neighbors_out(0, 3)
             set([0, 1])
 
         .. rubric:: Erroneous Usage:
@@ -445,7 +445,7 @@ class ECA(object):
         ::
 
             >>> net = ECA(30,boundary=(1, 1))
-            >>> net.incoming_neighbors(5, 3)
+            >>> net.neighbors_out(5, 3)
             Traceback (most recent call last):
                 ...
             ValueError: index must be a non-negative integer less than size
@@ -493,14 +493,14 @@ class ECA(object):
         ::
 
             >>> net = ECA(30)
-            >>> net.incoming_neighbors(1, size=3)
+            >>> net.neighbors(1, size=3)
             set([0, 1, 2])
-            >>> net.incoming_neighbors(2, size=3)
+            >>> net.neighbors(2, size=3)
             set([0, 1, 2])
             >>> net.boundary = (1,1)
-            >>> net.incoming_neighbors(2, size=3)
+            >>> net.neighbors(2, size=3)
             set([1, 2, 3])
-            >>> net.incoming_neighbors(0, 3)
+            >>> net.neighbors(0, 3)
             set([-1, 0, 1])
 
         .. rubric:: Erroneous Usage:
@@ -508,10 +508,10 @@ class ECA(object):
         ::
 
             >>> net = ECA(30,boundary=(1, 1))
-            >>> net.incoming_neighbors(5, 3)
+            >>> net.neighbors(5, 3)
             Traceback (most recent call last):
                 ...
             ValueError: index must be a non-negative integer less than size
         """
         # Outgoing neighbors are a subset of incoming neighbors.
-        return self.incoming_neighbors(index, size)
+        return self.neighbors_in(index, size)
