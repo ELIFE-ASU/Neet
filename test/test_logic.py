@@ -99,7 +99,6 @@ class TestLogicNetwork(unittest.TestCase):
                                         ((1, 2, 0), set(
                                             ['010', '011', '101'])),
                                         ((3,), set(['1']))])
-        simple.neighbors()
 
     def test_logic_simple_read_no_commas(self):
         from os.path import dirname, abspath, realpath, join
@@ -185,19 +184,13 @@ class TestLogicNetwork(unittest.TestCase):
                             ((0, 1, 2), set(['010', '011', '101'])),
                             ((3,), set(['1']))])
 
-        self.assertEqual(net.neighbors(
-            index=2, direction='in'), set([0, 1, 2]))
-
-        self.assertEqual(net.neighbors(direction='in'), [set([1, 2]),
-                                                         set([0]),
-                                                         set([0, 1, 2]),
-                                                         set([3])])
+        self.assertEqual(net.neighbors_in(2), set([0, 1, 2]))
 
         with self.assertRaises(TypeError):
-            self.assertEqual(net.neighbors(index=2.0, direction='in'))
+            net.neighbors_in(2.0)
 
         with self.assertRaises(TypeError):
-            self.assertEqual(net.neighbors(index='2', direction='in'))
+            net.neighbors_in('2')
 
     def test_neighbors_out(self):
 
@@ -206,12 +199,7 @@ class TestLogicNetwork(unittest.TestCase):
                             ((0, 1, 2), set(['010', '011', '101'])),
                             ((3,), set(['1']))])
 
-        self.assertEqual(net.neighbors(index=2, direction='out'), set([0, 2]))
-
-        self.assertEqual(net.neighbors(direction='out'), [set([1, 2]),
-                                                          set([0, 2]),
-                                                          set([0, 2]),
-                                                          set([3])])
+        self.assertEqual(net.neighbors_out(2), set([0, 2]))
 
     def test_neighbors_both(self):
 
@@ -220,13 +208,7 @@ class TestLogicNetwork(unittest.TestCase):
                             ((0, 1, 2), set(['010', '011', '101'])),
                             ((3,), set(['1']))])
 
-        self.assertEqual(net.neighbors(direction='both'), [set([1, 2]),
-                                                           set([0, 2]),
-                                                           set([0, 1, 2]),
-                                                           set([3])])
-
-        self.assertEqual(net.neighbors(
-            index=2, direction='both'), set([0, 1, 2]))
+        self.assertEqual(net.neighbors(2), set([0, 1, 2]))
 
     def test_node_dependency(self):
         net = LogicNetwork([((1, 2), {'11', '10'}),

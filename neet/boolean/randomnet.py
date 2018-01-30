@@ -11,7 +11,6 @@ from neet.statespace import StateSpace
 from .logicnetwork import LogicNetwork
 
 
-
 def random_logic(logic_net, p=0.5, connections='fixed-structure'):
     """
     Return a `LogicNetwork` from an input `LogicNetwork` with a random logic table.
@@ -47,16 +46,24 @@ def random_logic(logic_net, p=0.5, connections='fixed-structure'):
     else:
         ps = p
 
-    if connections == 'fixed-structure':
-        return _random_logic_fixed_connections(logic_net, ps)
-    elif connections == 'fixed-in-degree':
-        return _random_logic_shuffled_connections(logic_net, ps)
-    elif connections == 'fixed-mean-degree':
-        return _random_logic_fixed_num_edges(logic_net, ps)
-    elif connections == 'free':
-        return _random_logic_free_connections(logic_net, ps)
-    else:
-        raise ValueError("connections must be 'fixed', 'fixed-in-degree', 'fixed-mean-degree', or 'free'")
+    random_styles = {'fixed-structure': _random_logic_fixed_connections,
+                     'fixed-in-degree': _random_logic_shuffled_connections,
+                     'fixed-mean-degree': _random_logic_fixed_num_edges,
+                     'free': _random_logic_free_connections}
+
+    try:
+        return random_styles[connections](logic_net, ps)
+    except KeyError:
+        raise ValueError(
+            "connections must be 'fixed', 'fixed-in-degree', 'fixed-mean-degree', or 'free'")
+
+
+def _random_binary_states(n, p):
+    """
+    Return a set of binary states. Each state has length `n` and the probability
+    to appear in the set is `p`.
+    """
+    return set(tuple(state) for state in StateSpace(n) if random.random() < p)
 
 
 def _random_logic_fixed_connections(logic_net, ps):
@@ -76,10 +83,7 @@ def _random_logic_fixed_connections(logic_net, ps):
     for i, row in enumerate(logic_net.table):
         indices = row[0]
 
-        conditions = set()
-        for state in StateSpace(len(indices)):
-            if random.random() < ps[i]:
-                conditions.add(tuple(state))
+        conditions = _random_binary_states(len(indices), ps[i])
 
         new_table.append((indices, conditions))
 
@@ -103,13 +107,9 @@ def _random_logic_shuffled_connections(logic_net, ps):
     new_table = []
     for i, row in enumerate(logic_net.table):
         n_indices = len(row[0])
-        indices = tuple(sorted(random.sample(
-            range(logic_net.size), k=n_indices)))
+        indices = tuple(sorted(random.sample(range(logic_net.size), k=n_indices)))
 
-        conditions = set()
-        for state in StateSpace(n_indices):
-            if random.random() < ps[i]:
-                conditions.add(tuple(state))
+        conditions = _random_binary_states(n_indices, ps[i])
 
         new_table.append((indices, conditions))
 
@@ -132,13 +132,9 @@ def _random_logic_free_connections(logic_net, ps):
     new_table = []
     for i in range(logic_net.size):
         n_indices = random.randint(1, logic_net.size)
-        indices = tuple(sorted(random.sample(
-            range(logic_net.size), k=n_indices)))
+        indices = tuple(sorted(random.sample(range(logic_net.size), k=n_indices)))
 
-        conditions = set()
-        for state in StateSpace(n_indices):
-            if random.random() < ps[i]:
-                conditions.add(tuple(state))
+        conditions = _random_binary_states(n_indices, ps[i])
 
         new_table.append((indices, conditions))
 
@@ -146,24 +142,24 @@ def _random_logic_free_connections(logic_net, ps):
 
 
 # 10.26.2017
-def _random_logic_fixed_num_edges(logic_net,ps):
+def _random_logic_fixed_num_edges(logic_net, ps):
     """
     Returns new network that corresponds to adding a fixed number of
     edges between random nodes, with random corresponding boolean rules.
     """
-    
+
     numEdges = np.sum(_degrees(logic_net))
     # choose n random integers that sum to numEdges
-    newDegrees = _random_partition(logic_net.size,numEdges,m=logic_net.size)
-    
+    newDegrees = _random_partition(logic_net.size, numEdges, m=logic_net.size)
+
     new_table = []
-    for i,degree in enumerate(newDegrees):
+    for i, degree in enumerate(newDegrees):
         n_indices = degree
         indices = tuple(sorted(random.sample(
             range(logic_net.size), k=n_indices)))
 
         conditions = set()
-        
+
         if n_indices > 0:
             for state in StateSpace(n_indices):
                 if random.random() < ps[i]:
@@ -178,31 +174,31 @@ def _degrees(net):
     """
     Return the list of node in-degrees for the network.
     """
-    return [ len(t[0]) for t in net.table ]
+    return [len(t[0]) for t in net.table]
 
 
-def _random_partition(n,s,m=np.inf):
+def _random_partition(n, s, m=np.inf):
     """
     Choose n random integers that sum to s, with the maximum value
     of any element of the list limited to m.
     """
-    if s > n*m:
-        raise Exception, "Can't have s > n*m"
-    
+    if s > n * m:
+        raise ValueError("Can't have s > n*m")
+
     # see, e.g., https://stackoverflow.com/questions/5622608/choosing-n-numbers-with-fixed-sum
-    partition = [0] + list(np.random.randint(0,s+1,n-1)) + [s]
+    partition = [0] + list(np.random.randint(0, s + 1, n - 1)) + [s]
     partition = np.sort(partition)
     integers = partition[1:] - partition[:-1]
-    
+
     # redistribute any values above the max
     # (there's probably a better way to do this!)
     while max(integers) > m:
-        maxedIndices = ( integers >= m )
-        nonMaxedIndices = ( integers < m )
+        maxedIndices = (integers >= m)
+        nonMaxedIndices = (integers < m)
         numToRedistribute = np.sum(integers[maxedIndices] - m)
-        redistributed = _random_partition(sum(nonMaxedIndices),numToRedistribute)
+        redistributed = _random_partition(
+            sum(nonMaxedIndices), numToRedistribute)
         integers[maxedIndices] = m
         integers[nonMaxedIndices] += redistributed
-        
-    return integers
 
+    return integers
