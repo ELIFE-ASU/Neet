@@ -598,7 +598,6 @@ class LogicNetwork(object):
         neighbors for all nodes in the network.
 
         :param index: node index
-        :param direction: type of node neighbors to return (can be 'in','out', or 'both')
         :returns: a set of neighbors of a node
 
         .. rubric:: Basic Use:
@@ -612,4 +611,4 @@ class LogicNetwork(object):
             >>> net.neighbors(2)
             set([0, 2])
         """
-        return self.neighbors_in(index) | self.neighbors_in(index)
+        return self.neighbors_in(index) | self.neighbors_out(index)

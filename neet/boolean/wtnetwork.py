@@ -644,7 +644,6 @@ class WTNetwork(object):
         neighbors for all nodes in the network.
 
         :param index: node index
-        :param direction: type of node neighbors to return (can be 'in','out', or 'both')
         :returns: a set (if index!=None) or list of sets of neighbors of a node or network or nodes
 
         .. rubric:: Basic Use:

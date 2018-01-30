@@ -76,28 +76,22 @@ def is_boolean_network(thing):
     return is_network(thing) and hasattr(thing.state_space(), 'base') and thing.state_space().base == 2
 
 
-def neighbors(net, index=None, direction='both', **kwargs):
+def neighbors(net, index, direction='both', **kwargs):
     """
     Return a set of neighbors for a specified node, or a list of sets of
     neighbors for all nodes in the network.
 
-    For ECAs it is possible to call the neighbors of an index which is
-    greater than the size of the network, in the case of networks which have
-    fixed boundary conditions.
-
-    The left boundary is at ``index==size+1``
-    The right boundary is at ``index==size``
-
-    eg. ``if size(eca)==3 and boundary!=None:``
-    The organization of the neighbors list is as follows:
-    ``[node_0|node_1|node_2|left_boundary|right_boundary]``
+    For ECAs, in the cases of the lattices having fixed boundary conditions,
+    the left boundary, being on the left of the leftmost index 0, has an index
+    of -1, while the right boundary's index is the size+1. The full state of the
+    lattices and the boundaries is equavolent to:
+    `[cell0, cell1, ..., cellN, right_boundary, left_boundary]`
+    if it is ever presented as a single list in Python.
 
     :param index: node index, if neighbors desired for one node only
     :param direction: type of node neighbors to return (can be 'in','out', or 'both')
     :kwarg size: size of ECA, required if network is an ECA
-    :returns: a set (if index!=None) or list of sets of neighbors of a node or network or nodes
-    :raises ValueError: if ``net.__class__.__name__ == 'ECA' and index >= size and boundary==None``
-    :raises ValueError: if ``net.__class__.__name__ == 'ECA' and index >= size+2 and boundary!=None``
+    :returns: a set of neighbors of a node
 
     .. rubric:: Basic Use:
 
