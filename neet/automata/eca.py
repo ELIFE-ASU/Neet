@@ -4,6 +4,7 @@
 import numpy as np
 from neet.statespace import StateSpace
 
+
 class ECA(object):
     """
     ECA is a class to represent elementary cellular automaton rules. Each ECA
@@ -70,9 +71,9 @@ class ECA(object):
     @code.setter
     def code(self, code):
         if not isinstance(code, int):
-            raise(TypeError("ECA code is not an int"))
+            raise TypeError("ECA code is not an int")
         if 255 < code or code < 0:
-            raise(ValueError("invalid ECA code"))
+            raise ValueError("invalid ECA code")
         self.__code = code
 
     @property
@@ -105,13 +106,13 @@ class ECA(object):
     @boundary.setter
     def boundary(self, boundary):
         if boundary and not isinstance(boundary, tuple):
-            raise(TypeError("ECA boundary are neither None nor a tuple"))
+            raise TypeError("ECA boundary are neither None nor a tuple")
         if boundary:
             if len(boundary) != 2:
-                raise(ValueError("invalid ECA boundary conditions"));
+                raise ValueError("invalid ECA boundary conditions")
             for x in boundary:
                 if x != 0 and x != 1:
-                    raise(ValueError("invalid ECA boundary value"))
+                    raise ValueError("invalid ECA boundary value")
         self.__boundary = boundary
 
     def state_space(self, n):
@@ -206,7 +207,7 @@ class ECA(object):
             temp = 2 * left + lattice[0]
             for i in range(1, len(lattice)):
                 temp = 7 & (2 * temp + lattice[i])
-                lattice[i-1] = 1 & (code >> temp)
+                lattice[i - 1] = 1 & (code >> temp)
             temp = 7 & (2 * temp + right)
             lattice[-1] = 1 & (code >> temp)
             if pin_states:
@@ -219,14 +220,14 @@ class ECA(object):
             if index == 0:
                 temp = left
             else:
-                temp = lattice[index-1]
+                temp = lattice[index - 1]
 
             temp = 2 * temp + lattice[index]
 
             if index + 1 == len(lattice):
                 temp = 2 * temp + right
             else:
-                temp = 2 * temp + lattice[index+1]
+                temp = 2 * temp + lattice[index + 1]
 
             lattice[index] = 1 & (code >> (7 & temp))
         if values is not None:
@@ -350,326 +351,167 @@ class ECA(object):
 
         return self._unsafe_update(lattice, index, pin, values)
 
-    def _incoming_neighbors_one_node(self,size,index):
+    def incoming_neighbors(self, index, size):
         """
-        Return the set of all neighbor nodes, where
-        edge(neighbor_node-->index) exists.
+        Return the set of all incoming neighbor nodes.
 
-        It is possible to call the neighbors of an index which is greater
-        than the size of the network, in the case of networks which have
-        fixed boundary conditions.
+        In the cases of the lattices having fixed boundary conditions, the left
+        boundary, being on the left of the leftmost index 0, has an index of -1,
+        while the right boundary's index is the size+1. The full state of the 
+        lattices and the boundaries is equavolent to:
+        `[cell0, cell1, ..., cellN, right_boundary, left_boundary]`
+        if it is ever presented as a single list in Python.
 
-        The left boundary is at ``index==size+1``
-        The right boundary is at ``index==size``
-
-        eg. ``if size(eca)==3 and boundary!=None:``
-        The organization of the neighbors list is as follows:
-        ``[node_0|node_1|node_2|left_boundary|right_boundary]``
-
-        :param size: size of ECA
         :param index: node index
+        :param size: size of ECA
         :returns: the set of all node indices which point toward the index node
-        :raises ValueError: if ``index >= size and boundary==None``
-        :raises ValueError: if ``index >= size+2 and boundary!=None``
+        :raises ValueError: if `index < 0 or index > n - 1`
 
         .. rubric:: Basic Use:
 
         ::
 
             >>> net = ECA(30)
-            >>> net._incoming_neighbors_one_node(3,2)
-            set([0,1,2])
+            >>> net.incoming_neighbors(1, size=3)
+            set([0, 1, 2])
+            >>> net.incoming_neighbors(2, size=3)
+            set([0, 1, 2])
             >>> net.boundary = (1,1)
-            >>> net._incoming_neighbors_one_node(3,2)
-            set([1,2,3])
-            >>> net._incoming_neighbors_one_node(3,3)
-            set([])
-            >>> net._incoming_neighbors_one_node(3,4)
-            set([])
+            >>> net.incoming_neighbors(2, size=3)
+            set([1, 2, 3])
+            >>> net.incoming_neighbors(0, 3)
+            set([-1, 0, 1])
 
         .. rubric:: Erroneous Usage:
 
         ::
 
-            >>> net = ECA(30,boundary=(1,1))
-            >>> net._incoming_neighbors_one_node(3,5)
+            >>> net = ECA(30,boundary=(1, 1))
+            >>> net.incoming_neighbors(5, 3)
             Traceback (most recent call last):
                 ...
-            ValueError: index must be <=(size+1) if self.boundary!=None
-            >>> net.boundary = None
-            >>> net._incoming_neighbors_one_node(3,3)
+            ValueError: index must be a non-negative integer less than size
+        """
+        if not isinstance(size, int):
+            raise TypeError("size must be a positive integer")
+
+        if size < 1:
+            raise ValueError("size must be a positive integer")
+
+        if not isinstance(index, int):
+            raise TypeError("index must be a non-negative integer")
+
+        if index < 0 or index > size - 1:
+            raise ValueError("index must be a non-negative integer less than size")
+
+        left, right = index - 1, index + 1
+
+        if left < 0 and self.boundary is None:
+            left = size - 1
+
+        if right > size - 1 and self.boundary is None:
+            right = 0
+
+        return set([left, index, right])
+
+    def outgoing_neighbors(self, index, size):
+        """
+        Return the set of all outgoing neighbor nodes.
+
+        Fixed boundaries are excluded as they are not affected by internal states.
+
+        :param index: node index
+        :param size: size of ECA
+        :returns: the set of all node indices which point from the index node
+        :raises ValueError: if `index < 0 or index > n - 1`
+
+        .. rubric:: Basic Use:
+
+        ::
+
+            >>> net = ECA(30)
+            >>> net.outgoing_neighbors(1, 3)
+            set([0, 1, 2])
+            >>> net.outgoing_neighbors(2, 3)
+            set([0, 1, 2])
+            >>> net.boundary = (1, 1)
+            >>> net.outgoing_neighbors(2, 3)
+            set([1, 2])
+            >>> net.outgoing_beighbors(0, 3)
+            set([0, 1])
+
+        .. rubric:: Erroneous Usage:
+
+        ::
+
+            >>> net = ECA(30,boundary=(1, 1))
+            >>> net.incoming_neighbors(5, 3)
             Traceback (most recent call last):
                 ...
-            ValueError: index must be <size if self.boundary==None
+            ValueError: index must be a non-negative integer less than size
         """
         if not isinstance(index, int):
-            raise TypeError("Index must be a non-negative integer")
+            raise TypeError("index must be a non-negative integer")
 
-        elif index<0:
-            raise ValueError("Index must be a non-negative integer")
+        if not isinstance(size, int):
+            raise TypeError("size must be a positive integer")
 
-        elif not isinstance(size, int):
-            raise TypeError("Size must be a positive integer")
+        if size < 1:
+            raise ValueError("size must be a positive integer")
 
-        elif size<1:
-            raise ValueError("Size must be a positive integer")
+        if index < 0 or index > size - 1:
+            raise ValueError("index must be a non-negative integer less than size")
 
-        elif index>=size and self.boundary==None:
-            raise ValueError("index must be <size if self.boundary==None")
+        left, right = index - 1, index + 1
 
-        elif index>(size+1) and self.boundary!= None:
-            raise ValueError("index must be <=(size+1) if self.boundary!=None")
+        if left < 0:
+            left = size - 1 if self.boundary is None else 0
 
-        elif (index<=(size+1)) and (index>=size):
-            return set([]) #bounary conditions have no incoming nodes
+        if right > size - 1:
+            right = 0 if self.boundary is None else size - 1
 
-        elif (index<size) and (self.boundary == None):
+        return set([left, index, right])
 
-            if size==1:
-
-                left_neighbor = 0
-                right_neighbor = 0
-
-            else:
-
-                if index==0:
-
-                    left_neighbor = size-1
-                    right_neighbor = 1
-
-                elif index==(size-1):
-
-                    left_neighbor = index-1
-                    right_neighbor = 0
-
-                else:
-
-                    left_neighbor = index-1
-                    right_neighbor = index+1
-
-        elif (index<size) and (self.boundary!=None):
-
-            if index==0:
-
-                left_neighbor = size+1
-                right_neighbor = 1
-
-            else:
-
-                left_neighbor = index-1
-                right_neighbor = index+1
-
-        return set([left_neighbor,index,right_neighbor])
-
-    def _outgoing_neighbors_one_node(self,size,index):
-        ## Allow index > size for calling boundary nodes?
+    def neighbors(self, index, size):
         """
-        Return the set of all neighbor nodes, where
-        edge(index-->neighbor_node) exists.
+        Return a set of neighbors for a specified node.
 
-        It is possible to call the neighbors of an index which is greater
-        than the size of the network, in the case of networks which have
-        fixed boundary conditions.
+        In the cases of the lattices having fixed boundary conditions, the left
+        boundary, being on the left of the leftmost index 0, has an index of -1,
+        while the right boundary's index is the size+1. The full state of the 
+        lattices and the boundaries is equavolent to:
+        `[cell0, cell1, ..., cellN, right_boundary, left_boundary]`
+        if it is ever presented as a single list in Python.
 
-        The left boundary is at ``index==size+1``
-        The right boundary is at ``index==size``
-
-        eg. ``if size(eca)==3 and boundary!=None:``
-        The organization of the neighbors list is as follows:
-        ``[node_0|node_1|node_2|left_boundary|right_boundary]``
-
-        :param size: size of ECA
         :param index: node index
-        :returns: the set of all node indices which point toward the index node
-        :raises ValueError: if ``index >= size and boundary==None``
-        :raises ValueError: if ``index >= size+2 and boundary!=None``
+        :param size: size of ECA
+        :returns: the set of all node indices adjacent to the index node
+        :raises ValueError: if `index < 0 or index > n - 1`
 
         .. rubric:: Basic Use:
 
         ::
 
             >>> net = ECA(30)
-            >>> net._outgoing_neighbors_one_node(3,2)
-            set([0,1,2])
+            >>> net.incoming_neighbors(1, size=3)
+            set([0, 1, 2])
+            >>> net.incoming_neighbors(2, size=3)
+            set([0, 1, 2])
             >>> net.boundary = (1,1)
-            >>> net._outgoing_neighbors_one_node(3,2)
-            set([1,2])
-            >>> net._outgoing_neighbors_one_node(3,3)
-            set([2])
-            >>> net._outgoing_neighbors_one_node(3,4)
-            set([0])
+            >>> net.incoming_neighbors(2, size=3)
+            set([1, 2, 3])
+            >>> net.incoming_neighbors(0, 3)
+            set([-1, 0, 1])
 
         .. rubric:: Erroneous Usage:
 
         ::
 
-            >>> net = ECA(30,boundary=(1,1))
-            >>> net._outgoing_neighbors_one_node(3,5)
+            >>> net = ECA(30,boundary=(1, 1))
+            >>> net.incoming_neighbors(5, 3)
             Traceback (most recent call last):
                 ...
-            ValueError: index must be <=(size+1) if self.boundary!=None
-            >>> net.boundary = None
-            >>> net._outgoing_neighbors_one_node(3,3)
-            Traceback (most recent call last):
-                ...
-            ValueError: index must be <size if self.boundary==None
+            ValueError: index must be a non-negative integer less than size
         """
-        if not isinstance(index, int):
-            raise TypeError("Index must be a non-negative integer")
-
-        elif index<0:
-            raise ValueError("Index must be a non-negative integer")
-
-        elif not isinstance(size, int):
-            raise TypeError("Size must be a positive integer")
-
-        elif size<1:
-            raise ValueError("Size must be a positive integer")
-        
-        elif index>=size and self.boundary==None:
-            raise ValueError("index must be <size if self.boundary==None")
-
-        elif index>(size+1) and self.boundary!= None:
-            raise ValueError("index must be <=(size+1) if self.boundary!=None")
-
-        elif index==size:
-            return set([size-1])
-
-        elif index==(size+1):
-            return set([0])
-
-        elif (index<size) and (self.boundary == None):
-
-            if size==1:
-
-                neighbors = [0,0]
-
-                # left_neighbor = 0
-                # right_neighbor = 0
-
-            else:
-
-                if index==0:
-
-                    neighbors = [size-1,1]
-
-                    # left_neighbor = size-1
-                    # right_neighbor = 1
-
-                elif index==(size-1):
-
-                    neighbors = [index-1,0]
-
-                    # left_neighbor = index-1
-                    # right_neighbor = 0
-
-                else:
-
-                    neighbors = [index-1,index+1]
-
-                    # left_neighbor = index-1
-                    # right_neighbor = index+1
-
-        elif (index<size) and (self.boundary!=None):
-
-            if size==1:
-
-                neighbors = []
-
-            else:
-
-                if index==0:
-
-                    neighbors = [1]
-
-                    # left_neighbor = size+1
-                    # right_neighbor = 1
-
-                elif index==(size-1):
-
-                    neighbors = [index-1]
-
-                else:
-
-                    neighbors = [index-1,index+1]
-
-                    # left_neighbor = index-1
-                    # right_neighbor = index+1
-
-        return set(neighbors+[index])
-        # return set([left_neighbor,index,right_neighbor])
-
-
-    def neighbors(self,size,index=None,direction='both'):
-        """
-        Return a set of neighbors for a specified node, or a list of sets of
-        neighbors for all nodes in the network.
-
-        It is possible to call the neighbors of an index which is greater
-        than the size of the network, in the case of networks which have
-        fixed boundary conditions.
-
-        The left boundary is at ``index==size+1``
-        The right boundary is at ``index==size``
-
-        eg. ``if size(eca)==3 and boundary!=None:``
-        The organization of the neighbors list is as follows:
-        ``[node_0|node_1|node_2|left_boundary|right_boundary]``
-        
-        :param size: size of ECA
-        :param index: node index
-        :param direction: type of node neighbors to return (can be 'in','out', or 'both')
-        :returns: a set (if index!=None) or list of sets of neighbors of a node or network or nodes
-        :raises ValueError: if ``index >= size and boundary==None``
-        :raises ValueError: if ``index >= size+2 and boundary!=None``
-
-        .. rubric:: Basic Use:
-
-        ::
-
-            >>> net = ECA(30)
-            >>> net.neighbors(3,index=2,direction='out')
-            set([0,1,2])
-            >>> net.boundary = (1,1)
-            >>> net.neighbors(3,index=2,direction='out')
-            set([1,2])
-            >>> net.neighbors(3,index=3,direction='out')
-            set([2])
-            >>> net.neighbors(3,index=4,direction='out')
-            set([0])
-
-        .. rubric:: Erroneous Usage:
-
-        ::
-
-            >>> net = ECA(30,boundary=(1,1))
-            >>> net.neighbors(3,index=5,direction='out')
-            Traceback (most recent call last):
-                ...
-            ValueError: index must be <=(size+1) if self.boundary!=None
-            >>> net.boundary = None
-            >>> net.neighbors(3,index=3,direction='out')
-            Traceback (most recent call last):
-                ...
-            ValueError: index must be <size if self.boundary==None
-        """
-        if direction == 'in':
-            if index:
-                return self._incoming_neighbors_one_node(size,index)
-            else:
-                return [self._incoming_neighbors_one_node(size,node) for node in range(size)]
-
-        if direction == 'out':
-            if index:
-                return self._outgoing_neighbors_one_node(size,index)
-            else:
-                return [self._outgoing_neighbors_one_node(size,node) for node in range(size)]
-
-        if direction == 'both':
-            if index:
-                return self._incoming_neighbors_one_node(size,index)|self._outgoing_neighbors_one_node(size,index)
-                       
-            else:
-                in_nodes = [self._incoming_neighbors_one_node(size,node) for node in range(size)]
-                out_nodes = [self._outgoing_neighbors_one_node(size,node) for node in range(size)]
-                return [in_nodes[i]|out_nodes[i] for i in range(size)]
+        # Outgoing neighbors are a subset of incoming neighbors.
+        return self.incoming_neighbors(index, size)

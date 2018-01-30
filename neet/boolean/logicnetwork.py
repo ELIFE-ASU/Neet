@@ -605,11 +605,11 @@ class LogicNetwork(object):
 
         ::
 
-            >>> net = LogicNetwork([((1, 2), set(['11', '10'])), 
-                            ((0,), set(['1'])), 
-                            ((0, 1, 2), set(['010', '011', '101'])), 
+            >>> net = LogicNetwork([((1, 2), set(['11', '10'])),
+                            ((0,), set(['1'])),
+                            ((0, 1, 2), set(['010', '011', '101'])),
                             ((3,), set(['1']))])
             >>> net.neighbors(2)
-            set([0,2])
+            set([0, 2])
         """
         return self.incoming_neighbors(index) | self.outgoing_neighbors(index)
