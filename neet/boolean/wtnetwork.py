@@ -5,6 +5,7 @@ import numpy as np
 import re
 from neet.statespace import StateSpace
 
+
 class WTNetwork(object):
     """
     The WTNetwork class represents weight/threshold-based boolean networks. As
@@ -12,6 +13,7 @@ class WTNetwork(object):
     node thresholds, and each node of the network is expected to be in either
     of two states ``0`` or ``1``.
     """
+
     def __init__(self, weights, thresholds=None, names=None, theta=None):
         """
         Construct a network from weights and thresholds.
@@ -64,10 +66,10 @@ class WTNetwork(object):
         :raises TypeError: if ``threshold_func`` is not callable
         """
         if isinstance(weights, int):
-            self.weights = np.zeros([weights,weights])
+            self.weights = np.zeros([weights, weights])
         else:
             self.weights = np.asarray(weights, dtype=np.float)
-        
+
         shape = self.weights.shape
         if self.weights.ndim != 2:
             raise(ValueError("weights must be a matrix"))
@@ -239,7 +241,6 @@ class WTNetwork(object):
                 states[key] = values[key]
         return states
 
-
     def update(self, states, index=None, pin=None, values=None):
         """
         Update ``states``, in place, according to the network update rules.
@@ -390,12 +391,12 @@ class WTNetwork(object):
                     index += 1
 
         n = len(names)
-        weights = np.zeros((n,n), dtype=np.float)
+        weights = np.zeros((n, n), dtype=np.float)
         with open(edges_file, "r") as f:
             for line in f.readlines():
                 if comment.match(line) is None:
                     a, b, w = line.strip().split()
-                    weights[nameindices[b],nameindices[a]] = float(w)
+                    weights[nameindices[b], nameindices[a]] = float(w)
 
         return WTNetwork(weights, thresholds, names)
 
@@ -581,7 +582,7 @@ class WTNetwork(object):
             else:
                 return 1
 
-    def _incoming_neighbors_one_node(self,index):
+    def neighbors_in(self, index):
         """
         Return the set of all neighbor nodes, where
         edge(neighbor_node-->index) exists.
@@ -604,16 +605,16 @@ class WTNetwork(object):
              [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
              [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
             [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
-            >>> net._incoming_neighbors_one_node(2)
+            >>> net.neighbors_in(2)
             set([0, 1, 5, 8])
         """
-        return set([i for i,e in enumerate(self.weights[index,:]) if e!=0])
+        return set(np.flatnonzero(self.weights[index]))
 
-    def _outgoing_neighbors_one_node(self,index):
+    def neighbors_out(self, index):
         """
         Return the set of all neighbor nodes, where
         edge(index-->neighbor_node) exists.
-        
+
         :param index: node index
         :returns: the set of all node indices which the index node points to
 
@@ -632,25 +633,17 @@ class WTNetwork(object):
              [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
              [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
             [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
-            >>> net._outgoing_neighbors_one_node(2)
+            >>> net.neighbors_out(2)
             set([1, 5])
         """
-        return set([i for i,e in enumerate(self.weights[:,index]) if e!=0])
-        # outgoing_neighbors = []
-        # for i, incoming_neighbors in enumerate([list(row[0]) for row in self.table]):
-        #     if index in incoming_neighbors:
-        #         outgoing_neighbors.append(i)
-        
-        # return set(outgoing_neighbors)
+        return set(np.flatnonzero(self.weights[:, index]))
 
-
-    def neighbors(self,index=None,direction='both'):
+    def neighbors(self, index):
         """
         Return a set of neighbors for a specified node, or a list of sets of
         neighbors for all nodes in the network.
-        
+
         :param index: node index
-        :param direction: type of node neighbors to return (can be 'in','out', or 'both')
         :returns: a set (if index!=None) or list of sets of neighbors of a node or network or nodes
 
         .. rubric:: Basic Use:
@@ -668,58 +661,7 @@ class WTNetwork(object):
              [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
              [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
             [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
-            >>> net.neighbors(index=2,direction='in')
-            set([0,1,5,8])
-            >>> net.neighbors(index=2,direction='out')
-            set([1,5])
-            >>> net.neighbors(direction='in')
-            [set([0]), 
-            set([2, 3, 4]), 
-            set([0, 1, 5, 8]), 
-            set([0, 1, 5, 8]), 
-            set([4, 5]), 
-            set([2, 3, 4, 6, 7]), 
-            set([8, 1]), 
-            set([8, 1]), 
-            set([8, 4])]
-            >>> net.neighbors(direction='out')
-            [set([0, 2, 3]), 
-             set([2, 3, 6, 7]), 
-             set([1, 5]), 
-             set([1, 5]), 
-             set([8, 1, 4, 5]), 
-             set([2, 3, 4]), 
-             set([5]), 
-             set([5]), 
-             set([8, 2, 3, 6, 7])]
-            >>> net.neighbors(direction='both')
-            [set([0, 2, 3]), 
-             set([2, 3, 4, 6, 7]), 
-             set([0, 1, 5, 8]), 
-             set([0, 1, 5, 8]), 
-             set([1, 4, 5, 8]), 
-             set([2, 3, 4, 6, 7]), 
-             set([8, 1, 5]), 
-             set([8, 1, 5]), 
-             set([2, 3, 4, 6, 7, 8])]
+            >>> net.neighbors(2)
+            set([0, 1, 5, 8])
         """
-        if direction == 'in':
-            if index:
-                return self._incoming_neighbors_one_node(index)
-            else:
-                return [self._incoming_neighbors_one_node(node) for node in range(self.size)]
-
-        if direction == 'out':
-            if index:
-                return self._outgoing_neighbors_one_node(index)
-            else:
-                return [self._outgoing_neighbors_one_node(node) for node in range(self.size)]
-
-        if direction == 'both':
-            if index:
-                return self._incoming_neighbors_one_node(index)|self._outgoing_neighbors_one_node(index)
-                       
-            else:
-                in_nodes = [self._incoming_neighbors_one_node(node) for node in range(self.size)]
-                out_nodes = [self._outgoing_neighbors_one_node(node) for node in range(self.size)]
-                return [in_nodes[i]|out_nodes[i] for i in range(self.size)]
+        return self.neighbors_in(index) | self.neighbors_out(index)
