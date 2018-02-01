@@ -651,7 +651,10 @@ class LogicNetwork(object):
         pdf support requires 'cairo' and 'pango' to be installed prior to
         graphviz installation.
 
-        :param format: 
+        :param labels: how node is labeled and thus identified in networkx graph 
+                   ('names' or 'indices'), only used if network is a LogicNetwork or WTNetwork
+        :param filename: filename to write drawing to. Temporary filename will be used if no filename provided.
+        :returns: a pygraphviz network drawing
 
         """        
         nx.nx_agraph.view_pygraphviz(self.to_networkx_graph(labels=labels),prog='circo',path=filename)

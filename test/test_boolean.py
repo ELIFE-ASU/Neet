@@ -693,6 +693,30 @@ class TestWTNetwork(unittest.TestCase):
 
         self.assertEqual(net.neighbors(2),set([0, 1, 5, 8]))
 
+    def to_networkx_graph_names(self):
+        from neet.boolean.examples import s_pombe
+
+        nx_net = to_networkx_graph(s_pombe,labels='names')
+        self.assertEqual(list(nx_net),s_pombe.names)
+
+    def to_networkx_graph_names_fail(self):
+        net = bnet.WTNetwork([[1,0],[0,1]])
+
+        with self.assertRaises(ValueError):
+            to_networkx_graph(net,labels='names')
+
+    def to_networkx_metadata(self):
+        from neet.boolean.examples import s_pombe
+
+        nx_net = to_networkx_graph(net,labels='indices')
+
+        self.assertEqual(nx_net.graph['name'],'s_pombe')
+        self.assertEqual(nx_net.graph['name'],net.metadata['name'])
+
+    # def test_draw(self):
+    #     net = bnet.LogicNetwork([((0,), {'0'})])
+    #     draw(net,labels='indices')
+
         
 
 

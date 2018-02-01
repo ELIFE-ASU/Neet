@@ -113,11 +113,12 @@ class TestCore(unittest.TestCase):
 
     def test_to_networkx_graph(self):
         net = bnet.LogicNetwork([((0,), {'0'})])
-        to_networkx_graph(net,labels='indices')
+        nx_net = to_networkx_graph(net,labels='indices')
+        self.assertEqual(list(nx_net),[0])
 
-    def test_draw(self):
-        net = bnet.LogicNetwork([((0,), {'0'})])
-        draw(net,labels='indices')
+    # def test_draw(self):
+    #     net = bnet.LogicNetwork([((0,), {'0'})])
+    #     draw(net,labels='indices')
 
 
         # with self.assertRaises(AttributeError):

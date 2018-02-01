@@ -125,17 +125,25 @@ def neighbors(net, index, direction='both', **kwargs):
     else:
         return neighbor_types[direction](index)
 
-def to_networkx_graph(net,labels='indices'):
+def to_networkx_graph(net,labels='indices',**kwargs):
     """
     Return networkx graph given neet network.  Requires networkx.
 
     :param labels: how node is labeled and thus identified in networkx graph 
-                   ('names' or 'indices')
-    :returns: a networkx DiGraph
+                   ('names' or 'indices'), only used if network is a LogicNetwork or WTNetwork
+    :kwarg size: size of ECA, required if network is an ECA
+    :returns : a networkx DiGraph
     """
-    return net.to_networkx_graph(labels)
+    if net.__class__.__name__ == 'ECA':
+        if 'size' not in kwargs:
+            raise AttributeError("A `size` kwarg is required for converting an neet ECA to a networkx network")
+        else:
+            return net.to_networkx_graph(size)
 
-def draw(net,labels='indices',filename=None):
+    elif net.__class__.__name__ in ['WTNetwork','LogicNetwork']:
+        return net.to_networkx_graph(labels)
+
+def draw(net,labels='indices',filename=None,**kwargs):
     """
     Output a file with a simple network drawing.  
     
@@ -144,7 +152,21 @@ def draw(net,labels='indices',filename=None):
     Supported image formats are determined by graphviz.  In particular,
     pdf support requires 'cairo' and 'pango' to be installed prior to
     graphviz installation.
+
+    :param labels: how node is labeled and thus identified in networkx graph 
+                   ('names' or 'indices'), only used if network is a LogicNetwork or WTNetwork
+    :param filename: filename to write drawing to. Temporary filename will be used if no filename provided.
+    :kwarg size: size of ECA, required if network is an ECA
+    :returns: a pygraphviz network drawing
     """
+    if net.__class__.__name__ == 'ECA':
+        if 'size' not in kwargs:
+            raise AttributeError("A `size` kwarg is required for drawing an ECA")
+        else:
+            return net.draw(size,filename=filename)
+
+    elif net.__class__.__name__ in ['WTNetwork','LogicNetwork']:
+        return net.draw(labels=labels,filename=filename)
     net.draw(labels=labels,filename=filename)
 
 
