@@ -4,6 +4,7 @@
 import re
 from neet.statespace import StateSpace
 from neet.exceptions import FormatError
+import networkx as nx
 
 
 class LogicNetwork(object):
@@ -613,7 +614,7 @@ class LogicNetwork(object):
         """
         return self.neighbors_in(index) | self.neighbors_out(index)
 
-    def to_networkx_graph(self,labels='names'):
+    def to_networkx_graph(self,labels='indices'):
         """
         Return networkx graph given neet network.  Requires networkx.
 
@@ -621,21 +622,36 @@ class LogicNetwork(object):
                        ('names' or 'indices')
         :returns: a networkx DiGraph
         """
-        if labels = 'names':
-            if hasattr(net,'names'):
-                labels = net.names
+        if labels == 'names':
+            if hasattr(self,'names'):
+                labels = self.names
             else:
                 raise ValueError("network nodes do not have names")
 
-        elif labels = 'indices':
-            labels = range(net.size)
+        elif labels == 'indices':
+            labels = range(self.size)
 
         else:
             raise ValueError("labels must be 'names' or 'indices'")
 
         edges = []
-        for i,label in enumerate(net.labels):
-            for j in net.neighbors_out(i):
+        for i,label in enumerate(labels):
+            for j in self.neighbors_out(i):
                 edges.append((labels[i],labels[j]))
 
-        return nx.DiGraph(edges,name=net.metadata.get('name'))
+        return nx.DiGraph(edges,name=self.metadata.get('name'))
+
+    def draw(self,labels='indices',filename=None):
+        """
+        Output a file with a simple network drawing.  
+        
+        Requires networkx and pygraphviz.
+        
+        Supported image formats are determined by graphviz.  In particular,
+        pdf support requires 'cairo' and 'pango' to be installed prior to
+        graphviz installation.
+
+        :param format: 
+
+        """        
+        nx.nx_agraph.view_pygraphviz(self.to_networkx_graph(labels=labels),prog='circo',path=filename)

@@ -111,6 +111,15 @@ class TestCore(unittest.TestCase):
     def test_neighbors_IsNetwork(self):
         net = self.IsNetwork()
 
+    def test_to_networkx_graph(self):
+        net = bnet.LogicNetwork([((0,), {'0'})])
+        to_networkx_graph(net,labels='indices')
+
+    def test_draw(self):
+        net = bnet.LogicNetwork([((0,), {'0'})])
+        draw(net,labels='indices')
+
+
         # with self.assertRaises(AttributeError):
         #     neighbors(net)
 

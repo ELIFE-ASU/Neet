@@ -125,18 +125,17 @@ def neighbors(net, index, direction='both', **kwargs):
     else:
         return neighbor_types[direction](index)
 
-def to_networkx_graph(net):
+def to_networkx_graph(net,labels='indices'):
     """
     Return networkx graph given neet network.  Requires networkx.
-    """
-    edges = []
-    names = net.names
-    for i,jSet in enumerate(net.neighbors(direction='out')):
-        for j in jSet:
-            edges.append((names[i],names[j]))
-    return nx.DiGraph(edges,name=net.metadata.get('name'))
 
-def draw(net,format='pdf',filename=None):
+    :param labels: how node is labeled and thus identified in networkx graph 
+                   ('names' or 'indices')
+    :returns: a networkx DiGraph
+    """
+    return net.to_networkx_graph(labels)
+
+def draw(net,labels='indices',filename=None):
     """
     Output a file with a simple network drawing.  
     
@@ -146,7 +145,31 @@ def draw(net,format='pdf',filename=None):
     pdf support requires 'cairo' and 'pango' to be installed prior to
     graphviz installation.
     """
-    if filename is None: filename = net.metadata.get('name','network')
-    if not filename.endswith('.'+format): filename += '.'+format
-    g = to_networkx_graph(net)
-    nx.nx_agraph.view_pygraphviz(g,prog='circo',path=filename)
+    net.draw(labels=labels,filename=filename)
+
+
+# def to_networkx_graph(net):
+#     """
+#     Return networkx graph given neet network.  Requires networkx.
+#     """
+#     edges = []
+#     names = net.names
+#     for i,jSet in enumerate(net.neighbors(direction='out')):
+#         for j in jSet:
+#             edges.append((names[i],names[j]))
+#     return nx.DiGraph(edges,name=net.metadata.get('name'))
+
+# def draw(net,format='pdf',filename=None):
+#     """
+#     Output a file with a simple network drawing.  
+    
+#     Requires networkx and pygraphviz.
+    
+#     Supported image formats are determined by graphviz.  In particular,
+#     pdf support requires 'cairo' and 'pango' to be installed prior to
+#     graphviz installation.
+#     """
+#     if filename is None: filename = net.metadata.get('name','network')
+#     if not filename.endswith('.'+format): filename += '.'+format
+#     g = to_networkx_graph(net)
+#     nx.nx_agraph.view_pygraphviz(g,prog='circo',path=filename)
