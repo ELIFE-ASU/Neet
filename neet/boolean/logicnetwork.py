@@ -612,3 +612,30 @@ class LogicNetwork(object):
             set([0, 2])
         """
         return self.neighbors_in(index) | self.neighbors_out(index)
+
+    def to_networkx_graph(self,labels='names'):
+        """
+        Return networkx graph given neet network.  Requires networkx.
+
+        :param labels: how node is labeled and thus identified in networkx graph 
+                       ('names' or 'indices')
+        :returns: a networkx DiGraph
+        """
+        if labels = 'names':
+            if hasattr(net,'names'):
+                labels = net.names
+            else:
+                raise ValueError("network nodes do not have names")
+
+        elif labels = 'indices':
+            labels = range(net.size)
+
+        else:
+            raise ValueError("labels must be 'names' or 'indices'")
+
+        edges = []
+        for i,label in enumerate(net.labels):
+            for j in net.neighbors_out(i):
+                edges.append((labels[i],labels[j]))
+
+        return nx.DiGraph(edges,name=net.metadata.get('name'))
