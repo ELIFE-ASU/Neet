@@ -2,8 +2,6 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 
-import networkx as nx
-
 def is_network(thing):
     """
     Determine whether an *object* or *type* meets the interface requirement of
@@ -125,18 +123,25 @@ def neighbors(net, index, direction='both', **kwargs):
     else:
         return neighbor_types[direction](index)
 
-def to_networkx_graph(net):
+def to_networkx_graph(net,labels='indices',**kwargs):
     """
     Return networkx graph given neet network.  Requires networkx.
-    """
-    edges = []
-    names = net.names
-    for i,jSet in enumerate(net.neighbors(direction='out')):
-        for j in jSet:
-            edges.append((names[i],names[j]))
-    return nx.DiGraph(edges,name=net.metadata.get('name'))
 
-def draw(net,format='pdf',filename=None):
+    :param labels: how node is labeled and thus identified in networkx graph 
+                   ('names' or 'indices'), only used if network is a LogicNetwork or WTNetwork
+    :kwarg size: size of ECA, required if network is an ECA
+    :returns : a networkx DiGraph
+    """
+    if net.__class__.__name__ == 'ECA':
+        if 'size' not in kwargs:
+            raise AttributeError("A `size` kwarg is required for converting an neet ECA to a networkx network")
+        else:
+            return net.to_networkx_graph(size)
+
+    elif net.__class__.__name__ in ['WTNetwork','LogicNetwork']:
+        return net.to_networkx_graph(labels)
+
+def draw(net,labels='indices',filename=None,**kwargs):
     """
     Output a file with a simple network drawing.  
     
@@ -145,8 +150,46 @@ def draw(net,format='pdf',filename=None):
     Supported image formats are determined by graphviz.  In particular,
     pdf support requires 'cairo' and 'pango' to be installed prior to
     graphviz installation.
+
+    :param labels: how node is labeled and thus identified in networkx graph 
+                   ('names' or 'indices'), only used if network is a LogicNetwork or WTNetwork
+    :param filename: filename to write drawing to. Temporary filename will be used if no filename provided.
+    :kwarg size: size of ECA, required if network is an ECA
+    :returns: a pygraphviz network drawing
     """
-    if filename is None: filename = net.metadata.get('name','network')
-    if not filename.endswith('.'+format): filename += '.'+format
-    g = to_networkx_graph(net)
-    nx.nx_agraph.view_pygraphviz(g,prog='circo',path=filename)
+    if net.__class__.__name__ == 'ECA':
+        if 'size' not in kwargs:
+            raise AttributeError("A `size` kwarg is required for drawing an ECA")
+        else:
+            return net.draw(size,filename=filename)
+
+    elif net.__class__.__name__ in ['WTNetwork','LogicNetwork']:
+        return net.draw(labels=labels,filename=filename)
+    net.draw(labels=labels,filename=filename)
+
+
+# def to_networkx_graph(net):
+#     """
+#     Return networkx graph given neet network.  Requires networkx.
+#     """
+#     edges = []
+#     names = net.names
+#     for i,jSet in enumerate(net.neighbors(direction='out')):
+#         for j in jSet:
+#             edges.append((names[i],names[j]))
+#     return nx.DiGraph(edges,name=net.metadata.get('name'))
+
+# def draw(net,format='pdf',filename=None):
+#     """
+#     Output a file with a simple network drawing.  
+    
+#     Requires networkx and pygraphviz.
+    
+#     Supported image formats are determined by graphviz.  In particular,
+#     pdf support requires 'cairo' and 'pango' to be installed prior to
+#     graphviz installation.
+#     """
+#     if filename is None: filename = net.metadata.get('name','network')
+#     if not filename.endswith('.'+format): filename += '.'+format
+#     g = to_networkx_graph(net)
+#     nx.nx_agraph.view_pygraphviz(g,prog='circo',path=filename)
