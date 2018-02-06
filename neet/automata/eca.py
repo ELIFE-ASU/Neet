@@ -2,6 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import numpy as np
+import networkx as nx
 from neet.statespace import StateSpace
 
 
