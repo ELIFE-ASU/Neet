@@ -265,25 +265,25 @@ class TestLogicNetwork(unittest.TestCase):
                          [((0,), {'1'}),
                           ((1,), {'1'})])
 
-    def to_networkx_graph_names(self):
+    def test_to_networkx_graph_names(self):
         net = LogicNetwork([((1, 2), {'01', '10'}),
                                     ((0, 2), ((0, 1), '10', [1, 1])),
                                     ((0, 1), {'11'})], ['A', 'B', 'C'])
 
-        nx_net = to_networkx_graph(net,labels='names')
+        nx_net = net.to_networkx_graph(labels='names')
         self.assertEqual(list(nx_net),['A', 'B', 'C'])
 
-    def to_networkx_graph_names_fail(self):
-        net = bnet.LogicNetwork([((0,), {'0'})])
+    def test_to_networkx_graph_names_fail(self):
+        net = LogicNetwork([((0,), {'0'})])
 
         with self.assertRaises(ValueError):
-            to_networkx_graph(net,labels='names')
+            net.to_networkx_graph(labels='names')
 
-    def to_networkx_metadata(self):
-        net = bnet.LogicNetwork([((0,), {'0'})])
+    def test_to_networkx_metadata(self):
+        net = LogicNetwork([((0,), {'0'})])
         net.metadata['name']='net_name'
 
-        nx_net = to_networkx_graph(net,labels='indices')
+        nx_net = net.to_networkx_graph(labels='indices')
 
         self.assertEqual(nx_net.graph['name'],net.metadata['name'])
 
