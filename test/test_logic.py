@@ -271,7 +271,7 @@ class TestLogicNetwork(unittest.TestCase):
                                     ((0, 1), {'11'})], ['A', 'B', 'C'])
 
         nx_net = net.to_networkx_graph(labels='names')
-        self.assertEqual(list(nx_net),['A', 'B', 'C'])
+        self.assertEqual(set(nx_net),set(['A', 'B', 'C']))
 
     def test_to_networkx_graph_names_fail(self):
         net = LogicNetwork([((0,), {'0'})])

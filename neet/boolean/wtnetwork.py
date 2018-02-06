@@ -676,7 +676,7 @@ class WTNetwork(object):
         :returns: a networkx DiGraph
         """
         if labels == 'names':
-            if hasattr(self,'names'):
+            if hasattr(self,'names') and (self.names != None):
                 labels = self.names
             else:
                 raise ValueError("network nodes do not have names")

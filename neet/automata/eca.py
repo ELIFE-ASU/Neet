@@ -530,7 +530,7 @@ class ECA(object):
             for j in self.neighbors_out(i,size):
                 edges.append((i,j))
 
-        return nx.DiGraph(edges,code=self.code,size=self.size,boundary=self.boundary)
+        return nx.DiGraph(edges,code=self.code,size=size,boundary=self.boundary)
 
     def draw(self,size,filename=None):
         """
