@@ -711,7 +711,7 @@ class TestWTNetwork(unittest.TestCase):
         nx_net = s_pombe.to_networkx_graph(labels='indices')
 
         self.assertEqual(nx_net.graph['name'],'s_pombe')
-        self.assertEqual(nx_net.graph['name'],net.metadata['name'])
+        self.assertEqual(nx_net.graph['name'],nx_net.metadata['name'])
 
     # def test_draw(self):
     #     net = bnet.LogicNetwork([((0,), {'0'})])
