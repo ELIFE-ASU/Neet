@@ -1,6 +1,7 @@
 # Copyright 2016-2017 ELIFE. All rights reserved.
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
+from .python3 import *
 import numpy as np
 
 class StateSpace(object):
@@ -201,7 +202,7 @@ class StateSpace(object):
         :returns: a unique integer encoding of the state
         :raises ValueError: if ``state`` has an incorrect length
         """
-        encoded, place = 0, 1
+        encoded, place = long(0), long(1)
 
         base = self.__base
         if self.is_uniform:
@@ -213,7 +214,7 @@ class StateSpace(object):
                 encoded += place * x
                 place *= b
 
-        return encoded
+        return long(encoded)
 
     def encode(self, state):
         """

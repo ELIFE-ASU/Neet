@@ -2,9 +2,9 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import unittest
+from neet.python3 import *
 from neet.statespace import StateSpace
 import numpy as np
-
 
 class TestStateSpace(unittest.TestCase):
     def test_invalid_spec_type(self):
@@ -277,3 +277,17 @@ class TestStateSpace(unittest.TestCase):
         self.assertFalse([0, 2, 1] not in StateSpace([2, 3, 2]))
         self.assertTrue([0, 1] not in StateSpace([2, 2, 3]))
         self.assertTrue([1, 1, 6] not in StateSpace([2, 3, 4]))
+
+    def test_long_encoding(self):
+        state_space = StateSpace(10)
+        code = state_space.encode(np.ones(10, dtype=int))
+        print(type(code))
+        self.assertIsInstance(code, long)
+
+        state_space = StateSpace(68)
+        code = state_space.encode(np.ones(68, dtype=int))
+        self.assertIsInstance(code, long)
+
+        state_space = StateSpace(100)
+        code = state_space.encode(np.ones(100, dtype=int))
+        self.assertIsInstance(code, long)
