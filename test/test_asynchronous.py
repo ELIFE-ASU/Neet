@@ -2,6 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import unittest
+from neet.python3 import *
 from neet.asynchronous import transitions
 from neet.automata import ECA
 from neet.boolean.examples import s_pombe, s_cerevisiae, c_elegans

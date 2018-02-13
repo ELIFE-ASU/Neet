@@ -2,6 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import re
+from neet.python3 import *
 from neet.statespace import StateSpace
 from neet.exceptions import FormatError
 
