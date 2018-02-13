@@ -88,7 +88,7 @@ class LogicNetwork(object):
                 raise ValueError("Invalid table format")
             conditions = set()
             for condition in row[1]:
-                conditions.add(''.join([str(int(s)) for s in condition]))
+                conditions.add(''.join([str(long(s)) for s in condition]))
             self.table.append((row[0], conditions))
 
         if reduced:
@@ -105,15 +105,15 @@ class LogicNetwork(object):
         self._encoded_table = []
         for indices, conditions in self.table:
             # Encode the mask.
-            mask_code = 0
+            mask_code = long(0)
             for idx in indices:
                 mask_code += 2 ** idx  # Low order, low index.
             # Encode each condition of truth table.
             encoded_sub_table = set()
             for condition in conditions:
-                encoded_condition = 0
+                encoded_condition = long(0)
                 for idx, state in zip(indices, condition):
-                    encoded_condition += 2 ** idx if int(state) else 0
+                    encoded_condition += 2 ** idx if long(state) else 0
                 encoded_sub_table.add(encoded_condition)
             self._encoded_table.append((mask_code, encoded_sub_table))
 
@@ -134,7 +134,7 @@ class LogicNetwork(object):
         for state in sub_table[1]:
             # State excluding source.
             state_sans_source = state[:i] + state[i + 1:]
-            if int(state[i]) == 1:
+            if long(state[i]) == 1:
                 counter[state_sans_source] = counter.get(
                     state_sans_source, 0) + 1
             else:
