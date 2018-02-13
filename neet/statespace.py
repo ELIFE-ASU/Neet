@@ -201,7 +201,7 @@ class StateSpace(object):
         :returns: a unique integer encoding of the state
         :raises ValueError: if ``state`` has an incorrect length
         """
-        encoded, place = 0, 1
+        encoded, place = long(0), long(1)
 
         base = self.__base
         if self.is_uniform:

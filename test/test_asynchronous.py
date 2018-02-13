@@ -68,7 +68,7 @@ class TestAsync(unittest.TestCase):
         for net in [s_pombe, s_cerevisiae, c_elegans]:
             for states, _ in transitions(net, encoded=True):
                 for state in states:
-                    self.assertIsInstance(state, int)
+                    self.assertIsInstance(state, (int, long))
             for states, _ in transitions(net, encoded=False):
                 for state in states:
                     self.assertIsInstance(state, list)
@@ -77,7 +77,7 @@ class TestAsync(unittest.TestCase):
             for size in [5, 8, 10]:
                 for states, _ in transitions(net, size, encoded=True):
                     for state in states:
-                        self.assertIsInstance(state, int)
+                        self.assertIsInstance(state, (int, long))
                 for states, _ in transitions(net, size, encoded=False):
                     for state in states:
                         self.assertIsInstance(state, list)

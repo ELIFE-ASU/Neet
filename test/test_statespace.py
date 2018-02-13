@@ -277,3 +277,16 @@ class TestStateSpace(unittest.TestCase):
         self.assertFalse([0, 2, 1] not in StateSpace([2, 3, 2]))
         self.assertTrue([0, 1] not in StateSpace([2, 2, 3]))
         self.assertTrue([1, 1, 6] not in StateSpace([2, 3, 4]))
+
+    def test_long_encoding(self):
+        state_space = StateSpace(10)
+        code = state_space.encode(np.ones(10, dtype=int))
+        self.assertIsInstance(code, long)
+
+        state_space = StateSpace(68)
+        code = state_space.encode(np.ones(68, dtype=int))
+        self.assertIsInstance(code, long)
+
+        state_space = StateSpace(100)
+        code = state_space.encode(np.ones(100, dtype=int))
+        self.assertIsInstance(code, long)
