@@ -697,7 +697,7 @@ class TestWTNetwork(unittest.TestCase):
         from neet.boolean.examples import s_pombe
 
         nx_net = s_pombe.to_networkx_graph(labels='names')
-        self.assertEqual(list(nx_net),s_pombe.names)
+        self.assertEqual(set(nx_net),set(s_pombe.names))
 
     def test_to_networkx_graph_names_fail(self):
         net = bnet.WTNetwork([[1,0],[0,1]])
@@ -711,7 +711,7 @@ class TestWTNetwork(unittest.TestCase):
         nx_net = s_pombe.to_networkx_graph(labels='indices')
 
         self.assertEqual(nx_net.graph['name'],'s_pombe')
-        self.assertEqual(nx_net.graph['name'],nx_net.metadata['name'])
+        self.assertEqual(nx_net.graph['name'],s_pombe.metadata['name'])
 
     # def test_draw(self):
     #     net = bnet.LogicNetwork([((0,), {'0'})])

@@ -123,7 +123,7 @@ def neighbors(net, index, direction='both', **kwargs):
     else:
         return neighbor_types[direction](index)
 
-def to_networkx_graph(net,labels='indices',**kwargs):
+def to_networkx_graph(net,size=None,labels='indices',**kwargs):
     """
     Return networkx graph given neet network.  Requires networkx.
 
@@ -133,13 +133,13 @@ def to_networkx_graph(net,labels='indices',**kwargs):
     :returns : a networkx DiGraph
     """
     if net.__class__.__name__ == 'ECA':
-        if 'size' not in kwargs:
+        if 'size' == None:
             raise AttributeError("A `size` kwarg is required for converting an neet ECA to a networkx network")
         else:
             return net.to_networkx_graph(size)
 
     elif net.__class__.__name__ in ['WTNetwork','LogicNetwork']:
-        return net.to_networkx_graph(labels)
+        return net.to_networkx_graph(labels=labels)
 
 def draw(net,labels='indices',filename=None,**kwargs):
     """
