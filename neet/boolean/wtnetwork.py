@@ -2,6 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import numpy as np
+import networkx as nx
 import re
 from neet.statespace import StateSpace
 
@@ -665,3 +666,48 @@ class WTNetwork(object):
             set([0, 1, 5, 8])
         """
         return self.neighbors_in(index) | self.neighbors_out(index)
+
+    def to_networkx_graph(self,labels='indices'):
+        """
+        Return networkx graph given neet network.  Requires networkx.
+
+        :param labels: how node is labeled and thus identified in networkx graph 
+                       ('names' or 'indices')
+        :returns: a networkx DiGraph
+        """
+        if labels == 'names':
+            if hasattr(self,'names') and (self.names != None):
+                labels = self.names
+            else:
+                raise ValueError("network nodes do not have names")
+
+        elif labels == 'indices':
+            labels = range(self.size)
+
+        else:
+            raise ValueError("labels must be 'names' or 'indices'")
+
+        edges = []
+        for i,label in enumerate(labels):
+            for j in self.neighbors_out(i):
+                edges.append((labels[i],labels[j]))
+
+        return nx.DiGraph(edges,name=self.metadata.get('name'))
+
+    def draw(self,labels='indices',filename=None):
+        """
+        Output a file with a simple network drawing.  
+        
+        Requires networkx and pygraphviz.
+        
+        Supported image formats are determined by graphviz.  In particular,
+        pdf support requires 'cairo' and 'pango' to be installed prior to
+        graphviz installation.
+
+        :param labels: how node is labeled and thus identified in networkx graph 
+                   ('names' or 'indices'), only used if network is a LogicNetwork or WTNetwork
+        :param filename: filename to write drawing to. Temporary filename will be used if no filename provided.
+        :returns: a pygraphviz network drawing
+        
+        """        
+        nx.nx_agraph.view_pygraphviz(self.to_networkx_graph(labels=labels),prog='circo',path=filename)

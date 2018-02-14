@@ -264,3 +264,29 @@ class TestLogicNetwork(unittest.TestCase):
         self.assertEqual(net.table,
                          [((0,), {'1'}),
                           ((1,), {'1'})])
+
+    def test_to_networkx_graph_names(self):
+        net = LogicNetwork([((1, 2), {'01', '10'}),
+                                    ((0, 2), ((0, 1), '10', [1, 1])),
+                                    ((0, 1), {'11'})], ['A', 'B', 'C'])
+
+        nx_net = net.to_networkx_graph(labels='names')
+        self.assertEqual(set(nx_net),set(['A', 'B', 'C']))
+
+    def test_to_networkx_graph_names_fail(self):
+        net = LogicNetwork([((0,), {'0'})])
+
+        with self.assertRaises(ValueError):
+            net.to_networkx_graph(labels='names')
+
+    def test_to_networkx_metadata(self):
+        net = LogicNetwork([((0,), {'0'})])
+        net.metadata['name']='net_name'
+
+        nx_net = net.to_networkx_graph(labels='indices')
+
+        self.assertEqual(nx_net.graph['name'],net.metadata['name'])
+
+    # def test_draw(self):
+    #     net = bnet.LogicNetwork([((0,), {'0'})])
+    #     draw(net,labels='indices')

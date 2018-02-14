@@ -402,3 +402,13 @@ class TestECA(unittest.TestCase):
 
         self.assertEqual(net.neighbors(2, 4),set([1,2,3]))
 
+    def test_to_networkx_metadata(self):
+        net = ca.ECA(30)
+        net.boundary = (1,0)
+
+        nx_net = net.to_networkx_graph(3)
+
+        self.assertEqual(nx_net.graph['code'],30)
+        self.assertEqual(nx_net.graph['size'],3)
+        self.assertEqual(nx_net.graph['boundary'],(1,0))
+

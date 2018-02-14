@@ -2,6 +2,7 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import numpy as np
+import networkx as nx
 from neet.statespace import StateSpace
 
 
@@ -515,3 +516,34 @@ class ECA(object):
         """
         # Outgoing neighbors are a subset of incoming neighbors.
         return self.neighbors_in(index, size)
+
+    def to_networkx_graph(self,size):
+        """
+        Return networkx graph given neet network.  Requires networkx.
+
+        :param size: size of ECA, required if network is an ECA
+        :returns : a networkx DiGraph
+        """
+
+        edges = []
+        for i in range(size):
+            for j in self.neighbors_out(i,size):
+                edges.append((i,j))
+
+        return nx.DiGraph(edges,code=self.code,size=size,boundary=self.boundary)
+
+    def draw(self,size,filename=None):
+        """
+        Output a file with a simple network drawing.  
+        
+        Requires networkx and pygraphviz.
+        
+        Supported image formats are determined by graphviz.  In particular,
+        pdf support requires 'cairo' and 'pango' to be installed prior to
+        graphviz installation.
+
+        :param filename: filename to write drawing to. Temporary filename will be used if no filename provided.
+        :param size: size of ECA, required if network is an ECA
+        :returns: a pygraphviz network drawing
+        """        
+        nx.nx_agraph.view_pygraphviz(self.to_networkx_graph(size),prog='circo',path=filename)
