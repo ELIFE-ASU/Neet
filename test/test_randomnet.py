@@ -28,3 +28,12 @@ class TestRandomnet(unittest.TestCase):
         for i in range(net.size):
             self.assertEqual(net.neighbors_in(i),randnet.neighbors_in(i))
 
+    def test_random_logic_fixed_in_degree(self):
+        net = mouse_cortical_7B
+        np.random.seed(TESTSEED)
+        randnet = random_logic(net,connections='fixed-in-degree')
+        # fixed-in-degree should preserve each node's in degree
+        for i in range(net.size):
+            self.assertEqual(len(net.neighbors_in(i)),
+                             len(randnet.neighbors_in(i)))
+
