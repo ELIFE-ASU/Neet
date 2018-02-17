@@ -37,3 +37,12 @@ class TestRandomnet(unittest.TestCase):
             self.assertEqual(len(net.neighbors_in(i)),
                              len(randnet.neighbors_in(i)))
 
+    def test_random_logic_fixed_mean_degree(self):
+        net = mouse_cortical_7B
+        np.random.seed(TESTSEED)
+        randnet = random_logic(net,connections='fixed-mean-degree')
+        # fixed-mean-degree should preserve the total number of edges
+        numedges = np.sum([len(net.neighbors_in(i)) for i in range(net.size)])
+        randnumedges = np.sum([len(randnet.neighbors_in(i)) for i in range(randnet.size)])
+        self.assertEqual(numedges,randnumedges)
+
