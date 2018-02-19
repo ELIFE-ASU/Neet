@@ -69,7 +69,7 @@ def _random_binary_states(n, p):
 def _external_nodes(logic_net):
     externals = set()
     for idx, row in enumerate(logic_net.table):
-        if len(row[0]) == 1 and row[0][0] == idx:
+        if row[0] == (idx, ) and row[1] == {'1'}:
             externals.add(idx)
     return externals
 
