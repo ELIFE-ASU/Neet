@@ -11,7 +11,7 @@ from neet.statespace import StateSpace
 from .logicnetwork import LogicNetwork
 
 
-def random_logic(logic_net, p=0.5, connections='fixed-structure'):
+def random_logic(logic_net, p=0.5, connections='fixed-structure', fix_external=False):
     """
     Return a `LogicNetwork` from an input `LogicNetwork` with a random logic table.
 
@@ -52,7 +52,7 @@ def random_logic(logic_net, p=0.5, connections='fixed-structure'):
                      'free': _random_logic_free_connections}
 
     try:
-        return random_styles[connections](logic_net, ps)
+        return random_styles[connections](logic_net, ps, fix_external)
     except KeyError:
         raise ValueError(
             "connections must be 'fixed', 'fixed-in-degree', 'fixed-mean-degree', or 'free'")
@@ -66,7 +66,15 @@ def _random_binary_states(n, p):
     return set(tuple(state) for state in StateSpace(n) if random.random() < p)
 
 
-def _random_logic_fixed_connections(logic_net, ps):
+def _external_nodes(logic_net):
+    externals = set()
+    for idx, row in enumerate(logic_net.table):
+        if row[0] == (idx, ) and row[1] == {'1'}:
+            externals.add(idx)
+    return externals
+
+
+def _random_logic_fixed_connections(logic_net, ps, fix_external=False):
     """
     Return a `LogicNetwork` from an input `LogicNetwork` with a random logic table.
 
@@ -79,18 +87,22 @@ def _random_logic_fixed_connections(logic_net, ps):
     if not isinstance(logic_net, LogicNetwork):
         raise ValueError('object must be a LogicNetwork')
 
+    externals = _external_nodes(logic_net)
+
     new_table = []
     for i, row in enumerate(logic_net.table):
         indices = row[0]
-
-        conditions = _random_binary_states(len(indices), ps[i])
+        if i in externals:
+            conditions = row[1]
+        else:
+            conditions = _random_binary_states(len(indices), ps[i])
 
         new_table.append((indices, conditions))
 
     return LogicNetwork(new_table, logic_net.names)
 
 
-def _random_logic_shuffled_connections(logic_net, ps):
+def _random_logic_shuffled_connections(logic_net, ps, fix_external=False):
     """
     Return a `LogicNetwork` from an input `LogicNetwork` with a random logic table.
 
@@ -104,12 +116,17 @@ def _random_logic_shuffled_connections(logic_net, ps):
     if not isinstance(logic_net, LogicNetwork):
         raise ValueError('object must be a LogicNetwork')
 
+    externals = _external_nodes(logic_net) if fix_external else set()
+
     new_table = []
     for i, row in enumerate(logic_net.table):
-        n_indices = len(row[0])
-        indices = tuple(sorted(random.sample(range(logic_net.size), k=n_indices)))
+        if i in externals:
+            indices, conditions = row
+        else:
+            n_indices = len(row[0])
+            indices = tuple(sorted(random.sample(range(logic_net.size), k=n_indices)))
 
-        conditions = _random_binary_states(n_indices, ps[i])
+            conditions = _random_binary_states(n_indices, ps[i])
 
         new_table.append((indices, conditions))
 
@@ -141,64 +158,69 @@ def _random_logic_free_connections(logic_net, ps):
     return LogicNetwork(new_table, logic_net.names)
 
 
-# 10.26.2017
-def _random_logic_fixed_num_edges(logic_net, ps):
+def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False):
     """
     Returns new network that corresponds to adding a fixed number of
     edges between random nodes, with random corresponding boolean rules.
     """
 
-    numEdges = np.sum(_degrees(logic_net))
-    # choose n random integers that sum to numEdges
-    newDegrees = _random_partition(logic_net.size, numEdges, m=logic_net.size)
+    num_edges = sum(len(logic_net.neighbors_in(i)) for i in range(logic_net.size))
 
-    new_table = []
-    for i, degree in enumerate(newDegrees):
-        n_indices = degree
-        indices = tuple(sorted(random.sample(
-            range(logic_net.size), k=n_indices)))
+    externals = _external_nodes(logic_net) if fix_external else set()
 
-        conditions = set()
+    num_edges -= len(externals)
 
-        if n_indices > 0:
-            for state in StateSpace(n_indices):
-                if random.random() < ps[i]:
-                    conditions.add(tuple(state))
+    internals = [idx for idx in range(logic_net.size) if idx not in externals]
+    num_internal_connections = np.zeros(len(internals))
 
-        new_table.append((indices, conditions))
+    sample = np.random.choice([i // logic_net.size for i in range(len(internals) * logic_net.size)],
+                              num_edges - len(internals), replace=False)
+    idxs, counts = np.unique(sample, return_counts=True)
+
+    num_internal_connections[idxs] = counts
+    num_internal_connections += 1
+
+    new_table = [()] * logic_net.size
+    for internal, num in zip(internals, num_internal_connections):
+        in_indices = tuple(np.random.choice(logic_net.size, int(num), replace=False))
+        conditions = _random_binary_states(len(in_indices), ps[internal])
+        new_table[internal] = (in_indices, conditions)
+
+    for external in externals:
+        new_table[external] = logic_net.table[external]
 
     return LogicNetwork(new_table, logic_net.names)
 
 
-def _degrees(net):
-    """
-    Return the list of node in-degrees for the network.
-    """
-    return [len(t[0]) for t in net.table]
+# def _degrees(net):
+#     """
+#     Return the list of node in-degrees for the network.
+#     """
+#     return [len(t[0]) for t in net.table]
 
 
-def _random_partition(n, s, m=np.inf):
-    """
-    Choose n random integers that sum to s, with the maximum value
-    of any element of the list limited to m.
-    """
-    if s > n * m:
-        raise ValueError("Can't have s > n*m")
+# def _random_partition(n, s, m=np.inf):
+#     """
+#     Choose n random integers that sum to s, with the maximum value
+#     of any element of the list limited to m.
+#     """
+#     if s > n * m:
+#         raise ValueError("Can't have s > n*m")
 
-    # see, e.g., https://stackoverflow.com/questions/5622608/choosing-n-numbers-with-fixed-sum
-    partition = [0] + list(np.random.randint(0, s + 1, n - 1)) + [s]
-    partition = np.sort(partition)
-    integers = partition[1:] - partition[:-1]
+#     # see, e.g., https://stackoverflow.com/questions/5622608/choosing-n-numbers-with-fixed-sum
+#     partition = [0] + list(np.random.randint(0, s + 1, n - 1)) + [s]
+#     partition = np.sort(partition)
+#     integers = partition[1:] - partition[:-1]
 
-    # redistribute any values above the max
-    # (there's probably a better way to do this!)
-    while max(integers) > m:
-        maxedIndices = (integers >= m)
-        nonMaxedIndices = (integers < m)
-        numToRedistribute = np.sum(integers[maxedIndices] - m)
-        redistributed = _random_partition(
-            sum(nonMaxedIndices), numToRedistribute)
-        integers[maxedIndices] = m
-        integers[nonMaxedIndices] += redistributed
+#     # redistribute any values above the max
+#     # (there's probably a better way to do this!)
+#     while max(integers) > m:
+#         maxedIndices = (integers >= m)
+#         nonMaxedIndices = (integers < m)
+#         numToRedistribute = np.sum(integers[maxedIndices] - m)
+#         redistributed = _random_partition(
+#             sum(nonMaxedIndices), numToRedistribute)
+#         integers[maxedIndices] = m
+#         integers[nonMaxedIndices] += redistributed
 
-    return integers
+#     return integers
