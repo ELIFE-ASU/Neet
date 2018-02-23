@@ -11,7 +11,8 @@ from neet.statespace import StateSpace
 from .logicnetwork import LogicNetwork
 
 
-def random_logic(logic_net, p=0.5, connections='fixed-structure', fix_external=False):
+def random_logic(logic_net, p=0.5, connections='fixed-structure', fix_external=False,
+                 make_irreducible=False):
     """
     Return a `LogicNetwork` from an input `LogicNetwork` with a random logic table.
 
@@ -52,7 +53,7 @@ def random_logic(logic_net, p=0.5, connections='fixed-structure', fix_external=F
                      'free': _random_logic_free_connections}
 
     try:
-        return random_styles[connections](logic_net, ps, fix_external)
+        return random_styles[connections](logic_net, ps, fix_external, make_irreducible)
     except KeyError:
         raise ValueError(
             "connections must be 'fixed', 'fixed-in-degree', 'fixed-mean-degree', or 'free'")
@@ -73,8 +74,23 @@ def _external_nodes(logic_net):
             externals.add(idx)
     return externals
 
+# stolen from grn-survey.generate_variants
+def _fake_connections(net):
+    fakes = []
+    for idx in range(net.size):
+        for neighbor_in in net.neighbors_in(idx):
+            if not net.is_dependent(idx, neighbor_in):
+                fakes.append((idx, neighbor_in))
+    return fakes
 
-def _random_logic_fixed_connections(logic_net, ps, fix_external=False):
+def _logic_table_row_is_irreducible(row,i,size):
+    table = [ ((),set()) for j in range(size) ]
+    table[i] = row
+    net = LogicNetwork(table)
+    return len(_fake_connections(net)) == 0
+
+def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
+                                    make_irreducible=False):
     """
     Return a `LogicNetwork` from an input `LogicNetwork` with a random logic table.
 
@@ -95,14 +111,23 @@ def _random_logic_fixed_connections(logic_net, ps, fix_external=False):
         if i in externals:
             conditions = row[1]
         else:
-            conditions = _random_binary_states(len(indices), ps[i])
+            keep_trying = True
+            while keep_trying:
+                conditions = _random_binary_states(len(indices), ps[i])
+                
+                if make_irreducible:
+                    node_irreducible = _logic_table_row_is_irreducible((indices,conditions),i,logic_net.size)
+                    keep_trying = not node_irreducible
+                else:
+                    keep_trying = False
 
         new_table.append((indices, conditions))
 
     return LogicNetwork(new_table, logic_net.names)
 
 
-def _random_logic_shuffled_connections(logic_net, ps, fix_external=False):
+def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
+                                       make_irreducible=False):
     """
     Return a `LogicNetwork` from an input `LogicNetwork` with a random logic table.
 
@@ -123,10 +148,18 @@ def _random_logic_shuffled_connections(logic_net, ps, fix_external=False):
         if i in externals:
             indices, conditions = row
         else:
-            n_indices = len(row[0])
-            indices = tuple(sorted(random.sample(range(logic_net.size), k=n_indices)))
+            keep_trying = True
+            while keep_trying:
+                n_indices = len(row[0])
+                indices = tuple(sorted(random.sample(range(logic_net.size), k=n_indices)))
 
-            conditions = _random_binary_states(n_indices, ps[i])
+                conditions = _random_binary_states(n_indices, ps[i])
+
+                if make_irreducible:
+                    node_irreducible = _logic_table_row_is_irreducible((indices,conditions),i,logic_net.size)
+                    keep_trying = not node_irreducible
+                else:
+                    keep_trying = False
 
         new_table.append((indices, conditions))
 
@@ -158,7 +191,8 @@ def _random_logic_free_connections(logic_net, ps):
     return LogicNetwork(new_table, logic_net.names)
 
 
-def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False):
+def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
+                                  make_irreducible=False):
     """
     Returns new network that corresponds to adding a fixed number of
     edges between random nodes, with random corresponding boolean rules.
@@ -182,9 +216,17 @@ def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False):
 
     new_table = [()] * logic_net.size
     for internal, num in zip(internals, num_internal_connections):
-        in_indices = tuple(np.random.choice(logic_net.size, int(num), replace=False))
-        conditions = _random_binary_states(len(in_indices), ps[internal])
-        new_table[internal] = (in_indices, conditions)
+        keep_trying = True
+        while keep_trying:
+            in_indices = tuple(np.random.choice(logic_net.size, int(num), replace=False))
+            conditions = _random_binary_states(len(in_indices), ps[internal])
+            new_table[internal] = (in_indices, conditions)
+            
+            if make_irreducible:
+                node_irreducible = _logic_table_row_is_irreducible((in_indices,conditions),internal,logic_net.size)
+                keep_trying = not node_irreducible
+            else:
+                keep_trying = False
 
     for external in externals:
         new_table[external] = logic_net.table[external]
