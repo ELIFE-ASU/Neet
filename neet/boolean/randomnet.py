@@ -64,7 +64,11 @@ def _random_binary_states(n, p):
     Return a set of binary states. Each state has length `n` and the probability
     to appear in the set is `p`.
     """
-    return set(tuple(state) for state in StateSpace(n) if random.random() < p)
+    integer, decimal = divmod(n * p, 1)
+    num_states = integer + np.random.choice(2, p=[1 - decimal, decimal])
+    state_idxs = np.random.choice(2 ** n, num_states)
+
+    return set('{0:0{1}b}'.format(idx, n) for idx in state_idxs)
 
 
 def _external_nodes(logic_net):
