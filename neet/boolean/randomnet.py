@@ -64,8 +64,8 @@ def random_binary_states(n, p):
     to appear in the set is `p`.
     """
     integer, decimal = divmod(n * p, 1)
-    num_states = int(integer + np.random.choice(2, p=[1 - decimal, decimal], replace=False))
-    state_idxs = np.random.choice(2 ** n, num_states)
+    num_states = int(integer + np.random.choice(2, p=[1 - decimal, decimal]))
+    state_idxs = np.random.choice(2 ** n, num_states, replace=False)
 
     return set('{0:0{1}b}'.format(idx, n) for idx in state_idxs)
 
