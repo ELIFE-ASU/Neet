@@ -25,6 +25,12 @@ class MockNetwork(object):
         """
         return neet.statespace.StateSpace(size)
 
+    def neighbors(self):
+        """
+        mock neighbors method
+        """
+        pass
+
 class MockFixedSizedNetwork(object):
     """
     A mock fixed-sized network
@@ -47,3 +53,9 @@ class MockFixedSizedNetwork(object):
         mock state space method
         """
         return neet.statespace.StateSpace(1)
+
+    def neighbors(self):
+        """
+        mock neighbors method
+        """
+        pass

@@ -535,6 +535,7 @@ class TestWTNetwork(unittest.TestCase):
         xs = [0,0]
         self.assertEqual([0,0], net.update(xs, pin=[1]))
 
+
     def test_pinning_s_pombe(self):
         from neet.boolean.examples import s_pombe
         self.assertEqual(
@@ -553,3 +554,169 @@ class TestWTNetwork(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 1, 0, 1],
             s_pombe.update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
         )
+
+
+    def test_update_values_none(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
+          theta=bnet.WTNetwork.positive_threshold)
+        xs = [0,0]
+        self.assertEqual([0,1], net.update(xs, values=None))
+        xs = [0,0]
+        self.assertEqual([0,1], net.update(xs, values={}))
+
+
+    def test_update_invalid_values(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
+          theta=bnet.WTNetwork.positive_threshold)
+        with self.assertRaises(ValueError):
+          net.update([0,0], values={0: 2})
+        with self.assertRaises(ValueError):
+          net.update([0,0], values={0: -1})
+
+
+    def test_update_pin_invalid_indicies(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
+          theta=bnet.WTNetwork.positive_threshold)
+        with self.assertRaises(IndexError):
+          net.update([0,0], values={-3: 0})
+        with self.assertRaises(IndexError):
+          net.update([0,0], values={2: 0})
+
+
+    def test_update_values_index_clash(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
+          theta=bnet.WTNetwork.positive_threshold)
+        with self.assertRaises(ValueError):
+          net.update([0,0], index=0, values={0: 1})
+        with self.assertRaises(ValueError):
+          net.update([0,0], index=1, values={1: 0})
+        with self.assertRaises(ValueError):
+          net.update([0,0], index=1, values={0: 0, 1: 0})
+
+
+    def test_update_values_pin_clash(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
+          theta=bnet.WTNetwork.positive_threshold)
+        with self.assertRaises(ValueError):
+          net.update([0,0], pin=[0], values={0: 1})
+        with self.assertRaises(ValueError):
+          net.update([0,0], pin=[1], values={1: 0})
+        with self.assertRaises(ValueError):
+          net.update([0,0], pin=[1], values={0: 0, 1: 0})
+        with self.assertRaises(ValueError):
+          net.update([0,0], pin=[1, 0], values={0: 0})
+
+
+    def test_update_values(self):
+        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0],
+          theta=bnet.WTNetwork.negative_threshold)
+
+        xs = [1,1]
+        self.assertEqual([1,1], net.update(xs, values={1: 1}))
+
+        net.theta = bnet.WTNetwork.positive_threshold
+        xs = [0,0]
+        self.assertEqual([1,1], net.update(xs, values={0: 1}))
+
+
+    def test_values_s_pombe(self):
+        from neet.boolean.examples import s_pombe
+        self.assertEqual(
+            [0, 1, 0, 0, 1, 0, 0, 0, 0],
+            s_pombe.update([0,0,0,0,1,0,0,0,0], values={1:1,4:1,-1:0})
+        )
+        self.assertEqual(
+            [0, 1, 0, 1, 0, 0, 1, 1, 0],
+            s_pombe.update([0,0,0,0,0,0,0,0,1], values={2:0,-2:1})
+        )
+        self.assertEqual(
+            [0, 0, 0, 0, 0, 0, 1, 0, 0],
+            s_pombe.update([0,0,0,0,0,0,0,0,1], values={1: 0, 2:0, 3:0})
+        )
+
+    def test_has_metadata(self):
+        net = bnet.WTNetwork([[1]])
+        self.assertTrue(hasattr(net,'metadata'))
+        self.assertEqual(type(net.metadata),dict)
+
+    def test_neighbors_in(self):
+
+        net = bnet.WTNetwork(
+            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
+             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+
+        self.assertEqual(net.neighbors_in(2),set([0,1,5,8]))
+
+        with self.assertRaises(IndexError):
+            self.assertEqual(net.neighbors_in(2.0))
+
+        with self.assertRaises(IndexError):
+            self.assertEqual(net.neighbors_in('2'))
+
+    def test_neighbors_out(self):
+
+        net = bnet.WTNetwork(
+            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
+             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+
+        self.assertEqual(net.neighbors_out(2),set([1,5]))
+      
+    def test_neighbors_both(self):
+
+        net = bnet.WTNetwork(
+            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
+             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+
+        self.assertEqual(net.neighbors(2),set([0, 1, 5, 8]))
+
+    def test_to_networkx_graph_names(self):
+        from neet.boolean.examples import s_pombe
+
+        nx_net = s_pombe.to_networkx_graph(labels='names')
+        self.assertEqual(set(nx_net),set(s_pombe.names))
+
+    def test_to_networkx_graph_names_fail(self):
+        net = bnet.WTNetwork([[1,0],[0,1]])
+
+        with self.assertRaises(ValueError):
+            net.to_networkx_graph(labels='names')
+
+    def test_to_networkx_metadata(self):
+        from neet.boolean.examples import s_pombe
+
+        nx_net = s_pombe.to_networkx_graph(labels='indices')
+
+        self.assertEqual(nx_net.graph['name'],'s_pombe')
+        self.assertEqual(nx_net.graph['name'],s_pombe.metadata['name'])
+
+    # def test_draw(self):
+    #     net = bnet.LogicNetwork([((0,), {'0'})])
+    #     draw(net,labels='indices')
+
+        
+
+

@@ -2,8 +2,10 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import numpy as np
+import networkx as nx
 import re
 from neet.statespace import StateSpace
+
 
 class WTNetwork(object):
     """
@@ -12,6 +14,7 @@ class WTNetwork(object):
     node thresholds, and each node of the network is expected to be in either
     of two states ``0`` or ``1``.
     """
+
     def __init__(self, weights, thresholds=None, names=None, theta=None):
         """
         Construct a network from weights and thresholds.
@@ -64,10 +67,10 @@ class WTNetwork(object):
         :raises TypeError: if ``threshold_func`` is not callable
         """
         if isinstance(weights, int):
-            self.weights = np.zeros([weights,weights])
+            self.weights = np.zeros([weights, weights])
         else:
             self.weights = np.asarray(weights, dtype=np.float)
-        
+
         shape = self.weights.shape
         if self.weights.ndim != 2:
             raise(ValueError("weights must be a matrix"))
@@ -102,6 +105,8 @@ class WTNetwork(object):
         elif names is not None and len(names) != self.size:
             raise(ValueError("either all or none of the nodes may have a name"))
 
+        self.metadata = {}
+
     @property
     def size(self):
         """
@@ -131,7 +136,7 @@ class WTNetwork(object):
 
             >>> net = WTNetwork(3)
             >>> net.state_space()
-            <neet.landscape.StateSpace object at 0x00000193E4DA84A8>
+            <neet.statespace.StateSpace object at 0x00000193E4DA84A8>
             >>> space = net.state_space()
             >>> list(space)
             [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
@@ -142,7 +147,7 @@ class WTNetwork(object):
         """
         return StateSpace(self.size, base=2)
 
-    def _unsafe_update(self, states, index=None, pin=None):
+    def _unsafe_update(self, states, index=None, pin=None, values=None):
         """
         Update ``states``, in place, according to the network update rules
         without checking the validity of the arguments.
@@ -186,6 +191,15 @@ class WTNetwork(object):
             >>> net._unsafe_update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
             [0, 0, 0, 0, 0, 0, 1, 0, 1]
 
+        .. rubric:: Value Fixing:
+
+            >>> net.update([0,0,0,0,1,0,0,0,0], values={0:1, 2:1})
+            [1, 0, 1, 0, 0, 0, 0, 0, 1]
+            >>> net.update([0,0,0,0,0,0,0,0,1], values={0:1, 1:0, 2:0})
+            [1, 0, 0, 1, 0, 0, 1, 0, 0]
+            >>> net.update([0,0,0,0,0,0,0,0,1], values={-1:1, -2:1})
+            [0, 1, 1, 1, 0, 0, 1, 1, 1]
+
         .. rubric:: Erroneous Usage:
 
         ::
@@ -206,11 +220,9 @@ class WTNetwork(object):
             IndexError: index 10 is out of bounds for axis 1 with size 9
 
         :param states: the one-dimensional sequence of node states
-        :type states: sequence
         :param index: the index to update or None
-        :type index: int or None
         :param pin: the indices to pin (fix to their current state) or None
-        :type pin: sequence
+        :param values: a dictionary of index-value pairs to fix after update
         :returns: the updated states
         """
         pin_states = pin is not None and pin != []
@@ -220,16 +232,17 @@ class WTNetwork(object):
             temp = np.dot(self.weights, states) - self.thresholds
             self.theta(temp, states)
             if pin_states:
-                for (j,i) in enumerate(pin):
+                for (j, i) in enumerate(pin):
                     states[i] = pinned[j]
-            return states
         else:
             temp = np.dot(self.weights[index], states) - self.thresholds[index]
             states[index] = self.theta(temp, states[index])
-            return states
+        if values is not None:
+            for key in values:
+                states[key] = values[key]
+        return states
 
-
-    def update(self, states, index=None, pin=None):
+    def update(self, states, index=None, pin=None, values=None):
         """
         Update ``states``, in place, according to the network update rules.
 
@@ -271,6 +284,15 @@ class WTNetwork(object):
             >>> net.update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
             [0, 0, 0, 0, 0, 0, 1, 0, 1]
 
+        .. rubric:: Value Fixing:
+
+            >>> net.update([0,0,0,0,1,0,0,0,0], values={0:1, 2:1})
+            [1, 0, 1, 0, 0, 0, 0, 0, 1]
+            >>> net.update([0,0,0,0,0,0,0,0,1], values={0:1, 1:0, 2:0})
+            [1, 0, 0, 1, 0, 0, 1, 0, 0]
+            >>> net.update([0,0,0,0,0,0,0,0,1], values={-1:1, -2:1})
+            [0, 1, 1, 1, 0, 0, 1, 1, 1]
+
         .. rubric:: Erroneous Usage:
 
         ::
@@ -295,23 +317,48 @@ class WTNetwork(object):
             Traceback (most recent call last):
                 ...
             IndexError: index 10 is out of bounds for axis 1 with size 9
+            >>> net.update([0,0,0,0,1,0,0,0,0], index=1, values={1:0,3:0,2:1})
+            Traceback (most recent call last):
+                ...
+            ValueError: cannot provide both the index and values arguments
+            >>> net.update([0,0,0,0,1,0,0,0,0], pin=[1], values={1:0,3:0,2:1})
+            Traceback (most recent call last):
+                ...
+            ValueError: cannot set a value for a pinned state
+            >>> net.update([0,0,0,0,1,0,0,0,0], values={1:2})
+            Traceback (most recent call last):
+                ...
+            ValueError: invalid state in values argument
 
         :param states: the one-dimensional sequence of node states
-        :type states: sequence
         :param index: the index to update (or None)
-        :type index: int or None
         :param pin: the indices to pin (or None)
-        :type pin: sequence
+        :param values: a dictionary of index-value pairs to set after update
         :returns: the updated states
         :raises ValueError: if ``states`` is not in the network's state space
+        :raises ValueError: if ``index`` and ``pin`` are both provided
+        :raises ValueError: if ``index`` and ``values`` are both provided
+        :raises ValueError: if an element of ``pin`` is a key in ``values``
+        :raises ValueError: if a value in ``values`` is not binary (0 or 1)
         """
         if states not in self.state_space():
             raise ValueError("the provided state is not in the network's state space")
 
-        if (index is not None) and (pin is not None and pin != []):
-            raise ValueError("cannot provide both the index and pin arguments")
+        if index is not None:
+            if pin is not None and pin != []:
+                raise ValueError("cannot provide both the index and pin arguments")
+            elif values is not None and values != {}:
+                raise ValueError("cannot provide both the index and values arguments")
+        elif pin is not None and values is not None:
+            for k in values.keys():
+                if k in pin:
+                    raise ValueError("cannot set a value for a pinned state")
+        if values is not None:
+            for val in values.values():
+                if val != 0 and val != 1:
+                    raise ValueError("invalid state in values argument")
 
-        return self._unsafe_update(states, index, pin)
+        return self._unsafe_update(states, index, pin, values)
 
     @staticmethod
     def read(nodes_file, edges_file):
@@ -345,12 +392,12 @@ class WTNetwork(object):
                     index += 1
 
         n = len(names)
-        weights = np.zeros((n,n), dtype=np.float)
+        weights = np.zeros((n, n), dtype=np.float)
         with open(edges_file, "r") as f:
             for line in f.readlines():
                 if comment.match(line) is None:
                     a, b, w = line.strip().split()
-                    weights[nameindices[b],nameindices[a]] = float(w)
+                    weights[nameindices[b], nameindices[a]] = float(w)
 
         return WTNetwork(weights, thresholds, names)
 
@@ -535,3 +582,132 @@ class WTNetwork(object):
                 return 0
             else:
                 return 1
+
+    def neighbors_in(self, index):
+        """
+        Return the set of all neighbor nodes, where
+        edge(neighbor_node-->index) exists.
+
+        :param index: node index
+        :returns: the set of all node indices which point toward the index node
+
+        .. rubric:: Basic Use:
+
+        ::
+
+            >>> net = WTNetwork(
+            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
+             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+            >>> net.neighbors_in(2)
+            set([0, 1, 5, 8])
+        """
+        return set(np.flatnonzero(self.weights[index]))
+
+    def neighbors_out(self, index):
+        """
+        Return the set of all neighbor nodes, where
+        edge(index-->neighbor_node) exists.
+
+        :param index: node index
+        :returns: the set of all node indices which the index node points to
+
+        .. rubric:: Basic Use:
+
+        ::
+
+            >>> net = WTNetwork(
+            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
+             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+            >>> net.neighbors_out(2)
+            set([1, 5])
+        """
+        return set(np.flatnonzero(self.weights[:, index]))
+
+    def neighbors(self, index):
+        """
+        Return a set of neighbors for a specified node, or a list of sets of
+        neighbors for all nodes in the network.
+
+        :param index: node index
+        :returns: a set (if index!=None) or list of sets of neighbors of a node or network or nodes
+
+        .. rubric:: Basic Use:
+
+        ::
+
+            >>> net = WTNetwork(
+            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
+             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+            >>> net.neighbors(2)
+            set([0, 1, 5, 8])
+        """
+        return self.neighbors_in(index) | self.neighbors_out(index)
+
+    def to_networkx_graph(self,labels='indices'):
+        """
+        Return networkx graph given neet network.  Requires networkx.
+
+        :param labels: how node is labeled and thus identified in networkx graph 
+                       ('names' or 'indices')
+        :returns: a networkx DiGraph
+        """
+        if labels == 'names':
+            if hasattr(self,'names') and (self.names != None):
+                labels = self.names
+            else:
+                raise ValueError("network nodes do not have names")
+
+        elif labels == 'indices':
+            labels = range(self.size)
+
+        else:
+            raise ValueError("labels must be 'names' or 'indices'")
+
+        edges = []
+        for i,label in enumerate(labels):
+            for j in self.neighbors_out(i):
+                edges.append((labels[i],labels[j]))
+
+        return nx.DiGraph(edges,name=self.metadata.get('name'))
+
+    def draw(self,labels='indices',filename=None):
+        """
+        Output a file with a simple network drawing.  
+        
+        Requires networkx and pygraphviz.
+        
+        Supported image formats are determined by graphviz.  In particular,
+        pdf support requires 'cairo' and 'pango' to be installed prior to
+        graphviz installation.
+
+        :param labels: how node is labeled and thus identified in networkx graph 
+                   ('names' or 'indices'), only used if network is a LogicNetwork or WTNetwork
+        :param filename: filename to write drawing to. Temporary filename will be used if no filename provided.
+        :returns: a pygraphviz network drawing
+        
+        """        
+        nx.nx_agraph.view_pygraphviz(self.to_networkx_graph(labels=labels),prog='circo',path=filename)

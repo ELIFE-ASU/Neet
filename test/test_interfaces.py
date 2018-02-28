@@ -4,6 +4,9 @@
 import unittest
 from neet.interfaces import *
 from neet.statespace import StateSpace
+import neet.automata as ca
+import neet.boolean as bnet
+from neet.boolean.examples import s_pombe
 import numpy as np
 
 
@@ -14,6 +17,9 @@ class TestCore(unittest.TestCase):
 
         def state_space(self):
             return StateSpace(1)
+
+        def neighbors(self):
+            pass
 
     class FixedSizeNetwork(IsNetwork):
         def size(self):
@@ -33,12 +39,18 @@ class TestCore(unittest.TestCase):
         def state_space(self):
             return StateSpace(1, base=3)
 
+        def neighbors(self):
+            pass
+
     class MultipleBaseNetwork(object):
         def update(self, lattice):
             pass
 
         def state_space(self):
             return StateSpace([1, 2, 3])
+
+        def neighbors(self):
+            pass
 
     def test_is_network(self):
         net = self.IsNetwork()
@@ -78,3 +90,60 @@ class TestCore(unittest.TestCase):
 
         not_bool_net = self.MultipleBaseNetwork()
         self.assertFalse(is_boolean_network(not_bool_net))
+
+    def test_neighbors_ECA(self):
+        eca = ca.ECA(30)
+
+        self.assertTrue(neighbors(eca, 1, size=4), set([0, 1, 2]))
+
+        with self.assertRaises(AttributeError):
+            neighbors(eca, 1)
+
+    def test_neighbors_WTNetwork(self):
+        net = bnet.WTNetwork([[1]])
+
+        self.assertTrue(neighbors(net, 0), [set([0])])
+
+    def test_neighbors_LogicNetwork(self):
+        net = bnet.LogicNetwork([((0,), {'0'})])
+
+        self.assertTrue(neighbors(net, 0), [set([0])])
+
+    def test_neighbors_IsNetwork(self):
+        net = self.IsNetwork()
+
+    def test_to_networkx_graph_LogicNetwork(self):
+        net = bnet.LogicNetwork([((1, 2), {'01', '10'}),
+                                    ((0, 2), ((0, 1), '10', [1, 1])),
+                                    ((0, 1), {'11'})], ['A', 'B', 'C'])
+
+        nx_net = to_networkx_graph(net,labels='names')
+        self.assertEqual(set(nx_net),set(['A', 'B', 'C']))
+
+    def test_to_networkx_graph_WTNetwork(self):
+
+        nx_net = to_networkx_graph(s_pombe,labels='names')
+        self.assertEqual(set(nx_net),set(s_pombe.names))
+
+    def test_to_networkx_ECA_metadata(self):
+        net = ca.ECA(30)
+        net.boundary = (1,0)
+
+        nx_net = to_networkx_graph(net,3)
+
+        self.assertEqual(nx_net.graph['code'],30)
+        self.assertEqual(nx_net.graph['size'],3)
+        self.assertEqual(nx_net.graph['boundary'],(1,0))
+    # def test_draw(self):
+    #     net = bnet.LogicNetwork([((0,), {'0'})])
+    #     draw(net,labels='indices')
+
+
+        # with self.assertRaises(AttributeError):
+        #     neighbors(net)
+
+    # def test_neighbors_IsNotNetwork(self):
+    #     net = self.IsNotNetwork()
+    #
+    #     with self.assertRaises(AttributeError):
+    #         neighbors(net)

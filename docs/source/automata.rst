@@ -10,27 +10,10 @@ Elementary Cellular Automata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. autoclass:: neet.automata.ECA
+        :members: __init__, code, boundary, check_lattice, state_space, update, _unsafe_update
 
-Attributes
-""""""""""
+Rewired Elementary Cellular Automata
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-        .. autoattribute:: neet.automata.ECA.code
-
-        .. autoattribute:: neet.automata.ECA.boundary
-
-Initialization
-""""""""""""""
-
-        .. automethod:: neet.automata.ECA.__init__
-
-Methods
-"""""""
-
-        .. automethod:: neet.automata.ECA.state_space
-
-        .. automethod:: neet.automata.ECA.update
-
-Unsafe Methods
-""""""""""""""
-
-        .. automethod:: neet.automata.ECA._unsafe_update
+    .. autoclass:: neet.automata.RewiredECA
+        :members: __init__, code, boundary, size, wiring, state_space

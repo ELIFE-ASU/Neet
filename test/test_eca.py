@@ -258,3 +258,157 @@ class TestECA(unittest.TestCase):
         lattice = np.asarray([0,0,1,0,0])
         eca.update(lattice, index=1)
         self.assertTrue(np.array_equal([0,1,1,0,0], lattice))
+
+
+    def test_update_pin_none(self):
+        eca = ca.ECA(30)
+
+        xs = [0,0,1,0,0]
+        self.assertEqual([0,1,1,1,0], eca.update(xs, pin=None))
+        self.assertEqual([1,1,0,0,1], eca.update(xs, pin=[]))
+
+
+    def test_update_pin_index_clash(self):
+        eca = ca.ECA(30)
+        with self.assertRaises(ValueError):
+          eca.update([0,0], index=0, pin=[1])
+        with self.assertRaises(ValueError):
+          eca.update([0,0], index=1, pin=[1])
+        with self.assertRaises(ValueError):
+          eca.update([0,0], index=1, pin=[0,1])
+
+
+    def test_update_pin(self):
+        eca = ca.ECA(30)
+
+        xs = [0,0,1,0,0]
+        self.assertEqual([0,0,1,1,0], eca.update(xs, pin=[1]))
+        self.assertEqual([0,0,1,0,1], eca.update(xs, pin=[1]))
+        self.assertEqual([1,0,1,0,1], eca.update(xs, pin=[1]))
+
+        eca.boundary = (1,1)
+        xs = [0,0,0,0,0]
+        self.assertEqual([1,0,0,0,0], eca.update(xs, pin=[-1]))
+        self.assertEqual([1,1,0,0,0], eca.update(xs, pin=[0,-1]))
+
+
+    def test_update_values_none(self):
+        eca = ca.ECA(30)
+
+        xs = [0,0,1,0,0]
+        self.assertEqual([0,1,1,1,0], eca.update(xs, values=None))
+        self.assertEqual([1,1,0,0,1], eca.update(xs, values={}))
+
+
+    def test_update_invalid_values(self):
+        eca = ca.ECA(30)
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], values={0: 2})
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], values={0:-1})
+
+
+    def test_update_values_index_clash(self):
+        eca = ca.ECA(30)
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], index=0, values={0: 1})
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], index=1, values={1: 0})
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], index=1, values={0: 0, 1: 0})
+
+
+    def test_update_values_pin_clash(self):
+        eca = ca.ECA(30)
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], pin=[0], values={0: 1})
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], pin=[1], values={1: 0})
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], pin=[1], values={0: 0, 1: 0})
+        with self.assertRaises(ValueError):
+          eca.update([0,0,0,0,0], pin=[1, 0], values={0: 0})
+
+
+    def test_update_values(self):
+        eca = ca.ECA(30)
+
+        xs = [0,0,1,0,0]
+        self.assertEqual([0,1,0,1,0], eca.update(xs, values={2:0}))
+        self.assertEqual([1,0,0,0,1], eca.update(xs, values={1:0, 3:0}))
+        self.assertEqual([0,1,0,1,0], eca.update(xs, values={-1:0}))
+
+        eca.boundary = (1,1)
+        xs = [0,0,0,0,0]
+        self.assertEqual([1,0,1,0,1], eca.update(xs, values={2:1}))
+
+    def test_neighbors_in(self):
+
+        net = ca.ECA(30)
+
+        self.assertEqual(net.neighbors_in(2, size=3),set([0,1,2]))
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors_in(3, 3))
+
+        net.boundary = (1,1)
+
+        self.assertEqual(net.neighbors_in(2, 3),set([1,2,3]))
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors_in(3, 3))
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors_in(5, 3))
+
+        with self.assertRaises(TypeError):
+            self.assertEqual(net.neighbors_in('2', 3))
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors_in(-1, 3))
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors_in(1, 0))
+
+    def test_neighbors_out(self):
+
+        net = ca.ECA(30)
+
+        self.assertEqual(net.neighbors_out(2, 3),set([0,1,2]))
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors_out(3, 3))
+
+        net.boundary = (1,1)
+
+        self.assertEqual(net.neighbors_out(2, 3),set([1,2]))
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors_out(index=5, size=3))
+
+        with self.assertRaises(TypeError):
+            self.assertEqual(net.neighbors_out(index='2', size=3))
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors_out(size=3,index=-1))
+
+        with self.assertRaises(ValueError):
+            self.assertEqual(net.neighbors_out(size=0,index=1))
+
+
+    def test_neighbors_both(self):
+
+        net = ca.ECA(30)
+
+        self.assertEqual(net.neighbors(2, 4),set([1,2,3]))
+
+    def test_to_networkx_metadata(self):
+        net = ca.ECA(30)
+        net.boundary = (1,0)
+
+        nx_net = net.to_networkx_graph(3)
+
+        self.assertEqual(nx_net.graph['code'],30)
+        self.assertEqual(nx_net.graph['size'],3)
+        self.assertEqual(nx_net.graph['boundary'],(1,0))
+
