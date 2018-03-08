@@ -190,12 +190,12 @@ def is_canalyzing(net,nodei,neighborj):
         # can't be canalyzing if j has no influence on i
         return None # or False?
     else:
-        jindex = nodesInfluencingI.index(j)
+        jindex = nodesInfluencingI.index(neighborj)
 
         # for every state of other nodes, does j determine i?
         otherNodes = list(copy.copy(nodesInfluencingI))
         otherNodes.pop(jindex)
-        otherNodeStates = _states_limited(otherNodes,state0)
+        otherNodeStates = _states_limited(otherNodes,np.zeros(net.size,dtype=int))
         
         #jOnNextList = np.empty(len(otherNodeStates))
         #jOffNextList = np.empty(len(otherNodeStates))
@@ -207,24 +207,26 @@ def is_canalyzing(net,nodei,neighborj):
             state = otherNodeStates[stateindex]
         
             # first hold j off
-            jOff = copy.copy(state)
-            jOff[j] = 0
-            jOffNext = net.update(jOff)[nodei]
-            if jOffForcedValue is None:
-                jOffForcedValue = jOffNext
-            elif jOffForcedValue != jOffNext:
-                # then holding j off does not force i
-                jOffForced = False
+            if jOffForced:
+                jOff = copy.copy(state)
+                jOff[neighborj] = 0
+                jOffNext = net.update(jOff)[nodei]
+                if jOffForcedValue is None:
+                    jOffForcedValue = jOffNext
+                elif jOffForcedValue != jOffNext:
+                    # then holding j off does not force i
+                    jOffForced = False
             
             # now hold j on
-            jOn = copy.copy(state)
-            jOn[j] = 1
-            jOnNext = net.update(jOn)[nodei]
-            if jOnForcedValue is None:
-                jOnForcedValue = jOnNext
-            elif jOnForcedValue != jOnNext:
-                # then holding j on does not force i
-                jOnForced = False
+            if jOnForced:
+                jOn = copy.copy(state)
+                jOn[neighborj] = 1
+                jOnNext = net.update(jOn)[nodei]
+                if jOnForcedValue is None:
+                    jOnForcedValue = jOnNext
+                elif jOnForcedValue != jOnNext:
+                    # then holding j on does not force i
+                    jOnForced = False
 
             stateindex += 1
 
@@ -232,6 +234,7 @@ def is_canalyzing(net,nodei,neighborj):
             #jOnNextList[stateindex] = net.update(jOn)[i]
         
         # if we have checked all states, then the edge must be forcing
+        print "jOnForced,jOffForced",jOnForced,jOffForced
         return jOnForced or jOffForced
 
 
