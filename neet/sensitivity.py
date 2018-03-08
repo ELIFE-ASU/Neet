@@ -186,7 +186,7 @@ def is_canalyzing(net,nodei,neighborj):
     """
     nodesInfluencingI = _connections(net,nodei)
     
-    if neighborj not in nodesInfluencingI:
+    if (neighborj not in nodesInfluencingI) or (nodei not in range(net.size)):
         # can't be canalyzing if j has no influence on i
         return None # or False?
     else:
@@ -234,7 +234,7 @@ def is_canalyzing(net,nodei,neighborj):
             #jOnNextList[stateindex] = net.update(jOn)[i]
         
         # if we have checked all states, then the edge must be forcing
-        print "jOnForced,jOffForced",jOnForced,jOffForced
+        #print "jOnForced,jOffForced",jOnForced,jOffForced
         return jOnForced or jOffForced
 
 
