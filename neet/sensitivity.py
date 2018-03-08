@@ -232,7 +232,7 @@ def is_canalyzing(net,nodei,neighborj):
             #jOnNextList[stateindex] = net.update(jOn)[i]
         
         # if we have checked all states, then the edge must be forcing
-        return True
+        return jOnForced or jOffForced
 
 
 def lambdaQ(net,**kwargs):
