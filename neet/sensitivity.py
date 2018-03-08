@@ -166,6 +166,75 @@ def average_difference_matrix(net,states=None,weights=None,calc_trans=True):
             
     return Q
 
+def is_canalyzing(net,nodei,neighborj):
+    """
+    Determine whether a given network edge is canalyzing:
+    if nodei's value at t+1 is fully determined when
+    neighborj's value has a particular value at t, 
+    regardless of the values of other nodes, then there 
+    is a canalyzing edge from neighborj to nodei.
+    
+    According to (Stauffer 1987), "A rule ... is called forcing, 
+    or canalizing, if at least one of its K arguments has the 
+    property that the result of the function is already fixed 
+    if this argument has one particular value, regardless of 
+    the values for the K-1 other arguments."  Note that this
+    is a definition for whether a node's rule is canalyzing, 
+    whereas this function calculates whether a specific edge
+    is canalyzing.  Under this definition, if a node has any
+    incoming canalyzing edges, then its rule is canalyzing.
+    """
+    nodesInfluencingI = _connections(net,nodei)
+    
+    if neighborj not in nodesInfluencingI:
+        # can't be canalyzing if j has no influence on i
+        return None # or False?
+    else:
+        jindex = nodesInfluencingI.index(j)
+
+        # for every state of other nodes, does j determine i?
+        otherNodes = list(copy.copy(nodesInfluencingI))
+        otherNodes.pop(jindex)
+        otherNodeStates = _states_limited(otherNodes,state0)
+        
+        #jOnNextList = np.empty(len(otherNodeStates))
+        #jOffNextList = np.empty(len(otherNodeStates))
+        jOnForced,jOffForced = True, True
+        jOnForcedValue,jOffForcedValue = None,None
+        stateindex = 0
+        while (jOnForced or jOffForced) and stateindex < len(otherNodeStates):
+        
+            state = otherNodeStates[stateindex]
+        
+            # first hold j off
+            jOff = copy.copy(state)
+            jOff[j] = 0
+            jOffNext = net.update(jOff)[nodei]
+            if jOffForcedValue is None:
+                jOffForcedValue = jOffNext
+            elif jOffForcedValue != jOffNext:
+                # then holding j off does not force i
+                jOffForced = False
+            
+            # now hold j on
+            jOn = copy.copy(state)
+            jOn[j] = 1
+            jOnNext = net.update(jOn)[nodei]
+            if jOnForcedValue is None:
+                jOnForcedValue = jOnNext
+            elif jOnForcedValue != jOnNext:
+                # then holding j on does not force i
+                jOnForced = False
+
+            stateindex += 1
+
+            #jOffNextList[stateindex] = net.update(jOff)[i]
+            #jOnNextList[stateindex] = net.update(jOn)[i]
+        
+        # if we have checked all states, then the edge must be forcing
+        return True
+
+
 def lambdaQ(net,**kwargs):
     """
     Calculate sensitivity eigenvalue, the largest eigenvalue of the sensitivity
