@@ -63,7 +63,7 @@ def random_binary_states(n, p):
     Return a set of binary states. Each state has length `n` and the probability
     to appear in the set is `p`.
     """
-    integer, decimal = divmod(n * p, 1)
+    integer, decimal = divmod(2**n * p, 1)
     num_states = int(integer + np.random.choice(2, p=[1 - decimal, decimal]))
     state_idxs = np.random.choice(2 ** n, num_states, replace=False)
 

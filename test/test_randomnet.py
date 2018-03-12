@@ -20,8 +20,8 @@ class TestRandomnet(unittest.TestCase):
             random_logic(net, p=np.ones(net.size + 1))
 
     def test_random_binary_states(self):
-        self.assertEqual(2, len(random_binary_states(4, 0.5)))
-        self.assertTrue(len(random_binary_states(5, 0.5)) in (2, 3))
+        self.assertEqual(8, len(random_binary_states(4, 0.5)))
+        self.assertTrue(len(random_binary_states(3, 0.4)) in (3, 4))
 
     def test_random_logic_fixed_structure(self):
         net = mouse_cortical_7B
