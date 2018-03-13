@@ -237,6 +237,32 @@ def is_canalyzing(net,nodei,neighborj):
         #print "jOnForced,jOffForced",jOnForced,jOffForced
         return jOnForced or jOffForced
 
+def canalyzing_edges(net):
+    """
+    Return a set of tuples corresponding to the edges in the
+    network that are canalyzing.  Each tuple consists of two
+    node indices, corresponding to an edge from the second node
+    to the first node (so that the second node controls the
+    first node in a canalyzing manner).
+    
+    See documentation for `is_canalyzing`.
+    """
+    canalyzingList = []
+    for indexi in range(net.size):
+        for neighborj in net.neighbors_in(indexi):
+            if is_canalyzing(net,indexi,neighborj):
+                canalyzingList.append((indexi,neighborj))
+    return set(canalyzingList)
+
+def canalyzing_nodes(net):
+    """
+    Return the set of node indices corresponding to nodes that
+    have at least one canalyzing input.
+    
+    See documentation for `is_canalyzing`.
+    """
+    nodes = [ e[0] for e in canalyzing_edges(net) ]
+    return set( np.unique(nodes) )
 
 def lambdaQ(net,**kwargs):
     """
