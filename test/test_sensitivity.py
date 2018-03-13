@@ -121,4 +121,15 @@ class TestSensitivityWTNetwork(unittest.TestCase):
         self.assertFalse(is_canalyzing(net,0,1))
         self.assertTrue(is_canalyzing(net,1,0))
         self.assertTrue(is_canalyzing(net,2,1))
+
+    def test_canalyzing(self):
+        net = NB.LogicNetwork([((1, 2), {'01', '10'}),
+                               ((0, 2), ('01', '10', '11')),
+                               ((0, 1), {'11'})])
         
+        edges = canalyzing_edges(net)
+        self.assertEqual(edges,{(1, 0), (1, 2), (2, 0), (2, 1)})
+        
+        nodes = canalyzing_nodes(net)
+        self.assertEqual(nodes,{1,2})
+
