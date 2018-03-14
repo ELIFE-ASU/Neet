@@ -166,28 +166,28 @@ def average_difference_matrix(net,states=None,weights=None,calc_trans=True):
             
     return Q
 
-def is_canalyzing(net,nodei,neighborj):
+def is_canalizing(net,nodei,neighborj):
     """
-    Determine whether a given network edge is canalyzing:
+    Determine whether a given network edge is canalizing:
     if nodei's value at t+1 is fully determined when
     neighborj's value has a particular value at t, 
     regardless of the values of other nodes, then there 
-    is a canalyzing edge from neighborj to nodei.
+    is a canalizing edge from neighborj to nodei.
     
     According to (Stauffer 1987), "A rule ... is called forcing, 
     or canalizing, if at least one of its K arguments has the 
     property that the result of the function is already fixed 
     if this argument has one particular value, regardless of 
     the values for the K-1 other arguments."  Note that this
-    is a definition for whether a node's rule is canalyzing, 
+    is a definition for whether a node's rule is canalizing, 
     whereas this function calculates whether a specific edge
-    is canalyzing.  Under this definition, if a node has any
-    incoming canalyzing edges, then its rule is canalyzing.
+    is canalizing.  Under this definition, if a node has any
+    incoming canalizing edges, then its rule is canalizing.
     """
     nodesInfluencingI = _connections(net,nodei)
     
     if (neighborj not in nodesInfluencingI) or (nodei not in range(net.size)):
-        # can't be canalyzing if j has no influence on i
+        # can't be canalizing if j has no influence on i
         return None # or False?
     else:
         jindex = nodesInfluencingI.index(neighborj)
@@ -237,31 +237,31 @@ def is_canalyzing(net,nodei,neighborj):
         #print "jOnForced,jOffForced",jOnForced,jOffForced
         return jOnForced or jOffForced
 
-def canalyzing_edges(net):
+def canalizing_edges(net):
     """
     Return a set of tuples corresponding to the edges in the
-    network that are canalyzing.  Each tuple consists of two
+    network that are canalizing.  Each tuple consists of two
     node indices, corresponding to an edge from the second node
     to the first node (so that the second node controls the
-    first node in a canalyzing manner).
+    first node in a canalizing manner).
     
-    See documentation for `is_canalyzing`.
+    See documentation for `is_canalizing`.
     """
-    canalyzingList = []
+    canalizingList = []
     for indexi in range(net.size):
         for neighborj in net.neighbors_in(indexi):
-            if is_canalyzing(net,indexi,neighborj):
-                canalyzingList.append((indexi,neighborj))
-    return set(canalyzingList)
+            if is_canalizing(net,indexi,neighborj):
+                canalizingList.append((indexi,neighborj))
+    return set(canalizingList)
 
-def canalyzing_nodes(net):
+def canalizing_nodes(net):
     """
     Return the set of node indices corresponding to nodes that
-    have at least one canalyzing input.
+    have at least one canalizing input.
     
-    See documentation for `is_canalyzing`.
+    See documentation for `is_canalizing`.
     """
-    nodes = [ e[0] for e in canalyzing_edges(net) ]
+    nodes = [ e[0] for e in canalizing_edges(net) ]
     return set( np.unique(nodes) )
 
 def lambdaQ(net,**kwargs):

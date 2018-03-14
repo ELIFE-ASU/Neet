@@ -113,23 +113,23 @@ class TestSensitivityWTNetwork(unittest.TestCase):
         l = lambdaQ(net)
         self.assertAlmostEqual(l,1.2807764064044149)
 
-    def test_is_canalyzing_logic_network(self):
+    def test_is_canalizing_logic_network(self):
         net = NB.LogicNetwork([((1, 2), {'01', '10'}),
                                ((0, 2), ('01', '10', '11')),
                                ((0, 1), {'11'})])
 
-        self.assertFalse(is_canalyzing(net,0,1))
-        self.assertTrue(is_canalyzing(net,1,0))
-        self.assertTrue(is_canalyzing(net,2,1))
+        self.assertFalse(is_canalizing(net,0,1))
+        self.assertTrue(is_canalizing(net,1,0))
+        self.assertTrue(is_canalizing(net,2,1))
 
-    def test_canalyzing(self):
+    def test_canalizing(self):
         net = NB.LogicNetwork([((1, 2), {'01', '10'}),
                                ((0, 2), ('01', '10', '11')),
                                ((0, 1), {'11'})])
         
-        edges = canalyzing_edges(net)
+        edges = canalizing_edges(net)
         self.assertEqual(edges,{(1, 0), (1, 2), (2, 0), (2, 1)})
         
-        nodes = canalyzing_nodes(net)
+        nodes = canalizing_nodes(net)
         self.assertEqual(nodes,{1,2})
 
