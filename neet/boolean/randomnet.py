@@ -7,7 +7,6 @@ Functions that generate random networks from a given network.
 
 import random
 import numpy as np
-from neet.statespace import StateSpace
 from .logicnetwork import LogicNetwork
 
 
@@ -59,12 +58,16 @@ def random_logic(logic_net, p=0.5, connections='fixed-structure', fix_external=F
             "connections must be 'fixed', 'fixed-in-degree', 'fixed-mean-degree', or 'free'")
 
 
-def _random_binary_states(n, p):
+def random_binary_states(n, p):
     """
     Return a set of binary states. Each state has length `n` and the probability
     to appear in the set is `p`.
     """
-    return set(tuple(state) for state in StateSpace(n) if random.random() < p)
+    integer, decimal = divmod(2**n * p, 1)
+    num_states = int(integer + np.random.choice(2, p=[1 - decimal, decimal]))
+    state_idxs = np.random.choice(2 ** n, num_states, replace=False)
+
+    return set('{0:0{1}b}'.format(idx, n) for idx in state_idxs)
 
 
 def _external_nodes(logic_net):
@@ -75,6 +78,8 @@ def _external_nodes(logic_net):
     return externals
 
 # stolen from grn-survey.generate_variants
+
+
 def _fake_connections(net):
     fakes = []
     for idx in range(net.size):
@@ -83,11 +88,13 @@ def _fake_connections(net):
                 fakes.append((idx, neighbor_in))
     return fakes
 
-def _logic_table_row_is_irreducible(row,i,size):
-    table = [ ((),set()) for j in range(size) ]
+
+def _logic_table_row_is_irreducible(row, i, size):
+    table = [((), set()) for j in range(size)]
     table[i] = row
     net = LogicNetwork(table)
     return len(_fake_connections(net)) == 0
+
 
 def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
                                     make_irreducible=False):
@@ -113,10 +120,11 @@ def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
         else:
             keep_trying = True
             while keep_trying:
-                conditions = _random_binary_states(len(indices), ps[i])
-                
+                conditions = random_binary_states(len(indices), ps[i])
+
                 if make_irreducible:
-                    node_irreducible = _logic_table_row_is_irreducible((indices,conditions),i,logic_net.size)
+                    node_irreducible = _logic_table_row_is_irreducible(
+                        (indices, conditions), i, logic_net.size)
                     keep_trying = not node_irreducible
                 else:
                     keep_trying = False
@@ -153,10 +161,11 @@ def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
                 n_indices = len(row[0])
                 indices = tuple(sorted(random.sample(range(logic_net.size), k=n_indices)))
 
-                conditions = _random_binary_states(n_indices, ps[i])
+                conditions = random_binary_states(n_indices, ps[i])
 
                 if make_irreducible:
-                    node_irreducible = _logic_table_row_is_irreducible((indices,conditions),i,logic_net.size)
+                    node_irreducible = _logic_table_row_is_irreducible(
+                        (indices, conditions), i, logic_net.size)
                     keep_trying = not node_irreducible
                 else:
                     keep_trying = False
@@ -184,7 +193,7 @@ def _random_logic_free_connections(logic_net, ps):
         n_indices = random.randint(1, logic_net.size)
         indices = tuple(sorted(random.sample(range(logic_net.size), k=n_indices)))
 
-        conditions = _random_binary_states(n_indices, ps[i])
+        conditions = random_binary_states(n_indices, ps[i])
 
         new_table.append((indices, conditions))
 
@@ -219,11 +228,12 @@ def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
         keep_trying = True
         while keep_trying:
             in_indices = tuple(np.random.choice(logic_net.size, int(num), replace=False))
-            conditions = _random_binary_states(len(in_indices), ps[internal])
+            conditions = random_binary_states(len(in_indices), ps[internal])
             new_table[internal] = (in_indices, conditions)
-            
+
             if make_irreducible:
-                node_irreducible = _logic_table_row_is_irreducible((in_indices,conditions),internal,logic_net.size)
+                node_irreducible = _logic_table_row_is_irreducible(
+                    (in_indices, conditions), internal, logic_net.size)
                 keep_trying = not node_irreducible
             else:
                 keep_trying = False
