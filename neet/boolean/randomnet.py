@@ -11,7 +11,7 @@ from .logicnetwork import LogicNetwork
 
 
 def random_logic(logic_net, p=0.5, connections='fixed-structure', fix_external=False,
-                 make_irreducible=False):
+                 make_irreducible=False, fix_canalizing=False):
     """
     Return a `LogicNetwork` from an input `LogicNetwork` with a random logic table.
 
@@ -52,7 +52,8 @@ def random_logic(logic_net, p=0.5, connections='fixed-structure', fix_external=F
                      'free': _random_logic_free_connections}
 
     try:
-        return random_styles[connections](logic_net, ps, fix_external, make_irreducible)
+        return random_styles[connections](logic_net, ps, fix_external,
+                                          make_irreducible, fix_canalizing)
     except KeyError:
         raise ValueError(
             "connections must be 'fixed', 'fixed-in-degree', 'fixed-mean-degree', or 'free'")
@@ -95,9 +96,14 @@ def _logic_table_row_is_irreducible(row, i, size):
     net = LogicNetwork(table)
     return len(_fake_connections(net)) == 0
 
+def _logic_table_row_is_canalizing(row, i, size):
+    table = [((), set()) for j in range(size)]
+    table[i] = row
+    net = LogicNetwork(table)
+    return i in canalizing_nodes(net)
 
 def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
-                                    make_irreducible=False):
+                                    make_irreducible=False,fix_canalizing=False):
     """
     Return a `LogicNetwork` from an input `LogicNetwork` with a random logic table.
 
@@ -118,16 +124,21 @@ def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
         if i in externals:
             conditions = row[1]
         else:
+            if fix_canalizing:
+                original_canalizing = _logic_table_row_is_canalizing(row,i,logic_net.size)
             keep_trying = True
             while keep_trying:
                 conditions = random_binary_states(len(indices), ps[i])
 
+                keep_trying = False
                 if make_irreducible:
                     node_irreducible = _logic_table_row_is_irreducible(
                         (indices, conditions), i, logic_net.size)
                     keep_trying = not node_irreducible
-                else:
-                    keep_trying = False
+                if (not keep_trying) and make_canalizing:
+                    node_canalizing = _logic_table_row_is_canalizing(
+                        (indices, conditions), i, logic_net.size)
+                    keep_trying = not (node_canalizing == original_canalizing)
 
         new_table.append((indices, conditions))
 
@@ -135,7 +146,8 @@ def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
 
 
 def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
-                                       make_irreducible=False):
+                                       make_irreducible=False,
+                                       fix_canalizing=False):
     """
     Return a `LogicNetwork` from an input `LogicNetwork` with a random logic table.
 
@@ -156,6 +168,8 @@ def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
         if i in externals:
             indices, conditions = row
         else:
+            if fix_canalizing:
+                original_canalizing = _logic_table_row_is_canalizing(row,i,logic_net.size)
             keep_trying = True
             while keep_trying:
                 n_indices = len(row[0])
@@ -163,12 +177,15 @@ def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
 
                 conditions = random_binary_states(n_indices, ps[i])
 
+                keep_trying = False
                 if make_irreducible:
                     node_irreducible = _logic_table_row_is_irreducible(
                         (indices, conditions), i, logic_net.size)
                     keep_trying = not node_irreducible
-                else:
-                    keep_trying = False
+                if (not keep_trying) and make_canalizing:
+                    node_canalizing = _logic_table_row_is_canalizing(
+                        (indices, conditions), i, logic_net.size)
+                    keep_trying = not (node_canalizing == original_canalizing)
 
         new_table.append((indices, conditions))
 
@@ -201,11 +218,14 @@ def _random_logic_free_connections(logic_net, ps):
 
 
 def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
-                                  make_irreducible=False):
+                                  make_irreducible=False,
+                                  fix_canalizing=False):
     """
     Returns new network that corresponds to adding a fixed number of
     edges between random nodes, with random corresponding boolean rules.
     """
+    if fix_canalizing:
+        raise NotImplementedError("fix_canalizing=True not yet implemented")
 
     num_edges = sum(len(logic_net.neighbors_in(i)) for i in range(logic_net.size))
 
