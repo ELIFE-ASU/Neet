@@ -103,7 +103,8 @@ def _logic_table_row_is_canalizing(row, i, size):
     return i in canalizing_nodes(net)
 
 def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
-                                    make_irreducible=False,fix_canalizing=False):
+                                    make_irreducible=False,fix_canalizing=False,
+                                    give_up_number=1000):
     """
     Return a `LogicNetwork` from an input `LogicNetwork` with a random logic table.
 
@@ -127,9 +128,11 @@ def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
             if fix_canalizing:
                 original_canalizing = _logic_table_row_is_canalizing(row,i,logic_net.size)
             keep_trying = True
-            while keep_trying:
+            number_tried = 0
+            while keep_trying and (number_tried < give_up_number):
                 conditions = random_binary_states(len(indices), ps[i])
 
+                number_tried += 1
                 keep_trying = False
                 if make_irreducible:
                     node_irreducible = _logic_table_row_is_irreducible(
@@ -139,6 +142,8 @@ def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
                     node_canalizing = _logic_table_row_is_canalizing(
                         (indices, conditions), i, logic_net.size)
                     keep_trying = not (node_canalizing == original_canalizing)
+            if number_tried >= give_up_number:
+                raise Exception("No function out of "+str(give_up_number)+" tried satisfied constraints")
 
         new_table.append((indices, conditions))
 
@@ -147,7 +152,8 @@ def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
 
 def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
                                        make_irreducible=False,
-                                       fix_canalizing=False):
+                                       fix_canalizing=False,
+                                       give_up_number=1000):
     """
     Return a `LogicNetwork` from an input `LogicNetwork` with a random logic table.
 
@@ -170,8 +176,10 @@ def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
         else:
             if fix_canalizing:
                 original_canalizing = _logic_table_row_is_canalizing(row,i,logic_net.size)
+            number_tried += 1
             keep_trying = True
-            while keep_trying:
+            number_tried = 0
+            while keep_trying and (number_tried < give_up_number):
                 n_indices = len(row[0])
                 indices = tuple(sorted(random.sample(range(logic_net.size), k=n_indices)))
 
@@ -186,6 +194,8 @@ def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
                     node_canalizing = _logic_table_row_is_canalizing(
                         (indices, conditions), i, logic_net.size)
                     keep_trying = not (node_canalizing == original_canalizing)
+            if number_tried >= give_up_number:
+                raise Exception("No function out of "+str(give_up_number)+" tried satisfied constraints")
 
         new_table.append((indices, conditions))
 
@@ -219,7 +229,8 @@ def _random_logic_free_connections(logic_net, ps):
 
 def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
                                   make_irreducible=False,
-                                  fix_canalizing=False):
+                                  fix_canalizing=False,
+                                  give_up_number=1000):
     """
     Returns new network that corresponds to adding a fixed number of
     edges between random nodes, with random corresponding boolean rules.
@@ -246,7 +257,7 @@ def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
     new_table = [()] * logic_net.size
     for internal, num in zip(internals, num_internal_connections):
         keep_trying = True
-        while keep_trying:
+        while keep_trying and (number_tried < give_up_number):
             in_indices = tuple(np.random.choice(logic_net.size, int(num), replace=False))
             conditions = random_binary_states(len(in_indices), ps[internal])
             new_table[internal] = (in_indices, conditions)
@@ -257,6 +268,8 @@ def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
                 keep_trying = not node_irreducible
             else:
                 keep_trying = False
+        if number_tried >= give_up_number:
+                raise Exception("No function out of "+str(give_up_number)+" tried satisfied constraints")
 
     for external in externals:
         new_table[external] = logic_net.table[external]
