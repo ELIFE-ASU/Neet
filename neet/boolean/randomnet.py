@@ -8,7 +8,7 @@ Functions that generate random networks from a given network.
 import random
 import numpy as np
 from .logicnetwork import LogicNetwork
-
+from neet.sensitivity import canalizing_nodes
 
 def random_logic(logic_net, p=0.5, connections='fixed-structure', fix_external=False,
                  make_irreducible=False, fix_canalizing=False):
@@ -135,7 +135,7 @@ def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
                     node_irreducible = _logic_table_row_is_irreducible(
                         (indices, conditions), i, logic_net.size)
                     keep_trying = not node_irreducible
-                if (not keep_trying) and make_canalizing:
+                if (not keep_trying) and fix_canalizing:
                     node_canalizing = _logic_table_row_is_canalizing(
                         (indices, conditions), i, logic_net.size)
                     keep_trying = not (node_canalizing == original_canalizing)
@@ -182,7 +182,7 @@ def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
                     node_irreducible = _logic_table_row_is_irreducible(
                         (indices, conditions), i, logic_net.size)
                     keep_trying = not node_irreducible
-                if (not keep_trying) and make_canalizing:
+                if (not keep_trying) and fix_canalizing:
                     node_canalizing = _logic_table_row_is_canalizing(
                         (indices, conditions), i, logic_net.size)
                     keep_trying = not (node_canalizing == original_canalizing)
