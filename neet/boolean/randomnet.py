@@ -76,10 +76,39 @@ def random_canalizing_binary_states(k, p):
     Return a set of binary states that, when considered as a set of 
     activating conditions, represents a canalizing function.
     
+    Designed to sample each possible canalized function with equal
+    probability.  (Note that this depends on `_prob_canalized_value`,
+    a calculation that still needs to be checked for accuracy
+    as of 3.27.2018.)
+    
     Each state has length `k` and the number of states is set in the
-    same way as `random_binary_states`
+    same way as `random_binary_states`.
     """
-    pass
+    integer, decimal = divmod(2**k * p, 1)
+    num_states = int(integer + np.random.choice(2, p=[1 - decimal, decimal]))
+    
+    # calculate values specifying which input is canalizing and how
+    canalizing_input = np.random.choice(k)
+    canalizing_value = np.random.choice(2)
+    pc = _prob_canalized_value(k,p)
+    canalized_value = np.random.choice(2, p=[1. - pc, pc])
+
+    fixed_states = _all_states_with_one_node_fixed(k,canalizing_input,canalizing_value)
+    other_states = np.lib.arraysetops.setxor1d(np.arange(2 ** k),
+                                               fixed_states,
+                                               assume_unique=True)
+    if canalized_value == 1:
+        # include all fixed_states as activating conditions
+        state_idxs = np.random.choice(other_states,
+                                      num_states - len(fixed_states),
+                                      replace=False)
+        state_idxs.extend(fixed_states)
+    elif canalized_value == 0:
+        # include none of fixed_states as activating conditions
+        state_idxs = np.random.choice(other_states,num_states,replace=False)
+
+    return set('{0:0{1}b}'.format(idx, k) for idx in state_idxs)
+
 
 def _prob_canalized_value(k, p):
     """
@@ -93,6 +122,8 @@ def _prob_canalized_value(k, p):
     else:
         return 1. / ( 1. + ((1.-p)/p)**(2.**(k-1)) )
 
+def _all_states_with_one_node_fixed(k,fixed_index,fixed_value):
+    pass
 
 def _external_nodes(logic_net):
     externals = set()
