@@ -9,7 +9,6 @@ import random
 import numpy as np
 from .logicnetwork import LogicNetwork
 from neet.sensitivity import canalizing_nodes
-from scipy.special import comb
 
 def random_logic(logic_net, p=0.5, connections='fixed-structure', fix_external=False,
                  make_irreducible=False, fix_canalizing=False):
@@ -182,7 +181,10 @@ def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
             keep_trying = True
             number_tried = 0
             while keep_trying and (number_tried < give_up_number):
-                conditions = random_binary_states(len(indices), ps[i])
+                if fix_canalizing and original_canalizing:
+                    conditions = random_canalizing_binary_states(len(indices), ps[i])
+                else:
+                    conditions = random_binary_states(len(indices), ps[i])
 
                 number_tried += 1
                 keep_trying = False
@@ -234,8 +236,11 @@ def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
                 n_indices = len(row[0])
                 indices = tuple(sorted(random.sample(range(logic_net.size), k=n_indices)))
 
-                conditions = random_binary_states(n_indices, ps[i])
-
+                if fix_canalizing and original_canalizing:
+                    conditions = random_canalizing_binary_states(n_indices, ps[i])
+                else:
+                    conditions = random_binary_states(n_indices, ps[i])
+                
                 number_tried += 1
                 keep_trying = False
                 if make_irreducible:
