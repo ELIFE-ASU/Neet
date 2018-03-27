@@ -92,6 +92,10 @@ def random_canalizing_binary_states(k, p):
     canalizing_value = np.random.choice(2)
     pc = _prob_canalized_value(k,p)
     canalized_value = np.random.choice(2, p=[1. - pc, pc])
+    
+    print "canalizing_input =",canalizing_input
+    print "canalizing_value =",canalizing_value
+    print "canalized_value  =",canalized_value
 
     fixed_states = _all_states_with_one_node_fixed(k,canalizing_input,canalizing_value)
     other_states = np.lib.arraysetops.setxor1d(np.arange(2 ** k),
@@ -102,7 +106,7 @@ def random_canalizing_binary_states(k, p):
         state_idxs = np.random.choice(other_states,
                                       num_states - len(fixed_states),
                                       replace=False)
-        state_idxs.extend(fixed_states)
+        state_idxs = np.concatenate((state_idxs,np.array(fixed_states)))
     elif canalized_value == 0:
         # include none of fixed_states as activating conditions
         state_idxs = np.random.choice(other_states,num_states,replace=False)
