@@ -122,8 +122,15 @@ def _prob_canalized_value(k, p):
     else:
         return 1. / ( 1. + ((1.-p)/p)**(2.**(k-1)) )
 
-def _all_states_with_one_node_fixed(k,fixed_index,fixed_value):
-    pass
+def _all_states_with_one_node_fixed(k,fixed_index,fixed_value,max_k=20):
+    """
+    (Should have length 2**(k-1).)
+    """
+    if k > max_k:
+        raise Exception("k > max_k")
+    # there may be a more efficient way to do this...
+    return [ idx for idx in range(2**k) \
+             if '{0:0{1}b}'.format(idx, k)[fixed_index] == str(fixed_value) ]
 
 def _external_nodes(logic_net):
     externals = set()
