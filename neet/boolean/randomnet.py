@@ -9,6 +9,7 @@ import random
 import numpy as np
 from .logicnetwork import LogicNetwork
 from neet.sensitivity import canalizing_nodes
+from scipy.special import comb
 
 def random_logic(logic_net, p=0.5, connections='fixed-structure', fix_external=False,
                  make_irreducible=False, fix_canalizing=False):
@@ -77,9 +78,7 @@ def random_canalizing_binary_states(k, p):
     activating conditions, represents a canalizing function.
     
     Designed to sample each possible canalized function with equal
-    probability.  (Note that this depends on `_prob_canalized_value`,
-    a calculation that still needs to be checked for accuracy
-    as of 3.27.2018.)
+    probability.
     
     Each state has length `k` and the number of states is set in the
     same way as `random_binary_states`.
@@ -90,12 +89,12 @@ def random_canalizing_binary_states(k, p):
     # calculate values specifying which input is canalizing and how
     canalizing_input = np.random.choice(k)
     canalizing_value = np.random.choice(2)
-    pc = _prob_canalized_value(k,p)
-    canalized_value = np.random.choice(2, p=[1. - pc, pc])
-    
-    print "canalizing_input =",canalizing_input
-    print "canalizing_value =",canalizing_value
-    print "canalized_value  =",canalized_value
+    if num_states > 2**(k-1):
+        canalized_value = 1
+    elif num_states < 2**(k-1):
+        canalized_value = 0
+    elif num_states == 2**(k-1):
+        canalized_value = np.random.choice(2)
 
     fixed_states = _all_states_with_one_node_fixed(k,canalizing_input,canalizing_value)
     other_states = np.lib.arraysetops.setxor1d(np.arange(2 ** k),
@@ -113,18 +112,6 @@ def random_canalizing_binary_states(k, p):
 
     return set('{0:0{1}b}'.format(idx, k) for idx in state_idxs)
 
-
-def _prob_canalized_value(k, p):
-    """
-    Return the probability that a boolean function's canalized value
-    is 1, given that it is canalizing.
-    
-    3.27.2018 NEEDS TO BE CHECKED
-    """
-    if p == 0.:
-        return 0.
-    else:
-        return 1. / ( 1. + ((1.-p)/p)**(2.**(k-1)) )
 
 def _all_states_with_one_node_fixed(k,fixed_index,fixed_value,max_k=20):
     """
