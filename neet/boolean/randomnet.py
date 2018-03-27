@@ -59,16 +59,39 @@ def random_logic(logic_net, p=0.5, connections='fixed-structure', fix_external=F
             "connections must be 'fixed', 'fixed-in-degree', 'fixed-mean-degree', or 'free'")
 
 
-def random_binary_states(n, p):
+def random_binary_states(k, p):
     """
-    Return a set of binary states. Each state has length `n` and the probability
-    to appear in the set is `p`.
+    Return a set of binary states. Each state has length `k` and the number of
+    states is `k * p` (or chosen to produce `k * p` on average if `n * p` is not
+    an integer).
     """
-    integer, decimal = divmod(2**n * p, 1)
+    integer, decimal = divmod(2**k * p, 1)
     num_states = int(integer + np.random.choice(2, p=[1 - decimal, decimal]))
-    state_idxs = np.random.choice(2 ** n, num_states, replace=False)
+    state_idxs = np.random.choice(2 ** k, num_states, replace=False)
 
-    return set('{0:0{1}b}'.format(idx, n) for idx in state_idxs)
+    return set('{0:0{1}b}'.format(idx, k) for idx in state_idxs)
+
+def random_canalizing_binary_states(k, p):
+    """
+    Return a set of binary states that, when considered as a set of 
+    activating conditions, represents a canalizing function.
+    
+    Each state has length `k` and the number of states is set in the
+    same way as `random_binary_states`
+    """
+    pass
+
+def _prob_canalized_value(k, p):
+    """
+    Return the probability that a boolean function's canalized value
+    is 1, given that it is canalizing.
+    
+    3.27.2018 NEEDS TO BE CHECKED
+    """
+    if p == 0.:
+        return 0.
+    else:
+        return 1. / ( 1. + ((1.-p)/p)**(2.**(k-1)) )
 
 
 def _external_nodes(logic_net):
