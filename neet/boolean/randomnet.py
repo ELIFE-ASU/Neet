@@ -176,7 +176,6 @@ def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
         else:
             if fix_canalizing:
                 original_canalizing = _logic_table_row_is_canalizing(row,i,logic_net.size)
-            number_tried += 1
             keep_trying = True
             number_tried = 0
             while keep_trying and (number_tried < give_up_number):
@@ -185,6 +184,7 @@ def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
 
                 conditions = random_binary_states(n_indices, ps[i])
 
+                number_tried += 1
                 keep_trying = False
                 if make_irreducible:
                     node_irreducible = _logic_table_row_is_irreducible(
@@ -257,11 +257,13 @@ def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
     new_table = [()] * logic_net.size
     for internal, num in zip(internals, num_internal_connections):
         keep_trying = True
+        number_tried = 0
         while keep_trying and (number_tried < give_up_number):
             in_indices = tuple(np.random.choice(logic_net.size, int(num), replace=False))
             conditions = random_binary_states(len(in_indices), ps[internal])
             new_table[internal] = (in_indices, conditions)
 
+            number_tried += 1
             if make_irreducible:
                 node_irreducible = _logic_table_row_is_irreducible(
                     (in_indices, conditions), internal, logic_net.size)
