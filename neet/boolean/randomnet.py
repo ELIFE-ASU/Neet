@@ -304,12 +304,24 @@ def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
     internals = [idx for idx in range(logic_net.size) if idx not in externals]
     num_internal_connections = np.zeros(len(internals))
 
-    sample = np.random.choice([i // logic_net.size for i in range(len(internals) * logic_net.size)],
-                              num_edges - len(internals), replace=False)
-    idxs, counts = np.unique(sample, return_counts=True)
+    # partition edges among nodes
+    keep_trying = True
+    number_tried = 0
+    while keep_trying and (number_tried < give_up_number):
+        sample = np.random.choice([i // logic_net.size for i in range(len(internals) * logic_net.size)],
+                                  num_edges - len(internals), replace=False)
+        idxs, counts = np.unique(sample, return_counts=True)
 
-    num_internal_connections[idxs] = counts
-    num_internal_connections += 1
+        num_internal_connections[idxs] = counts
+        num_internal_connections += 1
+
+        number_tried += 1
+        # we need to check that there is no node that will want
+        # more connections than there are nodes
+        if max(num_internal_connections) <= logic_net.size:
+            keep_trying = False
+    if number_tried >= give_up_number:
+        raise Exception("No partition out of "+str(give_up_number)+" tried satisfied constraints")
 
     new_table = [()] * logic_net.size
     for internal, num in zip(internals, num_internal_connections):
