@@ -247,7 +247,7 @@ class LogicNetwork(object):
             >>> net._unsafe_update([0, 0, 1], pin=[1], values={0: 0})
             [0, 0, 0]
         """
-        encoded_state = self.state_space().encode(net_state)
+        encoded_state = self.state_space()._unsafe_encode(net_state)
 
         if index is None:
             indices = range(self.size)
