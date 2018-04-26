@@ -49,7 +49,7 @@ def sensitivity(net, state, transitions=None):
         if transitions is not None:
             newState = transitions[_fast_encode(neighbor)]
         else:
-            newState = net.update(neighbor)
+            newState = net._unsafe_update(neighbor)
         s += _boolean_distance(newState, nextState)
 
     return s / net.size
@@ -75,7 +75,7 @@ def difference_matrix(net, state, transitions=None):
         if transitions is not None:
             newState = transitions[_fast_encode(neighbor)]
         else:
-            newState = net.update(neighbor)
+            newState = net._unsafe_update(neighbor)
         Q[:,j] = [ ( nextState[i] + newState[i] )%2 for i in range(N) ]
         
     return Q
@@ -156,10 +156,10 @@ def average_difference_matrix(net,states=None,weights=None,calc_trans=True):
                     # start with two states, one with j on and one with j off
                     jOff = copy.copy(state)
                     jOff[j] = 0
-                    jOffNext = net.update(jOff)[i]
+                    jOffNext = net._unsafe_update(jOff)[i]
                     jOn = copy.copy(state)
                     jOn[j] = 1
-                    jOnNext = net.update(jOn)[i]
+                    jOnNext = net._unsafe_update(jOn)[i]
                     # are the results different?
                     Q[i,j] += (jOffNext + jOnNext)%2
                 Q[i,j] /= float(len(otherNodeStates))
