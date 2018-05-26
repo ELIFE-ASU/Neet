@@ -2,7 +2,8 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 """Unit test for LogicNetwork"""
-import unittest
+import unittest, numpy as np
+from neet.python3 import *
 from neet.boolean import LogicNetwork
 from neet.exceptions import FormatError
 
@@ -26,6 +27,16 @@ class TestLogicNetwork(unittest.TestCase):
         self.assertEqual(2, net.size)
         self.assertEqual(['A', 'B'], net.names)
         self.assertEqual([(2, {0, 2}), (1, {1})], net._encoded_table)
+
+    def test_init_long(self):
+        table = [((), set()) for _ in range(65)]
+        table[0] = ((np.int64(64),), set('1'))
+
+        mask = long(2)**64
+
+        net = LogicNetwork(table)
+        self.assertEqual(net.table, table)
+        self.assertEqual(net._encoded_table[0], (mask, set([mask])))
 
     def test_inplace_update(self):
         net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])

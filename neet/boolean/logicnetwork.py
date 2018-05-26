@@ -109,13 +109,13 @@ class LogicNetwork(object):
             # Encode the mask.
             mask_code = long(0)
             for idx in indices:
-                mask_code += 2 ** idx  # Low order, low index.
+                mask_code += 2 ** long(idx)  # Low order, low index.
             # Encode each condition of truth table.
             encoded_sub_table = set()
             for condition in conditions:
                 encoded_condition = long(0)
                 for idx, state in zip(indices, condition):
-                    encoded_condition += 2 ** idx if long(state) else 0
+                    encoded_condition += 2 ** long(idx) if int(state) else 0
                 encoded_sub_table.add(encoded_condition)
             self._encoded_table.append((mask_code, encoded_sub_table))
 
@@ -247,7 +247,7 @@ class LogicNetwork(object):
             >>> net._unsafe_update([0, 0, 1], pin=[1], values={0: 0})
             [0, 0, 0]
         """
-        encoded_state = self.state_space().encode(net_state)
+        encoded_state = self.state_space()._unsafe_encode(net_state)
 
         if index is None:
             indices = range(self.size)
