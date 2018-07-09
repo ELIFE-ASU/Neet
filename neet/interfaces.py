@@ -127,45 +127,19 @@ def to_networkx_graph(net,size=None,labels='indices',**kwargs):
     """
     Return networkx graph given neet network.  Requires networkx.
 
-    :param labels: how node is labeled and thus identified in networkx graph 
+    :param labels: how node is labeled and thus identified in networkx graph
                    ('names' or 'indices'), only used if network is a LogicNetwork or WTNetwork
     :kwarg size: size of ECA, required if network is an ECA
     :returns : a networkx DiGraph
     """
     if net.__class__.__name__ == 'ECA':
-        if 'size' == None:
+        if size is None:
             raise AttributeError("A `size` kwarg is required for converting an neet ECA to a networkx network")
         else:
             return net.to_networkx_graph(size)
 
     elif net.__class__.__name__ in ['WTNetwork','LogicNetwork']:
         return net.to_networkx_graph(labels=labels)
-
-def draw(net,labels='indices',filename=None,**kwargs):
-    """
-    Output a file with a simple network drawing.  
-    
-    Requires networkx and pygraphviz.
-    
-    Supported image formats are determined by graphviz.  In particular,
-    pdf support requires 'cairo' and 'pango' to be installed prior to
-    graphviz installation.
-
-    :param labels: how node is labeled and thus identified in networkx graph 
-                   ('names' or 'indices'), only used if network is a LogicNetwork or WTNetwork
-    :param filename: filename to write drawing to. Temporary filename will be used if no filename provided.
-    :kwarg size: size of ECA, required if network is an ECA
-    :returns: a pygraphviz network drawing
-    """
-    if net.__class__.__name__ == 'ECA':
-        if 'size' not in kwargs:
-            raise AttributeError("A `size` kwarg is required for drawing an ECA")
-        else:
-            return net.draw(size,filename=filename)
-
-    elif net.__class__.__name__ in ['WTNetwork','LogicNetwork']:
-        return net.draw(labels=labels,filename=filename)
-    net.draw(labels=labels,filename=filename)
 
 
 # def to_networkx_graph(net):
@@ -181,10 +155,10 @@ def draw(net,labels='indices',filename=None,**kwargs):
 
 # def draw(net,format='pdf',filename=None):
 #     """
-#     Output a file with a simple network drawing.  
-    
+#     Output a file with a simple network drawing.
+
 #     Requires networkx and pygraphviz.
-    
+
 #     Supported image formats are determined by graphviz.  In particular,
 #     pdf support requires 'cairo' and 'pango' to be installed prior to
 #     graphviz installation.
