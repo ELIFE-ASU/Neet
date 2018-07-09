@@ -35,7 +35,7 @@ def trajectory(net, state, timesteps=1, encode=False):
     :param state: the network state
     :param timesteps: the number of steps in the trajectory
     :param encode: encode the states as integers
-    :yields: the next state in the trajectory
+    :returns: the trajectory as a list
     :raises TypeError: if net is not a network
     :raises ValueError: if ``timesteps < 1``
     """
@@ -44,6 +44,7 @@ def trajectory(net, state, timesteps=1, encode=False):
     if timesteps < 1:
         raise ValueError("number of steps must be positive, non-zero")
 
+    traj = []
     state = copy.copy(state)
     if encode:
         if is_fixed_sized(net):
@@ -51,23 +52,24 @@ def trajectory(net, state, timesteps=1, encode=False):
         else:
             state_space = net.state_space(len(state))
 
-        yield state_space._unsafe_encode(state)
+        traj.append(state_space._unsafe_encode(state))
 
         net.update(state)
-        yield state_space._unsafe_encode(state)
+        traj.append(state_space._unsafe_encode(state))
 
         for _ in range(1,timesteps):
             net._unsafe_update(state)
-            yield state_space._unsafe_encode(state)
+            traj.append(state_space._unsafe_encode(state))
     else:
-        yield copy.copy(state)
+        traj.append(copy.copy(state))
 
         net.update(state)
-        yield copy.copy(state)
+        traj.append(copy.copy(state))
 
         for _ in range(1, timesteps):
             net._unsafe_update(state)
-            yield copy.copy(state)
+            traj.append(copy.copy(state))
+    return traj
 
 def transitions(net, size=None, encode=False):
     """
