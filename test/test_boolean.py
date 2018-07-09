@@ -653,7 +653,7 @@ class TestWTNetwork(unittest.TestCase):
              [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
             [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
 
-        self.assertEqual(net.neighbors_in(2),set([0,1,5,8]))
+        self.assertEqual(net.neighbors_in(2),set([0,1,2,5,8]))
 
         with self.assertRaises(IndexError):
             self.assertEqual(net.neighbors_in(2.0))
@@ -675,7 +675,7 @@ class TestWTNetwork(unittest.TestCase):
              [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
             [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
 
-        self.assertEqual(net.neighbors_out(2),set([1,5]))
+        self.assertEqual(net.neighbors_out(2),set([1,2,5]))
       
     def test_neighbors_both(self):
 
@@ -691,7 +691,7 @@ class TestWTNetwork(unittest.TestCase):
              [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
             [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
 
-        self.assertEqual(net.neighbors(2),set([0, 1, 5, 8]))
+        self.assertEqual(net.neighbors(2),set([0,1,2,5,8]))
 
     def test_to_networkx_graph_names(self):
         from neet.boolean.examples import s_pombe
