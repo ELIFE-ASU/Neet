@@ -139,7 +139,7 @@ def average_difference_matrix(net,states=None,weights=None,calc_trans=True):
         state0 = np.zeros(N,dtype=int)
 
         for i in range(N):
-            nodesInfluencingI = list(net.neighbors(index=i,direction='in'))
+            nodesInfluencingI = list(net.neighbors_in(i))
             for jindex,j in enumerate(nodesInfluencingI):
             
                 # for each state of other nodes, does j matter?
