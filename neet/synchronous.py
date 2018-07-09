@@ -177,15 +177,14 @@ def attractors(net, size=None):
 
     :param net: the network or the transition graph
     :param size: the size of the network (``None`` if fixed sized)
-    :returns: a generator of attractors
+    :returns: a list of attractor cycles
     :raises TypeError: if ``net`` is not a network or a ``networkx.DiGraph``
     :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
     :raises ValueError: if ``net`` is a transition graph and ``size`` is not ``None``
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
     if isinstance(net, nx.DiGraph):
-        for attr in nx.simple_cycles(net):
-            yield attr
+        return list(nx.simple_cycles(net))
     elif not is_network(net):
         raise TypeError("net must be a network or a networkx DiGraph")
     elif is_fixed_sized(net) and size is not None:
@@ -193,6 +192,7 @@ def attractors(net, size=None):
     elif not is_fixed_sized(net) and size is None:
         raise ValueError("variable sized networks require a size")
     else:
+        cycles = []
         # Get the state transitions
         # (array of next state indexed by current state)
         trans = list(transitions(net, size=size, encode=True))
@@ -264,7 +264,8 @@ def attractors(net, size=None):
 
             # Yield the cycle if we found one
             if len(cycle) != 0:
-                yield cycle
+                cycles.append(cycle)
+    return cycles
 
 def basins(net, size=None):
     """

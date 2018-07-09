@@ -268,13 +268,13 @@ class TestSynchronous(unittest.TestCase):
         nor a networkx digraph
         """
         with self.assertRaises(TypeError):
-            list(attractors('blah'))
+            attractors('blah')
 
         with self.assertRaises(TypeError):
-            list(attractors(MockObject()))
+            attractors(MockObject())
 
         with self.assertRaises(TypeError):
-            list(attractors(nx.Graph()))
+            attractors(nx.Graph())
 
     def test_attractors_variable_sized(self):
         """
@@ -282,7 +282,7 @@ class TestSynchronous(unittest.TestCase):
         network and ``size`` is ``None``
         """
         with self.assertRaises(ValueError):
-            list(attractors(ECA(30), size=None))
+            attractors(ECA(30), size=None)
 
     def test_attractors_fixed_sized(self):
         """
@@ -290,10 +290,10 @@ class TestSynchronous(unittest.TestCase):
         network or a networkx digraph, and ``size`` is not ``None``
         """
         with self.assertRaises(ValueError):
-            list(attractors(MockFixedSizedNetwork(), size=5))
+            attractors(MockFixedSizedNetwork(), size=5)
 
         #  with self.assertRaises(ValueError):
-        #      list(attractors(nx.DiGraph(), size=5))
+        #      attractors(nx.DiGraph(), size=5)
 
     def test_attractors_eca(self):
         """
@@ -304,7 +304,7 @@ class TestSynchronous(unittest.TestCase):
                     (ECA(110), 3, 1), (ECA(110), 4, 3), (ECA(110), 5, 1),
                     (ECA(110), 6, 3)]
         for rule, width, size in networks:
-            self.assertEqual(size, len(list(attractors(rule, width))))
+            self.assertEqual(size, len(attractors(rule, width)))
 
     def test_attractors_wtnetworks(self):
         """
@@ -312,14 +312,14 @@ class TestSynchronous(unittest.TestCase):
         """
         networks = [(s_pombe, 13), (s_cerevisiae, 7), (c_elegans, 5)]
         for net, size in networks:
-            self.assertEqual(size, len(list(attractors(net))))
+            self.assertEqual(size, len(attractors(net)))
 
     def test_attractors_transition_graph(self):
         """
         test ``attractors`` on ``s_pombe`` transition graph
         """
-        att_from_graph = list(attractors(transition_graph(s_pombe)))
-        att_from_network = list(attractors(s_pombe))
+        att_from_graph = attractors(transition_graph(s_pombe))
+        att_from_network = attractors(s_pombe)
 
         for (a, b) in zip(att_from_graph, att_from_network):
             a.sort()
