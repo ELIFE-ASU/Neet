@@ -8,7 +8,7 @@ from .wtnetwork import WTNetwork
 def wt_to_logic(net):
     """Convert a WTNetwork to a LogicNetwork."""
     if not isinstance(net, WTNetwork):
-        raise ValueError("'net' must be a WTNetwork")
+        raise TypeError("'net' must be a WTNetwork")
 
     truth_table = []
     for node, weights in enumerate(net.weights):
