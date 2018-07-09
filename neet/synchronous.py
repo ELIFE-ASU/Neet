@@ -96,7 +96,7 @@ def transitions(net, size=None, encode=False):
     :param net: the network
     :param size: the size of the network (``None`` if fixed sized)
     :param encode: encode the states as integers
-    :yields: the one-state transitions
+    :returns: the one-state transitions as an array
     :raises TypeError: if ``net`` is not a network
     :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
@@ -113,12 +113,15 @@ def transitions(net, size=None, encode=False):
             raise ValueError("size must not be None for variable sized networks")
         state_space = net.state_space(size)
 
+    trans = []
     for state in state_space:
         net._unsafe_update(state)
         if encode:
-            yield state_space._unsafe_encode(state)
+            trans.append(state_space._unsafe_encode(state))
         else:
-            yield state
+            trans.append(state)
+
+    return trans
 
 def transition_graph(net, size=None):
     """
