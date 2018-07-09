@@ -20,13 +20,13 @@ class TestSynchronous(unittest.TestCase):
         ``trajectory`` should raise a type error if ``net`` is not a network
         """
         with self.assertRaises(TypeError):
-            list(trajectory(5, [1, 2, 3]))
+            trajectory(5, [1, 2, 3])
 
         with self.assertRaises(TypeError):
-            list(trajectory(MockObject(), [1, 2, 3]))
+            trajectory(MockObject(), [1, 2, 3])
 
         with self.assertRaises(TypeError):
-            list(trajectory(MockFixedSizedNetwork, [1, 2, 3]))
+            trajectory(MockFixedSizedNetwork, [1, 2, 3])
 
     def test_trajectory_too_short(self):
         """
@@ -34,10 +34,10 @@ class TestSynchronous(unittest.TestCase):
         than 1
         """
         with self.assertRaises(ValueError):
-            list(trajectory(MockFixedSizedNetwork(), [1, 2, 3], timesteps=0))
+            trajectory(MockFixedSizedNetwork(), [1, 2, 3], timesteps=0)
 
         with self.assertRaises(ValueError):
-            list(trajectory(MockFixedSizedNetwork(), [1, 2, 3], timesteps=-1))
+            trajectory(MockFixedSizedNetwork(), [1, 2, 3], timesteps=-1)
 
     def test_trajectory_eca(self):
         """
@@ -45,14 +45,14 @@ class TestSynchronous(unittest.TestCase):
         """
         rule30 = ECA(30)
         with self.assertRaises(ValueError):
-            list(trajectory(rule30, []))
+            trajectory(rule30, [])
 
         xs = [0, 1, 0]
-        got = list(trajectory(rule30, xs))
+        got = trajectory(rule30, xs)
         self.assertEqual([0, 1, 0], xs)
         self.assertEqual([[0, 1, 0], [1, 1, 1]], got)
 
-        got = list(trajectory(rule30, xs, timesteps=2))
+        got = trajectory(rule30, xs, timesteps=2)
         self.assertEqual([0, 1, 0], xs)
         self.assertEqual([[0, 1, 0], [1, 1, 1], [0, 0, 0]], got)
 
@@ -62,14 +62,14 @@ class TestSynchronous(unittest.TestCase):
         """
         rule30 = ECA(30)
         with self.assertRaises(ValueError):
-            list(trajectory(rule30, [], encode=True))
+            trajectory(rule30, [], encode=True)
 
         state = [0, 1, 0]
-        got = list(trajectory(rule30, state, encode=True))
+        got = trajectory(rule30, state, encode=True)
         self.assertEqual([0, 1, 0], state)
         self.assertEqual([2, 7], got)
 
-        got = list(trajectory(rule30, state, timesteps=2, encode=True))
+        got = trajectory(rule30, state, timesteps=2, encode=True)
         self.assertEqual([0, 1, 0], state)
         self.assertEqual([2, 7, 0], got)
 
@@ -84,11 +84,11 @@ class TestSynchronous(unittest.TestCase):
         )
 
         state = [0, 0]
-        got = list(trajectory(net, state))
+        got = trajectory(net, state)
         self.assertEqual([0, 0], state)
         self.assertEqual([[0, 0], [0, 1]], got)
 
-        got = list(trajectory(net, state, timesteps=3))
+        got = trajectory(net, state, timesteps=3)
         self.assertEqual([0, 0], state)
         self.assertEqual([[0, 0], [0, 1], [0, 1], [0, 1]], got)
 
@@ -103,11 +103,11 @@ class TestSynchronous(unittest.TestCase):
         )
 
         state = [0, 0]
-        got = list(trajectory(net, state, encode=True))
+        got = trajectory(net, state, encode=True)
         self.assertEqual([0, 0], state)
         self.assertEqual([0, 2], got)
 
-        got = list(trajectory(net, state, timesteps=3, encode=True))
+        got = trajectory(net, state, timesteps=3, encode=True)
         self.assertEqual([0, 0], state)
         self.assertEqual([0, 2, 2, 2], got)
 
@@ -119,7 +119,7 @@ class TestSynchronous(unittest.TestCase):
                             ((0, 2), {'01', '10', '11'}),
                             ((0, 1), {'11'})])
         state = [0, 1, 0]
-        got = list(trajectory(net, state, 3))
+        got = trajectory(net, state, 3)
         self.assertEqual([[0, 1, 0], [1, 0, 0], [0, 1, 0], [1, 0, 0]], got)
         self.assertEqual([0, 1, 0], state)
 
@@ -131,7 +131,7 @@ class TestSynchronous(unittest.TestCase):
         ``transitions`` should raise a type error if ``net`` is not a network
         """
         with self.assertRaises(TypeError):
-            list(transitions(MockObject(), 5))
+            transitions(MockObject(), 5)
 
     def test_transitions_not_fixed_sized(self):
         """
@@ -139,7 +139,7 @@ class TestSynchronous(unittest.TestCase):
         and ``size`` is ``None``
         """
         with self.assertRaises(ValueError):
-            list(transitions(ECA(30), size=None))
+            transitions(ECA(30), size=None)
 
     def test_transitions_fixed_sized(self):
         """
@@ -147,7 +147,7 @@ class TestSynchronous(unittest.TestCase):
         ``size`` is not ``None``
         """
         with self.assertRaises(ValueError):
-            list(transitions(MockFixedSizedNetwork, size=3))
+            transitions(MockFixedSizedNetwork, size=3)
 
     def test_transitions_eca(self):
         """
@@ -155,13 +155,13 @@ class TestSynchronous(unittest.TestCase):
         """
         rule30 = ECA(30)
 
-        got = list(transitions(rule30, size=1))
+        got = transitions(rule30, size=1)
         self.assertEqual([[0], [0]], got)
 
-        got = list(transitions(rule30, size=2))
+        got = transitions(rule30, size=2)
         self.assertEqual([[0, 0], [1, 0], [0, 1], [0, 0]], got)
 
-        got = list(transitions(rule30, size=3))
+        got = transitions(rule30, size=3)
         self.assertEqual([[0, 0, 0], [1, 1, 1], [1, 1, 1], [1, 0, 0],
                           [1, 1, 1], [0, 0, 1], [0, 1, 0], [0, 0, 0]], got)
 
@@ -171,13 +171,13 @@ class TestSynchronous(unittest.TestCase):
         """
         rule30 = ECA(30)
 
-        got = list(transitions(rule30, size=1, encode=True))
+        got = transitions(rule30, size=1, encode=True)
         self.assertEqual([0, 0], got)
 
-        got = list(transitions(rule30, size=2, encode=True))
+        got = transitions(rule30, size=2, encode=True)
         self.assertEqual([0, 1, 2, 0], got)
 
-        got = list(transitions(rule30, size=3, encode=True))
+        got = transitions(rule30, size=3, encode=True)
         self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], got)
 
     def test_transitions_wtnetwork(self):
@@ -190,7 +190,7 @@ class TestSynchronous(unittest.TestCase):
             theta=WTNetwork.positive_threshold
         )
 
-        got = list(transitions(net))
+        got = transitions(net)
         self.assertEqual([[0, 1], [1, 0], [0, 1], [1, 1]], got)
 
     def test_transitions_wtnetwork_encoded(self):
@@ -203,7 +203,7 @@ class TestSynchronous(unittest.TestCase):
             theta=WTNetwork.positive_threshold
         )
 
-        got = list(transitions(net, encode=True))
+        got = transitions(net, encode=True)
         self.assertEqual([2, 1, 2, 3], got)
 
     def test_transitions_logicnetwork(self):
@@ -211,7 +211,7 @@ class TestSynchronous(unittest.TestCase):
         test `transitions` on `LogicNetwork`s
         """
         net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
-        got = list(transitions(net))
+        got = transitions(net)
         self.assertEqual([[1, 0], [1, 1], [1, 0], [1, 1]], got)
 
     def test_transitions_logicnetwork_encoded(self):
@@ -219,7 +219,7 @@ class TestSynchronous(unittest.TestCase):
         test `transitions` on `LogicNetwork`s, states encoded
         """
         net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
-        got = list(transitions(net, encode=True))
+        got = transitions(net, encode=True)
         self.assertEqual([1, 3, 1, 3], got)
 
     def test_transition_graph_not_network(self):
@@ -268,13 +268,13 @@ class TestSynchronous(unittest.TestCase):
         nor a networkx digraph
         """
         with self.assertRaises(TypeError):
-            list(attractors('blah'))
+            attractors('blah')
 
         with self.assertRaises(TypeError):
-            list(attractors(MockObject()))
+            attractors(MockObject())
 
         with self.assertRaises(TypeError):
-            list(attractors(nx.Graph()))
+            attractors(nx.Graph())
 
     def test_attractors_variable_sized(self):
         """
@@ -282,7 +282,7 @@ class TestSynchronous(unittest.TestCase):
         network and ``size`` is ``None``
         """
         with self.assertRaises(ValueError):
-            list(attractors(ECA(30), size=None))
+            attractors(ECA(30), size=None)
 
     def test_attractors_fixed_sized(self):
         """
@@ -290,10 +290,10 @@ class TestSynchronous(unittest.TestCase):
         network or a networkx digraph, and ``size`` is not ``None``
         """
         with self.assertRaises(ValueError):
-            list(attractors(MockFixedSizedNetwork(), size=5))
+            attractors(MockFixedSizedNetwork(), size=5)
 
         #  with self.assertRaises(ValueError):
-        #      list(attractors(nx.DiGraph(), size=5))
+        #      attractors(nx.DiGraph(), size=5)
 
     def test_attractors_eca(self):
         """
@@ -304,7 +304,7 @@ class TestSynchronous(unittest.TestCase):
                     (ECA(110), 3, 1), (ECA(110), 4, 3), (ECA(110), 5, 1),
                     (ECA(110), 6, 3)]
         for rule, width, size in networks:
-            self.assertEqual(size, len(list(attractors(rule, width))))
+            self.assertEqual(size, len(attractors(rule, width)))
 
     def test_attractors_wtnetworks(self):
         """
@@ -312,14 +312,14 @@ class TestSynchronous(unittest.TestCase):
         """
         networks = [(s_pombe, 13), (s_cerevisiae, 7), (c_elegans, 5)]
         for net, size in networks:
-            self.assertEqual(size, len(list(attractors(net))))
+            self.assertEqual(size, len(attractors(net)))
 
     def test_attractors_transition_graph(self):
         """
         test ``attractors`` on ``s_pombe`` transition graph
         """
-        att_from_graph = list(attractors(transition_graph(s_pombe)))
-        att_from_network = list(attractors(s_pombe))
+        att_from_graph = attractors(transition_graph(s_pombe))
+        att_from_network = attractors(s_pombe)
 
         for (a, b) in zip(att_from_graph, att_from_network):
             a.sort()
