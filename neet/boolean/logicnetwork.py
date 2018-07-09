@@ -539,12 +539,6 @@ class LogicNetwork(object):
 
         return cls(table, names, reduced=True)
 
-    # def _incoming_neighbors(self,index=None):
-    #     if index:
-    #         return list(self.table[index][0])
-    #     else:
-    #         return [list(row[0]) for row in self.table]
-
     def neighbors_in(self, index):
         """
         Return the set of all neighbor nodes, where

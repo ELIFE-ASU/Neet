@@ -425,15 +425,15 @@ class WTNetwork(object):
 
         ::
 
-            >>> xs = [0,0,0]
-            >>> WTNetwork.split_threshold([1, -1, 0], xs)
+            >>> ys = [0,0,0]
+            >>> WTNetwork.split_threshold([1, -1, 0], ys)
             [1, 0, 0]
-            >>> xs
+            >>> ys
             [1, 0, 0]
-            >>> xs = [1,1,1]
-            >>> WTNetwork.split_threshold([1, -1, 0], xs)
+            >>> ys = [1,1,1]
+            >>> WTNetwork.split_threshold([1, -1, 0], ys)
             [1, 0, 1]
-            >>> xs
+            >>> ys
             [1, 0, 1]
             >>> WTNetwork.split_threshold(0,0)
             0
@@ -486,15 +486,15 @@ class WTNetwork(object):
 
         ::
 
-            >>> xs = [0,0,0]
-            >>> WTNetwork.negative_threshold([1, -1, 0], xs)
+            >>> ys = [0,0,0]
+            >>> WTNetwork.negative_threshold([1, -1, 0], ys)
             [1, 0, 0]
-            >>> xs
+            >>> ys
             [1, 0, 0]
-            >>> xs = [1,1,1]
-            >>> WTNetwork.negative_threshold([1, -1, 0], xs)
+            >>> ys = [1,1,1]
+            >>> WTNetwork.negative_threshold([1, -1, 0], ys)
             [1, 0, 0]
-            >>> xs
+            >>> ys
             [1, 0, 0]
             >>> WTNetwork.negative_threshold(0,0)
             0
@@ -546,15 +546,15 @@ class WTNetwork(object):
 
         ::
 
-            >>> xs = [0,0,0]
-            >>> WTNetwork.positive_threshold([1, -1, 0], xs)
+            >>> ys = [0,0,0]
+            >>> WTNetwork.positive_threshold([1, -1, 0], ys)
             [1, 0, 1]
-            >>> xs
+            >>> ys
             [1, 0, 1]
-            >>> xs = [1,1,1]
-            >>> WTNetwork.positive_threshold([1, -1, 0], xs)
+            >>> ys = [1,1,1]
+            >>> WTNetwork.positive_threshold([1, -1, 0], ys)
             [1, 0, 1]
-            >>> xs
+            >>> ys
             [1, 0, 1]
             >>> WTNetwork.negative_threshold(0,0)
             1
@@ -608,7 +608,12 @@ class WTNetwork(object):
             >>> net.neighbors_in(2)
             set([0, 1, 5, 8])
         """
-        return set(np.flatnonzero(self.weights[index]))
+        if (self.theta is type(self).negative_threshold) or (self.theta is type(self).positive_threshold):
+            set(np.flatnonzero(self.weights[index]))
+        else: 
+            ## Assume every other theta has self loops. This will be depreciated
+            ## when we convert all WTNetworks to logicnetworks by default.
+            return set(np.flatnonzero(self.weights[index]))|set([index])
 
     def neighbors_out(self, index):
         """
@@ -636,7 +641,13 @@ class WTNetwork(object):
             >>> net.neighbors_out(2)
             set([1, 5])
         """
-        return set(np.flatnonzero(self.weights[:, index]))
+        if (self.theta is type(self).negative_threshold) or (self.theta is type(self).positive_threshold):
+            return set(np.flatnonzero(self.weights[:, index]))
+
+        else: 
+            ## Assume every other theta has self loops. This will be depreciated
+            ## when we convert all WTNetworks to logicnetworks by default.
+            return set(np.flatnonzero(self.weights[:, index]))|set([index])
 
     def neighbors(self, index):
         """

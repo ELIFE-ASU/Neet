@@ -99,7 +99,7 @@ class TestCore(unittest.TestCase):
             neighbors(eca, 1)
 
     def test_neighbors_WTNetwork(self):
-        net = bnet.WTNetwork([[1]])
+        net = bnet.WTNetwork([[1,0],[1,1]])
 
         self.assertTrue(neighbors(net, 0), [set([0])])
 
