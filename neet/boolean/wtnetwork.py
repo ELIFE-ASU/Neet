@@ -610,7 +610,7 @@ class WTNetwork(object):
             set([0, 1, 5, 8])
         """
         if (self.theta is type(self).negative_threshold) or (self.theta is type(self).positive_threshold):
-            set(np.flatnonzero(self.weights[index]))
+            return set(np.flatnonzero(self.weights[index]))
         else: 
             ## Assume every other theta has self loops. This will be depreciated
             ## when we convert all WTNetworks to logicnetworks by default.
