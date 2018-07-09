@@ -607,6 +607,66 @@ class TestLandscape(unittest.TestCase):
         self.assertEqual([0, 515, 7, 517, 14, 525, 11, 521, 28, 543], list(trans[:10]))
         self.assertEqual([18, 16, 13, 14, 10, 8, 7, 4, 2, 0], list(trans[-10:]))
 
+############## NEW ECA transition tests ####################
+    def test_transitions_eca_index(self):
+        ca = ECA(30)
+        l = Landscape(ca, size=3, index=1)
+        self.assertEqual(ca, l.network)
+        self.assertEqual(3, l.size)
+        self.assertEqual([0, 3, 2, 1, 6, 5, 6, 5], list(l.transitions))
+
+        l = Landscape(ca, size=3, index=0)
+        self.assertEqual(ca, l.network)
+        self.assertEqual(3, l.size)
+        self.assertEqual([0, 5, 6, 7, 4, 1, 2, 3], list(l.transitions))
+
+        l = Landscape(ca, size=3, index=None)
+        self.assertEqual(ca, l.network)
+        self.assertEqual(3, l.size)
+        self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], list(l.transitions))
+
+        # Regular unencoded transition, rule 30
+        #      0          1          2          3          4          5          6          7
+        # [[0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]]
+        # [[0, 0, 0], [1, 1, 1], [1, 1, 1], [1, 0, 0], [1, 1, 1], [0, 0, 1], [0, 1, 0], [0, 0, 0]]
+        #      0          7          7          1          7          4          2          0
+
+    def test_transitions_eca_pin(self):
+        ca = ECA(30)
+        l = Landscape(ca, size=3, pin=1)
+        self.assertEqual(ca, l.network)
+        self.assertEqual(3, l.size)
+        self.assertEqual([0, 5, 7, 6, 5, 1, 2, 2], list(l.transitions))
+
+        l = Landscape(ca, size=3, pin=0)
+        self.assertEqual(ca, l.network)
+        self.assertEqual(3, l.size)
+        self.assertEqual([0, 3, 3, 0, 7, 1, 6, 4], list(l.transitions))
+
+        l = Landscape(ca, size=3, pin=None)
+        self.assertEqual(ca, l.network)
+        self.assertEqual(3, l.size)
+        self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], list(l.transitions))
+
+    def test_transitions_eca_values(self):
+        ca = ECA(30)
+        l = Landscape(ca, size=3, values={0: 1})
+        self.assertEqual(ca, l.network)
+        self.assertEqual(3, l.size)
+        self.assertEqual([4, 7, 7, 4, 7, 5, 6, 3], list(l.transitions))
+
+        l = Landscape(ca, size=3, values={1: 0})
+        self.assertEqual(ca, l.network)
+        self.assertEqual(3, l.size)
+        self.assertEqual([0, 5, 5, 4, 5, 1, 0, 0], list(l.transitions))
+
+        l = Landscape(ca, size=3, values={})
+        self.assertEqual(ca, l.network)
+        self.assertEqual(3, l.size)
+        self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], list(l.transitions))
+
+        ########################################
+
     def test_transitions_wtnetwork(self):
         net = WTNetwork(
             weights=[[1, 0], [-1, 1]],
