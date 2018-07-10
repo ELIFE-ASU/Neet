@@ -664,9 +664,6 @@ class TestLandscape(unittest.TestCase):
         self.assertEqual(3, l.size)
         self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], list(l.transitions))
 
-########################################
-#######NEED TO ADD TESTS FOR LOGICNET AND WTNETWORK LANDSCAPES WITH PINNING ARGS. ###############
-
     def test_transitions_wtnetwork(self):
         net = WTNetwork(
             weights=[[1, 0], [-1, 1]],
@@ -679,145 +676,76 @@ class TestLandscape(unittest.TestCase):
         self.assertEqual(2, l.size);
         self.assertEqual([2,1,2,3], list(l.transitions))
 
-    def test_update_index(self):
-        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0])
+    def test_transitions_wtnetwork_index(self):
+        net = WTNetwork(
+            weights=[[1, 0], [-1, 1]],
+            thresholds=[0.5, 0.0],
+            theta=WTNetwork.positive_threshold
+        )
 
-        self.assertEqual(bnet.WTNetwork.split_threshold, net.theta)
+        l = Landscape(net, index=1)
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size);
+        self.assertEqual([2,1,2,3], list(l.transitions))
 
-        xs = [0,0]
-        self.assertEqual([0,0], net.update(xs, 0))
-        self.assertEqual([0,0], net.update(xs, 1))
-        self.assertEqual([0,0], xs)
+        l = Landscape(net, index=0)
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size);
+        self.assertEqual([0,1,2,3], list(l.transitions))
 
-        xs = [1,0]
-        self.assertEqual([1,0], net.update(xs, 0))
-        self.assertEqual([1,0], net.update(xs, 1))
-        self.assertEqual([1,0], xs)
+        l = Landscape(net, index=None)
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size);
+        self.assertEqual([2,1,2,3], list(l.transitions))
 
-        xs = [0,1]
-        self.assertEqual([0,1], net.update(xs, 0))
-        self.assertEqual([0,1], net.update(xs, 1))
-        self.assertEqual([0,1], xs)
+    def test_transitions_wtnetwork_pin(self):
+        net = WTNetwork(
+            weights=[[1, 0], [-1, 1]],
+            thresholds=[0.5, 0.0],
+            theta=WTNetwork.positive_threshold
+        )
 
-        xs = [1,1]
-        self.assertEqual([1,1], net.update(xs, 0))
-        self.assertEqual([1,1], net.update(xs, 1))
-        self.assertEqual([1,1], xs)
+        l = Landscape(net, pin=[1])
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size);
+        self.assertEqual([0,1,2,3], list(l.transitions))
 
-        net.theta = bnet.WTNetwork.negative_threshold
+        l = Landscape(net, pin=[0])
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size);
+        self.assertEqual([2,1,2,3], list(l.transitions))
 
-        xs = [0,0]
-        self.assertEqual([0,0], net.update(xs, 0))
-        self.assertEqual([0,0], net.update(xs, 1))
-        self.assertEqual([0,0], xs)
+        l = Landscape(net, pin=None)
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size);
+        self.assertEqual([2,1,2,3], list(l.transitions))
 
-        xs = [1,0]
-        self.assertEqual([1,0], net.update(xs, 0))
-        self.assertEqual([1,0], net.update(xs, 1))
-        self.assertEqual([1,0], xs)
+    def test_transitions_wtnetwork_values(self):
+        net = WTNetwork(
+            weights=[[1, 0], [-1, 1]],
+            thresholds=[0.5, 0.0],
+            theta=WTNetwork.positive_threshold
+        )
 
-        xs = [0,1]
-        self.assertEqual([0,1], net.update(xs, 0))
-        self.assertEqual([0,1], net.update(xs, 1))
-        self.assertEqual([0,1], xs)
+        l = Landscape(net, values={0: 1})
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size);
+        self.assertEqual([3,1,3,3], list(l.transitions))
 
-        xs = [1,1]
-        self.assertEqual([1,1], net.update(xs, 0))
-        self.assertEqual([1,0], net.update(xs, 1))
-        self.assertEqual([1,0], xs)
+        l = Landscape(net, values={1: 0})
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size);
+        self.assertEqual([0,1,0,1], list(l.transitions))
 
-        net.theta = bnet.WTNetwork.positive_threshold
+        l = Landscape(net, values={})
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size);
+        self.assertEqual([2,1,2,3], list(l.transitions))
 
-        xs = [0,0]
-        self.assertEqual([0,0], net.update(xs, 0))
-        self.assertEqual([0,1], net.update(xs, 1))
-        self.assertEqual([0,1], xs)
+        ## Add more test for different thetas?
 
-        xs = [1,0]
-        self.assertEqual([1,0], net.update(xs, 0))
-        self.assertEqual([1,0], net.update(xs, 1))
-        self.assertEqual([1,0], xs)
-
-        xs = [0,1]
-        self.assertEqual([0,1], net.update(xs, 0))
-        self.assertEqual([0,1], net.update(xs, 1))
-        self.assertEqual([0,1], xs)
-
-        xs = [1,1]
-        self.assertEqual([1,1], net.update(xs, 0))
-        self.assertEqual([1,1], net.update(xs, 1))
-        self.assertEqual([1,1], xs)
-
-
-    def test_user_defined_threshold(self):
-        def reverse_negative(values, states):
-            if isinstance(values, list) or isinstance(values, np.ndarray):
-                for i, x in enumerate(values):
-                    if x <= 0:
-                        states[i] = 1
-                    else:
-                        states[i] = 0
-                return states
-            else:
-                if values <= 0:
-                    return 1
-                else:
-                    return 0
-
-        net = bnet.WTNetwork([[1,0],[-1,1]], [0.5,0.0], theta=reverse_negative)
-        xs = [0,0]
-        self.assertEqual([1,1], net.update(xs))
-        self.assertEqual([1,1], xs)
-
-        xs = [0,0]
-        self.assertEqual([1,0], net.update(xs, 0))
-        self.assertEqual([1,0], xs)
-
-        xs = [0,0]
-        self.assertEqual([0,1], net.update(xs, 1))
-        self.assertEqual([0,1], xs)
-
-        xs = [1,0]
-        self.assertEqual([0,1], net.update(xs))
-        self.assertEqual([0,1], xs)
-
-        xs = [1,0]
-        self.assertEqual([0,0], net.update(xs, 0))
-        self.assertEqual([0,0], xs)
-
-        xs = [1,0]
-        self.assertEqual([1,1], net.update(xs, 1))
-        self.assertEqual([1,1], xs)
-
-        xs = [0,1]
-        self.assertEqual([1,0], net.update(xs))
-        self.assertEqual([1,0], xs)
-
-        xs = [0,1]
-        self.assertEqual([1,1], net.update(xs, 0))
-        self.assertEqual([1,1], xs)
-
-        xs = [0,1]
-        self.assertEqual([0,0], net.update(xs, 1))
-        self.assertEqual([0,0], xs)
-
-        xs = [1,1]
-        self.assertEqual([0,1], net.update(xs))
-        self.assertEqual([0,1], xs)
-
-        xs = [1,1]
-        self.assertEqual([0,1], net.update(xs, 0))
-        self.assertEqual([0,1], xs)
-
-        xs = [1,1]
-        self.assertEqual([1,1], net.update(xs, 1))
-        self.assertEqual([1,1], xs)
-
-
-
-
-
-#########################################
+########################################
+#######NEED TO ADD TESTS FOR LOGICNET AND WTNETWORK LANDSCAPES WITH PINNING ARGS. ###############
 
     def test_transitions_logicnetwork(self):
         net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
@@ -826,6 +754,64 @@ class TestLandscape(unittest.TestCase):
         self.assertEqual(net, l.network)
         self.assertEqual(2, l.size)
         self.assertEqual([1, 3, 1, 3], list(l.transitions))
+
+    def test_transitions_logicnetwork_index(self):
+        net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
+
+        l = Landscape(net, index=1)
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size)
+        self.assertEqual([0,3,0,3], list(l.transitions))
+
+        l = Landscape(net, index=0)
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size)
+        self.assertEqual([1,1,3,3], list(l.transitions))
+
+        l = Landscape(net, index=None)
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size)
+        self.assertEqual([1,3,1,3], list(l.transitions))
+
+    def test_transitions_logicnetwork_pin(self):
+        net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
+
+        l = Landscape(net, pin=[1])
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size)
+        self.assertEqual([1,1,3,3], list(l.transitions))
+
+        l = Landscape(net, pin=[0])
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size)
+        self.assertEqual([0,3,0,3], list(l.transitions))
+
+        l = Landscape(net, pin=None)
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size)
+        self.assertEqual([1,3,1,3], list(l.transitions))
+
+    def test_transitions_logicnetwork_values(self):
+        net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
+
+        l = Landscape(net, values={0: 1})
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size)
+        self.assertEqual([1,3,1,3], list(l.transitions))
+
+        l = Landscape(net, values={1: 0})
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size)
+        self.assertEqual([1,1,1,1], list(l.transitions))
+
+        l = Landscape(net, values={})
+        self.assertEqual(net, l.network)
+        self.assertEqual(2, l.size)
+        self.assertEqual([1,3,1,3], list(l.transitions))
+
+        ## Add more test for different thetas?
+
+#########################################
 
     def test_transitions_spombe(self):
         l = Landscape(s_pombe)
