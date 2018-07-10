@@ -178,7 +178,9 @@ class StateSpace(object):
     def _unsafe_encode(self, state):
         """
         Encode a state as an integer consistent with the state space, without
-        checking the validity of the arguments.
+        checking the validity of the arguments. The encoding is such that,
+        for example, the state [1, 0, 0] will correspond to 1; the state 
+        [1, 1, 0] will correspond to 3. 
 
         .. rubric:: Examples:
 
@@ -218,7 +220,9 @@ class StateSpace(object):
 
     def encode(self, state):
         """
-        Encode a state as an integer consistent with the state space.
+        Encode a state as an integer consistent with the state space. The encoding is such that,
+        for example, the state [1, 0, 0] will correspond to 1; the state [1, 1, 0] will 
+        correspond to 3. 
 
         .. rubric:: Examples:
 
