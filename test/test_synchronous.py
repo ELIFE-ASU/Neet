@@ -744,9 +744,6 @@ class TestLandscape(unittest.TestCase):
 
         ## Add more test for different thetas?
 
-########################################
-#######NEED TO ADD TESTS FOR LOGICNET AND WTNETWORK LANDSCAPES WITH PINNING ARGS. ###############
-
     def test_transitions_logicnetwork(self):
         net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
 
@@ -810,8 +807,6 @@ class TestLandscape(unittest.TestCase):
         self.assertEqual([1,3,1,3], list(l.transitions))
 
         ## Add more test for different thetas?
-
-#########################################
 
     def test_transitions_spombe(self):
         l = Landscape(s_pombe)
