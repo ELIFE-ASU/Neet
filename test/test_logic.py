@@ -28,6 +28,28 @@ class TestLogicNetwork(unittest.TestCase):
         self.assertEqual(['A', 'B'], net.names)
         self.assertEqual([(2, {0, 2}), (1, {1})], net._encoded_table)
 
+    def test_init_fail(self):
+        with self.assertRaises(TypeError):
+            LogicNetwork("not a list or tuple")
+
+        with self.assertRaises(TypeError):
+            LogicNetwork([((0,), {'0'})], names="A")
+
+        with self.assertRaises(ValueError):
+            LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})], names=['A'])
+
+        with self.assertRaises(ValueError):
+            LogicNetwork([((0,), {'0'})], names=["A", "B"])
+
+        with self.assertRaises(ValueError):
+            LogicNetwork([((0,),)])
+
+        with self.assertRaises(IndexError):
+            LogicNetwork([((1,), {'0'})])
+
+        with self.assertRaises(ValueError):
+            LogicNetwork([((0,), '0')])
+
     def test_init_long(self):
         table = [((), set()) for _ in range(65)]
         table[0] = ((np.int64(64),), set('1'))

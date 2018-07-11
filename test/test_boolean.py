@@ -639,7 +639,7 @@ class TestWTNetwork(unittest.TestCase):
         self.assertTrue(hasattr(net,'metadata'))
         self.assertEqual(type(net.metadata),dict)
 
-    def test_neighbors_in(self):
+    def test_neighbors_in_split_threshold(self):
 
         net = bnet.WTNetwork(
             [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -652,6 +652,45 @@ class TestWTNetwork(unittest.TestCase):
              [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
              [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
             [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+
+        self.assertEqual(net.neighbors_in(2),set([0,1,2,5,8]))
+
+        with self.assertRaises(IndexError):
+            self.assertEqual(net.neighbors_in(2.0))
+
+        with self.assertRaises(IndexError):
+            self.assertEqual(net.neighbors_in('2'))
+
+    def test_neighbors_out_split_threshold(self):
+
+        net = bnet.WTNetwork(
+            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
+             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+
+        self.assertEqual(net.neighbors_out(2),set([1,2,5]))
+
+    def test_neighbors_in_positive_threshold(self):
+
+        net = bnet.WTNetwork(
+            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
+             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
+             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
+             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
+             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0],
+            theta=bnet.WTNetwork.positive_threshold)
 
         self.assertEqual(net.neighbors_in(2),set([0,1,5,8]))
 
@@ -661,7 +700,7 @@ class TestWTNetwork(unittest.TestCase):
         with self.assertRaises(IndexError):
             self.assertEqual(net.neighbors_in('2'))
 
-    def test_neighbors_out(self):
+    def test_neighbors_out_negative_threshold(self):
 
         net = bnet.WTNetwork(
             [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -673,11 +712,12 @@ class TestWTNetwork(unittest.TestCase):
              [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
              [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
              [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
-            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
+            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0],
+            theta=bnet.WTNetwork.negative_threshold)
 
         self.assertEqual(net.neighbors_out(2),set([1,5]))
       
-    def test_neighbors_both(self):
+    def test_neighbors_both_split_threshold(self):
 
         net = bnet.WTNetwork(
             [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -691,7 +731,7 @@ class TestWTNetwork(unittest.TestCase):
              [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
             [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
 
-        self.assertEqual(net.neighbors(2),set([0, 1, 5, 8]))
+        self.assertEqual(net.neighbors(2),set([0,1,2,5,8]))
 
     def test_to_networkx_graph_names(self):
         from neet.boolean.examples import s_pombe

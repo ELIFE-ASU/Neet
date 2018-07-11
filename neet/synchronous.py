@@ -35,7 +35,7 @@ def trajectory(net, state, timesteps=1, encode=False):
     :param state: the network state
     :param timesteps: the number of steps in the trajectory
     :param encode: encode the states as integers
-    :yields: the next state in the trajectory
+    :returns: the trajectory as a list
     :raises TypeError: if net is not a network
     :raises ValueError: if ``timesteps < 1``
     """
@@ -44,6 +44,7 @@ def trajectory(net, state, timesteps=1, encode=False):
     if timesteps < 1:
         raise ValueError("number of steps must be positive, non-zero")
 
+    traj = []
     state = copy.copy(state)
     if encode:
         if is_fixed_sized(net):
@@ -51,23 +52,24 @@ def trajectory(net, state, timesteps=1, encode=False):
         else:
             state_space = net.state_space(len(state))
 
-        yield state_space._unsafe_encode(state)
+        traj.append(state_space._unsafe_encode(state))
 
         net.update(state)
-        yield state_space._unsafe_encode(state)
+        traj.append(state_space._unsafe_encode(state))
 
         for _ in range(1,timesteps):
             net._unsafe_update(state)
-            yield state_space._unsafe_encode(state)
+            traj.append(state_space._unsafe_encode(state))
     else:
-        yield copy.copy(state)
+        traj.append(copy.copy(state))
 
         net.update(state)
-        yield copy.copy(state)
+        traj.append(copy.copy(state))
 
         for _ in range(1, timesteps):
             net._unsafe_update(state)
-            yield copy.copy(state)
+            traj.append(copy.copy(state))
+    return traj
 
 def transitions(net, size=None, encode=False):
     """
@@ -94,7 +96,7 @@ def transitions(net, size=None, encode=False):
     :param net: the network
     :param size: the size of the network (``None`` if fixed sized)
     :param encode: encode the states as integers
-    :yields: the one-state transitions
+    :returns: the one-state transitions as an array
     :raises TypeError: if ``net`` is not a network
     :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
@@ -111,12 +113,15 @@ def transitions(net, size=None, encode=False):
             raise ValueError("size must not be None for variable sized networks")
         state_space = net.state_space(size)
 
+    trans = []
     for state in state_space:
         net._unsafe_update(state)
         if encode:
-            yield state_space._unsafe_encode(state)
+            trans.append(state_space._unsafe_encode(state))
         else:
-            yield state
+            trans.append(state)
+
+    return trans
 
 def transition_graph(net, size=None):
     """
@@ -172,15 +177,14 @@ def attractors(net, size=None):
 
     :param net: the network or the transition graph
     :param size: the size of the network (``None`` if fixed sized)
-    :returns: a generator of attractors
+    :returns: a list of attractor cycles
     :raises TypeError: if ``net`` is not a network or a ``networkx.DiGraph``
     :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
     :raises ValueError: if ``net`` is a transition graph and ``size`` is not ``None``
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
     if isinstance(net, nx.DiGraph):
-        for attr in nx.simple_cycles(net):
-            yield attr
+        return list(nx.simple_cycles(net))
     elif not is_network(net):
         raise TypeError("net must be a network or a networkx DiGraph")
     elif is_fixed_sized(net) and size is not None:
@@ -188,6 +192,7 @@ def attractors(net, size=None):
     elif not is_fixed_sized(net) and size is None:
         raise ValueError("variable sized networks require a size")
     else:
+        cycles = []
         # Get the state transitions
         # (array of next state indexed by current state)
         trans = list(transitions(net, size=size, encode=True))
@@ -259,7 +264,8 @@ def attractors(net, size=None):
 
             # Yield the cycle if we found one
             if len(cycle) != 0:
-                yield cycle
+                cycles.append(cycle)
+    return cycles
 
 def basins(net, size=None):
     """

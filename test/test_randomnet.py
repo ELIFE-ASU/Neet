@@ -2,15 +2,45 @@
 # Use of this source code is governed by a MIT
 # license that can be found in the LICENSE file.
 import unittest
-from neet.boolean.examples import mouse_cortical_7B
-from neet.boolean.randomnet import *
-
+import copy
+import networkx as nx
 import numpy as np
+from neet.boolean.examples import mouse_cortical_7B
+from neet.boolean.examples import s_pombe
+from neet.boolean.wtnetwork import WTNetwork
+from neet.boolean.randomnet import *
 
 TESTSEED = 314159
 
 
 class TestRandomnet(unittest.TestCase):
+
+    def test_preserving_degrees(self):
+        net = s_pombe
+        ran_net = rewiring_fixed_degree(net)
+
+        G = nx.from_numpy_matrix(net.weights, create_using = nx.DiGraph())
+        ranG = nx.from_numpy_matrix(ran_net.weights, create_using = nx.DiGraph())
+
+        InDegree = list(dict(G.in_degree(weight = 'weight')).values())
+        ranInDegree = list(dict(ranG.in_degree(weight = 'weight')).values())
+
+        OutDegree = list(dict(G.out_degree(weight = 'weight')).values())
+        ranOutDegree = list(dict(ranG.out_degree(weight = 'weight')).values())
+
+        self.assertEqual(InDegree, ranInDegree)
+        self.assertEqual(OutDegree, ranOutDegree)
+
+    def test_preserving_size(self):
+        net = s_pombe
+        ran_net = rewiring_fixed_size(net)
+
+        EdgeCounts = np.asarray(np.unique(net.weights, return_counts = True))
+        ranEdgeCounts = np.asarray(np.unique(ran_net.weights, return_counts = True))
+
+        self.assertTrue(np.array_equal(EdgeCounts, ranEdgeCounts))
+
+
     def test_random_logic_invalid_p(self):
         """
         ``random_logic`` should raise a value error if ``p`` is an incorrect size

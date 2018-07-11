@@ -94,18 +94,27 @@ class TestCore(unittest.TestCase):
     def test_neighbors_ECA(self):
         eca = ca.ECA(30)
 
+        with self.assertRaises(ValueError):
+            neighbors(eca, 1, direction='')
+
         self.assertTrue(neighbors(eca, 1, size=4), set([0, 1, 2]))
 
         with self.assertRaises(AttributeError):
             neighbors(eca, 1)
 
     def test_neighbors_WTNetwork(self):
-        net = bnet.WTNetwork([[1]])
+        net = bnet.WTNetwork([[1,0],[1,1]])
+
+        with self.assertRaises(ValueError):
+            neighbors(net, 0, direction='')
 
         self.assertTrue(neighbors(net, 0), [set([0])])
 
     def test_neighbors_LogicNetwork(self):
         net = bnet.LogicNetwork([((0,), {'0'})])
+
+        with self.assertRaises(ValueError):
+            neighbors(net, 0, direction='')
 
         self.assertTrue(neighbors(net, 0), [set([0])])
 
@@ -129,18 +138,15 @@ class TestCore(unittest.TestCase):
         net = ca.ECA(30)
         net.boundary = (1,0)
 
+        with self.assertRaises(AttributeError):
+            to_networkx_graph(net)
+
         nx_net = to_networkx_graph(net,3)
 
         self.assertEqual(nx_net.graph['code'],30)
         self.assertEqual(nx_net.graph['size'],3)
         self.assertEqual(nx_net.graph['boundary'],(1,0))
-    # def test_draw(self):
-    #     net = bnet.LogicNetwork([((0,), {'0'})])
-    #     draw(net,labels='indices')
 
-
-        # with self.assertRaises(AttributeError):
-        #     neighbors(net)
 
     # def test_neighbors_IsNotNetwork(self):
     #     net = self.IsNotNetwork()

@@ -8,9 +8,11 @@ import neet.boolean.conv as conv
 from neet.boolean.wtnetwork import WTNetwork
 from neet.boolean.logicnetwork import LogicNetwork
 
-
 class TestConv(unittest.TestCase):
     def test_wt_to_logic(self):
+        with self.assertRaises(TypeError):
+            conv.wt_to_logic(LogicNetwork([((0,), {'0'})]))
+
         net = conv.wt_to_logic(ex.s_pombe)
         truth_table = [((0,), set()),
                        ((2, 3, 4), {'000'}),
