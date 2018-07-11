@@ -181,7 +181,7 @@ def is_canalizing(net,nodei,neighborj):
     is canalizing.  Under this definition, if a node has any
     incoming canalizing edges, then its rule is canalizing.
     """
-    nodesInfluencingI = _connections(net,nodei)
+    nodesInfluencingI = list(net.neighbors_in(nodei))
     
     if (neighborj not in nodesInfluencingI) or (nodei not in range(net.size)):
         # can't be canalizing if j has no influence on i
