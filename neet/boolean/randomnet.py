@@ -9,6 +9,7 @@ import random
 import copy
 import numpy as np
 from .logicnetwork import LogicNetwork
+from neet.sensitivity import canalizing_nodes
 from .wtnetwork import WTNetwork
 
 def rewiring_fixed_degree(net):
@@ -93,7 +94,7 @@ def rewiring_fixed_size(net):
 
 
 def random_logic(logic_net, p=0.5, connections='fixed-structure', fix_external=False,
-                 make_irreducible=False):
+                 make_irreducible=False, fix_canalizing=False):
     """
     Return a `LogicNetwork` from an input `LogicNetwork` with a random logic table.
 
@@ -134,23 +135,75 @@ def random_logic(logic_net, p=0.5, connections='fixed-structure', fix_external=F
                      'free': _random_logic_free_connections}
 
     try:
-        return random_styles[connections](logic_net, ps, fix_external, make_irreducible)
+        return random_styles[connections](logic_net, ps, fix_external,
+                                          make_irreducible, fix_canalizing)
     except KeyError:
         raise ValueError(
             "connections must be 'fixed', 'fixed-in-degree', 'fixed-mean-degree', or 'free'")
 
 
-def random_binary_states(n, p):
+def random_binary_states(k, p):
     """
-    Return a set of binary states. Each state has length `n` and the probability
-    to appear in the set is `p`.
+    Return a set of binary states. Each state has length `k` and the number of
+    states is `k * p` (or chosen to produce `k * p` on average if `n * p` is not
+    an integer).
     """
-    integer, decimal = divmod(2**n * p, 1)
+    integer, decimal = divmod(2**k * p, 1)
     num_states = int(integer + np.random.choice(2, p=[1 - decimal, decimal]))
-    state_idxs = np.random.choice(2 ** n, num_states, replace=False)
+    state_idxs = np.random.choice(2 ** k, num_states, replace=False)
 
-    return set('{0:0{1}b}'.format(idx, n) for idx in state_idxs)
+    return set('{0:0{1}b}'.format(idx, k) for idx in state_idxs)
 
+def random_canalizing_binary_states(k, p):
+    """
+    Return a set of binary states that, when considered as a set of 
+    activating conditions, represents a canalizing function.
+    
+    Designed to sample each possible canalized function with equal
+    probability.
+    
+    Each state has length `k` and the number of states is set in the
+    same way as `random_binary_states`.
+    """
+    integer, decimal = divmod(2**k * p, 1)
+    num_states = int(integer + np.random.choice(2, p=[1 - decimal, decimal]))
+    
+    # calculate values specifying which input is canalizing and how
+    canalizing_input = np.random.choice(k)
+    canalizing_value = np.random.choice(2)
+    if num_states > 2**(k-1):
+        canalized_value = 1
+    elif num_states < 2**(k-1):
+        canalized_value = 0
+    elif num_states == 2**(k-1):
+        canalized_value = np.random.choice(2)
+
+    fixed_states = _all_states_with_one_node_fixed(k,canalizing_input,canalizing_value)
+    other_states = np.lib.arraysetops.setxor1d(np.arange(2 ** k),
+                                               fixed_states,
+                                               assume_unique=True)
+    if canalized_value == 1:
+        # include all fixed_states as activating conditions
+        state_idxs = np.random.choice(other_states,
+                                      num_states - len(fixed_states),
+                                      replace=False)
+        state_idxs = np.concatenate((state_idxs,np.array(fixed_states)))
+    elif canalized_value == 0:
+        # include none of fixed_states as activating conditions
+        state_idxs = np.random.choice(other_states,num_states,replace=False)
+
+    return set('{0:0{1}b}'.format(idx, k) for idx in state_idxs)
+
+
+def _all_states_with_one_node_fixed(k,fixed_index,fixed_value,max_k=20):
+    """
+    (Should have length 2**(k-1).)
+    """
+    if k > max_k:
+        raise Exception("k > max_k")
+    # there may be a more efficient way to do this...
+    return [ idx for idx in range(2**k) \
+             if '{0:0{1}b}'.format(idx, k)[fixed_index] == str(fixed_value) ]
 
 def _external_nodes(logic_net):
     externals = set()
@@ -177,9 +230,15 @@ def _logic_table_row_is_irreducible(row, i, size):
     net = LogicNetwork(table)
     return len(_fake_connections(net)) == 0
 
+def _logic_table_row_is_canalizing(row, i, size):
+    table = [((), set()) for j in range(size)]
+    table[i] = row
+    net = LogicNetwork(table)
+    return i in canalizing_nodes(net)
 
 def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
-                                    make_irreducible=False):
+                                    make_irreducible=False,fix_canalizing=False,
+                                    give_up_number=1000):
     """
     Return a `LogicNetwork` from an input `LogicNetwork` with a random logic table.
 
@@ -200,16 +259,28 @@ def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
         if i in externals:
             conditions = row[1]
         else:
+            if fix_canalizing:
+                original_canalizing = _logic_table_row_is_canalizing(row,i,logic_net.size)
             keep_trying = True
-            while keep_trying:
-                conditions = random_binary_states(len(indices), ps[i])
+            number_tried = 0
+            while keep_trying and (number_tried < give_up_number):
+                if fix_canalizing and original_canalizing:
+                    conditions = random_canalizing_binary_states(len(indices), ps[i])
+                else:
+                    conditions = random_binary_states(len(indices), ps[i])
 
+                number_tried += 1
+                keep_trying = False
                 if make_irreducible:
                     node_irreducible = _logic_table_row_is_irreducible(
                         (indices, conditions), i, logic_net.size)
                     keep_trying = not node_irreducible
-                else:
-                    keep_trying = False
+                if (not keep_trying) and fix_canalizing:
+                    node_canalizing = _logic_table_row_is_canalizing(
+                        (indices, conditions), i, logic_net.size)
+                    keep_trying = not (node_canalizing == original_canalizing)
+            if number_tried >= give_up_number:
+                raise Exception("No function out of "+str(give_up_number)+" tried satisfied constraints")
 
         new_table.append((indices, conditions))
 
@@ -217,7 +288,9 @@ def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
 
 
 def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
-                                       make_irreducible=False):
+                                       make_irreducible=False,
+                                       fix_canalizing=False,
+                                       give_up_number=1000):
     """
     Return a `LogicNetwork` from an input `LogicNetwork` with a random logic table.
 
@@ -238,19 +311,31 @@ def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
         if i in externals:
             indices, conditions = row
         else:
+            if fix_canalizing:
+                original_canalizing = _logic_table_row_is_canalizing(row,i,logic_net.size)
             keep_trying = True
-            while keep_trying:
+            number_tried = 0
+            while keep_trying and (number_tried < give_up_number):
                 n_indices = len(row[0])
                 indices = tuple(sorted(random.sample(range(logic_net.size), k=n_indices)))
 
-                conditions = random_binary_states(n_indices, ps[i])
-
+                if fix_canalizing and original_canalizing:
+                    conditions = random_canalizing_binary_states(n_indices, ps[i])
+                else:
+                    conditions = random_binary_states(n_indices, ps[i])
+                
+                number_tried += 1
+                keep_trying = False
                 if make_irreducible:
                     node_irreducible = _logic_table_row_is_irreducible(
                         (indices, conditions), i, logic_net.size)
                     keep_trying = not node_irreducible
-                else:
-                    keep_trying = False
+                if (not keep_trying) and fix_canalizing:
+                    node_canalizing = _logic_table_row_is_canalizing(
+                        (indices, conditions), i, logic_net.size)
+                    keep_trying = not (node_canalizing == original_canalizing)
+            if number_tried >= give_up_number:
+                raise Exception("No function out of "+str(give_up_number)+" tried satisfied constraints")
 
         new_table.append((indices, conditions))
 
@@ -283,11 +368,15 @@ def _random_logic_free_connections(logic_net, ps):
 
 
 def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
-                                  make_irreducible=False):
+                                  make_irreducible=False,
+                                  fix_canalizing=False,
+                                  give_up_number=1000):
     """
     Returns new network that corresponds to adding a fixed number of
     edges between random nodes, with random corresponding boolean rules.
     """
+    if fix_canalizing:
+        raise NotImplementedError("fix_canalizing=True not yet implemented")
 
     num_edges = sum(len(logic_net.neighbors_in(i)) for i in range(logic_net.size))
 
@@ -298,27 +387,43 @@ def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
     internals = [idx for idx in range(logic_net.size) if idx not in externals]
     num_internal_connections = np.zeros(len(internals))
 
-    sample = np.random.choice([i // logic_net.size for i in range(len(internals) * logic_net.size)],
-                              num_edges - len(internals), replace=False)
-    idxs, counts = np.unique(sample, return_counts=True)
+    # partition edges among nodes
+    keep_trying = True
+    number_tried = 0
+    while keep_trying and (number_tried < give_up_number):
+        sample = np.random.choice([i // logic_net.size for i in range(len(internals) * logic_net.size)],
+                                  num_edges - len(internals), replace=False)
+        idxs, counts = np.unique(sample, return_counts=True)
 
-    num_internal_connections[idxs] = counts
-    num_internal_connections += 1
+        num_internal_connections[idxs] = counts
+        num_internal_connections += 1
+
+        number_tried += 1
+        # we need to check that there is no node that will want
+        # more connections than there are nodes
+        if max(num_internal_connections) <= logic_net.size:
+            keep_trying = False
+    if number_tried >= give_up_number:
+        raise Exception("No partition out of "+str(give_up_number)+" tried satisfied constraints")
 
     new_table = [()] * logic_net.size
     for internal, num in zip(internals, num_internal_connections):
         keep_trying = True
-        while keep_trying:
+        number_tried = 0
+        while keep_trying and (number_tried < give_up_number):
             in_indices = tuple(np.random.choice(logic_net.size, int(num), replace=False))
             conditions = random_binary_states(len(in_indices), ps[internal])
             new_table[internal] = (in_indices, conditions)
 
+            number_tried += 1
             if make_irreducible:
                 node_irreducible = _logic_table_row_is_irreducible(
                     (in_indices, conditions), internal, logic_net.size)
                 keep_trying = not node_irreducible
             else:
                 keep_trying = False
+        if number_tried >= give_up_number:
+                raise Exception("No function out of "+str(give_up_number)+" tried satisfied constraints")
 
     for external in externals:
         new_table[external] = logic_net.table[external]
