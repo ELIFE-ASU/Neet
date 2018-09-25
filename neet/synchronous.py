@@ -393,7 +393,7 @@ class Landscape(StateSpace):
     together with information about state transitions and the topology of
     the state transition graph.
     """
-    def __init__(self, net, size=None):
+    def __init__(self, net, size=None, index=None, pin=None, values=None):
         """
         Construct the landscape for a network.
 
@@ -411,6 +411,9 @@ class Landscape(StateSpace):
 
         :param net: the network
         :param size: the size of the network (``None`` if fixed sized)
+        :param index: the index to update (or None)
+        :param pin: the indices to pin during update (or None)
+        :param values: a dictionary of index-value pairs to set after update
         :raises TypeError: if ``net`` is not a network
         :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
         :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
@@ -433,6 +436,9 @@ class Landscape(StateSpace):
             super(Landscape, self).__init__(state_space.bases)
 
         self.__net = net
+        self.__index = index
+        self.__pin = pin
+        self.__values = values
 
         self.__expounded = False
         self.__graph = None
@@ -695,7 +701,10 @@ class Landscape(StateSpace):
 
         transitions = np.empty(self.volume, dtype=np.int)
         for i, state in enumerate(self):
-            transitions[i] = encode(update(state))
+            transitions[i] = encode(update(state, 
+                                           index=self.__index, 
+                                           pin=self.__pin, 
+                                           values=self.__values))
 
         self.__transitions = transitions
 

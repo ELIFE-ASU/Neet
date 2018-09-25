@@ -10,9 +10,9 @@ from neet.statespace import StateSpace
 class WTNetwork(object):
     """
     The WTNetwork class represents weight/threshold-based boolean networks. As
-    such it is specified in terms of a matrix of edge weights and a vector of
-    node thresholds, and each node of the network is expected to be in either
-    of two states ``0`` or ``1``.
+    such it is specified in terms of a matrix of edge weights (rows are target
+    nodes) and a vector of node thresholds, and each node of the network is 
+    expected to be in either of two states ``0`` or ``1``.
     """
 
     def __init__(self, weights, thresholds=None, names=None, theta=None):
@@ -55,7 +55,7 @@ class WTNetwork(object):
             >>> net.thresholds
             array([ 0.,  0.,  0.])
 
-        :param weights: the network weights
+        :param weights: the network weights, where: source/column -> target/row
         :param thresholds: the network thresholds
         :param names: the names of the network nodes (optional)
         :parma theta: the threshold function to use
