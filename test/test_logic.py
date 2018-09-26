@@ -1,6 +1,7 @@
 """Unit test for LogicNetwork"""
-import unittest, numpy as np
-from neet.python3 import *
+import unittest
+import numpy as np
+from neet.python3 import long
 from neet.boolean import LogicNetwork
 from neet.exceptions import FormatError
 
@@ -158,7 +159,7 @@ class TestLogicNetwork(unittest.TestCase):
         SIMPLE_TRUTH_TABLE = join(
             DATA_PATH, "test_simple_no_header-truth_table.txt")
         with self.assertRaises(FormatError):
-            simple = LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
+            LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
 
     def test_logic_simple_read_no_node_headers(self):
         from os.path import dirname, abspath, realpath, join
@@ -170,7 +171,7 @@ class TestLogicNetwork(unittest.TestCase):
         SIMPLE_TRUTH_TABLE = join(
             DATA_PATH, "test_simple_no_node_headers-truth_table.txt")
         with self.assertRaises(FormatError):
-            simple = LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
+            LogicNetwork.read_table(SIMPLE_TRUTH_TABLE)
 
     def test_logic_simple_read_empty(self):
         from os.path import dirname, abspath, realpath, join
@@ -297,11 +298,11 @@ class TestLogicNetwork(unittest.TestCase):
 
     def test_to_networkx_graph_names(self):
         net = LogicNetwork([((1, 2), {'01', '10'}),
-                                    ((0, 2), ((0, 1), '10', [1, 1])),
-                                    ((0, 1), {'11'})], ['A', 'B', 'C'])
+                            ((0, 2), ((0, 1), '10', [1, 1])),
+                            ((0, 1), {'11'})], ['A', 'B', 'C'])
 
         nx_net = net.to_networkx_graph(labels='names')
-        self.assertEqual(set(nx_net),set(['A', 'B', 'C']))
+        self.assertEqual(set(nx_net), set(['A', 'B', 'C']))
 
     def test_to_networkx_graph_names_fail(self):
         net = LogicNetwork([((0,), {'0'})])
@@ -311,11 +312,11 @@ class TestLogicNetwork(unittest.TestCase):
 
     def test_to_networkx_metadata(self):
         net = LogicNetwork([((0,), {'0'})])
-        net.metadata['name']='net_name'
+        net.metadata['name'] = 'net_name'
 
         nx_net = net.to_networkx_graph(labels='indices')
 
-        self.assertEqual(nx_net.graph['name'],net.metadata['name'])
+        self.assertEqual(nx_net.graph['name'], net.metadata['name'])
 
     # def test_draw(self):
     #     net = bnet.LogicNetwork([((0,), {'0'})])

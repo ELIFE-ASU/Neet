@@ -2,12 +2,14 @@ import numpy as np
 from neet.statespace import StateSpace
 from . import eca
 
+
 class RewiredECA(eca.ECA):
     """
     RewiredECA is a class to represent elementary cellular automata rules with
     arbitrarily defined topology. Since the topology must be provided,
     RewiredECA are naturally fixed-sized.
     """
+
     def __init__(self, code, boundary=None, size=None, wiring=None):
         """
         Construct a rewired elementary cellular automaton rule.
@@ -47,10 +49,11 @@ class RewiredECA(eca.ECA):
         :param wiring: a wiring matrix
         :raises ValueError: if ``size is None and wiring is None``
         :raises ValueError: if ``size is not None and wiring is not None``
-        :raises TypeError: if ``size is not None and not isinstance(size, int)``
+        :raises TypeError: if ``size is not None and not
+                           isinstance(size, int)``
         :raises ValueError: if ``size is not None and size <= 0``
         :raises TypeError: if ``not isinstance(wiring, list) and not
-            isinstance(wiring, numpy.ndarray)``
+                           isinstance(wiring, numpy.ndarray)``
         :raises ValueError: if ``wiring`` is not :math:`3 \times N`
         :raises ValueError: if ``any(wiring < -1) or any(wiring > N)``
         """
@@ -69,7 +72,7 @@ class RewiredECA(eca.ECA):
                 self.__wiring[1, :] = range(0, size)
                 self.__wiring[2, :] = range(1, size+1)
         elif wiring is not None:
-            if not isinstance(wiring, list) and not isinstance(wiring, np.ndarray):
+            if not isinstance(wiring, (list, np.ndarray)):
                 raise TypeError("wiring must be a list or an array")
             wiring_array = np.copy(wiring)
             shape = wiring_array.shape
@@ -143,7 +146,8 @@ class RewiredECA(eca.ECA):
             <neet.statespace.StateSpace object at 0x0000020EED289748>
             >>> space = eca.state_space()
             >>> list(space.states())
-            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
+            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1],
+            [0, 1, 1], [1, 1, 1]]
 
         :returns: :class:`StateSpace`
         """
@@ -241,15 +245,18 @@ class RewiredECA(eca.ECA):
         """
         size = len(lattice)
         if lattice not in self.state_space():
-            raise ValueError("the provided state is not in the RewiredECA's state space")
+            msg = "the provided state is not in the RewiredECA's state space"
+            raise ValueError(msg)
 
         if index is not None:
             if index < -size:
                 raise IndexError("lattice index out of range")
             elif pin is not None and pin != []:
-                raise ValueError("cannot provide both the index and pin arguments")
+                msg = "cannot provide both the index and pin arguments"
+                raise ValueError(msg)
             elif values is not None and values != {}:
-                raise ValueError("cannot provide both the index and values arguments")
+                msg = "cannot provide both the index and values arguments"
+                raise ValueError(msg)
         elif pin is not None and values is not None:
             for key in values.keys():
                 if key in pin:

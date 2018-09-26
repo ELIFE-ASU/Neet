@@ -5,6 +5,7 @@ import pyinform as pi
 from .statespace import StateSpace
 from .interfaces import is_network, is_fixed_sized
 
+
 def trajectory(net, state, timesteps=1, encode=False):
     """
     Generate the trajectory of length ``timesteps+1`` through the state-space,
@@ -54,7 +55,7 @@ def trajectory(net, state, timesteps=1, encode=False):
         net.update(state)
         traj.append(state_space._unsafe_encode(state))
 
-        for _ in range(1,timesteps):
+        for _ in range(1, timesteps):
             net._unsafe_update(state)
             traj.append(state_space._unsafe_encode(state))
     else:
@@ -67,6 +68,7 @@ def trajectory(net, state, timesteps=1, encode=False):
             net._unsafe_update(state)
             traj.append(copy.copy(state))
     return traj
+
 
 def transitions(net, size=None, encode=False):
     """
@@ -107,7 +109,8 @@ def transitions(net, size=None, encode=False):
         state_space = net.state_space()
     else:
         if size is None:
-            raise ValueError("size must not be None for variable sized networks")
+            raise ValueError(
+                "size must not be None for variable sized networks")
         state_space = net.state_space(size)
 
     trans = []
@@ -119,6 +122,7 @@ def transitions(net, size=None, encode=False):
             trans.append(state)
 
     return trans
+
 
 def transition_graph(net, size=None):
     """
@@ -137,7 +141,8 @@ def transition_graph(net, size=None):
         >>> g.number_of_nodes(), g.number_of_edges()
         (64, 64)
 
-    :param net: the network (if already a networkx.DiGraph, does nothing and returns it)
+    :param net: the network (if already a networkx.DiGraph, does nothing and
+                returns it)
     :param size: the size of the network (``None`` if fixed sized)
     :param encode: encode the states as integers
     :returns: a ``networkx.DiGraph`` of the network's transition graph
@@ -154,6 +159,7 @@ def transition_graph(net, size=None):
         return net
     else:
         raise TypeError("net must be a network or a networkx DiGraph")
+
 
 def attractors(net, size=None):
     """
@@ -177,7 +183,8 @@ def attractors(net, size=None):
     :returns: a list of attractor cycles
     :raises TypeError: if ``net`` is not a network or a ``networkx.DiGraph``
     :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
-    :raises ValueError: if ``net`` is a transition graph and ``size`` is not ``None``
+    :raises ValueError: if ``net`` is a transition graph and ``size`` is not
+                        ``None``
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
     if isinstance(net, nx.DiGraph):
@@ -208,7 +215,8 @@ def attractors(net, size=None):
             state_stack = []
             # Create a array to store the states in the attractor cycle
             cycle = []
-            # Create a flag to signify whether the current state is part of the cycle
+            # Create a flag to signify whether the current state is part of
+            # the cycle
             in_cycle = False
             # Set the current state to the initial state
             state = initial_state
@@ -233,7 +241,8 @@ def attractors(net, size=None):
                 basin = basin_number
                 # Add the current state to the attractor cycle
                 cycle.append(state)
-                # We're still in the cycle until the current state is equal to the terminus
+                # We're still in the cycle until the current state is equal to
+                # the terminus
                 in_cycle = (terminus != state)
             else:
                 # Set the current basin to the basin of next_state
@@ -252,7 +261,8 @@ def attractors(net, size=None):
                 if in_cycle:
                     # Add the current state to the attractor cycle
                     cycle.append(state)
-                    # We're still in the cycle until the current state is equal to the terminus
+                    # We're still in the cycle until the current state is
+                    # equal to the terminus
                     in_cycle = (terminus != state)
 
             # Find the next unvisited initial state
@@ -263,6 +273,7 @@ def attractors(net, size=None):
             if len(cycle) != 0:
                 cycles.append(cycle)
     return cycles
+
 
 def basins(net, size=None):
     """
@@ -288,11 +299,13 @@ def basins(net, size=None):
     :returns: generator of basin subgraphs
     :raises TypeError: if ``net`` is not a network or a ``networkx.DiGraph``
     :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
-    :raises ValueError: if ``net`` is a transition graph and ``size`` is not ``None``
+    :raises ValueError: if ``net`` is a transition graph and ``size`` is not
+                       ``None``
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
     graph = transition_graph(net, size=size)
     return nx.weakly_connected_component_subgraphs(graph)
+
 
 def basin_entropy(net, size=None, base=2):
     """
@@ -317,19 +330,21 @@ def basin_entropy(net, size=None, base=2):
     :returns: value of basin entropy
     :raises TypeError: if ``net`` is not a network or a ``networkx.DiGraph``
     :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
-    :raises ValueError: if ``net`` is a transition graph and ``size`` is not ``None``
+    :raises ValueError: if ``net`` is a transition graph and ``size`` is not
+                       ``None``
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
-    sizes = [ len(basin) for basin in basins(net, size=size) ]
+    sizes = [len(basin) for basin in basins(net, size=size)]
     d = pi.Dist(sizes)
     return pi.shannon.entropy(d, b=base)
 
+
 def timeseries(net, timesteps, size=None):
     """
-    Return the timeseries for the network. The result will be a :math:`3D` array
-    with shape :math:`N \\times V \\times t` where :math:`N` is the number of
-    nodes in the network, :math:`V` is the volume of the state space (total
-    number of network states), and :math:`t` is ``timesteps + 1``.
+    Return the timeseries for the network. The result will be a :math:`3D`
+    array with shape :math:`N \\times V \\times t` where :math:`N` is the
+    number of nodes in the network, :math:`V` is the volume of the state space
+    (total number of network states), and :math:`t` is ``timesteps + 1``.
 
     ::
 
@@ -383,6 +398,7 @@ def timeseries(net, timesteps, size=None):
 
     return series
 
+
 class Landscape(StateSpace):
     """
     The ``Landscape`` class represents the structure and topology of the
@@ -390,6 +406,7 @@ class Landscape(StateSpace):
     together with information about state transitions and the topology of
     the state transition graph.
     """
+
     def __init__(self, net, size=None, index=None, pin=None, values=None):
         """
         Construct the landscape for a network.
@@ -412,8 +429,10 @@ class Landscape(StateSpace):
         :param pin: the indices to pin during update (or None)
         :param values: a dictionary of index-value pairs to set after update
         :raises TypeError: if ``net`` is not a network
-        :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
-        :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
+        :raises ValueError: if ``net`` is fixed sized and ``size`` is not
+                           ``None``
+        :raises ValueError: if ``net`` is not fixed sized and ``size`` is
+                           ``None``
         """
 
         if not is_network(net):
@@ -424,7 +443,8 @@ class Landscape(StateSpace):
             state_space = net.state_space()
         else:
             if size is None:
-                raise ValueError("size must not be None for variable sized networks")
+                raise ValueError(
+                    "size must not be None for variable sized networks")
             state_space = net.state_space(size)
 
         if state_space.is_uniform:
@@ -456,8 +476,9 @@ class Landscape(StateSpace):
             >>> landscape = Landscape(s_pombe)
             >>> landscape.network
             array([array([76]), array([4]), array([8]), array([12]),
-                   array([144, 110, 384]), array([68]), array([72]), array([132]),
-                   array([136]), array([140]), array([196]), array([200]), array([204])], dtype=object)
+                   array([144, 110, 384]), array([68]), array([72]),
+                   array([132]), array([136]), array([140]), array([196]),
+                   array([200]), array([204])], dtype=object)
         """
         return self.__net
 
@@ -494,11 +515,11 @@ class Landscape(StateSpace):
             >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.transitions
-            array([  2,   2, 130, 130,   4,   0, 128, 128,   8,   0, 128, 128,  12,
-                     0, 128, 128, 256, 256, 384, 384, 260, 256, 384, 384, 264, 256,
+            array([  2,   2, 130, 130,   4,   0, 128, 128,   8,   0, 128, 128,
+                    12,   0, 128, 128, 256, 256, 384, 384, 260, 256, 384, 384,
                    ...
-                   208, 208, 336, 336, 464, 464, 340, 336, 464, 464, 344, 336, 464,
-                   464, 348, 336, 464, 464])
+                   208, 208, 336, 336, 464, 464, 340, 336, 464, 464, 344, 336,
+                   464, 464, 348, 336, 464, 464])
         """
         return self.__transitions
 
@@ -519,8 +540,9 @@ class Landscape(StateSpace):
             >>> landscape = Landscape(s_pombe)
             >>> landscape.attractors
             array([array([76]), array([4]), array([8]), array([12]),
-                   array([144, 110, 384]), array([68]), array([72]), array([132]),
-                   array([136]), array([140]), array([196]), array([200]), array([204])], dtype=object)
+                   array([144, 110, 384]), array([68]), array([72]),
+                   array([132]), array([136]), array([140]), array([196]),
+                   array([200]), array([204])], dtype=object)
         """
         if not self.__expounded:
             self.__expound()
@@ -541,11 +563,11 @@ class Landscape(StateSpace):
             >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.basins
-            array([ 0,  0,  0,  0,  1,  0,  0,  0,  2,  0,  0,  0,  3,  0,  0,  0,  0,
-                    0,  4,  4,  0,  0,  4,  4,  0,  0,  4,  4,  0,  0,  4,  4,  4,  4,
+            array([ 0,  0,  0,  0,  1,  0,  0,  0,  2,  0,  0,  0,  3,  0,  0,
+                    0,  0,  0,  4,  4,  0,  0,  4,  4,  0,  0,  4,  4,  0,  0,
                     ...
-                    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-                    0,  0])
+                    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+                    0,  0,  0,  0])
         """
         if not self.__expounded:
             self.__expound()
@@ -564,7 +586,8 @@ class Landscape(StateSpace):
             >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.basin_sizes
-            array([378,   2,   2,   2, 104,   6,   6,   2,   2,   2,   2,   2,   2])
+            array([378,   2,   2,   2, 104,   6,   6,   2,   2,   2,   2,   2,
+                   2])
         """
         if not self.__expounded:
             self.__expound()
@@ -583,11 +606,11 @@ class Landscape(StateSpace):
             >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.in_degrees
-            array([ 6,  0,  4,  0,  2,  0,  0,  0,  2,  0,  0,  0,  2,  0,  0,  0, 12,
-                    0,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+            array([ 6,  0,  4,  0,  2,  0,  0,  0,  2,  0,  0,  0,  2,  0,  0,
+                    0, 12,  0,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                     ...
-                    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-                    0,  0])
+                    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+                    0,  0,  0,  0])
 
         """
         if not self.__expounded:
@@ -610,11 +633,11 @@ class Landscape(StateSpace):
             >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.heights
-            array([7, 7, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 8, 8, 1, 1, 2, 8, 1,
-                   1, 2, 8, 1, 1, 2, 8, 1, 1, 2, 2, 2, 2, 9, 9, 1, 1, 9, 9, 1, 1, 9, 9,
+            array([7, 7, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 8, 8, 1, 1,
+                   2, 8, 1, 1, 2, 8, 1, 1, 2, 8, 1, 1, 2, 2, 2, 2, 9, 9, 1, 1,
                    ...
-                   2, 3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                   3, 3, 3, 3, 3, 3])
+                   2, 3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3,
+                   3, 3, 3, 3, 3, 3, 3, 3, 3])
         """
         if not self.__expounded:
             self.__expound()
@@ -656,11 +679,11 @@ class Landscape(StateSpace):
             >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.recurrence_times
-            array([7, 7, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 8, 8, 3, 3, 2, 8, 3,
-                   3, 2, 8, 3, 3, 2, 8, 3, 3, 4, 4, 4, 4, 9, 9, 3, 3, 9, 9, 3, 3, 9, 9,
+            array([7, 7, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 8, 8, 3, 3,
+                   2, 8, 3, 3, 2, 8, 3, 3, 2, 8, 3, 3, 4, 4, 4, 4, 9, 9, 3, 3,
                    ...
-                   4, 3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                   3, 3, 3, 3, 3, 3])
+                   4, 3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3,
+                   3, 3, 3, 3, 3, 3, 3, 3, 3])
         """
         if not self.__expounded:
             self.__expound()
@@ -698,9 +721,9 @@ class Landscape(StateSpace):
 
         transitions = np.empty(self.volume, dtype=np.int)
         for i, state in enumerate(self):
-            transitions[i] = encode(update(state, 
-                                           index=self.__index, 
-                                           pin=self.__pin, 
+            transitions[i] = encode(update(state,
+                                           index=self.__index,
+                                           pin=self.__pin,
                                            values=self.__values))
 
         self.__transitions = transitions
@@ -754,7 +777,8 @@ class Landscape(StateSpace):
             state_stack = []
             # Create a array to store the states in the attractor cycle
             cycle = []
-            # Create a flag to signify whether the current state is part of the cycle
+            # Create a flag to signify whether the current state is part of
+            # the cycle
             in_cycle = False
             # Set the current state to the initial state
             state = initial_state
@@ -791,14 +815,16 @@ class Landscape(StateSpace):
                 cycle.append(state)
                 # Set the current state's recurrence time
                 recurrence_times[state] = 0
-                # We're still in the cycle until the current state is equal to the terminus
+                # We're still in the cycle until the current state is equal to
+                # the terminus
                 in_cycle = (terminus != state)
             else:
                 # Set the current basin to the basin of next_state
                 basin = basins[next_state]
                 # Set the state's height to one greater than the next state's
                 heights[state] = heights[next_state] + 1
-                # Set the state's recurrence time to one greater than the next state's
+                # Set the state's recurrence time to one greater than the next
+                # state's
                 recurrence_times[state] = recurrence_times[next_state] + 1
 
             # Set the basin of the current state
@@ -822,16 +848,20 @@ class Landscape(StateSpace):
                     cycle.append(state)
                     # Increment the current attractor length
                     attractor_lengths[basin] += 1
-                    # We're still in the cycle until the current state is equal to the terminus
+                    # We're still in the cycle until the current state is
+                    # equal to the terminus
                     in_cycle = (terminus != state)
                     # Set the cycle state's recurrence times
                     if not in_cycle:
                         for cycle_state in cycle:
-                            recurrence_times[cycle_state] = attractor_lengths[basin] - 1
+                            rec_time = attractor_lengths[basin] - 1
+                            recurrence_times[cycle_state] = rec_time
                 else:
-                    # Set the state's height to one create than the next state's
+                    # Set the state's height to one create than the next
+                    # state's
                     heights[state] = heights[next_state] + 1
-                    # Set the state's recurrence time to one greater than the next state's
+                    # Set the state's recurrence time to one greater than the
+                    # next state's
                     recurrence_times[state] = recurrence_times[next_state] + 1
 
             # Find the next unvisited initial state
@@ -950,7 +980,7 @@ class Landscape(StateSpace):
 
         if not encode:
             decode = self.decode
-            path = [ decode(state) for state in path ]
+            path = [decode(state) for state in path]
 
         return path
 
@@ -1016,9 +1046,7 @@ class Landscape(StateSpace):
 
         trans = self.__transitions
         decode = self.decode
-        encode = self._unsafe_encode
-        decoded_trans = [ decode(state) for state in trans ]
-        encoded_trans = [ encode(state) for state in decoded_trans ]
+        decoded_trans = [decode(state) for state in trans]
 
         shape = (self.ndim, self.volume, timesteps + 1)
         series = np.empty(shape, dtype=np.int)

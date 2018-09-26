@@ -34,8 +34,10 @@ class ECA(object):
         :type boundary: tuple or None
         :raises TypeError: if ``code`` is not an instance of int
         :raises ValueError: if ``code`` is not in :math:`\{0,1,\ldots,255\}`
-        :raises TypeError: if ``boundary`` is neither ``None`` or an instance of tuple
-        :raises ValueError: if ``boundary`` is a neither ``None`` or a pair of binary states
+        :raises TypeError: if ``boundary`` is neither ``None`` or an instance
+                           of tuple
+        :raises ValueError: if ``boundary`` is a neither ``None`` or a pair of
+                            binary states
         """
         self.code = code
         self.boundary = boundary
@@ -96,8 +98,10 @@ class ECA(object):
             TypeError: ECA boundary are neither None nor a tuple
 
         :type: ``None`` or tuple
-        :raises TypeError: if ``boundary`` is neither ``None`` or an instance of tuple
-        :raises ValueError: if ``boundary`` is a neither ``None`` or a pair of binary states
+        :raises TypeError: if ``boundary`` is neither ``None`` or an instance
+                           of tuple
+        :raises ValueError: if ``boundary`` is a neither ``None`` or a pair of
+                            binary states
         """
         return self.__boundary
 
@@ -124,7 +128,8 @@ class ECA(object):
             <neet.states.StateSpace object at 0x000001C0BDA38550>
             >>> space = eca.state_space(3)
             >>> list(space)
-            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
+            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1],
+            [0, 1, 1], [1, 1, 1]]
 
         :param n: the number of nodes in the lattice
         :type n: int
@@ -329,15 +334,18 @@ class ECA(object):
         """
         size = len(lattice)
         if lattice not in self.state_space(size):
-            raise ValueError("the provided state is not in the ECA's state space")
+            msg = "the provided state is not in the ECA's state space"
+            raise ValueError(msg)
 
         if index is not None:
             if index < -size:
                 raise IndexError("lattice index out of range")
             elif pin is not None and pin != []:
-                raise ValueError("cannot provide both the index and pin arguments")
+                msg = "cannot provide both the index and pin arguments"
+                raise ValueError(msg)
             elif values is not None and values != {}:
-                raise ValueError("cannot provide both the index and values arguments")
+                msg = "cannot provide both the index and values arguments"
+                raise ValueError(msg)
         elif pin is not None and values is not None:
             for key in values.keys():
                 if key in pin:
@@ -353,12 +361,12 @@ class ECA(object):
         """
         Return the set of all incoming neighbor nodes.
 
-        In the cases of the lattices having fixed boundary conditions, the left
-        boundary, being on the left of the leftmost index 0, has an index of -1,
-        while the right boundary's index is the size+1. The full state of the 
-        lattices and the boundaries is equavolent to:
-        `[cell0, cell1, ..., cellN, right_boundary, left_boundary]`
-        if it is ever presented as a single list in Python.
+        In the cases of the lattices having fixed boundary conditions, the
+        left boundary, being on the left of the leftmost index 0, has an index
+        of -1, while the right boundary's index is the size+1. The full state
+        of the lattices and the boundaries is equavolent to: `[cell0, cell1,
+        ..., cellN, right_boundary, left_boundary]` if it is ever presented as
+        a single list in Python.
 
         :param index: node index
         :param size: size of ECA
@@ -400,7 +408,8 @@ class ECA(object):
             raise TypeError("index must be a non-negative integer")
 
         if index < 0 or index > size - 1:
-            raise ValueError("index must be a non-negative integer less than size")
+            msg = "index must be a non-negative integer less than size"
+            raise ValueError(msg)
 
         left, right = index - 1, index + 1
 
@@ -416,7 +425,8 @@ class ECA(object):
         """
         Return the set of all outgoing neighbor nodes.
 
-        Fixed boundaries are excluded as they are not affected by internal states.
+        Fixed boundaries are excluded as they are not affected by internal
+        states.
 
         :param index: node index
         :param size: size of ECA
@@ -458,7 +468,8 @@ class ECA(object):
             raise ValueError("size must be a positive integer")
 
         if index < 0 or index > size - 1:
-            raise ValueError("index must be a non-negative integer less than size")
+            msg = "index must be a non-negative integer less than size"
+            raise ValueError(msg)
 
         left, right = index - 1, index + 1
 
@@ -474,12 +485,12 @@ class ECA(object):
         """
         Return a set of neighbors for a specified node.
 
-        In the cases of the lattices having fixed boundary conditions, the left
-        boundary, being on the left of the leftmost index 0, has an index of -1,
-        while the right boundary's index is the size+1. The full state of the 
-        lattices and the boundaries is equavolent to:
-        `[cell0, cell1, ..., cellN, right_boundary, left_boundary]`
-        if it is ever presented as a single list in Python.
+        In the cases of the lattices having fixed boundary conditions, the
+        left boundary, being on the left of the leftmost index 0, has an index
+        of -1, while the right boundary's index is the size+1. The full state
+        of the lattices and the boundaries is equavolent to: `[cell0, cell1,
+        ..., cellN, right_boundary, left_boundary]` if it is ever presented as
+        a single list in Python.
 
         :param index: node index
         :param size: size of ECA
@@ -514,7 +525,7 @@ class ECA(object):
         # Outgoing neighbors are a subset of incoming neighbors.
         return self.neighbors_in(index, size)
 
-    def to_networkx_graph(self,size):
+    def to_networkx_graph(self, size):
         """
         Return networkx graph given neet network.  Requires networkx.
 
@@ -524,23 +535,26 @@ class ECA(object):
 
         edges = []
         for i in range(size):
-            for j in self.neighbors_out(i,size):
-                edges.append((i,j))
+            for j in self.neighbors_out(i, size):
+                edges.append((i, j))
 
-        return nx.DiGraph(edges,code=self.code,size=size,boundary=self.boundary)
+        return nx.DiGraph(edges, code=self.code, size=size,
+                          boundary=self.boundary)
 
-    def draw(self,size,filename=None):
+    def draw(self, size, filename=None):
         """
-        Output a file with a simple network drawing.  
-        
+        Output a file with a simple network drawing.
+
         Requires networkx and pygraphviz.
-        
+
         Supported image formats are determined by graphviz.  In particular,
         pdf support requires 'cairo' and 'pango' to be installed prior to
         graphviz installation.
 
-        :param filename: filename to write drawing to. Temporary filename will be used if no filename provided.
+        :param filename: filename to write drawing to. Temporary filename will
+                         be used if no filename provided.
         :param size: size of ECA, required if network is an ECA
         :returns: a pygraphviz network drawing
-        """        
-        nx.nx_agraph.view_pygraphviz(self.to_networkx_graph(size),prog='circo',path=filename)
+        """
+        nx.nx_agraph.view_pygraphviz(
+            self.to_networkx_graph(size), prog='circo', path=filename)

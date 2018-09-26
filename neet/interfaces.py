@@ -30,7 +30,11 @@ def is_network(thing):
     :param thing: an object or a type
     :returns: ``True`` if ``thing`` has the minimum interface of a network
     """
-    return hasattr(thing, 'update') and hasattr(thing, 'state_space') and hasattr(thing, 'neighbors')
+    has_update = hasattr(thing, 'update')
+    has_state_space = hasattr(thing, 'state_space')
+    has_neighbors = hasattr(thing, 'neighbors')
+
+    return has_update and has_state_space and has_neighbors
 
 
 def is_fixed_sized(thing):
@@ -68,7 +72,10 @@ def is_boolean_network(thing):
     Determine whether an *object* is a network with all Boolean states.
     """
     # Boolean networks have a single base equal to 2
-    return is_network(thing) and hasattr(thing.state_space(), 'base') and thing.state_space().base == 2
+    if is_network(thing) and hasattr(thing.state_space(), 'base'):
+        return thing.state_space().base == 2
+    else:
+        return False
 
 
 def neighbors(net, index, direction='both', **kwargs):
@@ -78,13 +85,13 @@ def neighbors(net, index, direction='both', **kwargs):
 
     For ECAs, in the cases of the lattices having fixed boundary conditions,
     the left boundary, being on the left of the leftmost index 0, has an index
-    of -1, while the right boundary's index is the size+1. The full state of the
-    lattices and the boundaries is equavolent to:
-    `[cell0, cell1, ..., cellN, right_boundary, left_boundary]`
-    if it is ever presented as a single list in Python.
+    of -1, while the right boundary's index is the size+1. The full state of
+    the lattices and the boundaries is equavolent to: `[cell0, cell1, ...,
+    cellN, right_boundary, left_boundary]` if it is ever presented as a single
+    list in Python.
 
     :param index: node index, if neighbors desired for one node only
-    :param direction: type of node neighbors to return (can be 'in','out', or 'both')
+    :param direction: type of node neighbors to return ('in', 'out', or 'both')
     :kwarg size: size of ECA, required if network is an ECA
     :returns: a set of neighbors of a node
 
@@ -112,29 +119,33 @@ def neighbors(net, index, direction='both', **kwargs):
 
     if net.__class__.__name__ == 'ECA':
         if 'size' not in kwargs:
-            raise AttributeError("A `size` kwarg is required for returning an ECA's neighbors")
+            msg = "A `size` kwarg is required for returning an ECA's neighbors"
+            raise AttributeError(msg)
         else:
             return neighbor_types[direction](index, size=kwargs['size'])
 
     else:
         return neighbor_types[direction](index)
 
-def to_networkx_graph(net,size=None,labels='indices',**kwargs):
+
+def to_networkx_graph(net, size=None, labels='indices', **kwargs):
     """
     Return networkx graph given neet network.  Requires networkx.
 
     :param labels: how node is labeled and thus identified in networkx graph
-                   ('names' or 'indices'), only used if network is a LogicNetwork or WTNetwork
+                   ('names' or 'indices'), only used if `net` is a
+                   `LogicNetwork` or `WTNetwork`
     :kwarg size: size of ECA, required if network is an ECA
     :returns : a networkx DiGraph
     """
     if net.__class__.__name__ == 'ECA':
         if size is None:
-            raise AttributeError("A `size` kwarg is required for converting an neet ECA to a networkx network")
+            msg = "`size` required to convert an ECA to a networkx network"
+            raise AttributeError(msg)
         else:
             return net.to_networkx_graph(size)
 
-    elif net.__class__.__name__ in ['WTNetwork','LogicNetwork']:
+    elif net.__class__.__name__ in ['WTNetwork', 'LogicNetwork']:
         return net.to_networkx_graph(labels=labels)
 
 

@@ -1,7 +1,8 @@
 import unittest
-from neet.python3 import *
+from neet.python3 import long
 from neet.statespace import StateSpace
 import numpy as np
+
 
 class TestStateSpace(unittest.TestCase):
     def test_invalid_spec_type(self):

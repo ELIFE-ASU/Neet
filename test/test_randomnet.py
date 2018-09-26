@@ -1,11 +1,11 @@
 import unittest
-import copy
 import networkx as nx
 import numpy as np
 from neet.boolean.examples import mouse_cortical_7B
 from neet.boolean.examples import s_pombe
-from neet.boolean.wtnetwork import WTNetwork
-from neet.boolean.randomnet import *
+from neet.boolean.randomnet import (rewiring_fixed_degree, random_logic,
+                                    random_binary_states,
+                                    rewiring_fixed_size)
 
 TESTSEED = 314159
 
@@ -16,14 +16,14 @@ class TestRandomnet(unittest.TestCase):
         net = s_pombe
         ran_net = rewiring_fixed_degree(net)
 
-        G = nx.from_numpy_matrix(net.weights, create_using = nx.DiGraph())
-        ranG = nx.from_numpy_matrix(ran_net.weights, create_using = nx.DiGraph())
+        G = nx.from_numpy_matrix(net.weights, create_using=nx.DiGraph())
+        ranG = nx.from_numpy_matrix(ran_net.weights, create_using=nx.DiGraph())
 
-        InDegree = list(dict(G.in_degree(weight = 'weight')).values())
-        ranInDegree = list(dict(ranG.in_degree(weight = 'weight')).values())
+        InDegree = list(dict(G.in_degree(weight='weight')).values())
+        ranInDegree = list(dict(ranG.in_degree(weight='weight')).values())
 
-        OutDegree = list(dict(G.out_degree(weight = 'weight')).values())
-        ranOutDegree = list(dict(ranG.out_degree(weight = 'weight')).values())
+        OutDegree = list(dict(G.out_degree(weight='weight')).values())
+        ranOutDegree = list(dict(ranG.out_degree(weight='weight')).values())
 
         self.assertEqual(InDegree, ranInDegree)
         self.assertEqual(OutDegree, ranOutDegree)
@@ -32,15 +32,16 @@ class TestRandomnet(unittest.TestCase):
         net = s_pombe
         ran_net = rewiring_fixed_size(net)
 
-        EdgeCounts = np.asarray(np.unique(net.weights, return_counts = True))
-        ranEdgeCounts = np.asarray(np.unique(ran_net.weights, return_counts = True))
+        EdgeCounts = np.asarray(np.unique(net.weights, return_counts=True))
+        ranEdgeCounts = np.asarray(
+            np.unique(ran_net.weights, return_counts=True))
 
         self.assertTrue(np.array_equal(EdgeCounts, ranEdgeCounts))
 
-
     def test_random_logic_invalid_p(self):
         """
-        ``random_logic`` should raise a value error if ``p`` is an incorrect size
+        ``random_logic`` should raise a value error if ``p`` is an
+        incorrect size
         """
         with self.assertRaises(ValueError):
             net = mouse_cortical_7B
@@ -73,5 +74,6 @@ class TestRandomnet(unittest.TestCase):
         randnet = random_logic(net, connections='fixed-mean-degree')
         # fixed-mean-degree should preserve the total number of edges
         numedges = np.sum([len(net.neighbors_in(i)) for i in range(net.size)])
-        randnumedges = np.sum([len(randnet.neighbors_in(i)) for i in range(randnet.size)])
+        randnumedges = np.sum([len(randnet.neighbors_in(i))
+                               for i in range(randnet.size)])
         self.assertEqual(numedges, randnumedges)

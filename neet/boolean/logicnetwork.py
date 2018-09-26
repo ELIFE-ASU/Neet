@@ -1,5 +1,5 @@
 import re
-from neet.python3 import *
+from neet.python3 import long
 from neet.statespace import StateSpace
 from neet.exceptions import FormatError
 import networkx as nx
@@ -57,7 +57,8 @@ class LogicNetwork(object):
             >>> net.names
             ['A', 'B']
             >>> net.table
-            [((1, 2), {'01', '10'}), ((0, 2), {'01', '10', '11'}), ((0, 1), {'11'})]
+            [((1, 2), {'01', '10'}), ((0, 2), {'01', '10', '11'}),
+             ((0, 1), {'11'})]
 
         """
         if not isinstance(table, (list, tuple)):
@@ -118,7 +119,8 @@ class LogicNetwork(object):
 
     def is_dependent(self, target, source):
         """
-        Return True if state of `target` is influenced by the state of `source`.
+        Return True if state of `target` is influenced by the state of
+        `source`.
 
         :param target: index of the target node
         :param source: index of the source node
@@ -146,8 +148,8 @@ class LogicNetwork(object):
 
     def reduce_table(self):
         """
-        Reduce truth table by removing input nodes which have no logic influence
-        from the truth table of each node.
+        Reduce truth table by removing input nodes which have no logic
+        influence from the truth table of each node.
         """
         reduced_table = []
         for node, (sources, conditions) in enumerate(self.table):
@@ -164,7 +166,8 @@ class LogicNetwork(object):
                     reduced_condition = ''.join([str(condition[idx])
                                                  for idx in reduced_indices])
                     reduced_conditions.add(reduced_condition)
-            else:  # Node state is not influenced by other nodes including itself.
+            else:
+                # Node state is not influenced by other nodes including itself.
                 reduced_sources = (node, )
                 if not conditions:
                     # If original conditions is empty, node is never activated.
@@ -377,8 +380,8 @@ class LogicNetwork(object):
         0 1 1
         '''
 
-        Custom comments can be added above or below the table title (as long 
-        as they are preceeded with more or less than two # (eg # or ### but 
+        Custom comments can be added above or below the table title (as long
+        as they are preceeded with more or less than two # (eg # or ### but
         not ##)).
 
         :param table_file: a truth table file
@@ -425,8 +428,9 @@ class LogicNetwork(object):
                     node_index = names.index(node_name)
                     sub_net_nodes = re.split(
                         r'\s*,\s*|\s+', node_title.group(2).strip())
-                    table[node_index] = (
-                        tuple([names.index(node) for node in sub_net_nodes]), set())
+
+                    in_nodes = tuple(map(names.index, sub_net_nodes))
+                    table[node_index] = (in_nodes, set())
                 elif re.match(r'^\s*#.*$', line):
                     # Skip a comment.
                     continue
@@ -467,11 +471,11 @@ class LogicNetwork(object):
         A logic equations has the form of `A = B AND ( C OR D )`, each term
         being separated from parantheses and logic operators with at least a
         space. The optional `external_nodes_file` takes a file that contains
-        nodes in a column whose states do not depend on any nodes. These are
-        considered "external" nodes. Equivalently, such a node would have a
-        logic equation `A = A`, for its state stays on or off unless being set
-        externally, but now the node had to be excluded from `external_nodes_file`
-        to avoid duplication and confusion.
+        nodes in a column whose states do not depend on any nodes. These
+        are considered "external" nodes. Equivalently, such a node would
+        have a logic equation `A = A`, for its state stays on or off unless
+        being set externally, but now the node had to be excluded from
+        `external_nodes_file` to avoid duplication and confusion.
 
         :param logic_file: a .txt file of logic equations
         :param external_nodes_file: a .txt file of external nodes
@@ -610,12 +614,12 @@ class LogicNetwork(object):
         """
         Return networkx graph given neet network.  Requires networkx.
 
-        :param labels: how node is labeled and thus identified in networkx graph 
-                       ('names' or 'indices')
+        :param labels: how node is labeled and thus identified in networkx
+                       graph ('names' or 'indices')
         :returns: a networkx DiGraph
         """
         if labels == 'names':
-            if hasattr(self, 'names') and (self.names != None):
+            if hasattr(self, 'names') and (self.names is not None):
                 labels = self.names
             else:
                 raise ValueError("network nodes do not have names")
@@ -635,7 +639,7 @@ class LogicNetwork(object):
 
     def draw(self, labels='indices', filename=None):
         """
-        Output a file with a simple network drawing.  
+        Output a file with a simple network drawing.
 
         Requires networkx and pygraphviz.
 
@@ -643,9 +647,11 @@ class LogicNetwork(object):
         pdf support requires 'cairo' and 'pango' to be installed prior to
         graphviz installation.
 
-        :param labels: how node is labeled and thus identified in networkx graph 
-                   ('names' or 'indices'), only used if network is a LogicNetwork or WTNetwork
-        :param filename: filename to write drawing to. Temporary filename will be used if no filename provided.
+        :param labels: how node is labeled and thus identified in networkx
+                       graph ('names' or 'indices'), only used if network
+                       is a LogicNetwork or WTNetwork
+        :param filename: filename to write drawing to. Temporary filename will
+                         be used if no filename provided.
         :returns: a pygraphviz network drawing
 
         """

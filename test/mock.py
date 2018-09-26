@@ -1,15 +1,18 @@
 import neet.statespace
 
+
 class MockObject(object):
     """
     A Generic Object
     """
     pass
 
+
 class MockNetwork(object):
     """
     A mock, variable sized network
     """
+
     def update(self, lattice):
         """
         mock update method
@@ -28,10 +31,12 @@ class MockNetwork(object):
         """
         pass
 
+
 class MockFixedSizedNetwork(object):
     """
     A mock fixed-sized network
     """
+
     def update(self, lattice):
         """
         mock update method

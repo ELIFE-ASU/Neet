@@ -2,12 +2,16 @@ import numpy as np
 import unittest
 from neet.automata import ECA
 from neet.boolean.examples import s_pombe
-from neet.information import Architecture, active_information, entropy_rate, transfer_entropy, mutual_information
+from neet.information import (Architecture, active_information,
+                              entropy_rate, transfer_entropy,
+                              mutual_information)
+
 
 class TestInformation(unittest.TestCase):
     """
     Test the information analysis module
     """
+
     def test_canary(self):
         """
         A canary test to ensure the test suite is working
@@ -45,11 +49,13 @@ class TestInformation(unittest.TestCase):
 
     def test_local_active_info_s_pombe(self):
         """
-        local ``active_information`` averages to the correct values for ``s_pombe``
+        local ``active_information`` averages to the correct values for
+        ``s_pombe``
         """
         known_ai = [0.0, 0.408344, 0.629567, 0.629567, 0.379157, 0.400462,
                     0.670196, 0.670196, 0.391891]
-        computed_ai = active_information(s_pombe, k=5, timesteps=20, local=True)
+        computed_ai = active_information(
+            s_pombe, k=5, timesteps=20, local=True)
         self.assertEqual((9, 512, 16), computed_ai.shape)
         for got, expected in zip(computed_ai, known_ai):
             self.assertAlmostEqual(expected, np.mean(got), places=6)
@@ -119,13 +125,19 @@ class TestInformation(unittest.TestCase):
         known_te = np.asarray(
             [[0., 0., 0., 0., 0., 0., 0., 0., 0.],
              [0., 0., 0., 0., 0.016912, 0., 0., 0., 0.],
-             [0., 0.051370, 0., 0.012225, 0.019947, 0.051370, 0.006039, 0.006039, 0.072803],
-             [0., 0.051370, 0.012225, 0., 0.019947, 0.051370, 0.006039, 0.006039, 0.072803],
-             [0., 0.058420, 0.047602, 0.047602, 0., 0.058420, 0.047602, 0.047602, 0.],
+             [0., 0.051370, 0., 0.012225, 0.019947,
+                 0.051370, 0.006039, 0.006039, 0.072803],
+             [0., 0.051370, 0.012225, 0., 0.019947,
+                 0.051370, 0.006039, 0.006039, 0.072803],
+             [0., 0.058420, 0.047602, 0.047602, 0.,
+                 0.058420, 0.047602, 0.047602, 0.],
              [0., 0., 0.024794, 0.024794, 0., 0., 0.024794, 0.024794, 0.],
-             [0., 0.016690, 0.004526, 0.004526, 0.011916, 0.016690, 0., 0.002983, 0.032173],
-             [0., 0.016690, 0.004526, 0.004526, 0.011916, 0.016690, 0.002983, 0., 0.032173],
-             [0., 0.060304, 0.048289, 0.048289, 0.089669, 0.060304, 0.048927, 0.048927, 0.]])
+             [0., 0.016690, 0.004526, 0.004526, 0.011916,
+                 0.016690, 0., 0.002983, 0.032173],
+             [0., 0.016690, 0.004526, 0.004526, 0.011916,
+                 0.016690, 0.002983, 0., 0.032173],
+             [0., 0.060304, 0.048289, 0.048289, 0.089669, 0.060304,
+                 0.048927, 0.048927, 0.]])
         computed_te = transfer_entropy(s_pombe, k=5, timesteps=20)
         self.assertEqual(known_te.shape, computed_te.shape)
         for got, expected in zip(computed_te.flatten(), known_te.flatten()):
@@ -133,23 +145,31 @@ class TestInformation(unittest.TestCase):
 
     def test_local_transfer_entropy_s_pombe(self):
         """
-        local ``transfer_entropy`` averages to the correct values for ``s_pombe``
+        local ``transfer_entropy`` averages to the correct values for
+        ``s_pombe``
         """
         known_te = np.asarray(
             [[0., 0., 0., 0., 0., 0., 0., 0., 0.],
              [0., 0., 0., 0., 0.016912, 0., 0., 0., 0.],
-             [0., 0.051370, 0., 0.012225, 0.019947, 0.051370, 0.006039, 0.006039, 0.072803],
-             [0., 0.051370, 0.012225, 0., 0.019947, 0.051370, 0.006039, 0.006039, 0.072803],
-             [0., 0.058420, 0.047602, 0.047602, 0., 0.058420, 0.047602, 0.047602, 0.],
+             [0., 0.051370, 0., 0.012225, 0.019947,
+                 0.051370, 0.006039, 0.006039, 0.072803],
+             [0., 0.051370, 0.012225, 0., 0.019947,
+                 0.051370, 0.006039, 0.006039, 0.072803],
+             [0., 0.058420, 0.047602, 0.047602, 0.,
+                 0.058420, 0.047602, 0.047602, 0.],
              [0., 0., 0.024794, 0.024794, 0., 0., 0.024794, 0.024794, 0.],
-             [0., 0.016690, 0.004526, 0.004526, 0.011916, 0.016690, 0., 0.002983, 0.032173],
-             [0., 0.016690, 0.004526, 0.004526, 0.011916, 0.016690, 0.002983, 0., 0.032173],
-             [0., 0.060304, 0.048289, 0.048289, 0.089669, 0.060304, 0.048927, 0.048927, 0.]])
+             [0., 0.016690, 0.004526, 0.004526, 0.011916,
+                 0.016690, 0., 0.002983, 0.032173],
+             [0., 0.016690, 0.004526, 0.004526, 0.011916,
+                 0.016690, 0.002983, 0., 0.032173],
+             [0., 0.060304, 0.048289, 0.048289, 0.089669, 0.060304,
+                 0.048927, 0.048927, 0.]])
         computed_te = transfer_entropy(s_pombe, k=5, timesteps=20, local=True)
         self.assertEqual((9, 9, 512, 16), computed_te.shape)
         for i in range(9):
             for j in range(9):
-                self.assertAlmostEqual(known_te[i,j], np.mean(computed_te[i,j]), places=6)
+                self.assertAlmostEqual(
+                    known_te[i, j], np.mean(computed_te[i, j]), places=6)
 
     def test_mutual_information_not_network(self):
         """
@@ -199,7 +219,8 @@ class TestInformation(unittest.TestCase):
 
     def test_local_mutual_information_s_pombe(self):
         """
-        local ``mutual_information`` averages to the correct values for ``s_pombe``
+        local ``mutual_information`` averages to the correct values for
+        ``s_pombe``
         """
         known_mi = np.asarray(
             [[0.162326, 0.013747, 0.004285, 0.004285, 0.013409, 0.015862,
@@ -224,7 +245,8 @@ class TestInformation(unittest.TestCase):
         self.assertEqual((9, 9, 512, 21), computed_mi.shape)
         for i in range(9):
             for j in range(9):
-                self.assertAlmostEqual(known_mi[i, j], np.mean(computed_mi[i, j]), places=6)
+                self.assertAlmostEqual(
+                    known_mi[i, j], np.mean(computed_mi[i, j]), places=6)
 
     def test_architecture_ai(self):
         """
@@ -239,7 +261,8 @@ class TestInformation(unittest.TestCase):
         for got, expected in zip(got_ai, expected_ai):
             self.assertAlmostEqual(expected, got, places=6)
 
-        expected_ai = active_information(s_pombe, k=k, timesteps=timesteps, local=True)
+        expected_ai = active_information(
+            s_pombe, k=k, timesteps=timesteps, local=True)
         got_ai = arch.active_information(local=True)
         self.assertEqual(got_ai.shape, expected_ai.shape)
         for got, expected in zip(got_ai.flatten(), expected_ai.flatten()):
@@ -258,7 +281,8 @@ class TestInformation(unittest.TestCase):
         for got, expected in zip(got_er, expected_er):
             self.assertAlmostEqual(expected, got, places=6)
 
-        expected_er = entropy_rate(s_pombe, k=k, timesteps=timesteps, local=True)
+        expected_er = entropy_rate(
+            s_pombe, k=k, timesteps=timesteps, local=True)
         got_er = arch.entropy_rate(local=True)
         self.assertEqual(got_er.shape, expected_er.shape)
         for got, expected in zip(got_er.flatten(), expected_er.flatten()):
@@ -277,7 +301,8 @@ class TestInformation(unittest.TestCase):
         for got, expected in zip(got_te.flatten(), expected_te.flatten()):
             self.assertAlmostEqual(expected, got, places=6)
 
-        expected_te = transfer_entropy(s_pombe, k=k, timesteps=timesteps, local=True)
+        expected_te = transfer_entropy(
+            s_pombe, k=k, timesteps=timesteps, local=True)
         got_te = arch.transfer_entropy(local=True)
         self.assertEqual(got_te.shape, expected_te.shape)
         for got, expected in zip(got_te.flatten(), expected_te.flatten()):
@@ -296,7 +321,8 @@ class TestInformation(unittest.TestCase):
         for got, expected in zip(got_mi.flatten(), expected_mi.flatten()):
             self.assertAlmostEqual(expected, got, places=6)
 
-        expected_mi = mutual_information(s_pombe, timesteps=timesteps, local=True)
+        expected_mi = mutual_information(
+            s_pombe, timesteps=timesteps, local=True)
         got_mi = arch.mutual_information(local=True)
         self.assertEqual(got_mi.shape, expected_mi.shape)
         for got, expected in zip(got_mi.flatten(), expected_mi.flatten()):

@@ -2,8 +2,8 @@
 import unittest
 import neet.boolean.examples as ex
 import neet.boolean.conv as conv
-from neet.boolean.wtnetwork import WTNetwork
 from neet.boolean.logicnetwork import LogicNetwork
+
 
 class TestConv(unittest.TestCase):
     def test_wt_to_logic(self):

@@ -1,5 +1,5 @@
-from .python3 import *
-import numpy as np
+from .python3 import long
+
 
 class StateSpace(object):
     """
@@ -36,7 +36,8 @@ class StateSpace(object):
 
         :param spec: the number of nodes or an array of node bases
         :type spec: int or list
-        :param base: the base of the network nodes (ignored if ``spec`` is a list)
+        :param base: the base of the network nodes (ignored if ``spec`` is
+                     a list)
         :raises TypeError: if ``spec`` is neither an int nor a list of ints
         :raises TypeError: if ``base`` is neither ``None`` nor an int
         :raises ValueError: if ``base`` is negative or zero
@@ -71,7 +72,7 @@ class StateSpace(object):
                     if not isinstance(spec_base, int):
                         raise TypeError("spec must be a list of ints")
                     elif spec_base < 1:
-                        msg = "spec may only contain positive, nonzero elements"
+                        msg = "spec may only contain positive elements"
                         raise ValueError(msg)
                     if self.__is_uniform and spec_base != first_base:
                         self.__is_uniform = False
@@ -176,8 +177,8 @@ class StateSpace(object):
         """
         Encode a state as an integer consistent with the state space, without
         checking the validity of the arguments. The encoding is such that,
-        for example, the state [1, 0, 0] will correspond to 1; the state 
-        [1, 1, 0] will correspond to 3. 
+        for example, the state [1, 0, 0] will correspond to 1; the state
+        [1, 1, 0] will correspond to 3.
 
         .. rubric:: Examples:
 
@@ -193,7 +194,8 @@ class StateSpace(object):
             >>> space = StateSpace([2,3,4])
             >>> states = list(space)
             >>> list(map(space._unsafe_encode, states))
-            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+            19, 20, 21, 22, 23]
 
 
         :param state: the state to encode
@@ -217,9 +219,9 @@ class StateSpace(object):
 
     def encode(self, state):
         """
-        Encode a state as an integer consistent with the state space. The encoding is such that,
-        for example, the state [1, 0, 0] will correspond to 1; the state [1, 1, 0] will 
-        correspond to 3. 
+        Encode a state as an integer consistent with the state space. The
+        encoding is such that, for example, the state [1, 0, 0] will
+        correspond to 1; the state [1, 1, 0] will correspond to 3.
 
         .. rubric:: Examples:
 
@@ -235,7 +237,8 @@ class StateSpace(object):
             >>> space = StateSpace([2,3,4])
             >>> states = list(space)
             >>> list(map(space.encode, states))
-            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+            19, 20, 21, 22, 23]
 
 
         :param state: the state to encode
@@ -258,9 +261,11 @@ class StateSpace(object):
 
             >>> space = StateSpace(3)
             >>> list(space)
-            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
+            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1],
+            [0, 1, 1], [1, 1, 1]]
             >>> list(map(space.decode, range(space.volume)))
-            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
+            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1],
+            [0, 1, 1], [1, 1, 1]]
 
         ::
 

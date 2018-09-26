@@ -1,10 +1,11 @@
 import unittest
-from neet.interfaces import *
+from neet.interfaces import (is_network, is_fixed_sized,
+                             is_boolean_network, neighbors,
+                             to_networkx_graph)
 from neet.statespace import StateSpace
 import neet.automata as ca
 import neet.boolean as bnet
 from neet.boolean.examples import s_pombe
-import numpy as np
 
 
 class TestCore(unittest.TestCase):
@@ -100,7 +101,7 @@ class TestCore(unittest.TestCase):
             neighbors(eca, 1)
 
     def test_neighbors_WTNetwork(self):
-        net = bnet.WTNetwork([[1,0],[1,1]])
+        net = bnet.WTNetwork([[1, 0], [1, 1]])
 
         with self.assertRaises(ValueError):
             neighbors(net, 0, direction='')
@@ -115,38 +116,28 @@ class TestCore(unittest.TestCase):
 
         self.assertTrue(neighbors(net, 0), [set([0])])
 
-    def test_neighbors_IsNetwork(self):
-        net = self.IsNetwork()
-
     def test_to_networkx_graph_LogicNetwork(self):
         net = bnet.LogicNetwork([((1, 2), {'01', '10'}),
-                                    ((0, 2), ((0, 1), '10', [1, 1])),
-                                    ((0, 1), {'11'})], ['A', 'B', 'C'])
+                                 ((0, 2), ((0, 1), '10', [1, 1])),
+                                 ((0, 1), {'11'})], ['A', 'B', 'C'])
 
-        nx_net = to_networkx_graph(net,labels='names')
-        self.assertEqual(set(nx_net),set(['A', 'B', 'C']))
+        nx_net = to_networkx_graph(net, labels='names')
+        self.assertEqual(set(nx_net), set(['A', 'B', 'C']))
 
     def test_to_networkx_graph_WTNetwork(self):
 
-        nx_net = to_networkx_graph(s_pombe,labels='names')
-        self.assertEqual(set(nx_net),set(s_pombe.names))
+        nx_net = to_networkx_graph(s_pombe, labels='names')
+        self.assertEqual(set(nx_net), set(s_pombe.names))
 
     def test_to_networkx_ECA_metadata(self):
         net = ca.ECA(30)
-        net.boundary = (1,0)
+        net.boundary = (1, 0)
 
         with self.assertRaises(AttributeError):
             to_networkx_graph(net)
 
-        nx_net = to_networkx_graph(net,3)
+        nx_net = to_networkx_graph(net, 3)
 
-        self.assertEqual(nx_net.graph['code'],30)
-        self.assertEqual(nx_net.graph['size'],3)
-        self.assertEqual(nx_net.graph['boundary'],(1,0))
-
-
-    # def test_neighbors_IsNotNetwork(self):
-    #     net = self.IsNotNetwork()
-    #
-    #     with self.assertRaises(AttributeError):
-    #         neighbors(net)
+        self.assertEqual(nx_net.graph['code'], 30)
+        self.assertEqual(nx_net.graph['size'], 3)
+        self.assertEqual(nx_net.graph['boundary'], (1, 0))

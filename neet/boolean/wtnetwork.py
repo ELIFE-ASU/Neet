@@ -8,7 +8,7 @@ class WTNetwork(object):
     """
     The WTNetwork class represents weight/threshold-based boolean networks. As
     such it is specified in terms of a matrix of edge weights (rows are target
-    nodes) and a vector of node thresholds, and each node of the network is 
+    nodes) and a vector of node thresholds, and each node of the network is
     expected to be in either of two states ``0`` or ``1``.
     """
 
@@ -59,8 +59,10 @@ class WTNetwork(object):
         :raises ValueError: if ``weights`` is empty
         :raises ValueError: if ``weights`` is not a square matrix
         :raises ValueError: if ``thresholds`` is not a vector
-        :raises ValueError: if ``weights`` and ``thresholds`` have different dimensions
-        :raises ValueError: if ``len(names)`` is not equal to the number of nodes
+        :raises ValueError: if ``weights`` and ``thresholds`` have different
+                            dimensions
+        :raises ValueError: if ``len(names)`` is not equal to the number of
+                            nodes
         :raises TypeError: if ``threshold_func`` is not callable
         """
         if isinstance(weights, int):
@@ -96,11 +98,13 @@ class WTNetwork(object):
         if self.thresholds.ndim != 1:
             raise(ValueError("thresholds must be a vector"))
         elif shape[0] != self.size:
-            raise(ValueError("weights and thresholds have different dimensions"))
+            msg = "weights and thresholds have different dimensions"
+            raise(ValueError(msg))
         elif self.size < 1:
             raise(ValueError("invalid network size"))
         elif names is not None and len(names) != self.size:
-            raise(ValueError("either all or none of the nodes may have a name"))
+            msg = "either all or none of the nodes may have a name"
+            raise(ValueError(msg))
 
         self.metadata = {}
 
@@ -136,7 +140,8 @@ class WTNetwork(object):
             <neet.statespace.StateSpace object at 0x00000193E4DA84A8>
             >>> space = net.state_space()
             >>> list(space)
-            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
+            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1],
+            [0, 1, 1], [1, 1, 1]]
 
         :param n: the number of nodes in the lattice
         :type n: int
@@ -153,7 +158,8 @@ class WTNetwork(object):
 
         ::
 
-            >>> net = WTNetwork.read("fission-net-nodes.txt", "fission-net-edges.txt")
+            >>> net = WTNetwork.read("fission-net-nodes.txt",
+            ... "fission-net-edges.txt")
             >>> net.size
             9
             >>> xs = [0,0,0,0,1,0,0,0,0]
@@ -247,7 +253,8 @@ class WTNetwork(object):
 
         ::
 
-            >>> net = WTNetwork.read("fission-net-nodes.txt", "fission-net-edges.txt")
+            >>> net = WTNetwork.read("fission-net-nodes.txt",
+            ... "fission-net-edges.txt")
             >>> net.size
             9
             >>> xs = [0,0,0,0,1,0,0,0,0]
@@ -339,13 +346,16 @@ class WTNetwork(object):
         :raises ValueError: if a value in ``values`` is not binary (0 or 1)
         """
         if states not in self.state_space():
-            raise ValueError("the provided state is not in the network's state space")
+            raise ValueError(
+                "the provided state is not in the network's state space")
 
         if index is not None:
             if pin is not None and pin != []:
-                raise ValueError("cannot provide both the index and pin arguments")
+                raise ValueError(
+                    "cannot provide both the index and pin arguments")
             elif values is not None and values != {}:
-                raise ValueError("cannot provide both the index and values arguments")
+                raise ValueError(
+                    "cannot provide both the index and values arguments")
         elif pin is not None and values is not None:
             for k in values.keys():
                 if k in pin:
@@ -368,11 +378,13 @@ class WTNetwork(object):
 
         ::
 
-            >>> net = WTNetwork.read("fission-net-nodes.txt", "fission-net-edges.txt")
+            >>> net = WTNetwork.read("fission-net-nodes.txt",
+            ... "fission-net-edges.txt")
             >>> net.size
             9
             >>> net.names
-            ['SK', 'Cdc2_Cdc13', 'Ste9', 'Rum1', 'Slp1', 'Cdc2_Cdc13_active', 'Wee1_Mik1', 'Cdc25', 'PP']
+            ['SK', 'Cdc2_Cdc13', 'Ste9', 'Rum1', 'Slp1', 'Cdc2_Cdc13_active',
+             'Wee1_Mik1', 'Cdc25', 'PP']
 
         :returns: a :class:WTNetwork
         """
@@ -606,12 +618,14 @@ class WTNetwork(object):
             >>> net.neighbors_in(2)
             set([0, 1, 5, 8])
         """
-        if (self.theta is type(self).negative_threshold) or (self.theta is type(self).positive_threshold):
+        negative_thresh = type(self).negative_threshold
+        positive_thresh = type(self).positive_threshold
+        if self.theta is negative_thresh or self.theta is positive_thresh:
             return set(np.flatnonzero(self.weights[index]))
-        else: 
-            ## Assume every other theta has self loops. This will be depreciated
-            ## when we convert all WTNetworks to logicnetworks by default.
-            return set(np.flatnonzero(self.weights[index]))|set([index])
+        else:
+            # Assume every other theta has self loops. This will be depreciated
+            # when we convert all WTNetworks to logicnetworks by default.
+            return set(np.flatnonzero(self.weights[index])) | set([index])
 
     def neighbors_out(self, index):
         """
@@ -639,13 +653,15 @@ class WTNetwork(object):
             >>> net.neighbors_out(2)
             set([1, 5])
         """
-        if (self.theta is type(self).negative_threshold) or (self.theta is type(self).positive_threshold):
+        negative_thresh = type(self).negative_threshold
+        positive_thresh = type(self).positive_threshold
+        if self.theta is negative_thresh or self.theta is positive_thresh:
             return set(np.flatnonzero(self.weights[:, index]))
 
-        else: 
-            ## Assume every other theta has self loops. This will be depreciated
-            ## when we convert all WTNetworks to logicnetworks by default.
-            return set(np.flatnonzero(self.weights[:, index]))|set([index])
+        else:
+            # Assume every other theta has self loops. This will be depreciated
+            # when we convert all WTNetworks to logicnetworks by default.
+            return set(np.flatnonzero(self.weights[:, index])) | set([index])
 
     def neighbors(self, index):
         """
@@ -653,7 +669,8 @@ class WTNetwork(object):
         neighbors for all nodes in the network.
 
         :param index: node index
-        :returns: a set (if index!=None) or list of sets of neighbors of a node or network or nodes
+        :returns: a set (if index!=None) or list of sets of neighbors of a
+                  node or network or nodes
 
         .. rubric:: Basic Use:
 
@@ -675,16 +692,16 @@ class WTNetwork(object):
         """
         return self.neighbors_in(index) | self.neighbors_out(index)
 
-    def to_networkx_graph(self,labels='indices'):
+    def to_networkx_graph(self, labels='indices'):
         """
         Return networkx graph given neet network.  Requires networkx.
 
-        :param labels: how node is labeled and thus identified in networkx graph 
-                       ('names' or 'indices')
+        :param labels: how node is labeled and thus identified in networkx
+                       graph ('names' or 'indices')
         :returns: a networkx DiGraph
         """
         if labels == 'names':
-            if hasattr(self,'names') and (self.names != None):
+            if hasattr(self, 'names') and (self.names is not None):
                 labels = self.names
             else:
                 raise ValueError("network nodes do not have names")
@@ -696,26 +713,29 @@ class WTNetwork(object):
             raise ValueError("labels must be 'names' or 'indices'")
 
         edges = []
-        for i,label in enumerate(labels):
+        for i, label in enumerate(labels):
             for j in self.neighbors_out(i):
-                edges.append((labels[i],labels[j]))
+                edges.append((labels[i], labels[j]))
 
-        return nx.DiGraph(edges,name=self.metadata.get('name'))
+        return nx.DiGraph(edges, name=self.metadata.get('name'))
 
-    def draw(self,labels='indices',filename=None):
+    def draw(self, labels='indices', filename=None):
         """
-        Output a file with a simple network drawing.  
-        
-        Requires networkx and pygraphviz.
-        
-        Supported image formats are determined by graphviz.  In particular,
-        pdf support requires 'cairo' and 'pango' to be installed prior to
-        graphviz installation.
+        Output a file with a simple network drawing.
 
-        :param labels: how node is labeled and thus identified in networkx graph 
-                   ('names' or 'indices'), only used if network is a LogicNetwork or WTNetwork
-        :param filename: filename to write drawing to. Temporary filename will be used if no filename provided.
+        Requires networkx and pygraphviz.
+
+        Supported image formats are determined by graphviz.
+        In particular, pdf support requires 'cairo' and 'pango' to be
+        installed prior to graphviz installation.
+
+        :param labels: how node is labeled and thus identified in networkx
+                       graph ('names' or 'indices'), only used if network is
+                       a LogicNetwork or WTNetwork
+        :param filename: filename to write drawing to. Temporary filename will
+                       be used if no filename provided.
         :returns: a pygraphviz network drawing
-        
-        """        
-        nx.nx_agraph.view_pygraphviz(self.to_networkx_graph(labels=labels),prog='circo',path=filename)
+
+        """
+        nx.nx_agraph.view_pygraphviz(self.to_networkx_graph(
+            labels=labels), prog='circo', path=filename)
