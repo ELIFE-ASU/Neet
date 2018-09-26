@@ -48,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Neet'
-copyright = u'2017, ELIFE'
+copyright = u'2017-2018 Bryan C. Daniels, Bradley Karas, Hyunju Kim, Douglas G. Moore, Harrison Smith, Sara I. Walker, Siyu Zhou'
 author = u'ELIFE'
 
 # The version info for the project you're documenting, acts as replacement for
