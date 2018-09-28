@@ -33,6 +33,7 @@ class LogicNetwork(object):
         .. rubric:: Examples
 
         ::
+
             >>> net = LogicNetwork([((0,), {'0'})])
             >>> net.size
             1
