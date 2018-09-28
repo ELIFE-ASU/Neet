@@ -196,6 +196,8 @@ class WTNetwork(object):
 
         .. rubric:: Value Fixing:
 
+        ::
+
             >>> net.update([0,0,0,0,1,0,0,0,0], values={0:1, 2:1})
             [1, 0, 1, 0, 0, 0, 0, 0, 1]
             >>> net.update([0,0,0,0,0,0,0,0,1], values={0:1, 1:0, 2:0})
@@ -289,6 +291,8 @@ class WTNetwork(object):
             [0, 0, 0, 0, 0, 0, 1, 0, 1]
 
         .. rubric:: Value Fixing:
+
+        ::
 
             >>> net.update([0,0,0,0,1,0,0,0,0], values={0:1, 2:1})
             [1, 0, 1, 0, 0, 0, 0, 0, 1]

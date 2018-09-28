@@ -10,7 +10,7 @@ Elementary Cellular Automata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. autoclass:: neet.automata.ECA
-        :members: __init__, code, boundary, check_lattice, state_space, update, _unsafe_update
+        :members: __init__, code, boundary, state_space, update, _unsafe_update
 
 Rewired Elementary Cellular Automata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

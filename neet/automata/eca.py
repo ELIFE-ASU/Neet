@@ -170,6 +170,8 @@ class ECA(object):
 
         .. rubric:: State Pinning:
 
+        ::
+
             >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
             >>> ca._unsafe_update(xs, pin=[-2])
@@ -179,6 +181,8 @@ class ECA(object):
             [0, 1, 0, 1, 0]
 
         .. rubric:: Value Fixing:
+
+        ::
 
             >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
@@ -270,6 +274,8 @@ class ECA(object):
 
         .. rubric:: State Pinning:
 
+        ::
+
             >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
             >>> ca.update(xs, pin=[-2])
@@ -279,6 +285,8 @@ class ECA(object):
             [0, 1, 0, 1, 0]
 
         .. rubric:: Value Fixing:
+
+        ::
 
             >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]

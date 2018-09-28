@@ -64,12 +64,12 @@ class LogicNetwork(object):
         if not isinstance(table, (list, tuple)):
             raise TypeError("table must be a list or tuple")
 
-        self.size = len(table)
+        self.__size = len(table)
 
         if names:
             if not isinstance(names, (list, tuple)):
                 raise TypeError("names must be a list or tuple")
-            elif len(names) != self.size:
+            elif len(names) != self.__size:
                 raise ValueError("number of names must match network size")
             else:
                 self.names = list(names)
@@ -81,7 +81,7 @@ class LogicNetwork(object):
             if not (isinstance(row, (list, tuple)) and len(row) == 2):
                 raise ValueError("Invalid table format")
             for idx in row[0]:
-                if idx >= self.size:
+                if idx >= self.__size:
                     raise IndexError("mask index out of range")
             # Validate truth table of the sub net.
             if not isinstance(row[1], (list, tuple, set)):
@@ -94,12 +94,19 @@ class LogicNetwork(object):
         if reduced:
             self.reduce_table()
 
-        self._state_space = StateSpace(self.size, base=2)
+        self._state_space = StateSpace(self.__size, base=2)
 
         # Encode truth table for faster computation.
         self._encode_table()
 
         self.metadata = {}
+
+    @property
+    def size(self):
+        """
+        The number of nodes in the network.
+        """
+        return self.__size
 
     def _encode_table(self):
         self._encoded_table = []
@@ -250,7 +257,7 @@ class LogicNetwork(object):
         encoded_state = self.state_space()._unsafe_encode(net_state)
 
         if index is None:
-            indices = range(self.size)
+            indices = range(self.__size)
         else:
             indices = [index]
 
@@ -625,7 +632,7 @@ class LogicNetwork(object):
                 raise ValueError("network nodes do not have names")
 
         elif labels == 'indices':
-            labels = range(self.size)
+            labels = range(self.__size)
 
         else:
             raise ValueError("labels must be 'names' or 'indices'")
