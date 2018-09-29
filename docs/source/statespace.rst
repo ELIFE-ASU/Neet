@@ -1,11 +1,4 @@
-State Space API
-===============
-
-API Documentation
------------------
-
 .. automodule:: neet.statespace
 
-    .. autoclass:: neet.statespace.StateSpace
-
-        :members: __init__, __iter__, encode, decode, __contains__
+    .. autoclass:: StateSpace
+        :members: __init__, ndim, base, volume, is_uniform, __iter__, __contains__, encode, decode
