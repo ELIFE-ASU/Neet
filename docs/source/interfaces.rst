@@ -1,4 +1,5 @@
 .. automodule:: neet.interfaces
+    :synopsis: Interface-level functions
 
     Interface Testing
     ^^^^^^^^^^^^^^^^^

@@ -1,4 +1,5 @@
 .. automodule:: neet.sensitivity
+    :synopsis: Sensitivity measures and related functions
 
     Sensitivity Measures
     ^^^^^^^^^^^^^^^^^^^^
