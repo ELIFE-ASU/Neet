@@ -8,12 +8,14 @@ Neet is a python library for simulating network dynamics.
    :caption: Contents:
 
    statespace
-   synchronous
    interfaces
    automata
    boolean
+   synchronous
+   sensitivity
    information
    exceptions
+   zrefs
 
 
 Indices and tables

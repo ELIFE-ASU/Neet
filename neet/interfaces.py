@@ -162,13 +162,13 @@ def neighbors(net, index, direction='both', **kwargs):
 
 def to_networkx_graph(net, size=None, labels='indices', **kwargs):
     """
-    Return networkx graph given neet network.  Requires networkx.
+    Return networkx graph given neet network. Requires `networkx`.
 
     :param labels: how node is labeled and thus identified in networkx graph
                    ('names' or 'indices'), only used if `net` is a
                    `LogicNetwork` or `WTNetwork`
     :kwarg size: size of ECA, required if network is an ECA
-    :returns : a networkx DiGraph
+    :returns: a networkx DiGraph
     """
     if net.__class__.__name__ == 'ECA':
         if size is None:

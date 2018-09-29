@@ -63,9 +63,3 @@ Methods
         .. automethod:: neet.synchronous.Landscape.timeseries
 
         .. automethod:: neet.synchronous.Landscape.basin_entropy
-
-References
-^^^^^^^^^^
-
-.. [Krawitz2007] Krawitz, P. and Shmulevich, I. "Basin Entropy in Boolean Network Ensembles" *Phys. Rev. Lett.* **98**, 158701 (2007) `doi:10.1103/PhysRevLett.98.158701`__.
-.. __: https://dx.doi.org/10.1103/PhysRevLett.98.158701
