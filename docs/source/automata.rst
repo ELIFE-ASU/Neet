@@ -1,19 +1,53 @@
-Cellular Automata
-=================
-
-API Documentation
------------------
-
 .. automodule:: neet.automata
 
-Elementary Cellular Automata
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. automodule:: neet.automata.eca
 
-    .. autoclass:: neet.automata.ECA
-        :members: __init__, code, boundary, state_space, update, _unsafe_update
+        .. autoclass:: ECA
 
-Rewired Elementary Cellular Automata
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            .. automethod:: __init__
 
-    .. autoclass:: neet.automata.RewiredECA
-        :members: __init__, code, boundary, size, wiring, state_space
+            .. autoattribute:: code
+
+            .. autoattribute:: boundary
+
+            .. automethod:: state_space
+
+            .. automethod:: update
+
+            .. automethod:: neighbors_in
+
+            .. automethod:: neighbors_out
+
+            .. automethod:: neighbors
+
+            .. automethod:: to_networkx_graph
+
+            .. automethod:: draw
+
+    .. automodule:: neet.automata.reca
+
+        .. autoclass:: RewiredECA
+
+            .. automethod:: __init__
+
+            .. autoattribute:: code
+
+            .. autoattribute:: boundary
+
+            .. autoattribute:: size
+
+            .. autoattribute:: wiring
+
+            .. automethod:: state_space
+
+            .. automethod:: update
+
+            .. automethod:: neighbors_in
+
+            .. automethod:: neighbors_out
+
+            .. automethod:: neighbors
+
+            .. automethod:: to_networkx_graph
+
+            .. automethod:: draw

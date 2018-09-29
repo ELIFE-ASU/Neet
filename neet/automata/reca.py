@@ -1,3 +1,24 @@
+"""
+Rewired Elementary Cellular Automata
+====================================
+
+The :class:`neet.automata.reca.RewiredECA` implements a variant of an ECA
+wherein the neighbors of a give cell can be specified by the user. This
+allows one to study, for example, the role of topology in the dynamics of a
+network. Every ``ECA`` can be represented as a ``RewiredECA`` with standard
+wiring, but all ``RewiredECA`` are *fixed sized* networks.
+
+.. rubric:: Examples
+
+.. doctest:: automata
+
+    >>> ca = RewiredECA(30, size=3)
+    >>> ca.update([0, 1, 0])
+    [1, 1, 1]
+    >>> ca = RewiredECA(30, wiring=[[0,1,3], [1,1,1], [2,1,2]])
+    >>> ca.update([0, 1, 0])
+    [1, 0, 1]
+"""
 import numpy as np
 from neet.statespace import StateSpace
 from . import eca
@@ -14,9 +35,9 @@ class RewiredECA(eca.ECA):
         """
         Construct a rewired elementary cellular automaton rule.
 
-        .. rubric:: Examples:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: automata
 
             >>> reca = RewiredECA(30, size=3)
             >>> reca.code
@@ -28,7 +49,7 @@ class RewiredECA(eca.ECA):
                    [ 0,  1,  2],
                    [ 1,  2,  3]])
 
-        ::
+        .. doctest:: automata
 
             >>> reca = RewiredECA(30, wiring=[[0,1,2],[-1,0,0],[2,3,1]])
             >>> reca.code
@@ -68,9 +89,9 @@ class RewiredECA(eca.ECA):
             else:
                 self.__size = size
                 self.__wiring = np.zeros((3, size), dtype=int)
-                self.__wiring[0, :] = range(-1, size-1)
+                self.__wiring[0, :] = range(-1, size - 1)
                 self.__wiring[1, :] = range(0, size)
-                self.__wiring[2, :] = range(1, size+1)
+                self.__wiring[2, :] = range(1, size + 1)
         elif wiring is not None:
             if not isinstance(wiring, (list, np.ndarray)):
                 raise TypeError("wiring must be a list or an array")
@@ -94,15 +115,15 @@ class RewiredECA(eca.ECA):
         """
         The wiring matrix for the rule.
 
-        .. rubric:: Examples:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: automata
 
-            >>> eca = RewiredECA(30, size=3)
-            >>> eca.wiring
+            >>> reca = RewiredECA(30, size=3)
+            >>> reca.wiring
             array([[-1,  0,  1],
                    [ 0,  1,  2],
-                   [ 1,  2,  0]])
+                   [ 1,  2,  3]])
             >>> eca = RewiredECA(30, wiring=[[0,1],[1,1],[-1,-1]])
             >>> eca.wiring
             array([[ 0,  1],
@@ -118,9 +139,9 @@ class RewiredECA(eca.ECA):
         """
         The number of cells in the CA lattice.
 
-        .. rubric:: Examples:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: automata
 
             >>> eca = RewiredECA(30, size=3)
             >>> eca.size
@@ -135,21 +156,21 @@ class RewiredECA(eca.ECA):
 
     def state_space(self):
         """
-        Return a :class:`StateSpace` object for the cellular automaton lattice.
+        Return a :class:`neet.statespace.StateSpace` object for the
+        cellular automaton lattice.
 
-        .. rubric:: Examples:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: automata
 
             >>> eca = RewiredECA(30, size=3)
             >>> eca.state_space()
-            <neet.statespace.StateSpace object at 0x0000020EED289748>
+            <neet.statespace.StateSpace object at 0x...>
             >>> space = eca.state_space()
-            >>> list(space.states())
-            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1],
-            [0, 1, 1], [1, 1, 1]]
+            >>> list(space)
+            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
 
-        :returns: :class:`StateSpace`
+        :returns: :class:`neet.statespace.StateSpace`
         """
         return StateSpace(self.__size, base=2)
 
@@ -219,20 +240,21 @@ class RewiredECA(eca.ECA):
         """
         Update the state of the ``lattice`` in place.
 
-        .. rubric:: Examples:
+        .. rubric:: Examples
 
-            >>> from neet.automata.reca import RewiredECA
+        .. doctest:: automata
+
             >>> reca = RewiredECA(30, size=5)
             >>> reca.update([1,0,0,0,0])
             [1, 1, 0, 0, 1]
-            >>> reca.wiring[:,:] = [[-1, 4, 1, 2, -1], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]]
+            >>> reca.wiring[:,:] = [[-1, 2, 1, 2, -1], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]]
             >>> reca.update([0,0,1,0,0])
-            [1, 0, 0, 0, 1]
+            [0, 0, 1, 1, 0]
             >>> reca.update([1,1,1,1,1])
             [0, 0, 0, 0, 0]
-            >>> reca.update([1,1,1,1,1], index=3)
+            >>> reca.update([1,1,1,1,1], index=2)
             [1, 1, 0, 1, 1]
-            >>> reca.update([1,1,1,1,1], pin=[1,3])
+            >>> reca.update([1,1,1,1,1], pin=[1, 3])
             [0, 1, 0, 1, 0]
             >>> reca.update([1,1,1,1,1], values={0: 1, -1: 1})
             [1, 0, 0, 0, 1]

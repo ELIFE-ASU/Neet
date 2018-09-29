@@ -1,3 +1,25 @@
+"""
+Elementary Cellular Automata
+============================
+
+The :class:`neet.automata.eca.ECA` class describes an `Elementary Cellular
+Automaton <https://en.wikipedia.org/wiki/Elementary_cellular_automaton>`_
+with an arbitrary rule. The ``ECA`` class is **not** a fixed sized network.
+This means that the size is determined when it is used based on arguments
+passed to the relevant methods or functions.
+
+.. rubric:: Examples
+
+.. doctest:: automata
+
+    >>> ca = ECA(30)
+    >>> ca.update([0, 0, 1, 0, 0])
+    [0, 1, 1, 1, 0]
+    >>> ca.update([0, 1, 0])
+    [1, 1, 1]
+    >>> transitions(ca, size=3)
+    [[0, 0, 0], [1, 1, 1], [1, 1, 1], [1, 0, 0], [1, 1, 1], [0, 0, 1], [0, 1, 0], [0, 0, 0]]
+"""
 import numpy as np
 import networkx as nx
 from neet.statespace import StateSpace
@@ -16,9 +38,9 @@ class ECA(object):
         """
         Construct an elementary cellular automaton rule.
 
-        .. rubric:: Examples:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: automata
 
             >>> ca = ECA(30)
             >>> ca.code
@@ -26,7 +48,7 @@ class ECA(object):
             >>> ca.boundary
             >>> ca = ECA(30, boundary=(0,0))
             >>> ca.boundary
-            (0,0)
+            (0, 0)
 
         :param code: the Wolfram code for the ECA
         :type code: int
@@ -47,9 +69,9 @@ class ECA(object):
         """
         The Wolfram code of the elementary cellular automaton
 
-        .. rubric:: Examples:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: automata
 
             >>> eca = ECA(30)
             >>> eca.code
@@ -81,9 +103,9 @@ class ECA(object):
         """
         The boundary conditions of the elemenary cellular automaton
 
-        .. rubric:: Examples:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: automata
 
             >>> eca = ECA(30)
             >>> eca.boundary
@@ -119,20 +141,21 @@ class ECA(object):
 
     def state_space(self, n):
         """
-        Return a :class:`StateSpace` object for a lattice of length ``n``.
+        Return a :class:`neet.statespace.StateSpace` object for a
+        lattice of length ``n``.
 
-        ::
+        .. doctest:: automata
 
             >>> eca = ECA(30)
             >>> eca.state_space(3)
-            <neet.states.StateSpace object at 0x000001C0BDA38550>
+            <neet.statespace.StateSpace object at 0x...>
             >>> space = eca.state_space(3)
             >>> list(space)
-            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1],
-            [0, 1, 1], [1, 1, 1]]
+            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
 
         :param n: the number of nodes in the lattice
         :type n: int
+        :returns: :class:`neet.statespace.StateSpace`
         :raises ValueError: if ``n < 1``
         """
         return StateSpace(n, base=2)
@@ -144,7 +167,7 @@ class ECA(object):
 
         .. rubric:: Basic Use:
 
-        ::
+        .. doctest:: automata
 
             >>> ca = ECA(30)
             >>> xs = [0,0,1,0,0]
@@ -156,7 +179,7 @@ class ECA(object):
 
         .. rubric:: Single-Node Update:
 
-        ::
+        .. doctest:: automata
 
             >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
@@ -170,7 +193,7 @@ class ECA(object):
 
         .. rubric:: State Pinning:
 
-        ::
+        .. doctest:: automata
 
             >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
@@ -182,7 +205,7 @@ class ECA(object):
 
         .. rubric:: Value Fixing:
 
-        ::
+        .. doctest:: automata
 
             >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
@@ -248,7 +271,7 @@ class ECA(object):
 
         .. rubric:: Basic Use:
 
-        ::
+        .. doctest:: automata
 
             >>> ca = ECA(30)
             >>> xs = [0,0,1,0,0]
@@ -260,7 +283,7 @@ class ECA(object):
 
         .. rubric:: Single-Node Update:
 
-        ::
+        .. doctest:: automata
 
             >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
@@ -274,7 +297,7 @@ class ECA(object):
 
         .. rubric:: State Pinning:
 
-        ::
+        .. doctest:: automata
 
             >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
@@ -286,7 +309,7 @@ class ECA(object):
 
         .. rubric:: Value Fixing:
 
-        ::
+        .. doctest:: automata
 
             >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
@@ -299,33 +322,37 @@ class ECA(object):
 
         .. rubric:: Erroneous Usage:
 
-        ::
+        .. doctest:: automata
 
             >>> xs = []
             >>> ca.update(xs)
             Traceback (most recent call last):
-                ...
+            ...
             ValueError: lattice is empty
             >>> xs = [0,0,2,0,0]
             >>> ca.update(xs)
             Traceback (most recent call last):
-                ...
+            ...
             ValueError: invalid value "2" in lattice
             >>> ca.update(xs, index=5)
             Traceback (most recent call last):
-                  ...
-            IndexError: list index out of range
+            ...
+            ValueError: the provided state is not in the ECA's state space
             >>> ca.update([0,0,1,0,0,], index=1, pin=[0])
-                ...
+            Traceback (most recent call last):
+            ...
             ValueError: cannot provide both the index and pin arguments
             >>> ca.update([0,0,1,0,0], index=1, values={0:0})
-                ...
+            Traceback (most recent call last):
+            ...
             ValueError: cannot provide both the index and values arguments
             >>> ca.update([0,0,1,0,0], pin=[2], values={2:0})
-                ...
+            Traceback (most recent call last):
+            ...
             ValueError: cannot set a value for a pinned state
             >>> ca.update([0,0,1,0,0], values={2:2})
-                ...
+            Traceback (most recent call last):
+            ...
             ValueError: invalid state in values argument
 
         :param lattice: the one-dimensional sequence of states
@@ -383,22 +410,22 @@ class ECA(object):
 
         .. rubric:: Basic Use:
 
-        ::
+        .. doctest:: automata
 
             >>> net = ECA(30)
             >>> net.neighbors_in(1, size=3)
-            set([0, 1, 2])
+            {0, 1, 2}
             >>> net.neighbors_in(2, size=3)
-            set([0, 1, 2])
+            {0, 1, 2}
             >>> net.boundary = (1,1)
             >>> net.neighbors_in(2, size=3)
-            set([1, 2, 3])
+            {1, 2, 3}
             >>> net.neighbors_in(0, 3)
-            set([-1, 0, 1])
+            {0, 1, -1}
 
         .. rubric:: Erroneous Usage:
 
-        ::
+        .. doctest:: automata
 
             >>> net = ECA(30,boundary=(1, 1))
             >>> net.neighbors_in(5, 3)
@@ -427,7 +454,7 @@ class ECA(object):
         if right > size - 1 and self.boundary is None:
             right = 0
 
-        return set([left, index, right])
+        return {left, index, right}
 
     def neighbors_out(self, index, size):
         """
@@ -443,22 +470,22 @@ class ECA(object):
 
         .. rubric:: Basic Use:
 
-        ::
+        .. doctest:: automata
 
             >>> net = ECA(30)
             >>> net.neighbors_out(1, 3)
-            set([0, 1, 2])
+            {0, 1, 2}
             >>> net.neighbors_out(2, 3)
-            set([0, 1, 2])
+            {0, 1, 2}
             >>> net.boundary = (1, 1)
             >>> net.neighbors_out(2, 3)
-            set([1, 2])
+            {1, 2}
             >>> net.neighbors_out(0, 3)
-            set([0, 1])
+            {0, 1}
 
         .. rubric:: Erroneous Usage:
 
-        ::
+        .. doctest:: automata
 
             >>> net = ECA(30,boundary=(1, 1))
             >>> net.neighbors_out(5, 3)
@@ -487,7 +514,7 @@ class ECA(object):
         if right > size - 1:
             right = 0 if self.boundary is None else size - 1
 
-        return set([left, index, right])
+        return {left, index, right}
 
     def neighbors(self, index, size):
         """
@@ -507,22 +534,22 @@ class ECA(object):
 
         .. rubric:: Basic Use:
 
-        ::
+        .. doctest:: automata
 
             >>> net = ECA(30)
             >>> net.neighbors(1, size=3)
-            set([0, 1, 2])
+            {0, 1, 2}
             >>> net.neighbors(2, size=3)
-            set([0, 1, 2])
+            {0, 1, 2}
             >>> net.boundary = (1,1)
             >>> net.neighbors(2, size=3)
-            set([1, 2, 3])
+            {1, 2, 3}
             >>> net.neighbors(0, 3)
-            set([-1, 0, 1])
+            {0, 1, -1}
 
         .. rubric:: Erroneous Usage:
 
-        ::
+        .. doctest:: automata
 
             >>> net = ECA(30,boundary=(1, 1))
             >>> net.neighbors(5, 3)
@@ -535,10 +562,10 @@ class ECA(object):
 
     def to_networkx_graph(self, size):
         """
-        Return networkx graph given neet network.  Requires networkx.
+        Return networkx graph given neet network. Requires networkx.
 
         :param size: size of ECA, required if network is an ECA
-        :returns : a networkx DiGraph
+        :returns: a ``networkx.DiGraph``
         """
 
         edges = []
@@ -562,7 +589,7 @@ class ECA(object):
         :param filename: filename to write drawing to. Temporary filename will
                          be used if no filename provided.
         :param size: size of ECA, required if network is an ECA
-        :returns: a pygraphviz network drawing
+        :returns: a ``pygraphviz`` network drawing
         """
         nx.nx_agraph.view_pygraphviz(
             self.to_networkx_graph(size), prog='circo', path=filename)
