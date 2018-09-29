@@ -365,7 +365,7 @@ class ECA(object):
 
         return self._unsafe_update(lattice, index, pin, values)
 
-    def neighbors_in(self, index, size):
+    def neighbors_in(self, index, size, **kwargs):
         """
         Return the set of all incoming neighbor nodes.
 

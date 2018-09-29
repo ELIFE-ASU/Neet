@@ -1,17 +1,47 @@
+"""
+.. currentmodule:: neet.interfaces
+
+.. testsetup:: interfaces
+
+    from neet.automata import ECA
+    from neet.interfaces import *
+    from neet.statespace import StateSpace
+
+Interfaces
+==========
+
+The :mod:`neet.interfaces` module provides a collection of functions for
+determining if types adhere to various network interfaces, and generic
+functions for operating upon them. This done primarily through the
+:func:`is_network`, :func:`is_fixed_sized` and :func:`is_boolean_network`
+functions.
+
+API Documentation
+-----------------
+"""
+
+
 def is_network(thing):
     """
     Determine whether an *object* or *type* meets the interface requirement of
-    a network.
+    a network. Specifically, to be considered a network, a class must provide
+    the following methods:
+
+    1. `update` which updates the state of a lattice
+    2. `state_space` which returns a :func:`neet.statespace.StateSpace` object
+    3. `neighbors` which returns the neighbors of a given node
 
     .. rubric:: Example:
 
-    ::
+    .. doctest:: interfaces
 
         >>> class IsNetwork(object):
         ...     def update(self):
         ...         pass
         ...     def state_space(self):
         ...         return StateSpace(1)
+        ...     def neighbors(self, i):
+        ...         return []
         ...
         >>> class IsNotNetwork(object):
         ...     pass
@@ -43,13 +73,15 @@ def is_fixed_sized(thing):
 
     .. rubric:: Example
 
-    ::
+    .. doctest:: interfaces
 
         >>> class IsNetwork(object):
         ...     def update(self):
         ...         pass
         ...     def state_space(self):
         ...         return StateSpace(1)
+        ...     def neighbors(self, i):
+        ...         return []
         ...
         >>> class FixedSized(IsNetwork):
         ...     def size():
@@ -69,7 +101,7 @@ def is_fixed_sized(thing):
 
 def is_boolean_network(thing):
     """
-    Determine whether an *object* is a network with all Boolean states.
+    Determine whether an *object* is a network with all Boolean states.d
     """
     # Boolean networks have a single base equal to 2
     if is_network(thing) and hasattr(thing.state_space(), 'base'):
@@ -95,16 +127,16 @@ def neighbors(net, index, direction='both', **kwargs):
     :kwarg size: size of ECA, required if network is an ECA
     :returns: a set of neighbors of a node
 
-    .. rubric:: Basic Use:
+    .. rubric:: Example
 
-    ::
+    .. doctest:: interfaces
 
         >>> net = ECA(30)
-        >>> net.neighbors(3,index=2,direction='out')
-        set([0,1,2])
+        >>> neighbors(net, index=2, size=3, direction='out')
+        {0, 1, 2}
         >>> net.boundary = (1,1)
-        >>> net.neighbors(3,index=2,direction='out')
-        set([1,2])
+        >>> neighbors(net, index=2, size=3, direction='out')
+        {1, 2}
 
     See `ECA.neighbors()`,`LogicNetwork.neighbors()` or `WTNetwork.neighbors()`
     docstrings for more details and basic use examples.
@@ -147,30 +179,3 @@ def to_networkx_graph(net, size=None, labels='indices', **kwargs):
 
     elif net.__class__.__name__ in ['WTNetwork', 'LogicNetwork']:
         return net.to_networkx_graph(labels=labels)
-
-
-# def to_networkx_graph(net):
-#     """
-#     Return networkx graph given neet network.  Requires networkx.
-#     """
-#     edges = []
-#     names = net.names
-#     for i,jSet in enumerate(net.neighbors(direction='out')):
-#         for j in jSet:
-#             edges.append((names[i],names[j]))
-#     return nx.DiGraph(edges,name=net.metadata.get('name'))
-
-# def draw(net,format='pdf',filename=None):
-#     """
-#     Output a file with a simple network drawing.
-
-#     Requires networkx and pygraphviz.
-
-#     Supported image formats are determined by graphviz.  In particular,
-#     pdf support requires 'cairo' and 'pango' to be installed prior to
-#     graphviz installation.
-#     """
-#     if filename is None: filename = net.metadata.get('name','network')
-#     if not filename.endswith('.'+format): filename += '.'+format
-#     g = to_networkx_graph(net)
-#     nx.nx_agraph.view_pygraphviz(g,prog='circo',path=filename)

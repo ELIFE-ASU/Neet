@@ -6,13 +6,6 @@ API Documentation
 
 .. automodule:: neet.synchronous
 
-Interface Tests
-^^^^^^^^^^^^^^^
-
-    .. autofunction:: neet.synchronous.is_network
-
-    .. autofunction:: neet.synchronous.is_fixed_sized
-
 Time Series Generation
 ^^^^^^^^^^^^^^^^^^^^^^
 
