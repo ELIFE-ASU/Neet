@@ -1,7 +1,7 @@
 """Unit test for LogicNetwork"""
 import unittest
 import numpy as np
-from neet.python3 import long
+from neet.python import long
 from neet.boolean import LogicNetwork
 from neet.exceptions import FormatError
 

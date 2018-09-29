@@ -1,5 +1,5 @@
 import re
-from neet.python3 import long
+from neet.python import long
 from neet.statespace import StateSpace
 from neet.exceptions import FormatError
 import networkx as nx

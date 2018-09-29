@@ -1,4 +1,4 @@
-from .python3 import long
+from .python import long
 
 
 class StateSpace(object):

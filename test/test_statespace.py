@@ -1,5 +1,5 @@
 import unittest
-from neet.python3 import long
+from neet.python import long
 from neet.statespace import StateSpace
 import numpy as np
 
