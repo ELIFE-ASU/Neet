@@ -1,3 +1,37 @@
+"""
+.. currentmodule:: neet.synchronous
+
+.. testsetup:: synchronous
+
+    from math import e
+    from neet.automata import ECA
+    from neet.boolean import WTNetwork
+    from neet.boolean.examples import s_pombe
+    from neet.synchronous import *
+
+Synchronous Network Analysis
+============================
+
+The :mod:`neet.synchronous` module provides a host of functions for computing
+properties of the dynamics of *synchronously* updated networks. This includes
+
+- :func:`trajectory`
+- :func:`transitions`
+- :func:`transition_graph`
+- :func:`attractors`
+- :func:`basins`
+- :func:`basin_entropy`
+- :func:`timeseries`
+
+The disadvantage of these functions is that they cannot share any
+information. If you wish to compute a number of them, then many values will be
+repeatedly computed. For this reason, we created the :class:`Landscape` class
+to simultaneously compute and several of these properties. This provides much
+better performance overall.
+
+API Documentation
+-----------------
+"""
 import copy
 import networkx as nx
 import numpy as np
@@ -11,22 +45,16 @@ def trajectory(net, state, timesteps=1, encode=False):
     Generate the trajectory of length ``timesteps+1`` through the state-space,
     as determined by the network rule, beginning at ``state``.
 
-    .. rubric:: Example:
+    .. rubric:: Examples
 
-    ::
+    .. doctest:: synchronous
 
-        >>> from neet.automata import ECA
-        >>> from neet.boolean.examples import s_pombe
-        >>> gen = trajectory(ECA(30), [0, 1, 0], timesteps=3)
-        >>> gen
-        <generator object trajectory at 0x000002B692ED8BF8>
-        >>> list(gen)
+        >>> trajectory(ECA(30), [0, 1, 0], timesteps=3)
         [[0, 1, 0], [1, 1, 1], [0, 0, 0], [0, 0, 0]]
-        >>> list(trajectory(ECA(30), [0, 1, 0], timesteps=3, encode=True))
+        >>> trajectory(ECA(30), [0, 1, 0], timesteps=3, encode=True)
         [2, 7, 0, 0]
-        >>> gen = trajectory(s_pombe, [0, 0, 0, 0, 1, 0, 0, 0, 0], timesteps=3,
+        >>> trajectory(s_pombe, [0, 0, 0, 0, 1, 0, 0, 0, 0], timesteps=3,
         ... encode=True)
-        >>> list(gen)
         [16, 256, 78, 128]
 
     :param net: the network
@@ -74,22 +102,15 @@ def transitions(net, size=None, encode=False):
     """
     Generate the one-step state transitions for a network over its state space.
 
-    .. rubric:: Example:
+    .. rubric:: Examples
 
-    ::
+    .. doctest:: synchronous
 
-        >>> from neet.automata import ECA
-        >>> from neet.boolean.examples import s_pombe
-        >>> gen = transitions(ECA(30), size=3)
-        >>> gen
-        <generator object transitions at 0x000002B691328BA0>
-        >>> list(gen)
-        [[0, 0, 0], [1, 1, 1], [1, 1, 1], [1, 0, 0], [1, 1, 1], [0, 0, 1],
-        [0, 1, 0], [0, 0, 0]]
-        >>> list(transitions(ECA(30), size=3, encode=True))
+        >>> transitions(ECA(30), size=3)
+        [[0, 0, 0], [1, 1, 1], [1, 1, 1], [1, 0, 0], [1, 1, 1], [0, 0, 1], [0, 1, 0], [0, 0, 0]]
+        >>> transitions(ECA(30), size=3, encode=True)
         [0, 7, 7, 1, 7, 4, 2, 0]
-        >>> gen = transitions(s_pombe, encode=True)
-        >>> len(list(gen))
+        >>> len(transitions(s_pombe, encode=True))
         512
 
     :param net: the network
@@ -128,12 +149,10 @@ def transition_graph(net, size=None):
     """
     Construct the state transition graph for the network.
 
-    .. rubric:: Example:
+    .. rubric:: Examples
 
-    ::
+    .. doctest:: synchronous
 
-        >>> from neet.automata import ECA
-        >>> from neet.boolean.examples import s_pombe
         >>> g = transition_graph(s_pombe)
         >>> g.number_of_nodes(), g.number_of_edges()
         (512, 512)
@@ -166,16 +185,13 @@ def attractors(net, size=None):
     Find the attractor states of a network. A generator of the attractors is
     returned with each attractor represented as a ``list`` of "encoded" states.
 
-    .. rubric:: Example:
+    .. rubric:: Examples
 
-    ::
+    .. doctest:: synchronous
 
-        >>> from neet.automata import ECA
-        >>> from neet.boolean.examples import s_pombe
-        >>> list(attractors(s_pombe))
-        [[76], [4], [8], [12], [144, 110, 384], [68], [72], [132], [136],
-        [140], [196], [200], [204]]
-        >>> list(attractors(ECA(30), size=5))
+        >>> attractors(s_pombe)
+        [[76], [4], [8], [12], [144, 110, 384], [68], [72], [132], [136], [140], [196], [200], [204]]
+        >>> attractors(ECA(30), size=5)
         [[0], [14, 25, 7, 28, 19]]
 
     :param net: the network or the transition graph
@@ -281,12 +297,10 @@ def basins(net, size=None):
     is returned with each basin represented as a ``networkx.DiGraph`` whose
     nodes are the "encoded" network states.
 
-    .. rubric:: Example:
+    .. rubric:: Examples
 
-    ::
+    .. doctest:: synchronous
 
-        >>> from neet.automata import ECA
-        >>> from neet.boolean.examples import s_pombe
         >>> b = basins(s_pombe)
         >>> [len(basin) for basin in b]
         [378, 2, 2, 2, 104, 6, 6, 2, 2, 2, 2, 2, 2]
@@ -311,16 +325,14 @@ def basin_entropy(net, size=None, base=2):
     """
     Calculate the basin entropy [Krawitz2007]_.
 
-    .. rubric:: Example:
+    .. rubric:: Examples
 
-    ::
+    .. doctest:: synchronous
 
-        >>> from neet.automata import ECA
-        >>> from neet.boolean.examples import s_pombe
         >>> basin_entropy(s_pombe)
-        1.2218888338849747
+        1.221888833884975
         >>> basin_entropy(s_pombe, base=10)
-        0.367825190366261
+        0.36782519036626105
         >>> basin_entropy(ECA(30), size=5)
         0.3372900666170139
 
@@ -346,19 +358,19 @@ def timeseries(net, timesteps, size=None):
     number of nodes in the network, :math:`V` is the volume of the state space
     (total number of network states), and :math:`t` is ``timesteps + 1``.
 
-    ::
+    .. doctest:: synchronous
 
         >>> net = WTNetwork([[1,-1],[1,0]])
         >>> timeseries(net, 5)
-        array([[[ 0.,  0.,  0.,  0.,  0.,  0.],
-                [ 1.,  1.,  1.,  1.,  1.,  1.],
-                [ 0.,  0.,  0.,  0.,  0.,  0.],
-                [ 1.,  1.,  1.,  1.,  1.,  1.]],
-
-            [[ 0.,  0.,  0.,  0.,  0.,  0.],
-                [ 0.,  1.,  1.,  1.,  1.,  1.],
-                [ 1.,  1.,  1.,  1.,  1.,  1.],
-                [ 1.,  1.,  1.,  1.,  1.,  1.]]])
+        array([[[0, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 1, 1],
+                [0, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 1, 1]],
+        <BLANKLINE>
+               [[0, 0, 0, 0, 0, 0],
+                [0, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1]]])
 
     :param net: the network
     :param timesteps: the number of timesteps in the timeseries
@@ -383,7 +395,7 @@ def timeseries(net, timesteps, size=None):
     else:
         state_space = net.state_space(size)
 
-    shape = (state_space.ndim, state_space.volume, timesteps+1)
+    shape = (state_space.ndim, state_space.volume, timesteps + 1)
     series = np.empty(shape, dtype=np.int)
 
     trans = list(transitions(net, size=size, encode=False))
@@ -411,17 +423,14 @@ class Landscape(StateSpace):
         """
         Construct the landscape for a network.
 
-        .. rubric:: Example:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: synchronous
 
-            >>> from neet.automata import ECA
-            >>> from neet.boolean.examples import s_pombe
-            >>> from neet.synchronous import Landscape
-            >>> landscape = Landscape(s_pombe)
-            <neet.synchronous.Landscape object at 0x101c74810>
+            >>> Landscape(s_pombe)
+            <neet.synchronous.Landscape object at 0x...>
             >>> Landscape(ECA(30), size=5)
-            <neet.synchronous.Landscape object at 0x10415b6d0>
+            <neet.synchronous.Landscape object at 0x...>
 
         :param net: the network
         :param size: the size of the network (``None`` if fixed sized)
@@ -467,18 +476,13 @@ class Landscape(StateSpace):
         """
         The landscape's dynamical network
 
-        .. rubric:: Example:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: synchronous
 
-            >>> from neet.boolean.examples import s_pombe
-            >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.network
-            array([array([76]), array([4]), array([8]), array([12]),
-                   array([144, 110, 384]), array([68]), array([72]),
-                   array([132]), array([136]), array([140]), array([196]),
-                   array([200]), array([204])], dtype=object)
+            <neet.boolean.wtnetwork.WTNetwork object at 0x...>
         """
         return self.__net
 
@@ -487,12 +491,10 @@ class Landscape(StateSpace):
         """
         The number of nodes in the landscape's dynamical network
 
-        .. rubric:: Example:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: synchronous
 
-            >>> from neet.boolean.examples import s_pombe
-            >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.size
             9
@@ -507,19 +509,17 @@ class Landscape(StateSpace):
         The transitions array is an array, indexed by states, whose
         values are the subsequent state of the indexing state.
 
-        .. rubric:: Example:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: synchronous
 
-            >>> from neet.boolean.examples import s_pombe
-            >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.transitions
-            array([  2,   2, 130, 130,   4,   0, 128, 128,   8,   0, 128, 128,
-                    12,   0, 128, 128, 256, 256, 384, 384, 260, 256, 384, 384,
+            array([  2,   2, 130, 130,   4,   0, 128, 128,   8,   0, 128, 128,  12,
+                     0, 128, 128, 256, 256, 384, 384, 260, 256, 384, 384, 264, 256,
                    ...
-                   208, 208, 336, 336, 464, 464, 340, 336, 464, 464, 344, 336,
-                   464, 464, 348, 336, 464, 464])
+                   208, 208, 336, 336, 464, 464, 340, 336, 464, 464, 344, 336, 464,
+                   464, 348, 336, 464, 464])
         """
         return self.__transitions
 
@@ -531,18 +531,16 @@ class Landscape(StateSpace):
         Each element of the array is an array of states in an attractor
         cycle.
 
-        .. rubric:: Example:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: synchronous
 
-            >>> from neet.boolean.examples import s_pombe
-            >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.attractors
             array([array([76]), array([4]), array([8]), array([12]),
-                   array([144, 110, 384]), array([68]), array([72]),
-                   array([132]), array([136]), array([140]), array([196]),
-                   array([200]), array([204])], dtype=object)
+                   array([144, 110, 384]), array([68]), array([72]), array([132]),
+                   array([136]), array([140]), array([196]), array([200]),
+                   array([204])], dtype=object)
         """
         if not self.__expounded:
             self.__expound()
@@ -553,21 +551,17 @@ class Landscape(StateSpace):
         """
         The array of basin numbers, indexed by states.
 
-        This array associates each state with its basin number.
+        .. rubric:: Examples
 
-        .. rubric:: Example:
+        .. doctest:: synchronous
 
-        ::
-
-            >>> from neet.boolean.examples import s_pombe
-            >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.basins
-            array([ 0,  0,  0,  0,  1,  0,  0,  0,  2,  0,  0,  0,  3,  0,  0,
-                    0,  0,  0,  4,  4,  0,  0,  4,  4,  0,  0,  4,  4,  0,  0,
+            array([ 0,  0,  0,  0,  1,  0,  0,  0,  2,  0,  0,  0,  3,  0,  0,  0,  0,
+                    0,  4,  4,  0,  0,  4,  4,  0,  0,  4,  4,  0,  0,  4,  4,  4,  4,
                     ...
-                    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-                    0,  0,  0,  0])
+                    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+                    0,  0])
         """
         if not self.__expounded:
             self.__expound()
@@ -578,16 +572,13 @@ class Landscape(StateSpace):
         """
         The basin sizes as an array indexed by the basin number.
 
-        .. rubric:: Example:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: synchronous
 
-            >>> from neet.boolean.examples import s_pombe
-            >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.basin_sizes
-            array([378,   2,   2,   2, 104,   6,   6,   2,   2,   2,   2,   2,
-                   2])
+            array([378,   2,   2,   2, 104,   6,   6,   2,   2,   2,   2,   2,   2])
         """
         if not self.__expounded:
             self.__expound()
@@ -598,20 +589,17 @@ class Landscape(StateSpace):
         """
         The in-degree of each state as an array.
 
-        .. rubric:: Example:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: synchronous
 
-            >>> from neet.boolean.examples import s_pombe
-            >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.in_degrees
-            array([ 6,  0,  4,  0,  2,  0,  0,  0,  2,  0,  0,  0,  2,  0,  0,
-                    0, 12,  0,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+            array([ 6,  0,  4,  0,  2,  0,  0,  0,  2,  0,  0,  0,  2,  0,  0,  0, 12,
+                    0,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                     ...
-                    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-                    0,  0,  0,  0])
-
+                    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+                    0,  0])
         """
         if not self.__expounded:
             self.__expound()
@@ -625,19 +613,17 @@ class Landscape(StateSpace):
         The *height* of a state is the number of time steps from that
         state to a state in it's attractor cycle.
 
-        .. rubric:: Example:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: synchronous
 
-            >>> from neet.boolean.examples import s_pombe
-            >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.heights
-            array([7, 7, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 8, 8, 1, 1,
-                   2, 8, 1, 1, 2, 8, 1, 1, 2, 8, 1, 1, 2, 2, 2, 2, 9, 9, 1, 1,
+            array([7, 7, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 8, 8, 1, 1, 2, 8,
+                   1, 1, 2, 8, 1, 1, 2, 8, 1, 1, 2, 2, 2, 2, 9, 9, 1, 1, 9, 9, 1, 1,
                    ...
-                   2, 3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3,
-                   3, 3, 3, 3, 3, 3, 3, 3, 3])
+                   3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                   3, 3, 3, 3, 3, 3])
         """
         if not self.__expounded:
             self.__expound()
@@ -649,12 +635,10 @@ class Landscape(StateSpace):
         The length of each attractor cycle as an array, indexed by the
         attractor.
 
-        .. rubric:: Example:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: synchronous
 
-            >>> from neet.boolean.examples import s_pombe
-            >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.attractor_lengths
             array([1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1])
@@ -671,19 +655,17 @@ class Landscape(StateSpace):
         The *recurrence time* is the number of time steps from that
         state until a state is repeated.
 
-        .. rubric:: Example:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: synchronous
 
-            >>> from neet.boolean.examples import s_pombe
-            >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.recurrence_times
-            array([7, 7, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 8, 8, 3, 3,
-                   2, 8, 3, 3, 2, 8, 3, 3, 2, 8, 3, 3, 4, 4, 4, 4, 9, 9, 3, 3,
+            array([7, 7, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 8, 8, 3, 3, 2, 8,
+                   3, 3, 2, 8, 3, 3, 2, 8, 3, 3, 4, 4, 4, 4, 9, 9, 3, 3, 9, 9, 3, 3,
                    ...
-                   4, 3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3,
-                   3, 3, 3, 3, 3, 3, 3, 3, 3])
+                   3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                   3, 3, 3, 3, 3, 3])
         """
         if not self.__expounded:
             self.__expound()
@@ -695,12 +677,10 @@ class Landscape(StateSpace):
         The state transitions graph of the landscape as a
         ``networkx.Digraph``.
 
-        .. rubric:: Example:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: synchronous
 
-            >>> from neet.boolean.examples import s_pombe
-            >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.graph
             <networkx.classes.digraph.DiGraph object at 0x106504810>
@@ -740,13 +720,13 @@ class Landscape(StateSpace):
         memory. This is a trade-off that we are willing to make for now.
 
         The properties that are computed by this function include:
-            - :py:method:`.attractors`
-            - :py:method:`.basins`
-            - :py:method:`.basin_sizes`
-            - :py:method:`.in_degrees`
-            - :py:method:`.heights`
-            - :py:method:`.attractor_lengths`
-            - :py:method:`.recurrence_times`
+            - :method:`attractors`
+            - :method:`basins`
+            - :method:`basin_sizes`
+            - :method:`in_degrees`
+            - :method:`heights`
+            - :method:`attractor_lengths`
+            - :method:`recurrence_times`
         """
         # Get the state transitions
         trans = self.__transitions
@@ -898,24 +878,13 @@ class Landscape(StateSpace):
         resulting trajectory should be one greater than the recurrence
         time of the state.
 
-        .. rubric:: Example:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: synchronous
 
-            >>> from neet.boolean.examples import s_pombe
-            >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.trajectory([1,0,0,1,0,1,1,0,1])
-            [[1, 0, 0, 1, 0, 1, 1, 0, 1],
-             [0, 0, 0, 0, 1, 0, 1, 0, 0],
-             [0, 0, 0, 0, 0, 0, 1, 0, 1],
-             [0, 1, 1, 1, 0, 0, 1, 0, 0],
-             [0, 0, 0, 0, 0, 0, 0, 1, 0],
-             [0, 1, 0, 0, 0, 1, 0, 1, 0],
-             [0, 1, 0, 0, 1, 1, 0, 1, 0],
-             [0, 0, 0, 0, 1, 0, 0, 1, 1],
-             [0, 0, 1, 1, 0, 0, 1, 0, 1],
-             [0, 0, 1, 1, 0, 0, 1, 0, 0]]
+            [[1, 0, 0, 1, 0, 1, 1, 0, 1], ... [0, 0, 1, 1, 0, 0, 1, 0, 0]]
 
             >>> landscape.trajectory([1,0,0,1,0,1,1,0,1], encode=True)
             [361, 80, 320, 78, 128, 162, 178, 400, 332, 76]
@@ -924,16 +893,7 @@ class Landscape(StateSpace):
             [361, 80, 320, 78, 128, 162, 178, 400, 332, 76]
 
             >>> landscape.trajectory(361, encode=False)
-            [[1, 0, 0, 1, 0, 1, 1, 0, 1],
-             [0, 0, 0, 0, 1, 0, 1, 0, 0],
-             [0, 0, 0, 0, 0, 0, 1, 0, 1],
-             [0, 1, 1, 1, 0, 0, 1, 0, 0],
-             [0, 0, 0, 0, 0, 0, 0, 1, 0],
-             [0, 1, 0, 0, 0, 1, 0, 1, 0],
-             [0, 1, 0, 0, 1, 1, 0, 1, 0],
-             [0, 0, 0, 0, 1, 0, 0, 1, 1],
-             [0, 0, 1, 1, 0, 0, 1, 0, 1],
-             [0, 0, 1, 1, 0, 0, 1, 0, 0]]
+            [[1, 0, 0, 1, 0, 1, 1, 0, 1], ... [0, 0, 1, 1, 0, 0, 1, 0, 0]]
 
             >>> landscape.trajectory(361, timesteps=5)
             [361, 80, 320, 78, 128, 162]
@@ -970,7 +930,7 @@ class Landscape(StateSpace):
 
             path = [init] * (timesteps + 1)
             for i in range(1, len(path)):
-                path[i] = trans[path[i-1]]
+                path[i] = trans[path[i - 1]]
         else:
             path = [init]
             state = trans[init]
@@ -993,12 +953,10 @@ class Landscape(StateSpace):
         are indexed by, in order, the node, the initial state and the
         time step.
 
-        .. rubric:: Example:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: synchronous
 
-            >>> from neet.boolean.examples import s_pombe
-            >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.timeseries(5)
             array([[[0, 0, 0, 0, 0, 0],
@@ -1008,7 +966,7 @@ class Landscape(StateSpace):
                     [1, 0, 0, 0, 0, 0],
                     [0, 0, 0, 0, 0, 0],
                     [1, 0, 0, 0, 0, 0]],
-
+            <BLANKLINE>
                    [[0, 1, 1, 1, 1, 0],
                     [0, 1, 1, 1, 1, 0],
                     [1, 1, 1, 1, 0, 0],
@@ -1016,9 +974,9 @@ class Landscape(StateSpace):
                     [0, 0, 0, 0, 0, 0],
                     [1, 0, 0, 0, 0, 0],
                     [1, 0, 0, 0, 0, 0]],
-
+            <BLANKLINE>
                    ...
-
+            <BLANKLINE>
                    [[0, 0, 1, 1, 1, 1],
                     [0, 0, 1, 1, 1, 1],
                     [0, 1, 1, 1, 1, 0],
@@ -1026,7 +984,7 @@ class Landscape(StateSpace):
                     [1, 0, 0, 0, 0, 0],
                     [1, 1, 0, 0, 0, 0],
                     [1, 1, 0, 0, 0, 0]],
-
+            <BLANKLINE>
                    [[0, 0, 0, 0, 0, 1],
                     [0, 0, 0, 0, 0, 1],
                     [0, 0, 0, 0, 1, 1],
@@ -1071,22 +1029,19 @@ class Landscape(StateSpace):
         to be :math:`2` so that the result is never `NaN`. The base can
         be forcibly overridden with the ``base`` keyword argument.
 
-        .. rubric:: Example:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: synchronous
 
-            >>> from math import e
-            >>> from neet.boolean.examples import s_pombe
-            >>> from neet.synchronous import Landscape
             >>> landscape = Landscape(s_pombe)
             >>> landscape.basin_entropy()
-            1.2218888338849747
+            1.221888833884975
             >>> landscape.basin_entropy(base=2)
-            1.2218888338849747
+            1.221888833884975
             >>> landscape.basin_entropy(base=10)
-            0.367825190366261
+            0.36782519036626105
             >>> landscape.basin_entropy(base=e)
-            0.8469488001650496
+            0.8469488001650497
 
         :param base: the base of the logarithm
         :type base: a number or ``None``

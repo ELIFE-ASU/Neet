@@ -1,65 +1,54 @@
-Synchronous API
-===============
-
-API Documentation
------------------
-
 .. automodule:: neet.synchronous
 
-Time Series Generation
-^^^^^^^^^^^^^^^^^^^^^^
+    Time Series Generation
+    ^^^^^^^^^^^^^^^^^^^^^^
 
-    .. autofunction:: neet.synchronous.trajectory
+    .. autofunction:: trajectory
 
-    .. autofunction:: neet.synchronous.transitions
+    .. autofunction:: transitions
 
-    .. autofunction:: neet.synchronous.timeseries
+    .. autofunction:: timeseries
 
-Synchronous Landscape Analysis Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Synchronous Landscape Analysis Functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    .. autofunction:: neet.synchronous.transition_graph
+    .. autofunction:: transition_graph
 
-    .. autofunction:: neet.synchronous.attractors
+    .. autofunction:: attractors
 
-    .. autofunction:: neet.synchronous.basins
+    .. autofunction:: basins
 
-    .. autofunction:: neet.synchronous.basin_entropy
+    .. autofunction:: basin_entropy
 
-Attractor Landscape
-^^^^^^^^^^^^^^^^^^^
+    Attractor Landscape
+    ^^^^^^^^^^^^^^^^^^^
 
-    .. autoclass:: neet.synchronous.Landscape
+    .. autoclass:: Landscape
 
-        .. automethod:: neet.synchronous.Landscape.__init__
+        .. automethod:: __init__
 
-Attributes
-""""""""""
+        .. autoattribute:: network
 
-        .. autoattribute:: neet.synchronous.Landscape.network
+        .. autoattribute:: size
 
-        .. autoattribute:: neet.synchronous.Landscape.size
+        .. autoattribute:: transitions
 
-        .. autoattribute:: neet.synchronous.Landscape.transitions
+        .. autoattribute:: attractors
 
-        .. autoattribute:: neet.synchronous.Landscape.attractors
+        .. autoattribute:: attractor_lengths
 
-        .. autoattribute:: neet.synchronous.Landscape.attractor_lengths
+        .. autoattribute:: basins
 
-        .. autoattribute:: neet.synchronous.Landscape.basins
+        .. autoattribute:: basin_sizes
 
-        .. autoattribute:: neet.synchronous.Landscape.basin_sizes
+        .. autoattribute:: in_degrees
 
-        .. autoattribute:: neet.synchronous.Landscape.in_degrees
+        .. autoattribute:: heights
 
-        .. autoattribute:: neet.synchronous.Landscape.heights
+        .. autoattribute:: recurrence_times
 
-        .. autoattribute:: neet.synchronous.Landscape.recurrence_times
+        .. automethod:: trajectory
 
-Methods
-"""""""
-        .. automethod:: neet.synchronous.Landscape.trajectory
+        .. automethod:: timeseries
 
-        .. automethod:: neet.synchronous.Landscape.timeseries
-
-        .. automethod:: neet.synchronous.Landscape.basin_entropy
+        .. automethod:: basin_entropy
