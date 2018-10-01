@@ -1,6 +1,8 @@
 .. automodule:: neet.automata
+    :synopsis: Automata networks
 
     .. automodule:: neet.automata.eca
+        :synopsis: Elementary cellular automata
 
         .. autoclass:: ECA
 
@@ -25,6 +27,7 @@
             .. automethod:: draw
 
     .. automodule:: neet.automata.reca
+        :synopsis: Rewired elementary cellular automata
 
         .. autoclass:: RewiredECA
 
