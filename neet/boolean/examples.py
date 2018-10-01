@@ -1,7 +1,15 @@
 """
-The examples module provides a collection of pre-loaded model networks such
-as :py:attr:`s_pombe` (fission yeast) and :py:attr:`s_cerevisiae` (budding
-yeast).
+.. currentmodule:: neet.boolean.examples
+
+.. testsetup::
+
+    from neet.boolean.examples import *
+
+Example Networks
+================
+
+The examples module provides a collection of pre-loaded model networks such as
+:attr:`s_pombe` (fission yeast) and :attr:`s_cerevisiae` (budding yeast).
 """
 from neet.boolean import WTNetwork, LogicNetwork
 from os.path import dirname, abspath, realpath, join

@@ -1,3 +1,13 @@
+"""
+.. currentmodule:: neet.boolean.logicnetwork
+
+.. testsetup:: logicnetwork
+
+    from neet.boolean.logicnetwork import LogicNetwork
+
+Logic-based Networks
+====================
+"""
 import re
 from neet.python import long
 from neet.statespace import StateSpace

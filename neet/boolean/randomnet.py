@@ -1,7 +1,15 @@
 """
+.. currentmodule:: neet.boolean.randomnet
+
+.. testsetup::
+
+    from neet.boolean.randomnet import *
+
+Random networks
+===============
+
 Functions that generate random networks from a given network.
 """
-
 import random
 import copy
 import numpy as np

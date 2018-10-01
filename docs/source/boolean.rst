@@ -1,39 +1,83 @@
-Boolean Networks
-================
-
-API Documentation
------------------
-
 .. automodule:: neet.boolean
+    :synopsis: Boolean networks
 
-Weight/Threshold Networks
-^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. automodule:: neet.boolean.wtnetwork
+        :synopsis: Weight-Threshold networks
 
-    .. autoclass:: neet.boolean.WTNetwork
-        :members: __init__, size, state_space, update, _unsafe_update, read
+        .. autoclass:: WTNetwork
 
-Threshold Functions
-"""""""""""""""""""
+            .. automethod:: __init__
 
-        .. automethod:: neet.boolean.WTNetwork.split_threshold
+            .. autoattribute:: size
 
-        .. automethod:: neet.boolean.WTNetwork.negative_threshold
+            .. automethod:: state_space
 
-        .. automethod:: neet.boolean.WTNetwork.positive_threshold
+            .. automethod:: update
 
-Logic-based Networks
-^^^^^^^^^^^^^^^^^^^^
+            .. automethod:: read
 
-    .. autoclass:: neet.boolean.LogicNetwork
-        :members: __init__, size, state_space, update, _unsafe_update, read_table
+            .. automethod:: neighbors_in
 
-Example Networks
-^^^^^^^^^^^^^^^^
+            .. automethod:: neighbors_out
+
+            .. automethod:: neighbors
+
+            .. automethod:: to_networkx_graph
+
+            .. automethod:: draw
+
+            .. automethod:: split_threshold
+
+            .. automethod:: negative_threshold
+
+            .. automethod:: positive_threshold
+
+    .. automodule:: neet.boolean.logicnetwork
+        :synopsis: Logic-based networks
+
+        .. autoclass:: neet.boolean.LogicNetwork
+
+            .. automethod:: __init__
+
+            .. autoattribute:: size
+
+            .. automethod:: state_space
+
+            .. automethod:: update
+
+            .. automethod:: reduce_table
+
+            .. automethod:: read_table
+
+            .. automethod:: read_logic
+
+            .. automethod:: neighbors_in
+
+            .. automethod:: neighbors_out
+
+            .. automethod:: neighbors
+
+            .. automethod:: to_networkx_graph
+
+            .. automethod:: draw
+
+    .. automodule:: neet.boolean.conv
+        :synopsis: Network Type Conversions
+
+        .. autofunction:: neet.boolean.conv.wt_to_logic 
+
+    .. automodule:: neet.boolean.randomnet
+        :synopsis: Network randomization functions
+
+        .. autofunction:: rewiring_fixed_degree
+        .. autofunction:: rewiring_fixed_size
+        .. autofunction:: random_logic
 
     .. automodule:: neet.boolean.examples
+        :synopsis: Example Networks
 
-Yeast Networks
-""""""""""""""
+        Yeast Networks
+        """"""""""""""
 
         .. autoattribute:: neet.boolean.examples.s_pombe
           :annotation: = <neet.boolean.WTNetwork object>
@@ -41,17 +85,11 @@ Yeast Networks
         .. autoattribute:: neet.boolean.examples.s_cerevisiae
           :annotation: = <neet.boolean.WTNetwork object>
 
-p53 Networks
-""""""""""""
+        p53 Networks
+        """"""""""""
 
         .. autoattribute:: neet.boolean.examples.p53_no_dmg
           :annotation: = <neet.boolean.WTNetwork object>
 
         .. autoattribute:: neet.boolean.examples.p53_dmg
           :annotation: = <neet.boolean.WTNetwork object>
-
-
-Random networks
-^^^^^^^^^^^^^^^
-
-    .. automodule:: neet.boolean.randomnet

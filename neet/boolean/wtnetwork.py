@@ -1,3 +1,13 @@
+"""
+.. currentmodule:: neet.boolean.wtnetwork
+
+.. testsetup:: wtnetwork
+
+    from neet.boolean.wtnetwork import WTNetwork
+
+Weight/Threshold Networks
+=========================
+"""
 import numpy as np
 import networkx as nx
 import re

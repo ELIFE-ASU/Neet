@@ -1,6 +1,15 @@
+"""
+.. currentmodule:: neet.boolean.conv
+
+.. testsetup:: conv
+
+    from neet.boolean.conv import *
+
+Network Type Conversion
+=======================
+"""
 from .logicnetwork import LogicNetwork
 from .wtnetwork import WTNetwork
-
 
 def wt_to_logic(net):
     """Convert a WTNetwork to a LogicNetwork."""
@@ -25,3 +34,4 @@ def wt_to_logic(net):
         truth_table.append((indices, conditions))
 
     return LogicNetwork(truth_table, net.names, reduced=True)
+
