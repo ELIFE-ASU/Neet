@@ -4,7 +4,7 @@
     .. automodule:: neet.boolean.wtnetwork
         :synopsis: Weight-Threshold networks
 
-        .. autoclass:: WTNetwork
+        .. autoclass:: neet.boolean.WTNetwork
 
             .. automethod:: __init__
 
