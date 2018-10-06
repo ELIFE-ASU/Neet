@@ -3,6 +3,7 @@
 
 .. testsetup:: wtnetwork
 
+    from neet.boolean.examples import s_pombe
     from neet.boolean.wtnetwork import WTNetwork
 
 Weight/Threshold Networks
@@ -28,39 +29,39 @@ class WTNetwork(object):
 
         .. rubric:: Examples
 
-        ::
+        .. doctest:: wtnetwork
 
             >>> net = WTNetwork([[1,0],[1,1]])
             >>> net.size
             2
             >>> net.weights
-            array([[ 1.,  0.],
-                   [ 1.,  1.]])
+            array([[1., 0.],
+                   [1., 1.]])
             >>> net.thresholds
-            array([ 0.,  0.])
+            array([0., 0.])
 
-        ::
+        .. doctest:: wtnetwork
 
             >>> net = WTNetwork([[1,0],[1,1]], [0.5,-0.5])
             >>> net.size
             2
             >>> net.weights
-            array([[ 1.,  0.],
-                   [ 1.,  1.]])
+            array([[1., 0.],
+                   [1., 1.]])
             >>> net.thresholds
             array([ 0.5, -0.5])
 
-        ::
+        .. doctest:: wtnetwork
 
             >>> net = WTNetwork(3)
             >>> net.size
             3
             >>> net.weights
-            array([[ 0.,  0.,  0.],
-                   [ 0.,  0.,  0.],
-                   [ 0.,  0.,  0.]])
+            array([[0., 0., 0.],
+                   [0., 0., 0.],
+                   [0., 0., 0.]])
             >>> net.thresholds
-            array([ 0.,  0.,  0.])
+            array([0., 0., 0.])
 
         :param weights: the network weights, where: source/column -> target/row
         :param thresholds: the network thresholds
@@ -123,9 +124,7 @@ class WTNetwork(object):
         """
         The number of nodes in the network.
 
-        .. rubric:: Example:
-
-        ::
+        .. doctest:: wtnetwork
 
             >>> net = WTNetwork(5)
             >>> net.size
@@ -141,21 +140,18 @@ class WTNetwork(object):
 
     def state_space(self):
         """
-        Return a :class:`StateSpace` object for the network.
+        Return a :class:`neet.statespace.StateSpace` object for the network.
 
-        ::
+        .. doctest:: wtnetwork
 
             >>> net = WTNetwork(3)
             >>> net.state_space()
-            <neet.statespace.StateSpace object at 0x00000193E4DA84A8>
+            <neet.statespace.StateSpace object at 0x...>
             >>> space = net.state_space()
             >>> list(space)
-            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1],
-            [0, 1, 1], [1, 1, 1]]
+            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
 
-        :param n: the number of nodes in the lattice
-        :type n: int
-        :raises ValueError: if ``n < 1``
+        :returns: the network's :class:`neet.statespace.StateSpace`
         """
         return StateSpace(self.size, base=2)
 
@@ -164,23 +160,21 @@ class WTNetwork(object):
         Update ``states``, in place, according to the network update rules
         without checking the validity of the arguments.
 
-        .. rubric:: Basic Use:
+        .. rubric:: Basic Use
 
-        ::
+        .. doctest:: wtnetwork
 
-            >>> net = WTNetwork.read("fission-net-nodes.txt",
-            ... "fission-net-edges.txt")
-            >>> net.size
+            >>> s_pombe.size
             9
             >>> xs = [0,0,0,0,1,0,0,0,0]
-            >>> net._unsafe_update(xs)
+            >>> s_pombe._unsafe_update(xs)
             [0, 0, 0, 0, 0, 0, 0, 0, 1]
-            >>> net._unsafe_update(xs)
+            >>> s_pombe._unsafe_update(xs)
             [0, 1, 1, 1, 0, 0, 1, 0, 0]
 
-        .. rubric:: Single-Node Update:
+        .. rubric:: Single-Node Update
 
-        ::
+        .. doctest:: wtnetwork
 
             >>> xs = [0,0,0,0,1,0,0,0,0]
             >>> net._unsafe_update(xs, index=-1)
@@ -191,9 +185,9 @@ class WTNetwork(object):
             [0, 0, 1, 1, 1, 0, 0, 0, 1]
 
 
-        .. rubric:: State Pinning:
+        .. rubric:: State Pinning
 
-        ::
+        .. doctest:: wtnetwork
 
             >>> net._unsafe_update([0,0,0,0,1,0,0,0,0], pin=[-1])
             [0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -204,9 +198,9 @@ class WTNetwork(object):
             >>> net._unsafe_update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
             [0, 0, 0, 0, 0, 0, 1, 0, 1]
 
-        .. rubric:: Value Fixing:
+        .. rubric:: Value Fixing
 
-        ::
+        .. doctest:: wtnetwork
 
             >>> net.update([0,0,0,0,1,0,0,0,0], values={0:1, 2:1})
             [1, 0, 1, 0, 0, 0, 0, 0, 1]
@@ -215,9 +209,9 @@ class WTNetwork(object):
             >>> net.update([0,0,0,0,0,0,0,0,1], values={-1:1, -2:1})
             [0, 1, 1, 1, 0, 0, 1, 1, 1]
 
-        .. rubric:: Erroneous Usage:
+        .. rubric:: Erroneous Usage
 
-        ::
+        .. doctest:: wtnetwork
 
             >>> net._unsafe_update([0,0,0])
             Traceback (most recent call last):
@@ -261,89 +255,87 @@ class WTNetwork(object):
         """
         Update ``states``, in place, according to the network update rules.
 
-        .. rubric:: Basic Use:
+        .. rubric:: Basic Use
 
-        ::
+        .. doctest:: wtnetwork
 
-            >>> net = WTNetwork.read("fission-net-nodes.txt",
-            ... "fission-net-edges.txt")
-            >>> net.size
+            >>> s_pombe.size
             9
             >>> xs = [0,0,0,0,1,0,0,0,0]
-            >>> net.update(xs)
+            >>> s_pombe.update(xs)
             [0, 0, 0, 0, 0, 0, 0, 0, 1]
-            >>> net.update(xs)
+            >>> s_pombe.update(xs)
             [0, 1, 1, 1, 0, 0, 1, 0, 0]
 
-        .. rubric:: Single-Node Update:
+        .. rubric:: Single-Node Update
 
-        ::
+        .. doctest:: wtnetwork
 
             >>> xs = [0,0,0,0,1,0,0,0,0]
-            >>> net.update(xs, index=-1)
+            >>> s_pombe.update(xs, index=-1)
             [0, 0, 0, 0, 1, 0, 0, 0, 1]
-            >>> net.(xs, index=2)
+            >>> s_pombe.update(xs, index=2)
             [0, 0, 1, 0, 1, 0, 0, 0, 1]
-            >>> net.(xs, index=3)
+            >>> s_pombe.update(xs, index=3)
             [0, 0, 1, 1, 1, 0, 0, 0, 1]
 
-        .. rubric:: State Pinning:
+        .. rubric:: State Pinning
 
-        ::
+        .. doctest:: wtnetwork
 
-            >>> net.update([0,0,0,0,1,0,0,0,0], pin=[-1])
+            >>> s_pombe.update([0,0,0,0,1,0,0,0,0], pin=[-1])
             [0, 0, 0, 0, 0, 0, 0, 0, 0]
-            >>> net.update([0,0,0,0,0,0,0,0,1], pin=[1])
+            >>> s_pombe.update([0,0,0,0,0,0,0,0,1], pin=[1])
             [0, 0, 1, 1, 0, 0, 1, 0, 0]
-            >>> net.update([0,0,0,0,0,0,0,0,1], pin=range(1,4))
+            >>> s_pombe.update([0,0,0,0,0,0,0,0,1], pin=range(1,4))
             [0, 0, 0, 0, 0, 0, 1, 0, 0]
-            >>> net.update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
+            >>> s_pombe.update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
             [0, 0, 0, 0, 0, 0, 1, 0, 1]
 
-        .. rubric:: Value Fixing:
+        .. rubric:: Value Fixing
 
-        ::
+        .. doctest:: wtnetwork
 
-            >>> net.update([0,0,0,0,1,0,0,0,0], values={0:1, 2:1})
+            >>> s_pombe.update([0,0,0,0,1,0,0,0,0], values={0:1, 2:1})
             [1, 0, 1, 0, 0, 0, 0, 0, 1]
-            >>> net.update([0,0,0,0,0,0,0,0,1], values={0:1, 1:0, 2:0})
+            >>> s_pombe.update([0,0,0,0,0,0,0,0,1], values={0:1, 1:0, 2:0})
             [1, 0, 0, 1, 0, 0, 1, 0, 0]
-            >>> net.update([0,0,0,0,0,0,0,0,1], values={-1:1, -2:1})
+            >>> s_pombe.update([0,0,0,0,0,0,0,0,1], values={-1:1, -2:1})
             [0, 1, 1, 1, 0, 0, 1, 1, 1]
 
-        .. rubric:: Erroneous Usage:
+        .. rubric:: Erroneous Usage
 
-        ::
+        .. doctest:: wtnetwork
 
-            >>> net.update([0,0,0])
+            >>> s_pombe.update([0,0,0])
             Traceback (most recent call last):
                 ...
             ValueError: incorrect number of states in array
-            >>> net.update([0,0,0,0,2,0,0,0,0])
+            >>> s_pombe.update([0,0,0,0,2,0,0,0,0])
             Traceback (most recent call last):
                 ...
             ValueError: invalid node state in states
-            >>> net.update([0,0,0,0,1,0,0,0,0], 9)
+            >>> s_pombe.update([0,0,0,0,1,0,0,0,0], 9)
             Traceback (most recent call last):
                 ...
             IndexError: index 9 is out of bounds for axis 0 with size 9
-            >>> net.update([0,0,0,0,1,0,0,0,0], index=-1, pin=[-1])
+            >>> s_pombe.update([0,0,0,0,1,0,0,0,0], index=-1, pin=[-1])
             Traceback (most recent call last):
                 ...
             ValueError: cannot provide both the index and pin arguments
-            >>> net.update([0,0,0,0,1,0,0,0,0], pin=[10])
+            >>> s_pombe.update([0,0,0,0,1,0,0,0,0], pin=[10])
             Traceback (most recent call last):
                 ...
             IndexError: index 10 is out of bounds for axis 1 with size 9
-            >>> net.update([0,0,0,0,1,0,0,0,0], index=1, values={1:0,3:0,2:1})
+            >>> s_pombe.update([0,0,0,0,1,0,0,0,0], index=1, values={1:0,3:0,2:1})
             Traceback (most recent call last):
                 ...
             ValueError: cannot provide both the index and values arguments
-            >>> net.update([0,0,0,0,1,0,0,0,0], pin=[1], values={1:0,3:0,2:1})
+            >>> s_pombe.update([0,0,0,0,1,0,0,0,0], pin=[1], values={1:0,3:0,2:1})
             Traceback (most recent call last):
                 ...
             ValueError: cannot set a value for a pinned state
-            >>> net.update([0,0,0,0,1,0,0,0,0], values={1:2})
+            >>> s_pombe.update([0,0,0,0,1,0,0,0,0], values={1:2})
             Traceback (most recent call last):
                 ...
             ValueError: invalid state in values argument
@@ -382,30 +374,30 @@ class WTNetwork(object):
         return self._unsafe_update(states, index, pin, values)
 
     @staticmethod
-    def read(nodes_file, edges_file):
+    def read(nodes_path, edges_path):
         """
         Read a network from a pair of node/edge files.
 
-        Note that the node names cannot have spaces in them.
+        .. doctest:: wtnetwork
 
-        .. rubric:: Examples:
-
-        ::
-
-            >>> net = WTNetwork.read("fission-net-nodes.txt",
-            ... "fission-net-edges.txt")
+            >>> nodes_path = '../neet/boolean/data/s_pombe-nodes.txt'
+            >>> edges_path = '../neet/boolean/data/s_pombe-edges.txt'
+            >>> net = WTNetwork.read(nodes_path, edges_path)
             >>> net.size
             9
             >>> net.names
-            ['SK', 'Cdc2_Cdc13', 'Ste9', 'Rum1', 'Slp1', 'Cdc2_Cdc13_active',
-             'Wee1_Mik1', 'Cdc25', 'PP']
+            ['SK', 'Cdc2_Cdc13', 'Ste9', 'Rum1', 'Slp1', 'Cdc2_Cdc13_active', 'Wee1_Mik1', 'Cdc25', 'PP']
 
-        :returns: a :class:WTNetwork
+        :param nodes_path: path to the nodes file
+        :type nodes_path: str
+        :param edges_path: path to the edges file
+        :type edges_path: str
+        :returns: a :class:`WTNetwork`
         """
         comment = re.compile(r'^\s*#.*$')
         names, thresholds = [], []
         nameindices, index = dict(), 0
-        with open(nodes_file, "r") as f:
+        with open(nodes_path, "r") as f:
             for line in f.readlines():
                 if comment.match(line) is None:
                     name, threshold = line.strip().split()
@@ -416,7 +408,7 @@ class WTNetwork(object):
 
         n = len(names)
         weights = np.zeros((n, n), dtype=np.float)
-        with open(edges_file, "r") as f:
+        with open(edges_path, "r") as f:
             for line in f.readlines():
                 if comment.match(line) is None:
                     a, b, w = line.strip().split()
@@ -445,9 +437,9 @@ class WTNetwork(object):
         the above threshold function to the pair ``(values, states)`` and
         return the result.
 
-        .. rubric:: Examples:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: wtnetwork
 
             >>> ys = [0,0,0]
             >>> WTNetwork.split_threshold([1, -1, 0], ys)
@@ -506,9 +498,9 @@ class WTNetwork(object):
         the above threshold function to the pair ``(values, states)`` and
         return the result.
 
-        .. rubric:: Examples:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: wtnetwork
 
             >>> ys = [0,0,0]
             >>> WTNetwork.negative_threshold([1, -1, 0], ys)
@@ -566,9 +558,9 @@ class WTNetwork(object):
         the above threshold function to the pair ``(values, states)`` and
         return the result.
 
-        .. rubric:: Examples:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: wtnetwork
 
             >>> ys = [0,0,0]
             >>> WTNetwork.positive_threshold([1, -1, 0], ys)
@@ -580,13 +572,13 @@ class WTNetwork(object):
             [1, 0, 1]
             >>> ys
             [1, 0, 1]
-            >>> WTNetwork.negative_threshold(0,0)
+            >>> WTNetwork.positive_threshold(0,0)
             1
-            >>> WTNetwork.negative_threshold(0,1)
+            >>> WTNetwork.positive_threshold(0,1)
             1
-            >>> WTNetwork.negative_threshold(1,0)
+            >>> WTNetwork.positive_threshold(1,0)
             1
-            >>> WTNetwork.negative_threshold(-1,0)
+            >>> WTNetwork.positive_threshold(-1,0)
             0
 
         :param values: the threshold-shifted values of each node
@@ -608,29 +600,25 @@ class WTNetwork(object):
 
     def neighbors_in(self, index):
         """
-        Return the set of all neighbor nodes, where
-        edge(neighbor_node-->index) exists.
+        Return the set of all neighbor nodes, where edge(neighbor_node-->index)
+        exists. An important consideration is that some threshold functions
+        can introduce implicit dependence between nodes, e.g.
+        :meth:`WTNetwork.split_threshold`.
 
         :param index: node index
         :returns: the set of all node indices which point toward the index node
 
-        .. rubric:: Basic Use:
+        .. rubric:: Examples
 
-        ::
+        .. doctest:: wtnetwork
 
-            >>> net = WTNetwork(
-            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
-             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
-             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
-             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
-             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
-             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
-             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
-             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
-            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
-            >>> net.neighbors_in(2)
-            set([0, 1, 5, 8])
+            >>> net = WTNetwork([[0,0,0],[1,0,1],[0,1,0]],
+            ... theta=WTNetwork.split_threshold)
+            >>> [net.neighbors_in(node) for node in range(net.size)]
+            [{0}, {0, 1, 2}, {1, 2}]
+            >>> net.theta = WTNetwork.negative_threshold
+            >>> [net.neighbors_in(node) for node in range(net.size)]
+            [set(), {0, 2}, {1}]
         """
         negative_thresh = type(self).negative_threshold
         positive_thresh = type(self).positive_threshold
@@ -649,23 +637,17 @@ class WTNetwork(object):
         :param index: node index
         :returns: the set of all node indices which the index node points to
 
-        .. rubric:: Basic Use:
+        .. rubric:: Basic Use
 
-        ::
+        .. doctest:: wtnetwork
 
-            >>> net = WTNetwork(
-            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
-             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
-             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
-             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
-             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
-             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
-             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
-             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
-            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
-            >>> net.neighbors_out(2)
-            set([1, 5])
+            >>> net = WTNetwork([[0,0,0],[1,0,1],[0,1,0]],
+            ... theta=WTNetwork.split_threshold)
+            >>> [net.neighbors_out(node) for node in range(net.size)]
+            [{0, 1}, {1, 2}, {1, 2}]
+            >>> net.theta = WTNetwork.negative_threshold
+            >>> [net.neighbors_out(node) for node in range(net.size)]
+            [{1}, {2}, {1}]
         """
         negative_thresh = type(self).negative_threshold
         positive_thresh = type(self).positive_threshold
@@ -686,33 +668,26 @@ class WTNetwork(object):
         :returns: a set (if index!=None) or list of sets of neighbors of a
                   node or network or nodes
 
-        .. rubric:: Basic Use:
+        .. doctest:: wtnetwork
 
-        ::
-
-            >>> net = WTNetwork(
-            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0, 0.0, 0.0, 0.0],
-             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
-             [-1.0,-1.0, 0.0, 0.0, 0.0,-1.0, 0.0, 0.0, 1.0],
-             [ 0.0, 0.0, 0.0, 0.0,-1.0, 1.0, 0.0, 0.0, 0.0],
-             [ 0.0, 0.0,-1.0,-1.0,-1.0, 0.0,-1.0, 1.0, 0.0],
-             [ 0.0,-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
-             [ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-1.0],
-             [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,-1.0]],
-            [ 0.0,-0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
-            >>> net.neighbors(2)
-            set([0, 1, 5, 8])
+            >>> net = WTNetwork([[0,0,0],[1,0,1],[0,1,0]],
+            ... theta=WTNetwork.split_threshold)
+            >>> [net.neighbors(node) for node in range(net.size)]
+            [{0, 1}, {0, 1, 2}, {1, 2}]
+            >>> net.theta = WTNetwork.negative_threshold
+            >>> [net.neighbors(node) for node in range(net.size)]
+            [{1}, {0, 2}, {1}]
         """
         return self.neighbors_in(index) | self.neighbors_out(index)
 
     def to_networkx_graph(self, labels='indices'):
         """
-        Return networkx graph given neet network.  Requires networkx.
+        Return networkx graph given neet network.
+        Return a ``networkx`` graph from a :class:`WTNetwork`.
 
-        :param labels: how node is labeled and thus identified in networkx
-                       graph ('names' or 'indices')
-        :returns: a networkx DiGraph
+        :param labels: how nodes are labeled and thus identified in networkx
+                       graph (``'names'`` or ``'indices'``)
+        :returns: a ``networkx.DiGraph``
         """
         if labels == 'names':
             if hasattr(self, 'names') and (self.names is not None):
@@ -737,18 +712,19 @@ class WTNetwork(object):
         """
         Output a file with a simple network drawing.
 
-        Requires networkx and pygraphviz.
+        Requires ``networkx`` and ``pygraphviz``.
 
-        Supported image formats are determined by graphviz.
-        In particular, pdf support requires 'cairo' and 'pango' to be
-        installed prior to graphviz installation.
+        Supported image formats are determined by ``graphviz``. In particular,
+        pdf support requires ``cairo`` and ``pango`` to be installed prior to
+        ``graphviz`` installation.
 
         :param labels: how node is labeled and thus identified in networkx
                        graph ('names' or 'indices'), only used if network is
-                       a LogicNetwork or WTNetwork
+                       a :class:`neet.boolean.LogicNetwork` or
+                       :class:`WTNetwork`
         :param filename: filename to write drawing to. Temporary filename will
                        be used if no filename provided.
-        :returns: a pygraphviz network drawing
+        :returns: a ``pygraphviz`` network drawing
 
         """
         nx.nx_agraph.view_pygraphviz(self.to_networkx_graph(
