@@ -76,20 +76,26 @@
     .. automodule:: neet.boolean.examples
         :synopsis: Example Networks
 
-        Yeast Networks
-        """"""""""""""
-
-        .. autoattribute:: neet.boolean.examples.s_pombe
+        .. autodata:: s_pombe
           :annotation: = <neet.boolean.WTNetwork object>
 
-        .. autoattribute:: neet.boolean.examples.s_cerevisiae
+        .. autodata:: neet.boolean.examples.s_cerevisiae
           :annotation: = <neet.boolean.WTNetwork object>
 
-        p53 Networks
-        """"""""""""
-
-        .. autoattribute:: neet.boolean.examples.p53_no_dmg
+        .. autodata:: neet.boolean.examples.c_elegans
           :annotation: = <neet.boolean.WTNetwork object>
 
-        .. autoattribute:: neet.boolean.examples.p53_dmg
+        .. autodata:: neet.boolean.examples.p53_no_dmg
           :annotation: = <neet.boolean.WTNetwork object>
+
+        .. autodata:: neet.boolean.examples.p53_dmg
+          :annotation: = <neet.boolean.WTNetwork object>
+
+        .. autodata:: neet.boolean.examples.mouse_cortical_7B
+          :annotation: = <neet.boolean.LogicNetwork object>
+
+        .. autodata:: neet.boolean.examples.mouse_cortical_7C
+          :annotation: = <neet.boolean.LogicNetwork object>
+
+        .. autodata:: neet.boolean.examples.myeloid
+          :annotation: = <neet.boolean.LogicNetwork object>
