@@ -69,8 +69,6 @@
     .. automodule:: neet.boolean.randomnet
         :synopsis: Network randomization functions
 
-        .. autofunction:: rewiring_fixed_degree
-        .. autofunction:: rewiring_fixed_size
         .. autofunction:: random_logic
 
     .. automodule:: neet.boolean.examples

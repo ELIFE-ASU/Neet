@@ -1,137 +1,93 @@
 """
 .. currentmodule:: neet.boolean.randomnet
 
-.. testsetup::
+.. testsetup:: randomnet
 
+    import numpy as np
+    from neet.boolean.examples import *
     from neet.boolean.randomnet import *
+    def neighbors_in(net):
+        return [net.neighbors_in(node) for node in range(net.size)]
+    def neighbors_out(net):
+        return [net.neighbors_out(node) for node in range(net.size)]
+    def in_degree(net):
+        return [len(net.neighbors_in(node)) for node in range(net.size)]
+    def out_degree(net):
+        return [len(net.neighbors_out(node)) for node in range(net.size)]
+    def mean_degree(net):
+        return np.mean(out_degree(net))
 
 Random networks
 ===============
-
-Functions that generate random networks from a given network.
 """
 import random
 import copy
 import numpy as np
-from .logicnetwork import LogicNetwork
 from neet.sensitivity import canalizing_nodes
-from .wtnetwork import WTNetwork
-
-
-def rewiring_fixed_degree(net):
-    '''
-    Generate a random network by rewiring a given network
-    with fixed (weighted) degree sequence, threshold and self-loops.
-
-    :param net: a network
-    :returns: a random network
-    '''
-    arr = copy.copy(net.weights)
-    length_arr = np.shape(arr)[0]
-    for i in range(length_arr):
-        for j in range(length_arr):
-            if arr[i, j] == 0:
-                continue
-            if i == j:   # to preserve self-loops
-                continue
-            edges_swiped = False
-            r = np.random.choice(length_arr, 2, replace=True)
-            for m in range(length_arr):
-                if edges_swiped:
-                    break
-                a = (m + r[0]) % length_arr
-                for n in range(length_arr):
-                    if edges_swiped:
-                        break
-                    b = (n + r[1]) % length_arr
-                    if a == b:  # to perserve self-loops
-                        continue
-                    # edge-swipe is allowed only between two edges sharing the
-                    # same weight
-                    if arr[i, j] != arr[a, b]:
-                        continue
-                    if a == i or b == j:
-                        # this edge-swipe doesn't make difference
-                        continue
-                    # this edge-swipe will result in double edges.
-                    if arr[i, b] != 0 or arr[a, j] != 0:
-                        continue
-                    # swipe two edges (i, j) and (a, b) to (i, b) and (a, j)
-                    arr[i, b] = arr[i, j]
-                    arr[a, j] = arr[a, b]
-                    arr[i, j] = 0
-                    arr[a, b] = 0
-                    edges_swiped = True
-
-    return WTNetwork(arr, copy.copy(net.thresholds), theta=net.theta)
-
-
-def rewiring_fixed_size(net):
-    '''
-    Generate a random network by rewiring a given network with fixed size (the
-    number of nodes and edges for each weight), threshold and self-loops.
-
-    :param net: a network
-    :returns: a random network
-    '''
-    arr = copy.copy(net.weights)
-    length_arr = np.shape(arr)[0]
-    for i in range(length_arr):
-        for j in range(length_arr):
-            if arr[i, j] == 0:
-                continue
-            if i == j:   # to preserve self-loops
-                continue
-            edges_swiped = False
-            r = np.random.choice(length_arr, 2, replace=True)
-            for m in range(length_arr):
-                if edges_swiped:
-                    break
-                a = (m + r[0]) % length_arr
-                for n in range(length_arr):
-                    if edges_swiped:
-                        break
-                    b = (n + r[1]) % length_arr
-                    if a == b:  # to perserve self-loops
-                        continue
-                    temp = arr[i, j]
-                    arr[i, j] = arr[a, b]
-                    arr[a, b] = temp
-                    edges_swiped = True
-
-    return WTNetwork(arr, copy.copy(net.thresholds), theta=net.theta)
+from .logicnetwork import LogicNetwork
 
 
 def random_logic(logic_net, p=0.5, connections='fixed-structure',
                  fix_external=False, make_irreducible=False,
                  fix_canalizing=False):
     """
-    Return a `LogicNetwork` from an input `LogicNetwork` with a random logic
-    table.
+    Return a ``LogicNetwork`` from an input ``LogicNetwork`` with a random
+    logic table.
 
-    `connections` decides how a node in the random network is connected from
-    other nodes. With the `'fixed-structure'` option, the random network has
-    the same connections as the input network. With the `'fixed-in-degree'`
-    option, the number of connections to a node is the same as the
-    input network, but the connections are randomly selected. With the
-    'fixed-mean-degree' option, the total number of edges is conserved, but
-    edges are placed randomly between nodes.  With the `'free'` option, only
-    the number of nodes is conserved, with the number of connections to a node
-    chosen uniformly between 1 and the total number of nodes.
+    ``connections`` decides how a node in the random network is connected to
+    other nodes:
 
-    `p` is the probability of a state of the connected nodes being present
-    in the activation table. It is also equavolent to the probability of
-    any node being activated. If `p` is a single number, it applies to all
-    nodes. Otherwise `p` must be a sequence of numbers that match in size with
-    the input network.
+        ``'fixed-structure'``
+            the random network has the same connections as the input network.
 
-    :param logic_net: a :class:LogicNetwork
+        ``'fixed-in-degree'``
+            the number of connections to a node is the same as the input
+            network, but the connections are randomly selected.
+
+        ``'fixed-mean-degree'``
+            the total number of edges is conserved, but edges are placed
+            randomly between nodes.
+
+        ``'free'``
+            only the number of nodes is conserved, with the number of
+            connections to a node chosen uniformly between 1 and the total
+            number of nodes.
+
+    ``p`` is the probability of a state of the connected nodes being present in
+    the activation table. It is also equavolent to the probability of any node
+    being activated. If ``p`` is a single number, it applies to all nodes.
+    Otherwise ``p`` must be a sequence of numbers that match in size with the
+    input network.
+
+    .. doctest:: randomnet
+
+        >>> net = random_logic(myeloid, connections='fixed-structure')
+        >>> neighbors_in(net) == neighbors_in(myeloid)
+        True
+        >>> neighbors_out(net) == neighbors_out(myeloid)
+        True
+
+    .. doctest:: randomnet
+
+        >>> net = random_logic(myeloid, connections='fixed-in-degree')
+        >>> in_degree(net) == in_degree(myeloid)
+        True
+        >>> out_degree(net) == out_degree(myeloid)
+        False
+
+    .. doctest:: randomnet
+
+        >>> net = random_logic(myeloid, connections='fixed-mean-degree')
+        >>> mean_degree(net) == mean_degree(myeloid)
+        True
+
+    :param logic_net: a :class:`neet.boolean.LogicNetwork`
     :param p: probability that a state is present in the activation table
     :type p: number or sequence
-    :param connections: 'fixed-structure', 'fixed-in-degree',
-                        'fixed-mean-degree', or 'free'
+    :param connections: ``'fixed-structure'``, ``'fixed-in-degree'``,
+                        ``'fixed-mean-degree'``, or ``'free'``
     :type connections: str
-    :returns: a random :class:LogicNetwork
+    :returns: a random :class:`neet.boolean.LogicNetwork`
     """
     if not isinstance(logic_net, LogicNetwork):
         raise ValueError('object must be a LogicNetwork')
