@@ -26,23 +26,21 @@ class LogicNetwork(object):
         """
         Construct a network from a logic truth table.
 
-        A truth table stores a list of of tuples, one for each node in order.
-        The tuple with the form of `(A, {C1, C2, ...})` at index `i` contains
-        the activation conditions for the node of index `i`. `A` is a tuple
-        marking the indices of the nodes which influence the state of node `i`
-        via logic relations. `{C1, C2, ...}` being a set, each element is the
-        collective binary state of these influencing nodes that would activate
-        node `i`, setting it `1`. Any other collective states of nodes `A` not
-        in the set are assumed to deactivate node `i`, setting it `0`. `C1`,
-        `C2`, etc. are sequences (`tuple` or `str`) of binary digits, each
-        being the binary state of corresponding node in `A`.
+        A truth table stores a list of tuples, one for each node in order. A
+        tuple of the form `(A, {C1, C2, ...})` at index `i` provides the
+        activation conditions for the node of index `i`. `A` is a tuple marking
+        the indices of the nodes which influence the state of node `i` via
+        logic relations. `{C1, C2, ...}` is a set, each element of which is the
+        collection of binary states of these influencing nodes that would
+        activate node `i`, setting it to `1`. Any other collection of states of
+        nodes in `A` are assumed to deactivate node `i`, setting it to `0`.
 
-        :param table: the logic table
-        :param names: names of nodes, default None
+        `C1`, `C2`, etc. are sequences (`tuple` or `str`) of binary digits,
+        each being the binary state of corresponding node in `A`.
 
         .. rubric:: Examples
 
-        ::
+        .. doctest:: logicnetwork
 
             >>> net = LogicNetwork([((0,), {'0'})])
             >>> net.size
@@ -50,27 +48,29 @@ class LogicNetwork(object):
             >>> net.table
             [((0,), {'0'})]
 
-        ::
+        .. doctest:: logicnetwork
 
             >>> net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
             >>> net.size
             2
-            >>> net.table
-            [((1,), {'0', '1'}), ((0,), {'1'})]
+            >>> net.table == [((1,), {'0', '1'}), ((0,), {'1'})]
+            True
 
-        ::
+        .. doctest:: logicnetwork
 
             >>> net = LogicNetwork([((1, 2), {'01', '10'}),
-                                    ((0, 2), ((0, 1), '10', [1, 1])),
-                                    ((0, 1), {'11'})], ['A', 'B'])
+            ... ((0, 2), ((0, 1), '10', [1, 1])),
+            ... ((0, 1), {'11'})], ['A', 'B', 'C'])
             >>> net.size
             3
             >>> net.names
-            ['A', 'B']
-            >>> net.table
-            [((1, 2), {'01', '10'}), ((0, 2), {'01', '10', '11'}),
-             ((0, 1), {'11'})]
+            ['A', 'B', 'C']
+            >>> net.table == [((1, 2), {'01', '10'}),
+            ... ((0, 2), {'01', '11', '10'}), ((0, 1), {'11'})]
+            True
 
+        :param table: the logic table
+        :param names: names of nodes, default None
         """
         if not isinstance(table, (list, tuple)):
             raise TypeError("table must be a list or tuple")
@@ -116,6 +116,15 @@ class LogicNetwork(object):
     def size(self):
         """
         The number of nodes in the network.
+
+        .. doctest:: logicnetwork
+
+            >>> net = LogicNetwork([((1, 2), {'01', '10'}),
+            ... ((0, 2), {'01', '10', '11'}), ((0, 1), {'11'})])
+            >>> net.size
+            3
+
+        :type: int
         """
         return self.__size
 
@@ -137,11 +146,21 @@ class LogicNetwork(object):
 
     def is_dependent(self, target, source):
         """
-        Return True if state of `target` is influenced by the state of
-        `source`.
+        Return True if state of ``target`` is influenced by the state of
+        ``source``.
+
+        .. doctest:: logicnetwork
+
+            >>> net = LogicNetwork([((1, 2), {'01', '10'}),
+            ... ((0, 2), {'01', '10', '11'}), ((0, 1), {'11'})])
+            >>> net.is_dependent(0, 0)
+            False
+            >>> net.is_dependent(0, 2)
+            True
 
         :param target: index of the target node
         :param source: index of the source node
+        :returns: whether the target node is dependent on the source
         """
         sub_table = self.table[target]
         if source not in sub_table[0]:  # No explicit dependency.
@@ -168,6 +187,21 @@ class LogicNetwork(object):
         """
         Reduce truth table by removing input nodes which have no logic
         influence from the truth table of each node.
+
+        .. note::
+            This function introduces the identity function for all nodes which
+            have no inputs. This ensure that every node has a well-defined
+            logical function. The example below demonstrates this with node
+            ``1``.
+
+        .. doctest:: logicnetwork
+
+            >>> net = LogicNetwork([((0,1), {'00', '10'}), ((0,), {'0', '1'})])
+            >>> net.table == [((0,1), {'00', '10'}), ((0,), {'0', '1'})]
+            True
+            >>> net.reduce_table()
+            >>> net.table == [((1,), {'0'}), ((1,), {'1'})]
+            True
         """
         reduced_table = []
         for node, (sources, conditions) in enumerate(self.table):
@@ -204,28 +238,34 @@ class LogicNetwork(object):
         self._encode_table()
 
     def state_space(self):
+        """
+        Return a :class:`neet.statespace.StateSpace` object for the network.
+
+        .. doctest:: logicnetwork
+
+            >>> net = LogicNetwork([((1, 2), {'01', '10'}),
+            ... ((0, 2), {'01', '10', '11'}), ((0, 1), {'11'})])
+            >>> net.state_space()
+            <neet.statespace.StateSpace object at 0x...>
+            >>> space = net.state_space()
+            >>> list(space)
+            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
+
+        :returns: the network's :class:`neet.statespace.StateSpace`
+        """
         return self._state_space
 
     def _unsafe_update(self, net_state, index=None, pin=None, values=None):
         """
-        Update node states according to the truth table. Core update function.
+        Unsafely update node states according to the truth table.
 
-        If `index` is provided, update only node at `index`. If `index` is not
-        provided, update all ndoes. The input `net_state` is not modified.
+        If ``index`` is provided, only update the node at ``index``. If
+        ``index`` is not provided, update all nodes. The input ``net_state`` is
+        not modified.
 
-        :param net_state: a sequence of binary node states
-        :type net_state: sequence
-        :param index: the index to update (or None)
-        :type index: int or None
-        :param pin: the indices to pin (or None)
-        :type pin: sequence
-        :param values: override values
-        :type values: dict
-        :returns: the updated states
+        .. rubric:: Examples
 
-        .. rubric:: Basic Use:
-
-        ::
+        .. doctest:: logicnetwork
 
             >>> net = LogicNetwork([((0,), {'0'})])
             >>> net._unsafe_update([0], 0)
@@ -233,7 +273,7 @@ class LogicNetwork(object):
             >>> net._unsafe_update([1])
             [0]
 
-        ::
+        .. doctest:: logicnetwork
 
             >>> net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
             >>> net._unsafe_update([1, 0], 0))
@@ -243,11 +283,11 @@ class LogicNetwork(object):
             >>> net._unsafe_update([0, 0])
             [1, 0]
 
-        ::
+        .. doctest:: logicnetwork
 
             >>> net = LogicNetwork([((1, 2), {'01', '10'}),
-                                    ((0, 2), {(0, 1), '10', (1, 1)}),
-                                    ((0, 1), {'11'})])
+            ... ((0, 2), {(0, 1), '10', (1, 1)}),
+            ... ((0, 1), {'11'})])
             >>> net.size
             3
             >>> net._unsafe_update([0, 1, 0])
@@ -264,6 +304,16 @@ class LogicNetwork(object):
             [0, 1, 0]
             >>> net._unsafe_update([0, 0, 1], pin=[1], values={0: 0})
             [0, 0, 0]
+
+        :param net_state: a sequence of binary node states
+        :type net_state: sequence
+        :param index: the index to update (or None)
+        :type index: int or None
+        :param pin: the indices to pin (or None)
+        :type pin: sequence
+        :param values: override values
+        :type values: dict
+        :returns: the updated states
         """
         encoded_state = self.state_space()._unsafe_encode(net_state)
 
@@ -292,23 +342,13 @@ class LogicNetwork(object):
         """
         Update node states according to the truth table.
 
-        If `index` is provided, update only node at `index`. If `index` is not
-        provided, update all ndoes. `pin` provides the indices of which the
-        nodes' states are forced to remain unchanged. Update is inplace.
+        If ``index`` is provided, only update the node at ``index``. If
+        ``index`` is not provided, update all ndoes. ``pin`` provides the
+        indices of which the nodes' states are forced to remain unchanged.
 
-        :param net_state: a sequence of binary node states
-        :type net_state: sequence
-        :param index: the index to update (or None)
-        :type index: int or None
-        :param pin: the indices to pin (or None)
-        :type pin: sequence
-        :param values: override values
-        :type values: dict
-        :returns: the updated states
+        .. rubric:: Examples
 
-        .. rubric:: Basic Use:
-
-        ::
+        .. doctest:: logicnetwork
 
             >>> net = LogicNetwork([((0,), {'0'})])
             >>> net.update([0], 0)
@@ -317,21 +357,21 @@ class LogicNetwork(object):
             [0]
             >>>
 
-        ::
+        .. doctest:: logicnetwork
 
             >>> net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
-            >>> net.update([1, 0], 0))
+            >>> net.update([1, 0], 0)
             [1, 0]
-            >>> net.update([1, 0], 1))
+            >>> net.update([1, 0], 1)
             [1, 1]
             >>> net.update([0, 0])
             [1, 0]
 
-        ::
+        .. doctest:: logicnetwork
 
             >>> net = LogicNetwork([((1, 2), {'01', '10'}),
-                                    ((0, 2), {(0, 1), '10', (1, 1)}),
-                                    ((0, 1), {'11'})])
+            ... ((0, 2), {(0, 1), '10', (1, 1)}),
+            ... ((0, 1), {'11'})])
             >>> net.size
             3
             >>> net.update([0, 0, 1], 1)
@@ -348,6 +388,16 @@ class LogicNetwork(object):
             [0, 1, 0]
             >>> net.update([0, 0, 1], pin=[1], values={0: 0})
             [0, 0, 0]
+
+        :param net_state: a sequence of binary node states
+        :type net_state: sequence
+        :param index: the index to update (or None)
+        :type index: int or None
+        :param pin: the indices to pin (or None)
+        :type pin: sequence
+        :param values: override values
+        :type values: dict
+        :returns: the updated states
         """
         if net_state not in self.state_space():
             raise ValueError(
@@ -362,65 +412,67 @@ class LogicNetwork(object):
         return self._unsafe_update(net_state, index, pin, values)
 
     @classmethod
-    def read_table(cls, table_file, reduced=False):
+    def read_table(cls, table_path, reduced=False):
         """
         Read a network from a truth table file.
 
         A logic table file starts with a table title which contains names of
-        all nodes. It is a line marked by `##` at the begining with node names
-        seperated by commas or spaces. This line is required. For artificial
-        network without node names, arbitrary names must be put in place, e.g.:
+        all nodes. It is a line marked by ``##`` at the begining with node
+        names seperated by commas or spaces. This line is required. For
+        artificial network without node names, arbitrary names must be put in
+        place, e.g.:
 
-        `## A B C D`
+        ``## A B C D``
 
         Following are the sub-tables of logic conditions for every node. Each
         sub-table nominates a node and its logically connected nodes in par-
         enthesis as a comment line:
 
-        `# A (B C)`
+        ``# A (B C)``
 
         The rest of the sub-table are states of those nodes in parenthesis
-        (B, C) that would activate the state of A. States that would deactive A
-        should not be included in the sub-table.
+        ``(B, C)`` that would activate the state of A. States that would
+        deactivate ``A`` should not be included in the sub-table.
 
         A complete logic table with 3 nodes A, B, C would look like this:
 
-        '''
-        ## A B C
-        # A (B C)
-        1 0
-        1 1
-        # B (A)
-        1
-        # C (B C A)
-        1 0 1
-        0 1 0
-        0 1 1
-        '''
+        ::
 
-        Custom comments can be added above or below the table title (as long
-        as they are preceeded with more or less than two # (eg # or ### but
-        not ##)).
+            ## A B C
+            # A (B C)
+            1 0
+            1 1
+            # B (A)
+            1
+            # C (B C A)
+            1 0 1
+            0 1 0
+            0 1 1
 
-        :param table_file: a truth table file
-        :returns: a :class:LogicNetwork
+        Custom comments can be added above or below the table title (as long as
+        they are preceeded with more or less than two ``#`` (eg ``#`` or
+        ``###`` but not ``##``)).
 
         .. rubric:: Examples:
 
-        ::
+        .. doctest:: logicnetwork
 
-            >>> net = LogicNetwork.read('myeloid-truth_table.txt')
+            >>> myeloid_path = '../neet/boolean/data/myeloid-truth_table.txt'
+            >>> net = LogicNetwork.read_table(myeloid_path)
             >>> net.size
             11
             >>> net.names
-            ['GATA-2', 'GATA-1', 'FOG-1', 'EKLF', 'Fli-1', 'SCL', 'C/EBPa',
-             'PU.1', 'cJun', 'EgrNab', 'Gfi-1']
+            ['GATA-2', 'GATA-1', 'FOG-1', 'EKLF', 'Fli-1', 'SCL', 'C/EBPa', 'PU.1', 'cJun', 'EgrNab', 'Gfi-1']
+
+        :param table_path: a path to a table table file
+        :type table_path: str
+        :returns: a :class:`LogicNetwork`
         """
         names_format = re.compile(r'^\s*##[^#]+$')
         node_title_format = re.compile(
             r'^\s*#\s*(\S+)\s*\((\s*(\S+\s*)+)\)\s*$')
 
-        with open(table_file, 'r') as f:
+        with open(table_path, 'r') as f:
             lines = f.read().splitlines()
             # Search for node names.
             i = 0
@@ -482,44 +534,46 @@ class LogicNetwork(object):
         return cls(table, names, reduced)
 
     @classmethod
-    def read_logic(cls, logic_file, external_nodes_file=None, reduced=False):
+    def read_logic(cls, logic_path, external_nodes_path=None, reduced=False):
         """
         Read a network from a file of logic equations.
 
-        A logic equations has the form of `A = B AND ( C OR D )`, each term
+        A logic equations has the form of ``A = B AND ( C OR D )``, each term
         being separated from parantheses and logic operators with at least a
-        space. The optional `external_nodes_file` takes a file that contains
-        nodes in a column whose states do not depend on any nodes. These
-        are considered "external" nodes. Equivalently, such a node would
-        have a logic equation `A = A`, for its state stays on or off unless
-        being set externally, but now the node had to be excluded from
-        `external_nodes_file` to avoid duplication and confusion.
+        space. The optional ``external_nodes_path`` takes a file that contains
+        nodes in a column whose states do not depend on any nodes. These are
+        considered "external" nodes. Equivalently, such a node would have a
+        logic equation ``A = A``, for its state stays on or off unless being
+        set externally, but now the node had to be excluded from
+        ``external_nodes_path`` to avoid duplication and confusion.
 
-        :param logic_file: a .txt file of logic equations
-        :param external_nodes_file: a .txt file of external nodes
-        :returns: a :class:LogicNetwork
+        .. rubric:: Examples
 
-        .. rubric:: Basic Use:
+        .. doctest:: logicnetwork
 
-        ::
-
-            >>> net = LogicNetwork.read_logic('myeloid-logic_expressions.txt')
+            >>> myeloid_path = '../neet/boolean/data/myeloid-logic_expressions.txt'
+            >>> net = LogicNetwork.read_logic(myeloid_path)
             >>> net.size
             11
             >>> net.names
-            ['GATA-2', 'GATA-1', 'FOG-1', 'EKLF', 'Fli-1', 'SCL', 'C/EBPa',
-             'PU.1', 'cJun', 'EgrNab', 'Gfi-1']
+            ['GATA-2', 'GATA-1', 'FOG-1', 'EKLF', 'Fli-1', 'SCL', 'C/EBPa', 'PU.1', 'cJun', 'EgrNab', 'Gfi-1']
+
+        :param logic_path: path to a file of logial expressions
+        :type logic_path: str
+        :param external_nodes_path: a path to a file of external nodes
+        :type external_nodes_path: str
+        :returns: a :class:`LogicNetwork`
         """
         names = []
         expressions = []
-        with open(logic_file) as eq_file:
+        with open(logic_path) as eq_file:
             for eq in eq_file:
                 name, expr = eq.split('=')
                 names.append(name.strip())
                 expressions.append(expr.strip())
 
-        if external_nodes_file:
-            with open(external_nodes_file) as extra_file:
+        if external_nodes_path:
+            with open(external_nodes_path) as extra_file:
                 extras = [name.strip() for name in extra_file]
             names += extras
 
@@ -554,7 +608,7 @@ class LogicNetwork(object):
             table.append((indices, conditions))
 
         # Add empty logic tables for external components.
-        if external_nodes_file:
+        if external_nodes_path:
             for i in range(len(extras)):
                 table.append((((len(names) - len(extras) + i),), set('1')))
 
@@ -562,43 +616,44 @@ class LogicNetwork(object):
 
     def neighbors_in(self, index):
         """
-        Return the set of all neighbor nodes, where
-        edge(neighbor_node-->index) exists.
+        Return the set of all neighbor nodes, where edge(neighbor_node-->index)
+        exists.
+
+        .. rubric:: Examples
+
+        .. doctest:: logicnetwork
+
+            >>> net = LogicNetwork([((1, 2), {'11', '10'}),
+            ... ((0,), {'1'}),
+            ... ((0, 1, 2), {'010', '011', '101'}),
+            ... ((3,), {'1'})])
+            >>> [net.neighbors_in(node) for node in range(net.size)]
+            [{1, 2}, {0}, {0, 1, 2}, {3}]
 
         :param index: node index
         :returns: the set of all node indices which point toward the index node
-
-        .. rubric:: Basic Use:
-
-        ::
-
-            >>> net = LogicNetwork([((1, 2), set(['11', '10'])),
-                            ((0,), set(['1'])),
-                            ((0, 1, 2), set(['010', '011', '101'])),
-                            ((3,), set(['1']))])
-            >>> net.neighbors_in(2)
-            set([0, 1, 2])
         """
         return set(self.table[index][0])
 
     def neighbors_out(self, index):
         """
-        Return the set of all neighbor nodes, where
-        edge(index-->neighbor_node) exists.
+        Return the set of all neighbor nodes, where edge(index-->neighbor_node)
+        exists.
+
+        .. rubric:: Examples
+
+        .. doctest:: logicnetwork
+
+
+            >>> net = LogicNetwork([((1, 2), {'11', '10'}),
+            ... ((0,), {'1'}),
+            ... ((0, 1, 2), {'010', '011', '101'}),
+            ... ((3,), {'1'})])
+            >>> [net.neighbors_out(node) for node in range(net.size)]
+            [{1, 2}, {0, 2}, {0, 2}, {3}]
 
         :param index: node index
         :returns: the set of all node indices which the index node points to
-
-        .. rubric:: Basic Use:
-
-        ::
-
-            >>> net = LogicNetwork([((1, 2), set(['11', '10'])),
-                            ((0,), set(['1'])),
-                            ((0, 1, 2), set(['010', '011', '101'])),
-                            ((3,), set(['1']))])
-            >>> net.neighbors_out(2)
-            set([0, 2])
         """
         outgoing_neighbors = set()
         for i, incoming_neighbors in enumerate([row[0] for row in self.table]):
@@ -612,29 +667,29 @@ class LogicNetwork(object):
         Return a set of neighbors for a specified node, or a list of sets of
         neighbors for all nodes in the network.
 
+        .. rubric:: Examples
+
+        .. doctest:: logicnetwork
+
+            >>> net = LogicNetwork([((1, 2), {'11', '10'}),
+            ... ((0,), {'1'}),
+            ... ((0, 1, 2), {'010', '011', '101'}),
+            ... ((3,), {'1'})])
+            >>> [net.neighbors(node) for node in range(net.size)]
+            [{1, 2}, {0, 2}, {0, 1, 2}, {3}]
+
         :param index: node index
         :returns: a set of neighbors of a node
-
-        .. rubric:: Basic Use:
-
-        ::
-
-            >>> net = LogicNetwork([((1, 2), set(['11', '10'])),
-                            ((0,), set(['1'])),
-                            ((0, 1, 2), set(['010', '011', '101'])),
-                            ((3,), set(['1']))])
-            >>> net.neighbors(2)
-            set([0, 2])
         """
         return self.neighbors_in(index) | self.neighbors_out(index)
 
     def to_networkx_graph(self, labels='indices'):
         """
-        Return networkx graph given neet network.  Requires networkx.
+        Return networkx graph given neet network.
 
         :param labels: how node is labeled and thus identified in networkx
-                       graph ('names' or 'indices')
-        :returns: a networkx DiGraph
+                       graph (``'names'`` or ``'indices'``)
+        :returns: a ``networkx.DiGraph``
         """
         if labels == 'names':
             if hasattr(self, 'names') and (self.names is not None):
@@ -659,19 +714,19 @@ class LogicNetwork(object):
         """
         Output a file with a simple network drawing.
 
-        Requires networkx and pygraphviz.
+        Requires ``networkx`` and ``pygraphviz``.
 
-        Supported image formats are determined by graphviz.  In particular,
-        pdf support requires 'cairo' and 'pango' to be installed prior to
-        graphviz installation.
+        Supported image formats are determined by ``graphviz``. In particular,
+        pdf support requires ``'cairo'`` and ``'pango'`` to be installed prior
+        to graphviz installation.
 
         :param labels: how node is labeled and thus identified in networkx
-                       graph ('names' or 'indices'), only used if network
-                       is a LogicNetwork or WTNetwork
+                       graph (``'names'`` or ``'indices'``), only used if
+                       network is a :class:`LogicNetwork` or
+                       :class:`neet.boolean.WTNetwork`
         :param filename: filename to write drawing to. Temporary filename will
                          be used if no filename provided.
-        :returns: a pygraphviz network drawing
-
+        :returns: a ``pygraphviz`` network drawing
         """
         nx.nx_agraph.view_pygraphviz(self.to_networkx_graph(
             labels=labels), prog='circo', path=filename)
