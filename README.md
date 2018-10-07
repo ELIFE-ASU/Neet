@@ -48,11 +48,12 @@ make **Neet** a better tool for everyone.
 If you are interested in contributing to **Neet**, please contact the
 developers. We'll get you up and running!
 
-**Neet Source Repository**
-: https://github.com/elife-asu/neet
-
-**Neet Issue Tracker**
-: https://github.com/elife-asu/neet/issues
+<dl>
+  <dt>Neet Source Repository</dt>
+  <dd>https://github.com/elife-asu/neet</dd>
+  <dt>Neet Issue Tracker</dt>
+  <dd>https://github.com/elife-asu/neet/issues</dd>
+</dl>
 
 ## Relevant Publications
 
@@ -72,7 +73,7 @@ So far the python wrapper has been tested under `python2.7`, `python3.4` and
 
 ## Copyright and Licensing
 Copyright © 2017-2018 Bryan C. Daniels, Bradley Karas, Hyunju Kim, Douglas G.
-Moore, Harrison Smith, Sara I. Walker, Siyu Zhou. Free use of this software is
+Moore, Harrison Smith, Sara I. Walker, and Siyu Zhou. Free use of this software is
 granted under the terms of the MIT License.
 
 See the [LICENSE](https://github.com/elife-asu/neet/blob/master/LICENSE) for
