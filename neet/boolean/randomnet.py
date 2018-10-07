@@ -21,7 +21,6 @@ Random networks
 ===============
 """
 import random
-import copy
 import numpy as np
 from neet.sensitivity import canalizing_nodes
 from .logicnetwork import LogicNetwork
@@ -143,16 +142,16 @@ def random_canalizing_binary_states(k, p):
     # calculate values specifying which input is canalizing and how
     canalizing_input = np.random.choice(k)
     canalizing_value = np.random.choice(2)
-    if num_states > 2**(k-1):
+    if num_states > 2**(k - 1):
         canalized_value = 1
-    elif num_states < 2**(k-1):
+    elif num_states < 2**(k - 1):
         canalized_value = 0
-    elif num_states == 2**(k-1):
+    elif num_states == 2**(k - 1):
         canalized_value = np.random.choice(2)
 
     fixed_states = _all_states_with_one_node_fixed(
         k, canalizing_input, canalizing_value)
-    other_states = np.lib.arraysetops.setxor1d(np.arange(2 ** k),
+    other_states = np.lib.arraysetops.setxor1d(np.arange(2**k),
                                                fixed_states,
                                                assume_unique=True)
     if canalized_value == 1:
@@ -260,7 +259,7 @@ def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
                         (indices, conditions), i, logic_net.size)
                     keep_trying = not (node_canalizing == original_canalizing)
             if number_tried >= give_up_number:
-                msg = "No function out of "+str(give_up_number)+" tried" \
+                msg = "No function out of " + str(give_up_number) + " tried" \
                       " satisfied constraints"
                 raise Exception(msg)
 
@@ -399,7 +398,7 @@ def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
             keep_trying = False
     if number_tried >= give_up_number:
         raise Exception("No partition out of " +
-                        str(give_up_number)+" tried satisfied constraints")
+                        str(give_up_number) + " tried satisfied constraints")
 
     new_table = [()] * logic_net.size
     for internal, num in zip(internals, num_internal_connections):
@@ -420,7 +419,8 @@ def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
                 keep_trying = False
         if number_tried >= give_up_number:
             raise Exception("No function out of " +
-                            str(give_up_number)+" tried satisfied constraints")
+                            str(give_up_number) +
+                            " tried satisfied constraints")
 
     for external in externals:
         new_table[external] = logic_net.table[external]
