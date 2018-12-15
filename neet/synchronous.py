@@ -419,7 +419,8 @@ class Landscape(StateSpace):
     the state transition graph.
     """
 
-    def __init__(self, net, size=None, index=None, pin=None, values=None):
+    def __init__(self, net, size=None, index=None, pin=None, values=None,
+                 dynamic_values=None):
         """
         Construct the landscape for a network.
 
@@ -437,6 +438,8 @@ class Landscape(StateSpace):
         :param index: the index to update (or None)
         :param pin: the indices to pin during update (or None)
         :param values: a dictionary of index-value pairs to set after update
+        :param dynamic_values: a list of "values" dictionaries to be applied
+            sequentially in time
         :raises TypeError: if ``net`` is not a network
         :raises ValueError: if ``net`` is fixed sized and ``size`` is not
                            ``None``
@@ -465,6 +468,7 @@ class Landscape(StateSpace):
         self.__index = index
         self.__pin = pin
         self.__values = values
+        self.__dynamic_values = dynamic_values
 
         self.__expounded = False
         self.__graph = None
@@ -700,13 +704,30 @@ class Landscape(StateSpace):
         encode = self._unsafe_encode
 
         transitions = np.empty(self.volume, dtype=np.int)
-        for i, state in enumerate(self):
-            transitions[i] = encode(update(state,
-                                           index=self.__index,
-                                           pin=self.__pin,
-                                           values=self.__values))
+        if self.__dynamic_values is None:
+            for i, state in enumerate(self):
+                transitions[i] = encode(update(state,
+                                               index=self.__index,
+                                               pin=self.__pin,
+                                               values=self.__values))
+        else: # update multiple times using dynamic values for inputs
+            dynamic_paths = np.empty((self.volume,len(self.__dynamic_values)),
+                                     dtype=np.int)
+            for i,state in enumerate(self):
+                current_state = copy.copy(state)
+                for j,values in enumerate(self.__dynamic_values):
+                    current_state = update(current_state,
+                                               index=self.__index,
+                                               values=values)
+                    dynamic_paths[i,j] = encode(current_state)
+                transitions[i] = encode(current_state)
 
         self.__transitions = transitions
+        if self.__dynamic_values is None:
+            self.__dynamic_paths = transitions.reshape(len(transitions),1)
+        else:
+            self.__dynamic_paths = dynamic_paths
+        self.dynamic_paths = self.__dynamic_paths # THERE'S PROBABLY A BETTER WAY
 
     def __expound(self):
         """
