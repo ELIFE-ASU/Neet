@@ -420,7 +420,7 @@ class Landscape(StateSpace):
     """
 
     def __init__(self, net, size=None, index=None, pin=None, values=None,
-                 dynamic_values=None):
+                 dynamic_pin=None):
         """
         Construct the landscape for a network.
 
@@ -436,15 +436,17 @@ class Landscape(StateSpace):
         :param net: the network
         :param size: the size of the network (``None`` if fixed sized)
         :param index: the index to update (or None)
-        :param pin: the indices to pin during update (or None)
+        :param pin: the indices to pin during update (or None); see also
+            dynamic_pin
         :param values: a dictionary of index-value pairs to set after update
-        :param dynamic_values: a list of "values" dictionaries to be applied
-            sequentially in time
+        :param dynamic_pin: a list of lists of pinned values over time;
+            shape = (# timesteps)x(# pinned nodes)
         :raises TypeError: if ``net`` is not a network
         :raises ValueError: if ``net`` is fixed sized and ``size`` is not
                            ``None``
         :raises ValueError: if ``net`` is not fixed sized and ``size`` is
                            ``None``
+        :raises ValueError: if ``dynamic_pin`` has incorrect shape
         """
 
         if not is_network(net):
@@ -458,6 +460,12 @@ class Landscape(StateSpace):
                 raise ValueError(
                     "size must not be None for variable sized networks")
             state_space = net.state_space(size)
+        
+        if dynamic_pin is not None:
+            if pin is None:
+                raise ValueError("pin must be specified to use dynamic_pin")
+            elif len(dynamic_pin[0]) != len(pin):
+                raise ValueError("each element of dynamic_pin must have the same length as pin")
 
         if state_space.is_uniform:
             super(Landscape, self).__init__(state_space.ndim, state_space.base)
@@ -468,7 +476,7 @@ class Landscape(StateSpace):
         self.__index = index
         self.__pin = pin
         self.__values = values
-        self.__dynamic_values = dynamic_values
+        self.__dynamic_pin = dynamic_pin
 
         self.__expounded = False
         self.__graph = None
@@ -703,27 +711,53 @@ class Landscape(StateSpace):
         update = self.__net._unsafe_update
         encode = self._unsafe_encode
 
-        transitions = np.empty(self.volume, dtype=np.int)
-        if self.__dynamic_values is None:
+        if self.__dynamic_pin is None:
+            transitions = np.empty(self.volume, dtype=np.int)
             for i, state in enumerate(self):
                 transitions[i] = encode(update(state,
                                                index=self.__index,
                                                pin=self.__pin,
                                                values=self.__values))
-        else: # update multiple times using dynamic values for inputs
-            dynamic_paths = np.empty((self.volume,len(self.__dynamic_values)),
+        else: # update multiple times using dynamic pin for inputs
+            
+            # we will construct a special limited state space that does not
+            # iterate over fixed nodes
+            if self.is_uniform:
+                bases = [ self.base for i in range(self.ndim) ]
+            else:
+                bases = self.base
+            for fixed_node_index in self.__pin:
+                bases[fixed_node_index] = 1
+            self.limited_state_space = StateSpace(bases)
+            
+            # we will keep track of both the "transitions" (starting points
+            # to endpoints after ell timesteps, where ell is the length of
+            # the dynamic pin) and "dynamic_paths" (all steps along the way).
+            # note that transitions are encoded using the limited state space,
+            # while dynamic paths are encoded using the full state space.
+            transitions = np.empty(self.limited_state_space.volume, dtype=np.int)
+            dynamic_paths = np.empty((self.limited_state_space.volume,
+                                      len(self.__dynamic_pin)),
                                      dtype=np.int)
-            for i,state in enumerate(self):
+            for i,state in enumerate(self.limited_state_space):
                 current_state = copy.copy(state)
-                for j,values in enumerate(self.__dynamic_values):
+                for j,pinned_values in enumerate(self.__dynamic_pin):
+                    # set pinned values
+                    for k,pinned_value in enumerate(pinned_values):
+                        current_state[self.__pin[k]] = pinned_value
+                    # then update with those nodes pinned
                     current_state = update(current_state,
-                                               index=self.__index,
-                                               values=values)
+                                           index=self.__index,
+                                           pin=self.__pin,
+                                           values=self.__values)
                     dynamic_paths[i,j] = encode(current_state)
-                transitions[i] = encode(current_state)
+                # reset pinned values to zero to encode correctly using limited state space
+                for pinned_node in self.__pin:
+                        current_state[pinned_node] = 0
+                transitions[i] = self.limited_state_space._unsafe_encode(current_state)
 
         self.__transitions = transitions
-        if self.__dynamic_values is None:
+        if self.__dynamic_pin is None:
             self.__dynamic_paths = transitions.reshape(len(transitions),1)
         else:
             self.__dynamic_paths = dynamic_paths
@@ -749,18 +783,26 @@ class Landscape(StateSpace):
             - :method:`attractor_lengths`
             - :method:`recurrence_times`
         """
+        
+        if self.__dynamic_pin is None:
+            volume = self.volume
+        else:
+            # With a dynamic pin, the volume of state space to be
+            # explored is limited
+            volume = self.limited_state_space.volume
+        
         # Get the state transitions
         trans = self.__transitions
         # Create an array to store whether a given state has visited
-        visited = np.zeros(self.volume, dtype=np.bool)
+        visited = np.zeros(volume, dtype=np.bool)
         # Create an array to store which attractor basin each state is in
-        basins = np.full(self.volume, -1, dtype=np.int)
+        basins = np.full(volume, -1, dtype=np.int)
         # Create an array to store the in-degree of each state
-        in_degrees = np.zeros(self.volume, dtype=np.int)
+        in_degrees = np.zeros(volume, dtype=np.int)
         # Create an array to store the height of each state
-        heights = np.zeros(self.volume, dtype=np.int)
+        heights = np.zeros(volume, dtype=np.int)
         # Create an array to store the recurrence time of each state
-        recurrence_times = np.zeros(self.volume, dtype=np.int)
+        recurrence_times = np.zeros(volume, dtype=np.int)
         # Create a counter to keep track of how many basins have been visited
         basin_number = 0
         # Create a list of basin sizes
@@ -875,7 +917,14 @@ class Landscape(StateSpace):
 
         self.__basins = basins
         self.__basin_sizes = np.asarray(basin_sizes)
-        self.__attractors = np.asarray(attractors)
+        if self.__dynamic_pin is None:
+            self.__attractors = np.asarray(attractors)
+        else:
+            # each attractor state needs to be expanded to length ell paths
+            attractor_paths = [ np.concatenate([ self.dynamic_paths[state] \
+                                                 for state in a]) \
+                                for a in attractors ]
+            self.__attractors = np.asarray(attractor_paths)
         self.__attractor_lengths = np.asarray(attractor_lengths)
         self.__in_degrees = in_degrees
         self.__heights = heights
