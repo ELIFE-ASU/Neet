@@ -741,15 +741,20 @@ class Landscape(StateSpace):
                                      dtype=np.int)
             for i,state in enumerate(self.limited_state_space):
                 current_state = copy.copy(state)
-                for j,pinned_values in enumerate(self.__dynamic_pin):
-                    # set pinned values
-                    for k,pinned_value in enumerate(pinned_values):
-                        current_state[self.__pin[k]] = pinned_value
-                    # then update with those nodes pinned
+                ell = len(self.__dynamic_pin)
+                # set first pinned values
+                for k,pinned_value in enumerate(self.__dynamic_pin[-1]):
+                    current_state[self.__pin[k]] = pinned_value
+                for j in range(ell):
+                    # update with those nodes pinned
                     current_state = update(current_state,
                                            index=self.__index,
                                            pin=self.__pin,
                                            values=self.__values)
+                    # set to next pinned values
+                    for k,pinned_value in enumerate(self.__dynamic_pin[j%ell]):
+                        current_state[self.__pin[k]] = pinned_value
+                    # record result
                     dynamic_paths[i,j] = encode(current_state)
                 # reset pinned values to zero to encode correctly using limited state space
                 for pinned_node in self.__pin:
@@ -914,6 +919,9 @@ class Landscape(StateSpace):
             # If the cycle isn't empty, append it to the attractors list
             if len(cycle) != 0:
                 attractors.append(np.asarray(cycle, dtype=np.int))
+
+        # BCD 12.19.2018 I think the attractors are drawkcab...
+        attractors = [ a[::-1] for a in attractors ]
 
         self.__basins = basins
         self.__basin_sizes = np.asarray(basin_sizes)
