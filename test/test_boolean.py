@@ -638,10 +638,10 @@ class TestWTNetwork(unittest.TestCase):
         self.assertEqual(net.neighbors_in(2), set([0, 1, 2, 5, 8]))
 
         with self.assertRaises(IndexError):
-            self.assertEqual(net.neighbors_in(2.0))
+            net.neighbors_in(2.0)
 
         with self.assertRaises(IndexError):
-            self.assertEqual(net.neighbors_in('2'))
+            net.neighbors_in('2')
 
     def test_neighbors_out_split_threshold(self):
 
@@ -677,10 +677,10 @@ class TestWTNetwork(unittest.TestCase):
         self.assertEqual(net.neighbors_in(2), set([0, 1, 5, 8]))
 
         with self.assertRaises(IndexError):
-            self.assertEqual(net.neighbors_in(2.0))
+            net.neighbors_in(2.0)
 
         with self.assertRaises(IndexError):
-            self.assertEqual(net.neighbors_in('2'))
+            net.neighbors_in('2')
 
     def test_neighbors_out_negative_threshold(self):
 
