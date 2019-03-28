@@ -3,7 +3,7 @@ import networkx as nx
 import numpy as np
 from neet.boolean.examples import mouse_cortical_7B
 from neet.boolean.examples import s_pombe
-from neet.boolean.randomnet import (random_logic, random_binary_states,)
+from neet.boolean.randomnet import (random_logic, random_binary_states,RBN,)
 
 TESTSEED = 314159
 
@@ -48,3 +48,19 @@ class TestRandomnet(unittest.TestCase):
         randnumedges = np.sum([len(randnet.neighbors_in(i))
                                for i in range(randnet.size)])
         self.assertEqual(numedges, randnumedges)
+
+    def test_RBN(self):
+        N = 10
+        k = 2
+        p = 0.5
+        np.random.seed(TESTSEED)
+        net = RBN(N,k,p)
+        # the network should have size N
+        self.assertEqual(N,net.size)
+        # every node should have k incoming edges
+        edges_per_node = [len(net.neighbors_in(i)) for i in range(net.size)]
+        self.assertEqual(edges_per_node,[k for i in range(net.size)])
+
+
+
+
