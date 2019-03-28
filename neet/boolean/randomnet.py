@@ -25,6 +25,48 @@ import numpy as np
 from neet.sensitivity import canalizing_nodes
 from .logicnetwork import LogicNetwork
 
+def RBN(network_size, k, p, self_loops=False):
+    """
+    Given a network with $n$ nodes, the dynamic state of each node $i$
+    at time $t+1$ depends on $k$ randomly selected input nodes
+    $i_1,\dots,i_k$ at time $t$.
+    
+    There are $2^k$ possible configurations of
+    $[ x_{i_1}(t),\dots,x_{i_k}(t) ]$, and each one of them
+    coresponds to $x_i(t+1)=1$ with probability $p$.
+    """
+    connectivity,bias = k,p
+    new_table = []
+    for output_label in range(network_size):
+        one_states = []
+        inputs = _RBN_input_labels(output_label, network_size, connectivity,
+                                   self_loops=self_loops)
+        inputs.sort()
+        pattern = _RBN_output_pattern(connectivity,bias)
+        for j in range(len(pattern)):
+            if pattern[j]==1:
+                one_states.append(list(_label_to_state(j,connectivity)))
+        new_table.append([inputs,one_states])
+    return LogicNetwork(new_table)
+
+def _RBN_input_labels(output_label, network_size, connectivity, self_loops=False):
+    labels = range(network_size)
+    if not self_loops:
+        labels.remove(output_label)
+    random.shuffle(labels)
+    return labels[:connectivity]
+
+def _RBN_output_pattern(connectivity,bias):
+    pattern = []
+    for i in range(pow(2,connectivity)):
+        if random.uniform(0,1) < bias:
+            pattern.append(1)
+        else:
+            pattern.append(0)
+    return pattern
+
+def _label_to_state(label, digits):
+    return np.array(map(int,list(format(label,'0'+str(digits)+'b'))))
 
 def random_logic(logic_net, p=0.5, connections='fixed-structure',
                  fix_external=False, make_irreducible=False,
