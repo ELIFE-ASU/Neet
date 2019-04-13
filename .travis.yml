@@ -16,5 +16,5 @@ install:
   - pip install codecov
 
 script:
-  - nosetests --with-coverage
+  - python setup.py test
   - codecov
