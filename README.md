@@ -9,8 +9,18 @@ more general network types.
 If you are interested in using **Neet**, you'll definitely be interested in
 checking out the documentation - https://elife-asu.github.io/Neet.
 
-[![Build Status (Travis CI)](https://travis-ci.org/ELIFE-ASU/Neet.svg?branch=master)](https://travis-ci.org/ELIFE-ASU/Neet)
-[![Build Status (Appveyor)](https://ci.appveyor.com/api/projects/status/eyrn6l2wygeglnx5/branch/master?svg=true)](https://ci.appveyor.com/project/dglmoore/neet-awnxe/branch/master)
+| **Build Status**                                                                                |
+|:-----------------------------------------------------------------------------------------------:|
+| [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
+
+[travis-img]: https://travis-ci.org/ELIFE-ASU/Neet.svg?branch=master
+[travis-url]: https://travis-ci.org/ELIFE-ASU/Neet
+
+[appveyor-img]: https://ci.appveyor.com/api/projects/status/eyrn6l2wygeglnx5/branch/master?svg=true
+[appveyor-url]: https://ci.appveyor.com/project/dglmoore/neet-awnxe/branch/master
+
+[codecov-img]: https://codecov.io/gh/elife-asu/neet/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/elife-asu/neet
 
 ## Installation
 

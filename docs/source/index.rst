@@ -18,6 +18,10 @@ checking out the documentation - https://elife-asu.github.io/Neet.
     :alt: Build Status (Appveyor)
     :target: https://ci.appveyor.com/project/dglmoore/neet-awnxe/branch/master
 
+.. image:: https://codecov.io/gh/elife-asu/neet/branch/master/graph/badge.svg
+    :alt: Code Coverage (Codecov)
+    :target: https://codecov.io/gh/elife-asu/neet
+
 Getting Help
 ------------
 
