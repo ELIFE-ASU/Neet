@@ -52,11 +52,11 @@ def wt_to_logic(net):
         conditions = set()
         for dec_state in range(2**len(indices)):
             bin_state = '{0:0{1}b}'.format(dec_state, len(indices))
-            prod = sum([weights[i] * int(s)
-                        for i, s in zip(indices, bin_state)])
-            if (prod > net.thresholds[node] or
-                    (prod == net.thresholds[node] and
-                        bin_state[indices.index(node)] == '1')):
+            prod = sum([weights[i] * int(s) for i, s in zip(indices, bin_state)])
+            threshold = net.thresholds[node]
+            exceeds_threshold = prod > threshold
+            at_threshold_and_one = prod == threshold and bin_state[indices.index(node)] == '1'
+            if (exceeds_threshold or at_threshold_and_one):
                 conditions.add(bin_state)
 
         truth_table.append((indices, conditions))

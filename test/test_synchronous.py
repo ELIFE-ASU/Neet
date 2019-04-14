@@ -1085,11 +1085,11 @@ class TestLandscape(unittest.TestCase):
             self.assertEqual(histogram, list(landscape.basin_sizes))
 
     def test_basin_entropy_eca(self):
-        networks = [(ECA(30),  2, 1.500000, 0.451545),
-                    (ECA(30),  3, 0.000000, 0.000000),
-                    (ECA(30),  4, 1.186278, 0.357105),
-                    (ECA(30),  5, 0.337290, 0.101534),
-                    (ECA(30),  6, 0.231872, 0.069801),
+        networks = [(ECA(30), 2, 1.500000, 0.451545),
+                    (ECA(30), 3, 0.000000, 0.000000),
+                    (ECA(30), 4, 1.186278, 0.357105),
+                    (ECA(30), 5, 0.337290, 0.101534),
+                    (ECA(30), 6, 0.231872, 0.069801),
                     (ECA(110), 2, 0.000000, 0.000000),
                     (ECA(110), 3, 0.000000, 0.000000),
                     (ECA(110), 4, 1.561278, 0.469992),
@@ -1105,9 +1105,9 @@ class TestLandscape(unittest.TestCase):
                 base10, landscape.basin_entropy(base=10), places=6)
 
     def test_basin_entropy_wtnetwork(self):
-        networks = [(s_pombe,      1.221889, 0.367825),
+        networks = [(s_pombe, 1.221889, 0.367825),
                     (s_cerevisiae, 0.783858, 0.235965),
-                    (c_elegans,    0.854267, 0.257160)]
+                    (c_elegans, 0.854267, 0.257160)]
 
         for net, base2, base10 in networks:
             landscape = Landscape(net)

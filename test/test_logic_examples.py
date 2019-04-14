@@ -167,12 +167,12 @@ class TestLogicExamples(unittest.TestCase):
                          ex.mouse_cortical_7C.table)
         # Assert attractors.
         attractors = (
-             # Anterior desired attractor (reachable from desired anterior
-             # initial state)
-             [1, 0, 1, 0, 1, 1, 0, 1, 0, 1],
-             # Posterior desired attractor (unreachable from desired
-             # posterior initial state)
-             [0, 1, 0, 1, 0, 0, 1, 0, 1, 0]
+            # Anterior desired attractor (reachable from desired anterior
+            # initial state)
+            [1, 0, 1, 0, 1, 1, 0, 1, 0, 1],
+            # Posterior desired attractor (unreachable from desired
+            # posterior initial state)
+            [0, 1, 0, 1, 0, 0, 1, 0, 1, 0]
         )
 
         for state in attractors:

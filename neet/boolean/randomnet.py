@@ -397,8 +397,8 @@ def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
         if max(num_internal_connections) <= logic_net.size:
             keep_trying = False
     if number_tried >= give_up_number:
-        raise Exception("No partition out of " +
-                        str(give_up_number) + " tried satisfied constraints")
+        msg = "No partition out of " + str(give_up_number) + " tried satisfied constraints"
+        raise Exception(msg)
 
     new_table = [()] * logic_net.size
     for internal, num in zip(internals, num_internal_connections):
@@ -418,9 +418,8 @@ def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
             else:
                 keep_trying = False
         if number_tried >= give_up_number:
-            raise Exception("No function out of " +
-                            str(give_up_number) +
-                            " tried satisfied constraints")
+            msg = "No function out of " + str(give_up_number) + " tried satisfied constraints"
+            raise Exception(msg)
 
     for external in externals:
         new_table[external] = logic_net.table[external]

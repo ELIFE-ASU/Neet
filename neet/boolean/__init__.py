@@ -10,5 +10,5 @@ The :mod:`neet.boolean` module provides network types (:class:`WTNetwork` and
 API Documentation
 -----------------
 """
-from .wtnetwork import WTNetwork
-from .logicnetwork import LogicNetwork
+from .wtnetwork import WTNetwork # noqa
+from .logicnetwork import LogicNetwork # noqa
