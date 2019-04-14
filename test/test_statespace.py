@@ -279,7 +279,6 @@ class TestStateSpace(unittest.TestCase):
     def test_long_encoding(self):
         state_space = StateSpace(10)
         code = state_space.encode(np.ones(10, dtype=int))
-        print(type(code))
         self.assertIsInstance(code, long)
 
         state_space = StateSpace(68)
