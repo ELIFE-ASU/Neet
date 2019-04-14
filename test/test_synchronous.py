@@ -149,7 +149,7 @@ class TestSynchronous(unittest.TestCase):
         ``size`` is not ``None``
         """
         with self.assertRaises(ValueError):
-            transitions(MockFixedSizedNetwork, size=3)
+            transitions(MockFixedSizedNetwork(), size=3)
 
     def test_transitions_eca(self):
         """
@@ -360,7 +360,7 @@ class TestSynchronous(unittest.TestCase):
         and ``size`` is not ``None``
         """
         with self.assertRaises(ValueError):
-            basins(MockFixedSizedNetwork, size=5)
+            basins(MockFixedSizedNetwork(), size=5)
 
     def test_basins_transition_graph(self):
         """
@@ -428,7 +428,7 @@ class TestSynchronous(unittest.TestCase):
         sized network and ``size`` is not ``None``
         """
         with self.assertRaises(ValueError):
-            basin_entropy(MockFixedSizedNetwork, size=5)
+            basin_entropy(MockFixedSizedNetwork(), size=5)
 
     def test_basin_entropy_transition_graph(self):
         """
@@ -503,7 +503,7 @@ class TestSynchronous(unittest.TestCase):
         ``size`` is not ``None``
         """
         with self.assertRaises(ValueError):
-            timeseries(MockFixedSizedNetwork, size=5, timesteps=5)
+            timeseries(MockFixedSizedNetwork(), size=5, timesteps=5)
 
     def test_timeseries_too_short(self):
         """
