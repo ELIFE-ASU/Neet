@@ -1,4 +1,3 @@
 numpy
 networkx
 pyinform
-pygraphviz
