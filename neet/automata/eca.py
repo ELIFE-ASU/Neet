@@ -55,11 +55,9 @@ class ECA(object):
         :param boundary: the boundary conditions for the CA
         :type boundary: tuple or None
         :raises TypeError: if ``code`` is not an instance of int
-        :raises ValueError: if ``code`` is not in :math:`\{0,1,\ldots,255\}`
-        :raises TypeError: if ``boundary`` is neither ``None`` or an instance
-                           of tuple
-        :raises ValueError: if ``boundary`` is a neither ``None`` or a pair of
-                            binary states
+        :raises ValueError: if ``code`` is not in :math:`\\{0,1,\\ldots,255\\}`
+        :raises TypeError: if ``boundary`` is neither ``None`` or an instance of tuple
+        :raises ValueError: if ``boundary`` is a neither ``None`` or a pair of binary states
         """
         self.code = code
         self.boundary = boundary
@@ -86,7 +84,7 @@ class ECA(object):
 
         :type: int
         :raises TypeError: if ``code`` is not an instance of int
-        :raises ValueError: if ``code`` is not in :math:`\{0,1,\ldots,255\}`
+        :raises ValueError: if ``code`` is not in :math:`\\{0,1,\\ldots,255\\}`
         """
         return self.__code
 
@@ -586,8 +584,8 @@ class ECA(object):
         pdf support requires 'cairo' and 'pango' to be installed prior to
         graphviz installation.
 
-        :param filename: filename to write drawing to. Temporary filename will
-                         be used if no filename provided.
+        :param filename: filename to write drawing to. Temporary filename will be used if no
+                         filename provided.
         :param size: size of ECA, required if network is an ECA
         :returns: a ``pygraphviz`` network drawing
         """

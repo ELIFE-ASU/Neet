@@ -414,7 +414,7 @@ def lambdaQ(net, **kwargs):
         1.263099227661824
 
     :param net: a :mod:`neet` boolean network
-    :return: the sensitivity eigenvalue (:math:`\lambda_Q`) of ``net``
+    :return: the sensitivity eigenvalue (:math:`\\lambda_Q`) of ``net``
     """
     Q = average_difference_matrix(net, **kwargs)
     return max(abs(linalg.eigvals(Q)))

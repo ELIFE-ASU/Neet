@@ -1024,7 +1024,7 @@ class Landscape(StateSpace):
 
         This method computes the Shannon entropy of the distribution of
         basin sizes. The base of the logarithm is chosen to be the
-        number of basins so that the result is :math:`0 \leq h \leq 1`.
+        number of basins so that the result is :math:`0 \\leq h \\leq 1`.
         If there is fewer than :math:`2` basins, then the base is taken
         to be :math:`2` so that the result is never `NaN`. The base can
         be forcibly overridden with the ``base`` keyword argument.

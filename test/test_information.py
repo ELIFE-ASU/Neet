@@ -16,7 +16,7 @@ class TestInformation(unittest.TestCase):
         """
         A canary test to ensure the test suite is working
         """
-        self.assertEqual(3, 1+2)
+        self.assertEqual(3, 1 + 2)
 
     def test_active_info_not_network(self):
         """
