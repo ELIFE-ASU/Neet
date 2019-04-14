@@ -19,5 +19,5 @@ submodules unless you so choose.
 API Documentation
 -----------------
 """
-from .eca import ECA # noqa
-from .reca import RewiredECA # noqa
+from .eca import ECA  # noqa
+from .reca import RewiredECA  # noqa

@@ -96,7 +96,7 @@ class TestLogicExamples(unittest.TestCase):
 
     def test_mouse_cortical_7B_logic_expressions(self):
         self.assertEqual(['gF', 'gE', 'gP', 'gC', 'gS', 'pF', 'pE',
-                         'pP', 'pC', 'pS'],
+                          'pP', 'pC', 'pS'],
                          ex.mouse_cortical_7B_from_expr.names)
         self.assertEqual(ex.mouse_cortical_7B_from_expr.table,
                          ex.mouse_cortical_7B.table)
