@@ -19,7 +19,7 @@ API Documentation
 -----------------
 """
 import six
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 
 @six.add_metaclass(ABCMeta)
@@ -34,6 +34,10 @@ class Network(object):
 
     @abstractmethod
     def neighbors(self):
+        pass
+
+    @abstractproperty
+    def size(self):
         pass
 
 
@@ -118,15 +122,7 @@ def neighbors(net, index, direction='both', **kwargs):
                       'out': net.neighbors_out,
                       'both': net.neighbors}
 
-    if net.__class__.__name__ == 'ECA':
-        if 'size' not in kwargs:
-            msg = "A `size` kwarg is required for returning an ECA's neighbors"
-            raise AttributeError(msg)
-        else:
-            return neighbor_types[direction](index, size=kwargs['size'])
-
-    else:
-        return neighbor_types[direction](index)
+    return neighbor_types[direction](index)
 
 
 def to_networkx_graph(net, size=None, labels='indices', **kwargs):
@@ -136,15 +132,9 @@ def to_networkx_graph(net, size=None, labels='indices', **kwargs):
     :param labels: how node is labeled and thus identified in networkx graph
                    ('names' or 'indices'), only used if `net` is a
                    `LogicNetwork` or `WTNetwork`
-    :kwarg size: size of ECA, required if network is an ECA
     :returns: a networkx DiGraph
     """
     if net.__class__.__name__ == 'ECA':
-        if size is None:
-            msg = "`size` required to convert an ECA to a networkx network"
-            raise AttributeError(msg)
-        else:
-            return net.to_networkx_graph(size)
-
+        return net.to_networkx_graph()
     elif net.__class__.__name__ in ['WTNetwork', 'LogicNetwork']:
         return net.to_networkx_graph(labels=labels)

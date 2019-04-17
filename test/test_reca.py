@@ -174,7 +174,7 @@ class TestRewiredECA(unittest.TestCase):
         """
         from neet.automata import ECA
         reca = RewiredECA(30, size=7)
-        eca = ECA(30)
+        eca = ECA(30, size=7)
         state = [0, 0, 0, 1, 0, 0, 0]
         for _ in range(10):
             expect = eca.update(np.copy(state))
@@ -187,7 +187,7 @@ class TestRewiredECA(unittest.TestCase):
         """
         from neet.automata import ECA
         reca = RewiredECA(30, boundary=(1, 0), size=7)
-        eca = ECA(30, boundary=(1, 0))
+        eca = ECA(30, size=7, boundary=(1, 0))
         state = [0, 0, 0, 1, 0, 0, 0]
         for _ in range(10):
             expect = eca.update(np.copy(state))

@@ -9,7 +9,7 @@ from neet.synchronous import (trajectory, transitions, transition_graph,
 from neet.statespace import StateSpace
 import numpy as np
 import networkx as nx
-from .mock import MockObject, MockNetwork, MockFixedSizedNetwork
+from .mock import MockObject, MockFixedSizedNetwork
 
 
 class TestSynchronous(unittest.TestCase):
@@ -45,7 +45,7 @@ class TestSynchronous(unittest.TestCase):
         """
         test ``trajectory`` on ECAs
         """
-        rule30 = ECA(30)
+        rule30 = ECA(30, 3)
         with self.assertRaises(ValueError):
             trajectory(rule30, [])
 
@@ -62,7 +62,7 @@ class TestSynchronous(unittest.TestCase):
         """
         test ``trajectory`` on ECAs; encoding the states
         """
-        rule30 = ECA(30)
+        rule30 = ECA(30, 3)
         with self.assertRaises(ValueError):
             trajectory(rule30, [], encode=True)
 
@@ -135,14 +135,6 @@ class TestSynchronous(unittest.TestCase):
         with self.assertRaises(TypeError):
             transitions(MockObject(), 5)
 
-    def test_transitions_not_fixed_sized(self):
-        """
-        ``transitions`` should raise an error if ``net`` is not fixed sized
-        and ``size`` is ``None``
-        """
-        with self.assertRaises(ValueError):
-            transitions(ECA(30), size=None)
-
     def test_transitions_fixed_sized(self):
         """
         ``transitions`` should raise an error if ``net`` is fixed sized and
@@ -155,15 +147,17 @@ class TestSynchronous(unittest.TestCase):
         """
         test ``transitions`` on ECAs; encoding the states
         """
-        rule30 = ECA(30)
+        rule30 = ECA(30, 1)
 
-        got = transitions(rule30, size=1)
+        got = transitions(rule30)
         self.assertEqual([[0], [0]], got)
 
-        got = transitions(rule30, size=2)
+        rule30.size = 2
+        got = transitions(rule30)
         self.assertEqual([[0, 0], [1, 0], [0, 1], [0, 0]], got)
 
-        got = transitions(rule30, size=3)
+        rule30.size = 3
+        got = transitions(rule30)
         self.assertEqual([[0, 0, 0], [1, 1, 1], [1, 1, 1], [1, 0, 0],
                           [1, 1, 1], [0, 0, 1], [0, 1, 0], [0, 0, 0]], got)
 
@@ -171,15 +165,13 @@ class TestSynchronous(unittest.TestCase):
         """
         test ``transitions`` on ECAs; encoding the states
         """
-        rule30 = ECA(30)
-
-        got = transitions(rule30, size=1, encode=True)
+        got = transitions(ECA(30, 1), encode=True)
         self.assertEqual([0, 0], got)
 
-        got = transitions(rule30, size=2, encode=True)
+        got = transitions(ECA(30, 2), encode=True)
         self.assertEqual([0, 1, 2, 0], got)
 
-        got = transitions(rule30, size=3, encode=True)
+        got = transitions(ECA(30, 3), encode=True)
         self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], got)
 
     def test_transitions_wtnetwork(self):
@@ -231,14 +223,6 @@ class TestSynchronous(unittest.TestCase):
         with self.assertRaises(TypeError):
             transition_graph(MockObject())
 
-    def test_transition_graph_variable_sized(self):
-        """
-        ``transitions_graph`` should raise an error if ``net`` is variable
-        sized and ``size`` is ``None``
-        """
-        with self.assertRaises(ValueError):
-            transition_graph(ECA(30))
-
     def test_transition_graph_fixed_sized(self):
         """
         ``transitions_graph`` should raise an error if ``net`` is fixed sized
@@ -251,7 +235,7 @@ class TestSynchronous(unittest.TestCase):
         """
         test ``transitions_graph`` on ``ECA``
         """
-        graph = transition_graph(ECA(30), size=8)
+        graph = transition_graph(ECA(30, 8))
         self.assertEqual(256, graph.number_of_nodes())
         self.assertEqual(256, graph.number_of_edges())
 
@@ -278,14 +262,6 @@ class TestSynchronous(unittest.TestCase):
         with self.assertRaises(TypeError):
             attractors(nx.Graph())
 
-    def test_attractors_variable_sized(self):
-        """
-        ``attractors`` should raise an error if ``net`` is a variable sized
-        network and ``size`` is ``None``
-        """
-        with self.assertRaises(ValueError):
-            attractors(ECA(30), size=None)
-
     def test_attractors_fixed_sized(self):
         """
         ``attractors`` should raise an error if ``net`` is either a fixed sized
@@ -294,19 +270,16 @@ class TestSynchronous(unittest.TestCase):
         with self.assertRaises(ValueError):
             attractors(MockFixedSizedNetwork(), size=5)
 
-        #  with self.assertRaises(ValueError):
-        #      attractors(nx.DiGraph(), size=5)
-
     def test_attractors_eca(self):
         """
         test ``attractors`` on ECA
         """
-        networks = [(ECA(30), 2, 3), (ECA(30), 3, 1), (ECA(30), 4, 4),
-                    (ECA(30), 5, 2), (ECA(30), 6, 3), (ECA(110), 2, 1),
-                    (ECA(110), 3, 1), (ECA(110), 4, 3), (ECA(110), 5, 1),
-                    (ECA(110), 6, 3)]
-        for rule, width, size in networks:
-            self.assertEqual(size, len(attractors(rule, width)))
+        networks = [(ECA(30, 2), 3), (ECA(30, 3), 1), (ECA(30, 4), 4),
+                    (ECA(30, 5), 2), (ECA(30, 6), 3), (ECA(110, 2), 1),
+                    (ECA(110, 3), 1), (ECA(110, 4), 3), (ECA(110, 5), 1),
+                    (ECA(110, 6), 3)]
+        for rule, size in networks:
+            self.assertEqual(size, len(attractors(rule)))
 
     def test_attractors_wtnetworks(self):
         """
@@ -346,14 +319,6 @@ class TestSynchronous(unittest.TestCase):
         with self.assertRaises(TypeError):
             basins(nx.Graph())
 
-    def test_basins_variable_sized(self):
-        """
-        ``basins`` should raise an error if ``net`` is a variable sized network
-        and ``size`` is ``None``
-        """
-        with self.assertRaises(ValueError):
-            basins(ECA(30), size=None)
-
     def test_basins_fixed_sized(self):
         """
         ``basins`` should raise an error if ``net`` is a fized sized network
@@ -378,14 +343,14 @@ class TestSynchronous(unittest.TestCase):
         """
         test ``basins`` on ECAs
         """
-        networks = [(ECA(30), 2, [2, 1, 1]), (ECA(30), 3, [8]),
-                    (ECA(30), 4, [2, 12, 1, 1]), (ECA(30), 5, [2, 30]),
-                    (ECA(30), 6, [62, 1, 1]), (ECA(110), 2, [4]),
-                    (ECA(110), 3, [8]), (ECA(110), 4, [4, 6, 6]),
-                    (ECA(110), 5, [32]), (ECA(110), 6, [10, 27, 27])]
+        networks = [(ECA(30, 2), [2, 1, 1]), (ECA(30, 3), [8]),
+                    (ECA(30, 4), [2, 12, 1, 1]), (ECA(30, 5), [2, 30]),
+                    (ECA(30, 6), [62, 1, 1]), (ECA(110, 2), [4]),
+                    (ECA(110, 3), [8]), (ECA(110, 4), [4, 6, 6]),
+                    (ECA(110, 5), [32]), (ECA(110, 6), [10, 27, 27])]
 
-        for net, width, basin_sizes in networks:
-            basin_counter = Counter([len(c) for c in basins(net, size=width)])
+        for net, basin_sizes in networks:
+            basin_counter = Counter([len(c) for c in basins(net)])
             self.assertEqual(Counter(basin_sizes), basin_counter)
 
     def test_basins_wtnetwork(self):
@@ -414,14 +379,6 @@ class TestSynchronous(unittest.TestCase):
         with self.assertRaises(TypeError):
             basin_entropy(nx.Graph())
 
-    def test_basin_entropy_variable_sized(self):
-        """
-        ``basin_entropy`` should raise an error if ``net`` is a variable
-        sized network and ``size`` is ``None``
-        """
-        with self.assertRaises(ValueError):
-            basin_entropy(ECA(30), size=None)
-
     def test_basin_entropy_fixed_sized(self):
         """
         ``basin_entropy`` should raise an error if ``net`` is a fized
@@ -443,17 +400,17 @@ class TestSynchronous(unittest.TestCase):
         """
         test ``basin_entropy`` on ECAs
         """
-        networks = [(ECA(30), 2, 1.5), (ECA(30), 3, 0.),
-                    (ECA(30), 4, 1.186278124459133),
-                    (ECA(30), 5, 0.3372900666170139),
-                    (ECA(30), 6, 0.23187232431271465),
-                    (ECA(110), 2, 0.), (ECA(110), 3, 0.),
-                    (ECA(110), 4, 1.561278124459133),
-                    (ECA(110), 5, 0.),
-                    (ECA(110), 6, 1.4690124052234232)]
+        networks = [(ECA(30, 2), 1.5), (ECA(30, 3), 0.),
+                    (ECA(30, 4), 1.186278124459133),
+                    (ECA(30, 5), 0.3372900666170139),
+                    (ECA(30, 6), 0.23187232431271465),
+                    (ECA(110, 2), 0.), (ECA(110, 3), 0.),
+                    (ECA(110, 4), 1.561278124459133),
+                    (ECA(110, 5), 0.),
+                    (ECA(110, 6), 1.4690124052234232)]
 
-        for net, width, entropy in networks:
-            self.assertAlmostEqual(basin_entropy(net, size=width), entropy)
+        for net, entropy in networks:
+            self.assertAlmostEqual(basin_entropy(net), entropy)
 
     def test_basin_entropy_wtnetwork(self):
         """
@@ -489,14 +446,6 @@ class TestSynchronous(unittest.TestCase):
         with self.assertRaises(TypeError):
             timeseries(MockObject(), timesteps=2)
 
-    def test_timeseries_variable_sized(self):
-        """
-        ``timeseries`` should raise an error if ``net`` is variable sized and
-        ``size`` is ``None``
-        """
-        with self.assertRaises(ValueError):
-            timeseries(ECA(30), size=None, timesteps=5)
-
     def test_timeseries_fixed_sized(self):
         """
         ``timeseries`` should raise an error if ``net`` is fixed sized and
@@ -519,12 +468,12 @@ class TestSynchronous(unittest.TestCase):
         """
         test ``timeseries`` on ECA
         """
-        rule = ECA(30)
         for size in [5, 7, 11]:
+            rule = ECA(30, size)
             time = 10
-            series = timeseries(rule, timesteps=time, size=size)
+            series = timeseries(rule, timesteps=time)
             self.assertEqual((size, 2**size, time + 1), series.shape)
-            for index, state in enumerate(rule.state_space(size)):
+            for index, state in enumerate(rule.state_space()):
                 traj = trajectory(rule, state, timesteps=time)
                 for t, expect in enumerate(traj):
                     got = series[:, index, t]
@@ -567,17 +516,6 @@ class TestLandscape(unittest.TestCase):
         with self.assertRaises(TypeError):
             Landscape(MockObject(), size=5)
 
-    def test_init_not_fixed_sized(self):
-        """
-        ``Landscape.__init__`` should raise a value error if ``net`` is not
-        fixed sized and ``size`` is ``None``.
-        """
-        with self.assertRaises(ValueError):
-            Landscape(MockNetwork())
-
-        with self.assertRaises(ValueError):
-            Landscape(MockNetwork(), size=None)
-
     def test_init_fixed_sized(self):
         """
         ``Landscape.__init__`` should raise a value errorif ``net`` is fixed
@@ -587,24 +525,27 @@ class TestLandscape(unittest.TestCase):
             Landscape(MockFixedSizedNetwork(), size=3)
 
     def test_transitions_eca(self):
-        ca = ECA(30)
+        ca = ECA(30, 1)
 
-        landscape = Landscape(ca, size=1)
+        landscape = Landscape(ca)
         self.assertEqual(ca, landscape.network)
         self.assertEqual(1, landscape.size)
         self.assertEqual([0, 0], list(landscape.transitions))
 
-        landscape = Landscape(ca, size=2)
+        ca.size = 2
+        landscape = Landscape(ca)
         self.assertEqual(ca, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([0, 1, 2, 0], list(landscape.transitions))
 
-        landscape = Landscape(ca, size=3)
+        ca.size = 3
+        landscape = Landscape(ca)
         self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], list(landscape.transitions))
 
-        landscape = Landscape(ca, size=10)
+        ca.size = 10
+        landscape = Landscape(ca)
         trans = landscape.transitions
         self.assertEqual(ca, landscape.network)
         self.assertEqual(10, landscape.size)
@@ -615,52 +556,52 @@ class TestLandscape(unittest.TestCase):
                          list(trans[-10:]))
 
     def test_transitions_eca_index(self):
-        ca = ECA(30)
-        landscape = Landscape(ca, size=3, index=1)
+        ca = ECA(30, 3)
+        landscape = Landscape(ca, index=1)
         self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 3, 2, 1, 6, 5, 6, 5], list(landscape.transitions))
 
-        landscape = Landscape(ca, size=3, index=0)
+        landscape = Landscape(ca, index=0)
         self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 1, 3, 3, 5, 4, 6, 6], list(landscape.transitions))
 
-        landscape = Landscape(ca, size=3, index=None)
+        landscape = Landscape(ca, index=None)
         self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], list(landscape.transitions))
 
     def test_transitions_eca_pin(self):
-        ca = ECA(30)
-        landscape = Landscape(ca, size=3, pin=[1])
+        ca = ECA(30, 3)
+        landscape = Landscape(ca, pin=[1])
         self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 5, 7, 3, 5, 4, 2, 2], list(landscape.transitions))
 
-        landscape = Landscape(ca, size=3, pin=[0])
+        landscape = Landscape(ca, pin=[0])
         self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 7, 6, 1, 6, 5, 2, 1], list(landscape.transitions))
 
-        landscape = Landscape(ca, size=3, pin=None)
+        landscape = Landscape(ca, pin=None)
         self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], list(landscape.transitions))
 
     def test_transitions_eca_values(self):
-        ca = ECA(30)
-        landscape = Landscape(ca, size=3, values={0: 1})
+        ca = ECA(30, 3)
+        landscape = Landscape(ca, values={0: 1})
         self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([1, 7, 7, 1, 7, 5, 3, 1], list(landscape.transitions))
 
-        landscape = Landscape(ca, size=3, values={1: 0})
+        landscape = Landscape(ca, values={1: 0})
         self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 5, 5, 1, 5, 4, 0, 0], list(landscape.transitions))
 
-        landscape = Landscape(ca, size=3, values={})
+        landscape = Landscape(ca, values={})
         self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], list(landscape.transitions))
@@ -829,31 +770,31 @@ class TestLandscape(unittest.TestCase):
         self.assertEqual([space.encode(state) for state in space],
                          list(map(landscape.encode, landscape)))
 
-        ca = ECA(30)
-        space = ca.state_space(10)
-        landscape = Landscape(ca, size=10)
+        ca = ECA(30, 10)
+        space = ca.state_space()
+        landscape = Landscape(ca)
         self.assertEqual(list(space), list(landscape))
         self.assertEqual([space.encode(state) for state in space],
                          list(map(landscape.encode, landscape)))
 
     def test_attractors_eca(self):
-        networks = [(ECA(30), 2, 3), (ECA(30), 3, 1), (ECA(30), 4, 4),
-                    (ECA(30), 5, 2), (ECA(30), 6, 3), (ECA(110), 2, 1),
-                    (ECA(110), 3, 1), (ECA(110), 4, 3), (ECA(110), 5, 1),
-                    (ECA(110), 6, 3)]
+        networks = [(ECA(30, 2), 3), (ECA(30, 3), 1), (ECA(30, 4), 4),
+                    (ECA(30, 5), 2), (ECA(30, 6), 3), (ECA(110, 2), 1),
+                    (ECA(110, 3), 1), (ECA(110, 4), 3), (ECA(110, 5), 1),
+                    (ECA(110, 6), 3)]
 
-        for rule, width, size in networks:
-            landscape = Landscape(rule, size=width)
+        for rule, size in networks:
+            landscape = Landscape(rule)
             self.assertEqual(size, len(landscape.attractors))
 
     def test_basins_eca(self):
-        networks = [(ECA(30), 2, 3), (ECA(30), 3, 1), (ECA(30), 4, 4),
-                    (ECA(30), 5, 2), (ECA(30), 6, 3), (ECA(110), 2, 1),
-                    (ECA(110), 3, 1), (ECA(110), 4, 3), (ECA(110), 5, 1),
-                    (ECA(110), 6, 3)]
+        networks = [(ECA(30, 2), 3), (ECA(30, 3), 1), (ECA(30, 4), 4),
+                    (ECA(30, 5), 2), (ECA(30, 6), 3), (ECA(110, 2), 1),
+                    (ECA(110, 3), 1), (ECA(110, 4), 3), (ECA(110, 5), 1),
+                    (ECA(110, 6), 3)]
 
-        for rule, width, size in networks:
-            landscape = Landscape(rule, size=width)
+        for rule, size in networks:
+            landscape = Landscape(rule)
             self.assertEqual(landscape.volume, len(landscape.basins))
             self.assertEqual(size, 1 + np.max(landscape.basins))
 
@@ -874,7 +815,7 @@ class TestLandscape(unittest.TestCase):
             self.assertEqual(list(range(size)), unique)
 
     def test_trajectory_too_short(self):
-        landscape = Landscape(ECA(30), size=3)
+        landscape = Landscape(ECA(30, 3))
         with self.assertRaises(ValueError):
             landscape.trajectory([0, 0, 0], timesteps=-1)
 
@@ -882,7 +823,7 @@ class TestLandscape(unittest.TestCase):
             landscape.trajectory([0, 0, 0], timesteps=0)
 
     def test_trajectory_eca(self):
-        landscape = Landscape(ECA(30), size=3)
+        landscape = Landscape(ECA(30, 3))
 
         with self.assertRaises(ValueError):
             landscape.trajectory([])
@@ -1043,7 +984,7 @@ class TestLandscape(unittest.TestCase):
         self.assertEqual([[0, 1, 0], [1, 0, 0], [0, 1, 0], [1, 0, 0]], got)
 
     def test_timeseries_too_short(self):
-        landscape = Landscape(ECA(30), size=3)
+        landscape = Landscape(ECA(30, 3))
         with self.assertRaises(ValueError):
             landscape.timeseries(-1)
 
@@ -1051,13 +992,13 @@ class TestLandscape(unittest.TestCase):
             landscape.timeseries(0)
 
     def test_timeseries_eca(self):
-        rule = ECA(30)
         for size in [5, 7, 11]:
-            landscape = Landscape(rule, size=size)
+            rule = ECA(30, size)
+            landscape = Landscape(rule)
             time = 10
             series = landscape.timeseries(time)
             self.assertEqual((size, 2**size, time + 1), series.shape)
-            for index, state in enumerate(rule.state_space(size)):
+            for index, state in enumerate(rule.state_space()):
                 traj = landscape.trajectory(state, timesteps=time)
                 for t, expect in enumerate(traj):
                     got = series[:, index, t]
@@ -1085,19 +1026,19 @@ class TestLandscape(unittest.TestCase):
             self.assertEqual(histogram, list(landscape.basin_sizes))
 
     def test_basin_entropy_eca(self):
-        networks = [(ECA(30), 2, 1.500000, 0.451545),
-                    (ECA(30), 3, 0.000000, 0.000000),
-                    (ECA(30), 4, 1.186278, 0.357105),
-                    (ECA(30), 5, 0.337290, 0.101534),
-                    (ECA(30), 6, 0.231872, 0.069801),
-                    (ECA(110), 2, 0.000000, 0.000000),
-                    (ECA(110), 3, 0.000000, 0.000000),
-                    (ECA(110), 4, 1.561278, 0.469992),
-                    (ECA(110), 5, 0.000000, 0.000000),
-                    (ECA(110), 6, 1.469012, 0.442217)]
+        networks = [(ECA(30, 2), 1.500000, 0.451545),
+                    (ECA(30, 3), 0.000000, 0.000000),
+                    (ECA(30, 4), 1.186278, 0.357105),
+                    (ECA(30, 5), 0.337290, 0.101534),
+                    (ECA(30, 6), 0.231872, 0.069801),
+                    (ECA(110, 2), 0.000000, 0.000000),
+                    (ECA(110, 3), 0.000000, 0.000000),
+                    (ECA(110, 4), 1.561278, 0.469992),
+                    (ECA(110, 5), 0.000000, 0.000000),
+                    (ECA(110, 6), 1.469012, 0.442217)]
 
-        for net, width, base2, base10 in networks:
-            landscape = Landscape(net, size=width)
+        for net, base2, base10 in networks:
+            landscape = Landscape(net)
             self.assertAlmostEqual(base2, landscape.basin_entropy(), places=6)
             self.assertAlmostEqual(
                 base2, landscape.basin_entropy(base=2), places=6)
@@ -1119,7 +1060,7 @@ class TestLandscape(unittest.TestCase):
 
     def test_graph_eca(self):
         for size in range(2, 7):
-            landscape = Landscape(ECA(30), size=size)
+            landscape = Landscape(ECA(30, size))
             g = landscape.graph
             self.assertEqual(landscape.volume, g.number_of_nodes())
             self.assertEqual(landscape.volume, g.number_of_edges())
@@ -1134,7 +1075,7 @@ class TestLandscape(unittest.TestCase):
     def test_in_degree(self):
         for code in [30, 110, 21, 43]:
             for size in range(2, 7):
-                landscape = Landscape(ECA(code), size=size)
+                landscape = Landscape(ECA(code, size))
                 in_degrees = np.empty(landscape.volume, dtype=np.int)
                 for i in range(landscape.volume):
                     in_degrees[i] = np.count_nonzero(
@@ -1151,7 +1092,7 @@ class TestLandscape(unittest.TestCase):
     def test_heights(self):
         for code in [30, 110, 21, 43]:
             for size in range(2, 7):
-                landscape = Landscape(ECA(code), size=size)
+                landscape = Landscape(ECA(code, size))
                 heights = [0] * landscape.volume
                 for i in range(landscape.volume):
                     b = landscape.basins[i]
@@ -1175,7 +1116,7 @@ class TestLandscape(unittest.TestCase):
     def test_attractor_lengths(self):
         for code in [30, 110, 21, 43]:
             for size in range(2, 7):
-                landscape = Landscape(ECA(code), size=size)
+                landscape = Landscape(ECA(code, size=size))
                 lengths = list(map(len, landscape.attractors))
                 self.assertEqual(lengths, list(landscape.attractor_lengths))
 
@@ -1187,7 +1128,7 @@ class TestLandscape(unittest.TestCase):
     def test_recurrence_times(self):
         for code in [30, 110, 21, 43]:
             for size in range(2, 7):
-                landscape = Landscape(ECA(code), size=size)
+                landscape = Landscape(ECA(code, size))
                 recurrence_times = [0] * landscape.volume
                 for i in range(landscape.volume):
                     b = landscape.basins[i]

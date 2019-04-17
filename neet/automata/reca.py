@@ -22,14 +22,12 @@ wiring, but all ``RewiredECA`` are *fixed sized* networks.
 import numpy as np
 from neet.statespace import StateSpace
 from neet.interfaces import Network
-from . import eca
 
 
-class RewiredECA(eca.ECA):
+class RewiredECA(Network):
     """
     RewiredECA is a class to represent elementary cellular automata rules with
     arbitrarily defined topology. Since the topology must be provided,
-    RewiredECA are naturally fixed-sized.
     """
 
     def __init__(self, code, boundary=None, size=None, wiring=None):
@@ -79,20 +77,16 @@ class RewiredECA(eca.ECA):
         :raises ValueError: if ``wiring`` is not :math:`3 \times N`
         :raises ValueError: if ``any(wiring < -1) or any(wiring > N)``
         """
-        super(RewiredECA, self).__init__(code, boundary=boundary)
         if size is not None and wiring is not None:
             raise ValueError("cannot provide size and wiring at the same time")
         elif size is not None:
-            if not isinstance(size, int):
-                raise TypeError("size must be an int")
-            elif size <= 0:
-                raise ValueError("size must be positive, nonzero")
-            else:
-                self.__size = size
-                self.__wiring = np.zeros((3, size), dtype=int)
-                self.__wiring[0, :] = range(-1, size - 1)
-                self.__wiring[1, :] = range(0, size)
-                self.__wiring[2, :] = range(1, size + 1)
+            self.code = code
+            self.size = size
+            self.boundary = boundary
+            self.__wiring = np.zeros((3, size), dtype=int)
+            self.__wiring[0, :] = range(-1, size - 1)
+            self.__wiring[1, :] = range(0, size)
+            self.__wiring[2, :] = range(1, size + 1)
         elif wiring is not None:
             if not isinstance(wiring, (list, np.ndarray)):
                 raise TypeError("wiring must be a list or an array")
@@ -106,10 +100,98 @@ class RewiredECA(eca.ECA):
                 raise ValueError("invalid input node in wiring")
             elif np.any(wiring_array > shape[1]):
                 raise ValueError("invalid input node in wiring")
-            self.__size = int(shape[1])
+
+            self.code = code
+            self.size = int(shape[1])
+            self.boundary = boundary
             self.__wiring = wiring_array
         else:
             raise ValueError("either size or wiring must be provided")
+
+    @property
+    def code(self):
+        """
+        The Wolfram code of the elementary cellular automaton
+
+        .. rubric:: Examples
+
+        .. doctest:: automata
+
+            >>> eca = ECA(30, 5)
+            >>> eca.code
+            30
+            >>> eca.code = 45
+            >>> eca.code
+            45
+            >>> eca.code = 256
+            Traceback (most recent call last):
+                ...
+            ValueError: invalid ECA code
+
+        :type: int
+        :raises TypeError: if ``code`` is not an instance of int
+        :raises ValueError: if ``code`` is not in :math:`\\{0,1,\\ldots,255\\}`
+        """
+        return self.__code
+
+    @code.setter
+    def code(self, code):
+        if not isinstance(code, int):
+            raise TypeError("ECA code is not an int")
+        if 255 < code or code < 0:
+            raise ValueError("invalid ECA code")
+        self.__code = code
+
+    @property
+    def size(self):
+        return self.__size
+
+    @size.setter
+    def size(self, size):
+        if not isinstance(size, int):
+            raise TypeError("ECA size is not an int")
+        if size < 1:
+            raise ValueError("ECA size is negative")
+        self.__size = size
+
+    @property
+    def boundary(self):
+        """
+        The boundary conditions of the elemenary cellular automaton
+
+        .. rubric:: Examples
+
+        .. doctest:: automata
+
+            >>> eca = ECA(30)
+            >>> eca.boundary
+            >>> eca.boundary = (0,1)
+            >>> eca.boundary
+            (0, 1)
+            >>> eca.boundary = None
+            >>> eca.boundary
+            >>> eca.boundary = [0,1]
+            Traceback (most recent call last):
+                ...
+            TypeError: ECA boundary are neither None nor a tuple
+
+        :type: ``None`` or tuple
+        :raises TypeError: if ``boundary`` is neither ``None`` or an instance of tuple
+        :raises ValueError: if ``boundary`` is a neither ``None`` or a pair of binary states
+        """
+        return self.__boundary
+
+    @boundary.setter
+    def boundary(self, boundary):
+        if boundary and not isinstance(boundary, tuple):
+            raise TypeError("ECA boundary are neither None nor a tuple")
+        if boundary:
+            if len(boundary) != 2:
+                raise ValueError("invalid ECA boundary conditions")
+            for x in boundary:
+                if x != 0 and x != 1:
+                    raise ValueError("invalid ECA boundary value")
+        self.__boundary = boundary
 
     @property
     def wiring(self):
@@ -135,26 +217,6 @@ class RewiredECA(eca.ECA):
         """
         return self.__wiring
 
-    @property
-    def size(self):
-        """
-        The number of cells in the CA lattice.
-
-        .. rubric:: Examples
-
-        .. doctest:: automata
-
-            >>> eca = RewiredECA(30, size=3)
-            >>> eca.size
-            3
-            >>> eca = RewiredECA(30, wiring=[[-1,0], [0,1], [1,0]])
-            >>> eca.size
-            2
-
-        :type: int
-        """
-        return self.__size
-
     def state_space(self):
         """
         Return a :class:`neet.statespace.StateSpace` object for the
@@ -173,7 +235,7 @@ class RewiredECA(eca.ECA):
 
         :returns: :class:`neet.statespace.StateSpace`
         """
-        return StateSpace(self.__size, base=2)
+        return StateSpace(self.size, base=2)
 
     def _unsafe_update(self, lattice, index=None, pin=None, values=None):
         """
@@ -290,6 +352,33 @@ class RewiredECA(eca.ECA):
                     raise ValueError("invalid state in values argument")
 
         return self._unsafe_update(lattice, index=index, pin=pin, values=values)
+
+    def neighbors_in(self, index):
+        if not isinstance(index, int):
+            raise TypeError("index must be a non-negative integer")
+
+        size = self.size
+
+        if index < 0 or index > size - 1:
+            msg = "index must be a non-negative integer less than size"
+            raise ValueError(msg)
+
+        return set(self.wiring[:, index])
+
+    def neighbors_out(self, index):
+        if not isinstance(index, int):
+            raise TypeError("index must be a non-negative integer")
+
+        neighbors = {}
+        for j in range(self.size):
+            for i in range(3):
+                if self.wiring[i, j] == index:
+                    neighbors.add(j)
+
+        return neighbors
+
+    def neighbors(self, index):
+        return self.neighbors_in(index).union(self.neighbors_out(index))
 
 
 Network.register(RewiredECA)

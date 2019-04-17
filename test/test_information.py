@@ -1,6 +1,5 @@
 import numpy as np
 import unittest
-from neet.automata import ECA
 from neet.boolean.examples import s_pombe
 from neet.information import (Architecture, active_information,
                               entropy_rate, transfer_entropy,
@@ -26,15 +25,6 @@ class TestInformation(unittest.TestCase):
             active_information(5, k=3, timesteps=10, local=False)
         with self.assertRaises(TypeError):
             active_information(5, k=3, timesteps=10, local=True)
-
-    def test_active_info_not_fixed_size(self):
-        """
-        Raise a ``ValueError`` if the provided network is not fixed sized, and
-        the ``size`` argument is ``None``
-        """
-        with self.assertRaises(ValueError):
-            active_information(ECA(30), k=3, timesteps=10, local=False)
-        active_information(ECA(30), k=3, timesteps=10, size=5, local=False)
 
     def test_active_info_s_pombe(self):
         """
@@ -69,15 +59,6 @@ class TestInformation(unittest.TestCase):
         with self.assertRaises(TypeError):
             entropy_rate(5, k=3, timesteps=10, local=True)
 
-    def test_entropy_rate_not_fixed_size(self):
-        """
-        Raise a ``ValueError`` if the provided network is not fixed sized, and
-        the ``size`` argument is ``None``
-        """
-        with self.assertRaises(ValueError):
-            entropy_rate(ECA(30), k=3, timesteps=10, local=False)
-        entropy_rate(ECA(30), k=3, timesteps=10, size=5, local=False)
-
     def test_entropy_rate_s_pombe(self):
         """
         ``entropy_rate`` computes the correct values for ``s_pombe``
@@ -108,15 +89,6 @@ class TestInformation(unittest.TestCase):
             transfer_entropy(5, k=3, timesteps=10, local=False)
         with self.assertRaises(TypeError):
             transfer_entropy(5, k=3, timesteps=10, local=True)
-
-    def test_transfer_entropy_not_fixed_size(self):
-        """
-        Raise a ``ValueError`` if the provided network is not fixed sized, and
-        the ``size`` argument is ``None``
-        """
-        with self.assertRaises(ValueError):
-            transfer_entropy(ECA(30), k=3, timesteps=10, local=False)
-        transfer_entropy(ECA(30), k=3, timesteps=10, size=5, local=False)
 
     def test_transfer_entropy_s_pombe(self):
         """
@@ -179,15 +151,6 @@ class TestInformation(unittest.TestCase):
             mutual_information(5, timesteps=10, local=False)
         with self.assertRaises(TypeError):
             mutual_information(5, timesteps=10, local=True)
-
-    def test_mutual_information_not_fixed_size(self):
-        """
-        Raise a ``ValueError`` if the provided network is not fixed sized, and
-        the ``size`` argument is ``None``
-        """
-        with self.assertRaises(ValueError):
-            mutual_information(ECA(30), timesteps=10, local=False)
-        mutual_information(ECA(30), timesteps=10, size=5, local=False)
 
     def test_mutual_information_s_pombe(self):
         """
