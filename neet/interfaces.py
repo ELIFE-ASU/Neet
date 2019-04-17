@@ -20,6 +20,7 @@ API Documentation
 """
 import six
 from abc import ABCMeta, abstractmethod
+from .statespace import StateSpace
 
 
 @six.add_metaclass(ABCMeta)
@@ -48,15 +49,16 @@ class Network(object):
         return self._size
 
 
-def is_boolean_network(thing):
-    """
-    Determine whether an *object* is a network with all Boolean states.d
-    """
-    # Boolean networks have a single base equal to 2
-    if isinstance(thing, Network) and hasattr(thing.state_space(), 'base'):
-        return thing.state_space().base == 2
-    else:
-        return False
+class BooleanNetwork(Network):
+    def __init__(self, size):
+        super(BooleanNetwork, self).__init__(size)
+        self._state_space = StateSpace(self.size, base=2)
+
+    def state_space(self):
+        return self._state_space
+
+
+Network.register(BooleanNetwork)
 
 
 def neighbors(net, index, direction='both', **kwargs):

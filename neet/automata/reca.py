@@ -20,11 +20,10 @@ wiring, but all ``RewiredECA`` are *fixed sized* networks.
     [1, 0, 1]
 """
 import numpy as np
-from neet.statespace import StateSpace
-from neet.interfaces import Network
+from neet.interfaces import BooleanNetwork
 
 
-class RewiredECA(Network):
+class RewiredECA(BooleanNetwork):
     """
     RewiredECA is a class to represent elementary cellular automata rules with
     arbitrarily defined topology. Since the topology must be provided,
@@ -205,26 +204,6 @@ class RewiredECA(Network):
         """
         return self.__wiring
 
-    def state_space(self):
-        """
-        Return a :class:`neet.statespace.StateSpace` object for the
-        cellular automaton lattice.
-
-        .. rubric:: Examples
-
-        .. doctest:: automata
-
-            >>> eca = RewiredECA(30, size=3)
-            >>> eca.state_space()
-            <neet.statespace.StateSpace object at 0x...>
-            >>> space = eca.state_space()
-            >>> list(space)
-            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
-
-        :returns: :class:`neet.statespace.StateSpace`
-        """
-        return StateSpace(self.size, base=2)
-
     def _unsafe_update(self, lattice, index=None, pin=None, values=None):
         """
         Update the state of the ``lattice``, in place, without
@@ -369,4 +348,4 @@ class RewiredECA(Network):
         return self.neighbors_in(index).union(self.neighbors_out(index))
 
 
-Network.register(RewiredECA)
+BooleanNetwork.register(RewiredECA)

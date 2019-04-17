@@ -19,7 +19,7 @@ target regardless of other sources.
 API Documentation
 -----------------
 """
-from .interfaces import is_boolean_network
+from .interfaces import BooleanNetwork
 from .synchronous import transitions
 
 import copy
@@ -56,7 +56,7 @@ def sensitivity(net, state, transitions=None):
     :param transitions: a list of precomputed state transitions (*optional*)
     :type transitions: list or None
     """
-    if not is_boolean_network(net):
+    if not isinstance(net, BooleanNetwork):
         raise(TypeError("net must be a boolean network"))
 
     # list Hamming neighbors
@@ -507,7 +507,7 @@ def average_sensitivity(net, states=None, weights=None, calc_trans=True):
     :return: the average sensitivity of ``net``
     """
 
-    if not is_boolean_network(net):
+    if not isinstance(net, BooleanNetwork):
         raise(TypeError("net must be a boolean network"))
 
     Q = average_difference_matrix(net, states=states, weights=weights,

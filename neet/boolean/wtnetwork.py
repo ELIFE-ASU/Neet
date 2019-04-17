@@ -12,11 +12,10 @@ Weight/Threshold Networks
 import numpy as np
 import networkx as nx
 import re
-from neet.statespace import StateSpace
-from neet.interfaces import Network
+from neet.interfaces import BooleanNetwork
 
 
-class WTNetwork(Network):
+class WTNetwork(BooleanNetwork):
     """
     The WTNetwork class represents weight/threshold-based boolean networks. As
     such it is specified in terms of a matrix of edge weights (rows are target
@@ -119,23 +118,6 @@ class WTNetwork(Network):
             raise(ValueError(msg))
 
         self.metadata = {}
-
-    def state_space(self):
-        """
-        Return a :class:`neet.statespace.StateSpace` object for the network.
-
-        .. doctest:: wtnetwork
-
-            >>> net = WTNetwork(3)
-            >>> net.state_space()
-            <neet.statespace.StateSpace object at 0x...>
-            >>> space = net.state_space()
-            >>> list(space)
-            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
-
-        :returns: the network's :class:`neet.statespace.StateSpace`
-        """
-        return StateSpace(self.size, base=2)
 
     def _unsafe_update(self, states, index=None, pin=None, values=None):
         """
@@ -713,4 +695,4 @@ class WTNetwork(Network):
             labels=labels), prog='circo', path=filename)
 
 
-Network.register(WTNetwork)
+BooleanNetwork.register(WTNetwork)

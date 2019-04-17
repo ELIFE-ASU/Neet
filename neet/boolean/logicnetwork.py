@@ -10,13 +10,12 @@ Logic-based Networks
 """
 import re
 from neet.python import long
-from neet.statespace import StateSpace
 from neet.exceptions import FormatError
-from neet.interfaces import Network
+from neet.interfaces import BooleanNetwork
 import networkx as nx
 
 
-class LogicNetwork(Network):
+class LogicNetwork(BooleanNetwork):
     """
     The LogicNetwork class represents boolean networks whose update rules
     follow logic relations among nodes. Each node state is expressed as ``0``
@@ -105,8 +104,6 @@ class LogicNetwork(Network):
 
         if reduced:
             self.reduce_table()
-
-        self._state_space = StateSpace(self.size, base=2)
 
         # Encode truth table for faster computation.
         self._encode_table()
@@ -221,24 +218,6 @@ class LogicNetwork(Network):
         self.table = reduced_table
 
         self._encode_table()
-
-    def state_space(self):
-        """
-        Return a :class:`neet.statespace.StateSpace` object for the network.
-
-        .. doctest:: logicnetwork
-
-            >>> net = LogicNetwork([((1, 2), {'01', '10'}),
-            ... ((0, 2), {'01', '10', '11'}), ((0, 1), {'11'})])
-            >>> net.state_space()
-            <neet.statespace.StateSpace object at 0x...>
-            >>> space = net.state_space()
-            >>> list(space)
-            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
-
-        :returns: the network's :class:`neet.statespace.StateSpace`
-        """
-        return self._state_space
 
     def _unsafe_update(self, net_state, index=None, pin=None, values=None):
         """
@@ -717,4 +696,4 @@ class LogicNetwork(Network):
             labels=labels), prog='circo', path=filename)
 
 
-Network.register(LogicNetwork)
+BooleanNetwork.register(LogicNetwork)
