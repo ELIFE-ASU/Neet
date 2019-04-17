@@ -76,12 +76,12 @@ class LogicNetwork(Network):
         if not isinstance(table, (list, tuple)):
             raise TypeError("table must be a list or tuple")
 
-        self.__size = len(table)
+        super(LogicNetwork, self).__init__(len(table))
 
         if names:
             if not isinstance(names, (list, tuple)):
                 raise TypeError("names must be a list or tuple")
-            elif len(names) != self.__size:
+            elif len(names) != self.size:
                 raise ValueError("number of names must match network size")
             else:
                 self.names = list(names)
@@ -93,7 +93,7 @@ class LogicNetwork(Network):
             if not (isinstance(row, (list, tuple)) and len(row) == 2):
                 raise ValueError("Invalid table format")
             for idx in row[0]:
-                if idx >= self.__size:
+                if idx >= self.size:
                     raise IndexError("mask index out of range")
             # Validate truth table of the sub net.
             if not isinstance(row[1], (list, tuple, set)):
@@ -106,28 +106,12 @@ class LogicNetwork(Network):
         if reduced:
             self.reduce_table()
 
-        self._state_space = StateSpace(self.__size, base=2)
+        self._state_space = StateSpace(self.size, base=2)
 
         # Encode truth table for faster computation.
         self._encode_table()
 
         self.metadata = {}
-
-    @property
-    def size(self):
-        """
-        The number of nodes in the network.
-
-        .. doctest:: logicnetwork
-
-            >>> net = LogicNetwork([((1, 2), {'01', '10'}),
-            ... ((0, 2), {'01', '10', '11'}), ((0, 1), {'11'})])
-            >>> net.size
-            3
-
-        :type: int
-        """
-        return self.__size
 
     def _encode_table(self):
         self._encoded_table = []
@@ -319,7 +303,7 @@ class LogicNetwork(Network):
         encoded_state = self.state_space()._unsafe_encode(net_state)
 
         if index is None:
-            indices = range(self.__size)
+            indices = range(self.size)
         else:
             indices = [index]
 
@@ -699,7 +683,7 @@ class LogicNetwork(Network):
                 raise ValueError("network nodes do not have names")
 
         elif labels == 'indices':
-            labels = range(self.__size)
+            labels = range(self.size)
 
         else:
             raise ValueError("labels must be 'names' or 'indices'")

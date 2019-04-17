@@ -9,7 +9,7 @@ from neet.synchronous import (trajectory, transitions, transition_graph,
 from neet.statespace import StateSpace
 import numpy as np
 import networkx as nx
-from .mock import MockObject, MockFixedSizedNetwork
+from .mock import MockObject, MockNetwork
 
 
 class TestSynchronous(unittest.TestCase):
@@ -27,19 +27,16 @@ class TestSynchronous(unittest.TestCase):
         with self.assertRaises(TypeError):
             trajectory(MockObject(), [1, 2, 3])
 
-        with self.assertRaises(TypeError):
-            trajectory(MockFixedSizedNetwork, [1, 2, 3])
-
     def test_trajectory_too_short(self):
         """
         ``trajectory`` should raise a value error if ``timeseries`` is less
         than 1
         """
         with self.assertRaises(ValueError):
-            trajectory(MockFixedSizedNetwork(), [1, 2, 3], timesteps=0)
+            trajectory(MockNetwork(5), [1, 2, 3], timesteps=0)
 
         with self.assertRaises(ValueError):
-            trajectory(MockFixedSizedNetwork(), [1, 2, 3], timesteps=-1)
+            trajectory(MockNetwork(5), [1, 2, 3], timesteps=-1)
 
     def test_trajectory_eca(self):
         """
@@ -411,10 +408,10 @@ class TestSynchronous(unittest.TestCase):
         ``timeseries`` shoudl raise an error if ``timesteps`` is too small
         """
         with self.assertRaises(ValueError):
-            timeseries(MockFixedSizedNetwork(), timesteps=0)
+            timeseries(MockNetwork(5), timesteps=0)
 
         with self.assertRaises(ValueError):
-            timeseries(MockFixedSizedNetwork(), timesteps=-1)
+            timeseries(MockNetwork(5), timesteps=-1)
 
     def test_timeseries_eca(self):
         """
