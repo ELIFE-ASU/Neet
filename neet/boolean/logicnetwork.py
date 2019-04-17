@@ -654,7 +654,7 @@ class LogicNetwork(BooleanNetwork):
         kwargs['name'] = self.metadata.get('name')
         return nx.DiGraph(edges, **kwargs)
 
-    def draw(self, labels='indices', filename=None):
+    def draw(self, filename=None, labels='indices', *args, **kwargs):
         """
         Output a file with a simple network drawing.
 
@@ -672,8 +672,8 @@ class LogicNetwork(BooleanNetwork):
                          be used if no filename provided.
         :returns: a ``pygraphviz`` network drawing
         """
-        nx.nx_agraph.view_pygraphviz(self.to_networkx_graph(
-            labels=labels), prog='circo', path=filename)
+        kwargs['labels'] = labels
+        super(LogicNetwork, self).draw(filename=filename, *args, **kwargs)
 
 
 BooleanNetwork.register(LogicNetwork)

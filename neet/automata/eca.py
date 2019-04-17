@@ -9,7 +9,6 @@ with an arbitrary rule.
 .. rubric:: Examples
 """
 import numpy as np
-import networkx as nx
 from neet.statespace import StateSpace
 from neet.interfaces import BooleanNetwork
 
@@ -503,24 +502,6 @@ class ECA(BooleanNetwork):
         kwargs['code'] = self.code
         kwargs['boundary'] = self.boundary
         return super(ECA, self).to_networkx_graph(**kwargs)
-
-    def draw(self, size, filename=None):
-        """
-        Output a file with a simple network drawing.
-
-        Requires networkx and pygraphviz.
-
-        Supported image formats are determined by graphviz.  In particular,
-        pdf support requires 'cairo' and 'pango' to be installed prior to
-        graphviz installation.
-
-        :param filename: filename to write drawing to. Temporary filename will be used if no
-                         filename provided.
-        :param size: size of ECA, required if network is an ECA
-        :returns: a ``pygraphviz`` network drawing
-        """
-        nx.nx_agraph.view_pygraphviz(
-            self.to_networkx_graph(size), prog='circo', path=filename)
 
 
 BooleanNetwork.register(ECA)
