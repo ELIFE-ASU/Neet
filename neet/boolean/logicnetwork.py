@@ -626,7 +626,7 @@ class LogicNetwork(BooleanNetwork):
 
         return outgoing_neighbors
 
-    def to_networkx_graph(self, labels='indices'):
+    def to_networkx_graph(self, labels='indices', *args, **kwargs):
         """
         Return networkx graph given neet network.
 
@@ -651,7 +651,8 @@ class LogicNetwork(BooleanNetwork):
             for j in self.neighbors_out(i):
                 edges.append((labels[i], labels[j]))
 
-        return nx.DiGraph(edges, name=self.metadata.get('name'))
+        kwargs['name'] = self.metadata.get('name')
+        return nx.DiGraph(edges, **kwargs)
 
     def draw(self, labels='indices', filename=None):
         """

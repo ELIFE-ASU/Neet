@@ -18,9 +18,10 @@ and :func:`is_boolean_network` functions.
 API Documentation
 -----------------
 """
-import six
-from abc import ABCMeta, abstractmethod
 from .statespace import StateSpace
+from abc import ABCMeta, abstractmethod
+import networkx as nx
+import six
 
 
 @six.add_metaclass(ABCMeta)
@@ -96,6 +97,12 @@ class Network(object):
             outputs = self.neighbors_out(index, *args, **kwargs)
             return inputs.union(outputs)
 
+    @abstractmethod
+    def to_networkx_graph(self, *args, **kwargs):
+        edges = [(i, j) for i in range(self.size) for j in self.neighbors_out(i)]
+
+        return nx.DiGraph(edges, **kwargs)
+
 
 class BooleanNetwork(Network):
     def __init__(self, size):
@@ -107,18 +114,3 @@ class BooleanNetwork(Network):
 
 
 Network.register(BooleanNetwork)
-
-
-def to_networkx_graph(net, size=None, labels='indices', **kwargs):
-    """
-    Return networkx graph given neet network. Requires `networkx`.
-
-    :param labels: how node is labeled and thus identified in networkx graph
-                   ('names' or 'indices'), only used if `net` is a
-                   `LogicNetwork` or `WTNetwork`
-    :returns: a networkx DiGraph
-    """
-    if net.__class__.__name__ == 'ECA':
-        return net.to_networkx_graph()
-    elif net.__class__.__name__ in ['WTNetwork', 'LogicNetwork']:
-        return net.to_networkx_graph(labels=labels)

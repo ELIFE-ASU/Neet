@@ -494,22 +494,15 @@ class ECA(BooleanNetwork):
 
         return {left, index, right}
 
-    def to_networkx_graph(self):
+    def to_networkx_graph(self, *args, **kwargs):
         """
         Return networkx graph given neet network. Requires networkx.
 
         :returns: a ``networkx.DiGraph``
         """
-
-        #  edges, size = [], self.size
-        #  for i in range(size):
-        #      for j in self.neighbors_out(i):
-        #          edges.append((i, j))
-        size = self.size
-        edges = [(i, j) for i in range(size) for j in self.neighbors_out(i)]
-
-        return nx.DiGraph(edges, code=self.code, size=size,
-                          boundary=self.boundary)
+        kwargs['code'] = self.code
+        kwargs['boundary'] = self.boundary
+        return super(ECA, self).to_networkx_graph(**kwargs)
 
     def draw(self, size, filename=None):
         """

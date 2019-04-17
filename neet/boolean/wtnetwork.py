@@ -623,7 +623,7 @@ class WTNetwork(BooleanNetwork):
             # when we convert all WTNetworks to logicnetworks by default.
             return set(np.flatnonzero(self.weights[:, index])) | set([index])
 
-    def to_networkx_graph(self, labels='indices'):
+    def to_networkx_graph(self, labels='indices', *args, **kwargs):
         """
         Return networkx graph given neet network.
         Return a ``networkx`` graph from a :class:`WTNetwork`.
@@ -649,7 +649,8 @@ class WTNetwork(BooleanNetwork):
             for j in self.neighbors_out(i):
                 edges.append((labels[i], labels[j]))
 
-        return nx.DiGraph(edges, name=self.metadata.get('name'))
+        kwargs['name'] = self.metadata.get('name')
+        return nx.DiGraph(edges, **kwargs)
 
     def draw(self, labels='indices', filename=None):
         """
