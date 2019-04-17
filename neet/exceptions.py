@@ -25,10 +25,3 @@ class FormatError(Exception):
     formatted.
     """
     pass
-
-
-class ImplementationError(Exception):
-    """
-    An error class to report when a subclass fails to implement a required method.
-    """
-    pass

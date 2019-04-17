@@ -8,8 +8,8 @@ from neet.exceptions import FormatError
 
 class TestLogicNetwork(unittest.TestCase):
     def test_is_network(self):
-        from neet.interfaces import is_network
-        self.assertTrue(is_network(LogicNetwork([([0], {'0'})])))
+        from neet.interfaces import Network
+        self.assertTrue(isinstance(LogicNetwork([([0], {'0'})]), Network))
 
     def test_is_fixed_sized(self):
         from neet.interfaces import is_fixed_sized

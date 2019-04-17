@@ -5,8 +5,8 @@ import numpy as np
 
 class TestWTNetwork(unittest.TestCase):
     def test_is_network(self):
-        from neet.interfaces import is_network
-        self.assertTrue(is_network(bnet.WTNetwork([[1]])))
+        from neet.interfaces import Network
+        self.assertTrue(isinstance(bnet.WTNetwork([[1]]), Network))
 
     def test_is_fixed_sized(self):
         from neet.interfaces import is_fixed_sized

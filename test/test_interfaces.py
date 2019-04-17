@@ -1,6 +1,5 @@
 import unittest
-from neet.interfaces import (Network, is_network, is_fixed_sized,
-                             is_boolean_network, neighbors,
+from neet.interfaces import (Network, is_fixed_sized, is_boolean_network, neighbors,
                              to_networkx_graph)
 from neet.statespace import StateSpace
 import neet.automata as ca
@@ -59,12 +58,12 @@ class TestCore(unittest.TestCase):
 
     def test_is_network(self):
         net = self.IsNetwork()
-        self.assertTrue(is_network(net))
+        self.assertTrue(isinstance(net, Network))
 
         not_net = self.IsNotNetwork()
-        self.assertFalse(is_network(not_net))
+        self.assertFalse(isinstance(not_net, Network))
 
-        self.assertFalse(is_network(5))
+        self.assertFalse(isinstance(5, Network))
 
     def test_is_fixed_sized(self):
         net = self.IsNetwork()

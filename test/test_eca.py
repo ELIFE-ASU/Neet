@@ -5,8 +5,8 @@ import numpy as np
 
 class TestECA(unittest.TestCase):
     def test_is_network(self):
-        from neet.interfaces import is_network
-        self.assertTrue(is_network(ca.ECA(23)))
+        from neet.interfaces import Network
+        self.assertTrue(isinstance(ca.ECA(23), Network))
 
     def test_is_not_fixed_sized(self):
         from neet.interfaces import is_fixed_sized
