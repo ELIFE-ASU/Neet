@@ -19,23 +19,32 @@ functions.
 API Documentation
 -----------------
 """
+from . exceptions import ImplementationError
+from abc import ABC, abstractmethod
+
+
+class Network(ABC):
+    @abstractmethod
+    def update(self):
+        raise ImplementationError('subclass does not override the `update` method')
+
+    def state_space(self):
+        raise ImplementationError('subclass does not override the `state_space` method')
+
+    def neighbors(self):
+        raise ImplementationError('subclass does not override the `neighbors` method')
 
 
 def is_network(thing):
     """
-    Determine whether an *object* or *type* meets the interface requirement of
-    a network. Specifically, to be considered a network, a class must provide
-    the following methods:
-
-    1. `update` which updates the state of a lattice
-    2. `state_space` which returns a :func:`neet.statespace.StateSpace` object
-    3. `neighbors` which returns the neighbors of a given node
+    Determine whether an *object* meets the interface requirement of
+    a network. That is, is the object an instance of `Network`?
 
     .. rubric:: Example:
 
     .. doctest:: interfaces
 
-        >>> class IsNetwork(object):
+        >>> class IsNetwork(Network):
         ...     def update(self):
         ...         pass
         ...     def state_space(self):
@@ -44,38 +53,36 @@ def is_network(thing):
         ...         return []
         ...
         >>> class IsNotNetwork(object):
+        ...     def update(self):
+        ...         pass
+        ...     def state_space(self):
+        ...         return StateSpace(1)
+        ...     def neighbors(self, i):
+        ...         return []
         ...     pass
         ...
         >>> is_network(IsNetwork())
         True
-        >>> is_network(IsNetwork)
-        True
         >>> is_network(IsNotNetwork())
-        False
-        >>> is_network(IsNotNetwork)
         False
         >>> is_network(5)
         False
 
-    :param thing: an object or a type
-    :returns: ``True`` if ``thing`` has the minimum interface of a network
+    :param thing: an object
+    :returns: ``True`` if ``thing`` is an instance of `Network`
     """
-    has_update = hasattr(thing, 'update')
-    has_state_space = hasattr(thing, 'state_space')
-    has_neighbors = hasattr(thing, 'neighbors')
-
-    return has_update and has_state_space and has_neighbors
+    return isinstance(thing, Network)
 
 
 def is_fixed_sized(thing):
     """
-    Determine whether an *object* or *type* is a network and has a fixed size.
+    Determine whether an *object* is a network and has a fixed size.
 
     .. rubric:: Example
 
     .. doctest:: interfaces
 
-        >>> class IsNetwork(object):
+        >>> class IsNetwork(Network):
         ...     def update(self):
         ...         pass
         ...     def state_space(self):
@@ -87,9 +94,9 @@ def is_fixed_sized(thing):
         ...     def size():
         ...         return 5
         ...
-        >>> is_fixed_sized(IsNetwork)
+        >>> is_fixed_sized(IsNetwork())
         False
-        >>> is_fixed_sized(FixedSized)
+        >>> is_fixed_sized(FixedSized())
         True
 
     :param thing: an object or a type

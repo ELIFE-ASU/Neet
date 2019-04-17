@@ -23,9 +23,10 @@ passed to the relevant methods or functions.
 import numpy as np
 import networkx as nx
 from neet.statespace import StateSpace
+from neet.interfaces import Network
 
 
-class ECA(object):
+class ECA(Network):
     """
     ECA is a class to represent elementary cellular automaton rules. Each ECA
     contains an 8-bit integral member variable ``code`` representing the
