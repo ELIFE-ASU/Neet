@@ -19,20 +19,23 @@ functions.
 API Documentation
 -----------------
 """
-from . exceptions import ImplementationError
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 
-class Network(ABC):
+class Network(object):
+    __metaclass__ = ABCMeta
+
     @abstractmethod
     def update(self):
-        raise ImplementationError('subclass does not override the `update` method')
+        pass
 
+    @abstractmethod
     def state_space(self):
-        raise ImplementationError('subclass does not override the `state_space` method')
+        pass
 
+    @abstractmethod
     def neighbors(self):
-        raise ImplementationError('subclass does not override the `neighbors` method')
+        pass
 
 
 def is_network(thing):
