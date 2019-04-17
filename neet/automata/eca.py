@@ -4,21 +4,9 @@ Elementary Cellular Automata
 
 The :class:`neet.automata.eca.ECA` class describes an `Elementary Cellular
 Automaton <https://en.wikipedia.org/wiki/Elementary_cellular_automaton>`_
-with an arbitrary rule. The ``ECA`` class is **not** a fixed sized network.
-This means that the size is determined when it is used based on arguments
-passed to the relevant methods or functions.
+with an arbitrary rule.
 
 .. rubric:: Examples
-
-.. doctest:: automata
-
-    >>> ca = ECA(30)
-    >>> ca.update([0, 0, 1, 0, 0])
-    [0, 1, 1, 1, 0]
-    >>> ca.update([0, 1, 0])
-    [1, 1, 1]
-    >>> transitions(ca, size=3)
-    [[0, 0, 0], [1, 1, 1], [1, 1, 1], [1, 0, 0], [1, 1, 1], [0, 0, 1], [0, 1, 0], [0, 0, 0]]
 """
 import numpy as np
 import networkx as nx
@@ -35,7 +23,7 @@ class ECA(Network):
     cell states signifying fixed, open boundary conditions.
     """
 
-    def __init__(self, code, boundary=None):
+    def __init__(self, code, size, boundary=None):
         """
         Construct an elementary cellular automaton rule.
 
@@ -43,16 +31,20 @@ class ECA(Network):
 
         .. doctest:: automata
 
-            >>> ca = ECA(30)
+            >>> ca = ECA(30, 5)
             >>> ca.code
             30
+            >>> ca.size
+            5
             >>> ca.boundary
-            >>> ca = ECA(30, boundary=(0,0))
+            >>> ca = ECA(30, 5, boundary=(0,0))
             >>> ca.boundary
             (0, 0)
 
         :param code: the Wolfram code for the ECA
         :type code: int
+        :param size: the size of the ECA's lattice
+        :type size: int
         :param boundary: the boundary conditions for the CA
         :type boundary: tuple or None
         :raises TypeError: if ``code`` is not an instance of int
@@ -61,6 +53,7 @@ class ECA(Network):
         :raises ValueError: if ``boundary`` is a neither ``None`` or a pair of binary states
         """
         self.code = code
+        self.size = size
         self.boundary = boundary
 
     @property
@@ -72,7 +65,7 @@ class ECA(Network):
 
         .. doctest:: automata
 
-            >>> eca = ECA(30)
+            >>> eca = ECA(30, 5)
             >>> eca.code
             30
             >>> eca.code = 45
@@ -98,6 +91,18 @@ class ECA(Network):
         self.__code = code
 
     @property
+    def size(self):
+        return self.__size
+
+    @size.setter
+    def size(self, size):
+        if not isinstance(size, int):
+            raise TypeError("ECA size is not an int")
+        if size < 1:
+            raise ValueError("ECA size is negative")
+        self.__size = size
+
+    @property
     def boundary(self):
         """
         The boundary conditions of the elemenary cellular automaton
@@ -119,10 +124,8 @@ class ECA(Network):
             TypeError: ECA boundary are neither None nor a tuple
 
         :type: ``None`` or tuple
-        :raises TypeError: if ``boundary`` is neither ``None`` or an instance
-                           of tuple
-        :raises ValueError: if ``boundary`` is a neither ``None`` or a pair of
-                            binary states
+        :raises TypeError: if ``boundary`` is neither ``None`` or an instance of tuple
+        :raises ValueError: if ``boundary`` is a neither ``None`` or a pair of binary states
         """
         return self.__boundary
 
@@ -138,7 +141,7 @@ class ECA(Network):
                     raise ValueError("invalid ECA boundary value")
         self.__boundary = boundary
 
-    def state_space(self, n):
+    def state_space(self):
         """
         Return a :class:`neet.statespace.StateSpace` object for a
         lattice of length ``n``.
@@ -157,7 +160,7 @@ class ECA(Network):
         :returns: :class:`neet.statespace.StateSpace`
         :raises ValueError: if ``n < 1``
         """
-        return StateSpace(n, base=2)
+        return StateSpace(self.size, base=2)
 
     def _unsafe_update(self, lattice, index=None, pin=None, values=None):
         """
@@ -272,7 +275,7 @@ class ECA(Network):
 
         .. doctest:: automata
 
-            >>> ca = ECA(30)
+            >>> ca = ECA(30, 5)
             >>> xs = [0,0,1,0,0]
             >>> ca.update(xs)
             [0, 1, 1, 1, 0]
@@ -366,8 +369,12 @@ class ECA(Network):
         :raises ValueError: if an element of ``pin`` is a key in ``values``
         :raises ValueError: if a value in ``values`` is not binary (0 or 1)
         """
-        size = len(lattice)
-        if lattice not in self.state_space(size):
+        if len(lattice) != self.size:
+            msg = 'the provided state has size {}, expected size {}'.format(len(lattice), self.size)
+            raise ValueError(msg)
+        else:
+            size = self.size
+        if lattice not in self.state_space():
             msg = "the provided state is not in the ECA's state space"
             raise ValueError(msg)
 
@@ -391,7 +398,7 @@ class ECA(Network):
 
         return self._unsafe_update(lattice, index, pin, values)
 
-    def neighbors_in(self, index, size, **kwargs):
+    def neighbors_in(self, index, **kwargs):
         """
         Return the set of all incoming neighbor nodes.
 
@@ -432,14 +439,10 @@ class ECA(Network):
                 ...
             ValueError: index must be a non-negative integer less than size
         """
-        if not isinstance(size, int):
-            raise TypeError("size must be a positive integer")
-
-        if size < 1:
-            raise ValueError("size must be a positive integer")
-
         if not isinstance(index, int):
             raise TypeError("index must be a non-negative integer")
+
+        size = self.size
 
         if index < 0 or index > size - 1:
             msg = "index must be a non-negative integer less than size"
@@ -455,7 +458,7 @@ class ECA(Network):
 
         return {left, index, right}
 
-    def neighbors_out(self, index, size):
+    def neighbors_out(self, index):
         """
         Return the set of all outgoing neighbor nodes.
 
@@ -495,11 +498,7 @@ class ECA(Network):
         if not isinstance(index, int):
             raise TypeError("index must be a non-negative integer")
 
-        if not isinstance(size, int):
-            raise TypeError("size must be a positive integer")
-
-        if size < 1:
-            raise ValueError("size must be a positive integer")
+        size = self.size
 
         if index < 0 or index > size - 1:
             msg = "index must be a non-negative integer less than size"
@@ -515,7 +514,7 @@ class ECA(Network):
 
         return {left, index, right}
 
-    def neighbors(self, index, size):
+    def neighbors(self, index):
         """
         Return a set of neighbors for a specified node.
 
@@ -557,20 +556,21 @@ class ECA(Network):
             ValueError: index must be a non-negative integer less than size
         """
         # Outgoing neighbors are a subset of incoming neighbors.
-        return self.neighbors_in(index, size)
+        return self.neighbors_in(index)
 
-    def to_networkx_graph(self, size):
+    def to_networkx_graph(self):
         """
         Return networkx graph given neet network. Requires networkx.
 
-        :param size: size of ECA, required if network is an ECA
         :returns: a ``networkx.DiGraph``
         """
 
-        edges = []
-        for i in range(size):
-            for j in self.neighbors_out(i, size):
-                edges.append((i, j))
+        #  edges, size = [], self.size
+        #  for i in range(size):
+        #      for j in self.neighbors_out(i):
+        #          edges.append((i, j))
+        size = self.size
+        edges = [(i, j) for i in range(size) for j in self.neighbors_out(i)]
 
         return nx.DiGraph(edges, code=self.code, size=size,
                           boundary=self.boundary)

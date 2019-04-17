@@ -18,11 +18,14 @@ class TestCore(unittest.TestCase):
         def neighbors(self):
             pass
 
+        @property
+        def size(self):
+            return 0
+
     Network.register(IsNetwork)
 
     class FixedSizeNetwork(IsNetwork):
-        def size(self):
-            return 5
+        pass
 
     Network.register(IsNetwork)
 
@@ -40,7 +43,7 @@ class TestCore(unittest.TestCase):
         def size(self):
             return 5
 
-    class BaseThreeNetwork(object):
+    class BaseThreeNetwork(Network):
         def update(self, lattice):
             pass
 
@@ -50,7 +53,13 @@ class TestCore(unittest.TestCase):
         def neighbors(self):
             pass
 
-    class MultipleBaseNetwork(object):
+        @property
+        def size(self):
+            return 0
+
+    Network.register(BaseThreeNetwork)
+
+    class MultipleBaseNetwork(Network):
         def update(self, lattice):
             pass
 
@@ -59,6 +68,12 @@ class TestCore(unittest.TestCase):
 
         def neighbors(self):
             pass
+
+        @property
+        def size(self):
+            return 0
+
+    Network.register(MultipleBaseNetwork)
 
     def test_is_network(self):
         net = self.IsNetwork()
@@ -71,7 +86,7 @@ class TestCore(unittest.TestCase):
 
     def test_is_fixed_sized(self):
         net = self.IsNetwork()
-        self.assertFalse(is_fixed_sized(net))
+        self.assertTrue(is_fixed_sized(net))
 
         not_net = self.IsNotNetwork()
         self.assertFalse(is_fixed_sized(not_net))
@@ -93,15 +108,12 @@ class TestCore(unittest.TestCase):
         self.assertFalse(is_boolean_network(not_bool_net))
 
     def test_neighbors_ECA(self):
-        eca = ca.ECA(30)
+        eca = ca.ECA(30, 4)
 
         with self.assertRaises(ValueError):
             neighbors(eca, 1, direction='')
 
-        self.assertTrue(neighbors(eca, 1, size=4), set([0, 1, 2]))
-
-        with self.assertRaises(AttributeError):
-            neighbors(eca, 1)
+        self.assertTrue(neighbors(eca, 1), set([0, 1, 2]))
 
     def test_neighbors_WTNetwork(self):
         net = bnet.WTNetwork([[1, 0], [1, 1]])
@@ -133,13 +145,10 @@ class TestCore(unittest.TestCase):
         self.assertEqual(set(nx_net), set(s_pombe.names))
 
     def test_to_networkx_ECA_metadata(self):
-        net = ca.ECA(30)
+        net = ca.ECA(30, 3)
         net.boundary = (1, 0)
 
-        with self.assertRaises(AttributeError):
-            to_networkx_graph(net)
-
-        nx_net = to_networkx_graph(net, 3)
+        nx_net = to_networkx_graph(net)
 
         self.assertEqual(nx_net.graph['code'], 30)
         self.assertEqual(nx_net.graph['size'], 3)

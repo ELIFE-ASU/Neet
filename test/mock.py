@@ -32,6 +32,10 @@ class MockNetwork(Network):
         """
         pass
 
+    @property
+    def size(self):
+        return 0
+
 
 Network.register(MockNetwork)
 
