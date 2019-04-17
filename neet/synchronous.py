@@ -37,7 +37,7 @@ import networkx as nx
 import numpy as np
 import pyinform as pi
 from .statespace import StateSpace
-from .interfaces import is_network, is_fixed_sized
+from .interfaces import Network, is_fixed_sized
 
 
 def trajectory(net, state, timesteps=1, encode=False):
@@ -65,7 +65,7 @@ def trajectory(net, state, timesteps=1, encode=False):
     :raises TypeError: if net is not a network
     :raises ValueError: if ``timesteps < 1``
     """
-    if not is_network(net):
+    if not isinstance(net, Network):
         raise TypeError("net is not a network")
     if timesteps < 1:
         raise ValueError("number of steps must be positive, non-zero")
@@ -121,7 +121,7 @@ def transitions(net, size=None, encode=False):
     :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
-    if not is_network(net):
+    if not isinstance(net, Network):
         raise TypeError("net is not a network")
 
     if is_fixed_sized(net):
@@ -169,7 +169,7 @@ def transition_graph(net, size=None):
     :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
-    if is_network(net):
+    if isinstance(net, Network):
         edge_list = enumerate(transitions(net, size=size, encode=True))
         return nx.DiGraph(list(edge_list))
     elif isinstance(net, nx.DiGraph):
@@ -205,7 +205,7 @@ def attractors(net, size=None):
     """
     if isinstance(net, nx.DiGraph):
         return list(nx.simple_cycles(net))
-    elif not is_network(net):
+    elif not isinstance(net, Network):
         raise TypeError("net must be a network or a networkx DiGraph")
     elif is_fixed_sized(net) and size is not None:
         raise ValueError("fixed sized networks require size is None")
@@ -381,7 +381,7 @@ def timeseries(net, timesteps, size=None):
     :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     :raises ValueError: if ``timesteps < 1``
     """
-    if not is_network(net):
+    if not isinstance(net, Network):
         raise TypeError("net must be a NEET network")
     if not is_fixed_sized(net) and size is None:
         raise ValueError("network is not fixed sized; must provide a size")
@@ -444,7 +444,7 @@ class Landscape(StateSpace):
                            ``None``
         """
 
-        if not is_network(net):
+        if not isinstance(net, Network):
             raise TypeError("net is not a network")
         elif is_fixed_sized(net):
             if size is not None:

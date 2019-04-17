@@ -13,8 +13,7 @@ Interfaces
 The :mod:`neet.interfaces` module provides a collection of functions for
 determining if types adhere to various network interfaces, and generic
 functions for operating upon them. This done primarily through the
-:func:`is_network`, :func:`is_fixed_sized` and :func:`is_boolean_network`
-functions.
+:func:`is_fixed_sized` and :func:`is_boolean_network` functions.
 
 API Documentation
 -----------------
@@ -36,45 +35,6 @@ class Network(object):
     @abstractmethod
     def neighbors(self):
         pass
-
-
-def is_network(thing):
-    """
-    Determine whether an *object* meets the interface requirement of
-    a network. That is, is the object an instance of `Network`?
-
-    .. rubric:: Example:
-
-    .. doctest:: interfaces
-
-        >>> class IsNetwork(Network):
-        ...     def update(self):
-        ...         pass
-        ...     def state_space(self):
-        ...         return StateSpace(1)
-        ...     def neighbors(self, i):
-        ...         return []
-        ...
-        >>> class IsNotNetwork(object):
-        ...     def update(self):
-        ...         pass
-        ...     def state_space(self):
-        ...         return StateSpace(1)
-        ...     def neighbors(self, i):
-        ...         return []
-        ...     pass
-        ...
-        >>> is_network(IsNetwork())
-        True
-        >>> is_network(IsNotNetwork())
-        False
-        >>> is_network(5)
-        False
-
-    :param thing: an object
-    :returns: ``True`` if ``thing`` is an instance of `Network`
-    """
-    return isinstance(thing, Network)
 
 
 def is_fixed_sized(thing):
@@ -104,9 +64,8 @@ def is_fixed_sized(thing):
 
     :param thing: an object or a type
     :returns: ``True`` if ``thing`` is a network with a size attribute
-    :see: :func:`is_network`.
     """
-    return is_network(thing) and hasattr(thing, 'size')
+    return isinstance(thing, Network) and hasattr(thing, 'size')
 
 
 def is_boolean_network(thing):
@@ -114,7 +73,7 @@ def is_boolean_network(thing):
     Determine whether an *object* is a network with all Boolean states.d
     """
     # Boolean networks have a single base equal to 2
-    if is_network(thing) and hasattr(thing.state_space(), 'base'):
+    if isinstance(thing, Network) and hasattr(thing.state_space(), 'base'):
         return thing.state_space().base == 2
     else:
         return False
