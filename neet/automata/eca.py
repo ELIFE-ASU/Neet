@@ -11,10 +11,10 @@ with an arbitrary rule.
 import numpy as np
 import networkx as nx
 from neet.statespace import StateSpace
-from neet.interfaces import Network
+from neet.interfaces import BooleanNetwork
 
 
-class ECA(Network):
+class ECA(BooleanNetwork):
     """
     ECA is a class to represent elementary cellular automaton rules. Each ECA
     contains an 8-bit integral member variable ``code`` representing the
@@ -94,13 +94,14 @@ class ECA(Network):
     def size(self):
         return self._size
 
-    @size.setter # noqa
+    @size.setter
     def size(self, size):
         if not isinstance(size, int):
             raise TypeError("ECA size is not an int")
         if size < 1:
             raise ValueError("ECA size is negative")
         self._size = size
+        self._state_space = StateSpace(size)
 
     @property
     def boundary(self):
@@ -140,27 +141,6 @@ class ECA(Network):
                 if x != 0 and x != 1:
                     raise ValueError("invalid ECA boundary value")
         self.__boundary = boundary
-
-    def state_space(self):
-        """
-        Return a :class:`neet.statespace.StateSpace` object for a
-        lattice of length ``n``.
-
-        .. doctest:: automata
-
-            >>> eca = ECA(30)
-            >>> eca.state_space(3)
-            <neet.statespace.StateSpace object at 0x...>
-            >>> space = eca.state_space(3)
-            >>> list(space)
-            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
-
-        :param n: the number of nodes in the lattice
-        :type n: int
-        :returns: :class:`neet.statespace.StateSpace`
-        :raises ValueError: if ``n < 1``
-        """
-        return StateSpace(self.size, base=2)
 
     def _unsafe_update(self, lattice, index=None, pin=None, values=None):
         """
@@ -594,4 +574,4 @@ class ECA(Network):
             self.to_networkx_graph(size), prog='circo', path=filename)
 
 
-Network.register(ECA)
+BooleanNetwork.register(ECA)
