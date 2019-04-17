@@ -64,6 +64,10 @@ class Network(object):
 
         return nx.DiGraph(edges, **kwargs)
 
+    def draw(self, filename=None, *args, **kwargs):
+        graph = self.to_networkx_graph(*args, **kwargs)
+        nx.nx_agraph.view_pygraphviz(graph, prog='circo', path=filename)
+
 
 class BooleanNetwork(Network):
     def __init__(self, size):

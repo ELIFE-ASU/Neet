@@ -652,7 +652,7 @@ class WTNetwork(BooleanNetwork):
         kwargs['name'] = self.metadata.get('name')
         return nx.DiGraph(edges, **kwargs)
 
-    def draw(self, labels='indices', filename=None):
+    def draw(self, filename=None, labels='indices', *args, **kwargs):
         """
         Output a file with a simple network drawing.
 
@@ -669,10 +669,9 @@ class WTNetwork(BooleanNetwork):
         :param filename: filename to write drawing to. Temporary filename will
                        be used if no filename provided.
         :returns: a ``pygraphviz`` network drawing
-
         """
-        nx.nx_agraph.view_pygraphviz(self.to_networkx_graph(
-            labels=labels), prog='circo', path=filename)
+        kwargs['labels'] = labels
+        super(WTNetwork, self).draw(filename=filename, *args, **kwargs)
 
 
 BooleanNetwork.register(WTNetwork)
