@@ -17,15 +17,6 @@ class TestRewiredECA(unittest.TestCase):
         self.assertTrue(isinstance(RewiredECA(
             30, wiring=[[-1, 0, 1], [0, 1, 2], [1, 2, 3]]), Network))
 
-    def test_is_fixed_sized(self):
-        """
-        Ensure that RewiredECA is of fixed size
-        """
-        from neet.interfaces import is_fixed_sized
-        self.assertTrue(is_fixed_sized(RewiredECA(23, size=3)))
-        self.assertTrue(is_fixed_sized(RewiredECA(
-            30, wiring=[[-1, 0, 1], [0, 1, 2], [1, 2, 3]])))
-
     def test_invalid_code(self):
         """
         Ensure that init fails when an invalid Wolfram code is provided

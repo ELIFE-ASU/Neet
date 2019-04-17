@@ -135,14 +135,6 @@ class TestSynchronous(unittest.TestCase):
         with self.assertRaises(TypeError):
             transitions(MockObject(), 5)
 
-    def test_transitions_fixed_sized(self):
-        """
-        ``transitions`` should raise an error if ``net`` is fixed sized and
-        ``size`` is not ``None``
-        """
-        with self.assertRaises(ValueError):
-            transitions(MockFixedSizedNetwork(), size=3)
-
     def test_transitions_eca(self):
         """
         test ``transitions`` on ECAs; encoding the states
@@ -223,14 +215,6 @@ class TestSynchronous(unittest.TestCase):
         with self.assertRaises(TypeError):
             transition_graph(MockObject())
 
-    def test_transition_graph_fixed_sized(self):
-        """
-        ``transitions_graph`` should raise an error if ``net`` is fixed sized
-        and ``size`` is not ``None``
-        """
-        with self.assertRaises(ValueError):
-            transition_graph(MockFixedSizedNetwork(), size=5)
-
     def test_transition_graph_eca(self):
         """
         test ``transitions_graph`` on ``ECA``
@@ -261,14 +245,6 @@ class TestSynchronous(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             attractors(nx.Graph())
-
-    def test_attractors_fixed_sized(self):
-        """
-        ``attractors`` should raise an error if ``net`` is either a fixed sized
-        network or a networkx digraph, and ``size`` is not ``None``
-        """
-        with self.assertRaises(ValueError):
-            attractors(MockFixedSizedNetwork(), size=5)
 
     def test_attractors_eca(self):
         """
@@ -318,14 +294,6 @@ class TestSynchronous(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             basins(nx.Graph())
-
-    def test_basins_fixed_sized(self):
-        """
-        ``basins`` should raise an error if ``net`` is a fized sized network
-        and ``size`` is not ``None``
-        """
-        with self.assertRaises(ValueError):
-            basins(MockFixedSizedNetwork(), size=5)
 
     def test_basins_transition_graph(self):
         """
@@ -378,14 +346,6 @@ class TestSynchronous(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             basin_entropy(nx.Graph())
-
-    def test_basin_entropy_fixed_sized(self):
-        """
-        ``basin_entropy`` should raise an error if ``net`` is a fized
-        sized network and ``size`` is not ``None``
-        """
-        with self.assertRaises(ValueError):
-            basin_entropy(MockFixedSizedNetwork(), size=5)
 
     def test_basin_entropy_transition_graph(self):
         """
@@ -446,14 +406,6 @@ class TestSynchronous(unittest.TestCase):
         with self.assertRaises(TypeError):
             timeseries(MockObject(), timesteps=2)
 
-    def test_timeseries_fixed_sized(self):
-        """
-        ``timeseries`` should raise an error if ``net`` is fixed sized and
-        ``size`` is not ``None``
-        """
-        with self.assertRaises(ValueError):
-            timeseries(MockFixedSizedNetwork(), size=5, timesteps=5)
-
     def test_timeseries_too_short(self):
         """
         ``timeseries`` shoudl raise an error if ``timesteps`` is too small
@@ -512,17 +464,6 @@ class TestLandscape(unittest.TestCase):
         """
         with self.assertRaises(TypeError):
             Landscape(MockObject())
-
-        with self.assertRaises(TypeError):
-            Landscape(MockObject(), size=5)
-
-    def test_init_fixed_sized(self):
-        """
-        ``Landscape.__init__`` should raise a value errorif ``net`` is fixed
-        sized, but ``size`` is not ``None``.
-        """
-        with self.assertRaises(ValueError):
-            Landscape(MockFixedSizedNetwork(), size=3)
 
     def test_transitions_eca(self):
         ca = ECA(30, 1)
@@ -1116,7 +1057,7 @@ class TestLandscape(unittest.TestCase):
     def test_attractor_lengths(self):
         for code in [30, 110, 21, 43]:
             for size in range(2, 7):
-                landscape = Landscape(ECA(code, size=size))
+                landscape = Landscape(ECA(code, size))
                 lengths = list(map(len, landscape.attractors))
                 self.assertEqual(lengths, list(landscape.attractor_lengths))
 

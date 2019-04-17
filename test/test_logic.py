@@ -11,10 +11,6 @@ class TestLogicNetwork(unittest.TestCase):
         from neet.interfaces import Network
         self.assertTrue(isinstance(LogicNetwork([([0], {'0'})]), Network))
 
-    def test_is_fixed_sized(self):
-        from neet.interfaces import is_fixed_sized
-        self.assertTrue(is_fixed_sized(LogicNetwork([([0], {'0'})])))
-
     def test_init(self):
         net = LogicNetwork([((0,), {'0'})])
         self.assertEqual(1, net.size)

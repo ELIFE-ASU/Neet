@@ -60,7 +60,7 @@ import pyinform as pi
 from neet.synchronous import timeseries
 
 
-def active_information(net, k, timesteps, size=None, local=False):
+def active_information(net, k, timesteps, local=False):
     """
     Compute the active information storage for each node in a network.
 
@@ -90,11 +90,10 @@ def active_information(net, k, timesteps, size=None, local=False):
     :param net: a NEET network
     :param k: the history length
     :param timesteps: the number of timesteps to evaluate the network
-    :param size: the size of variable-sized network (or ``None``)
     :param local: whether or not to compute the local active information
     :returns: a numpy array of active information values
     """
-    series = timeseries(net, timesteps=timesteps, size=size)
+    series = timeseries(net, timesteps=timesteps,)
     shape = series.shape
     if local:
         active_info = np.empty(
@@ -108,7 +107,7 @@ def active_information(net, k, timesteps, size=None, local=False):
     return active_info
 
 
-def entropy_rate(net, k, timesteps, size=None, local=False):
+def entropy_rate(net, k, timesteps, local=False):
     """
     Compute the entropy rate for each node in a network.
 
@@ -138,11 +137,10 @@ def entropy_rate(net, k, timesteps, size=None, local=False):
     :param net: a NEET network
     :param k: the history length
     :param timesteps: the number of timesteps to evaluate the network
-    :param size: the size of variable-sized network (or ``None``)
     :param local: whether or not to compute the local entropy rate
     :returns: a numpy array of entropy rate values
     """
-    series = timeseries(net, timesteps=timesteps, size=size)
+    series = timeseries(net, timesteps=timesteps,)
     shape = series.shape
     if local:
         rate = np.empty((shape[0], shape[1], shape[2] - k), dtype=np.float)
@@ -155,7 +153,7 @@ def entropy_rate(net, k, timesteps, size=None, local=False):
     return rate
 
 
-def transfer_entropy(net, k, timesteps, size=None, local=False):
+def transfer_entropy(net, k, timesteps, local=False):
     """
     Compute the transfer entropy matrix for a network.
 
@@ -211,11 +209,10 @@ def transfer_entropy(net, k, timesteps, size=None, local=False):
     :param net: a NEET network
     :param k: the history length
     :param timesteps: the number of timesteps to evaluate the network
-    :param size: the size of variable-sized network (or ``None``)
     :param local: whether or not to compute the local transfer entropy
     :returns: a numpy matrix of transfer entropy values
     """
-    series = timeseries(net, timesteps=timesteps, size=size)
+    series = timeseries(net, timesteps=timesteps)
     shape = series.shape
     if local:
         trans_entropy = np.empty(
@@ -233,7 +230,7 @@ def transfer_entropy(net, k, timesteps, size=None, local=False):
     return trans_entropy
 
 
-def mutual_information(net, timesteps, size=None, local=False):
+def mutual_information(net, timesteps, local=False):
     """
     Compute the mutual information matrix for a network.
 
@@ -279,11 +276,10 @@ def mutual_information(net, timesteps, size=None, local=False):
     :param net: a NEET network
     :param k: the history length
     :param timesteps: the number of timesteps to evaluate the network
-    :param size: the size of variable-sized network (or ``None``)
     :param local: whether or not to compute the local mutual information
     :returns: a numpy matrix of mutual information values
     """
-    series = timeseries(net, timesteps=timesteps, size=size)
+    series = timeseries(net, timesteps=timesteps)
     shape = series.shape
     if local:
         mutual_info = np.empty(
@@ -322,7 +318,7 @@ class Architecture(object):
 
     """
 
-    def __init__(self, net, k, timesteps, size=None):
+    def __init__(self, net, k, timesteps):
         """
         Initialize the architecture given a network and enough information to
         compute a time series.
@@ -343,10 +339,9 @@ class Architecture(object):
         :param net: a NEET network
         :param k: the history length
         :param timesteps: the number of timesteps to evaluate the network
-        :param size: the size of variable-sized network (or ``None``)
         """
         self.__k = k
-        self.__series = timeseries(net, timesteps=timesteps, size=size)
+        self.__series = timeseries(net, timesteps=timesteps)
         shape = self.__series.shape
 
         self.__local_active_info = np.empty((shape[0], shape[1], shape[2] - k))
