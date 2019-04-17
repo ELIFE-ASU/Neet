@@ -18,12 +18,12 @@ functions for operating upon them. This done primarily through the
 API Documentation
 -----------------
 """
+import six
 from abc import ABCMeta, abstractmethod
 
 
+@six.add_metaclass(ABCMeta)
 class Network(object):
-    __metaclass__ = ABCMeta
-
     @abstractmethod
     def update(self):
         pass
