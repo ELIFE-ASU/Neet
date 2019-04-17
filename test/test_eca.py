@@ -8,10 +8,6 @@ class TestECA(unittest.TestCase):
         from neet.interfaces import Network
         self.assertTrue(isinstance(ca.ECA(23, 3), Network))
 
-    def test_is_not_fixed_sized(self):
-        from neet.interfaces import is_fixed_sized
-        self.assertTrue(is_fixed_sized(ca.ECA(23, 3)))
-
     def test_fail_init(self):
         with self.assertRaises(ValueError):
             ca.ECA(-1, 5)

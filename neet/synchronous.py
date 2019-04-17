@@ -37,7 +37,7 @@ import networkx as nx
 import numpy as np
 import pyinform as pi
 from .statespace import StateSpace
-from .interfaces import Network, is_fixed_sized
+from .interfaces import Network
 
 
 def trajectory(net, state, timesteps=1, encode=False):
@@ -73,10 +73,7 @@ def trajectory(net, state, timesteps=1, encode=False):
     traj = []
     state = copy.copy(state)
     if encode:
-        if is_fixed_sized(net):
-            state_space = net.state_space()
-        else:
-            state_space = net.state_space(len(state))
+        state_space = net.state_space()
 
         traj.append(state_space._unsafe_encode(state))
 
@@ -98,7 +95,7 @@ def trajectory(net, state, timesteps=1, encode=False):
     return traj
 
 
-def transitions(net, size=None, encode=False):
+def transitions(net, encode=False):
     """
     Generate the one-step state transitions for a network over its state space.
 
@@ -106,33 +103,22 @@ def transitions(net, size=None, encode=False):
 
     .. doctest:: synchronous
 
-        >>> transitions(ECA(30), size=3)
+        >>> transitions(ECA(30, 3))
         [[0, 0, 0], [1, 1, 1], [1, 1, 1], [1, 0, 0], [1, 1, 1], [0, 0, 1], [0, 1, 0], [0, 0, 0]]
-        >>> transitions(ECA(30), size=3, encode=True)
+        >>> transitions(ECA(30, 3), encode=True)
         [0, 7, 7, 1, 7, 4, 2, 0]
         >>> len(transitions(s_pombe, encode=True))
         512
 
     :param net: the network
-    :param size: the size of the network (``None`` if fixed sized)
     :param encode: encode the states as integers
     :returns: the one-state transitions as an array
     :raises TypeError: if ``net`` is not a network
-    :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
-    :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
     if not isinstance(net, Network):
         raise TypeError("net is not a network")
 
-    if is_fixed_sized(net):
-        if size is not None:
-            raise ValueError("size must be None for fixed sized networks")
-        state_space = net.state_space()
-    else:
-        if size is None:
-            raise ValueError(
-                "size must not be None for variable sized networks")
-        state_space = net.state_space(size)
+    state_space = net.state_space()
 
     trans = []
     for state in state_space:
@@ -145,7 +131,7 @@ def transitions(net, size=None, encode=False):
     return trans
 
 
-def transition_graph(net, size=None):
+def transition_graph(net):
     """
     Construct the state transition graph for the network.
 
@@ -156,31 +142,26 @@ def transition_graph(net, size=None):
         >>> g = transition_graph(s_pombe)
         >>> g.number_of_nodes(), g.number_of_edges()
         (512, 512)
-        >>> g = transition_graph(ECA(30), size=6)
+        >>> g = transition_graph(ECA(30, 6))
         >>> g.number_of_nodes(), g.number_of_edges()
         (64, 64)
 
     :param net: the network (if already a networkx.DiGraph, does nothing and
                 returns it)
-    :param size: the size of the network (``None`` if fixed sized)
     :param encode: encode the states as integers
     :returns: a ``networkx.DiGraph`` of the network's transition graph
     :raises TypeError: if ``net`` is not a network
-    :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
-    :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
     if isinstance(net, Network):
-        edge_list = enumerate(transitions(net, size=size, encode=True))
+        edge_list = enumerate(transitions(net, encode=True))
         return nx.DiGraph(list(edge_list))
     elif isinstance(net, nx.DiGraph):
-        if size is not None:
-            raise ValueError("size must be None for transition graphs")
         return net
     else:
         raise TypeError("net must be a network or a networkx DiGraph")
 
 
-def attractors(net, size=None):
+def attractors(net):
     """
     Find the attractor states of a network. A generator of the attractors is
     returned with each attractor represented as a ``list`` of "encoded" states.
@@ -191,31 +172,22 @@ def attractors(net, size=None):
 
         >>> attractors(s_pombe)
         [[76], [4], [8], [12], [144, 110, 384], [68], [72], [132], [136], [140], [196], [200], [204]]
-        >>> attractors(ECA(30), size=5)
+        >>> attractors(ECA(30, 5))
         [[0], [14, 25, 7, 28, 19]]
 
     :param net: the network or the transition graph
-    :param size: the size of the network (``None`` if fixed sized)
     :returns: a list of attractor cycles
     :raises TypeError: if ``net`` is not a network or a ``networkx.DiGraph``
-    :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
-    :raises ValueError: if ``net`` is a transition graph and ``size`` is not
-                        ``None``
-    :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
     if isinstance(net, nx.DiGraph):
         return list(nx.simple_cycles(net))
     elif not isinstance(net, Network):
         raise TypeError("net must be a network or a networkx DiGraph")
-    elif is_fixed_sized(net) and size is not None:
-        raise ValueError("fixed sized networks require size is None")
-    elif not is_fixed_sized(net) and size is None:
-        raise ValueError("variable sized networks require a size")
     else:
         cycles = []
         # Get the state transitions
         # (array of next state indexed by current state)
-        trans = list(transitions(net, size=size, encode=True))
+        trans = list(transitions(net, encode=True))
         # Create an array to store whether a given state has visited
         visited = np.zeros(len(trans), dtype=np.bool)
         # Create an array to store which attractor basin each state is in
@@ -291,7 +263,7 @@ def attractors(net, size=None):
     return cycles
 
 
-def basins(net, size=None):
+def basins(net):
     """
     Find the attractor basins of a network. A generator of the attractor basins
     is returned with each basin represented as a ``networkx.DiGraph`` whose
@@ -304,24 +276,19 @@ def basins(net, size=None):
         >>> b = basins(s_pombe)
         >>> [len(basin) for basin in b]
         [378, 2, 2, 2, 104, 6, 6, 2, 2, 2, 2, 2, 2]
-        >>> b = basins(ECA(30), size=5)
+        >>> b = basins(ECA(30, 5))
         >>> [len(basin) for basin in b]
         [2, 30]
 
     :param net: the network or landscape transition_graph
-    :param size: the size of the network (``None`` if fixed sized)
     :returns: generator of basin subgraphs
     :raises TypeError: if ``net`` is not a network or a ``networkx.DiGraph``
-    :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
-    :raises ValueError: if ``net`` is a transition graph and ``size`` is not
-                       ``None``
-    :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
-    graph = transition_graph(net, size=size)
+    graph = transition_graph(net)
     return nx.weakly_connected_component_subgraphs(graph)
 
 
-def basin_entropy(net, size=None, base=2):
+def basin_entropy(net, base=2):
     """
     Calculate the basin entropy [Krawitz2007]_.
 
@@ -333,25 +300,20 @@ def basin_entropy(net, size=None, base=2):
         1.221888833884975
         >>> basin_entropy(s_pombe, base=10)
         0.36782519036626105
-        >>> basin_entropy(ECA(30), size=5)
+        >>> basin_entropy(ECA(30, 5))
         0.3372900666170139
 
     :param net: the network or landscape transition_graph
-    :param size: the size of the network (``None`` if fixed sized)
     :param base: base of logarithm used to calculate entropy (2 for bits)
     :returns: value of basin entropy
     :raises TypeError: if ``net`` is not a network or a ``networkx.DiGraph``
-    :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
-    :raises ValueError: if ``net`` is a transition graph and ``size`` is not
-                       ``None``
-    :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     """
-    sizes = [len(basin) for basin in basins(net, size=size)]
+    sizes = [len(basin) for basin in basins(net)]
     d = pi.Dist(sizes)
     return pi.shannon.entropy(d, b=base)
 
 
-def timeseries(net, timesteps, size=None):
+def timeseries(net, timesteps):
     """
     Return the timeseries for the network. The result will be a :math:`3D`
     array with shape :math:`N \\times V \\times t` where :math:`N` is the
@@ -374,31 +336,21 @@ def timeseries(net, timesteps, size=None):
 
     :param net: the network
     :param timesteps: the number of timesteps in the timeseries
-    :param size: the size of the network (``None`` if fixed sized)
     :return: a numpy array
     :raises TypeError: if ``net`` is not a network
-    :raises ValueError: if ``net`` is fixed sized and ``size`` is not ``None``
-    :raises ValueError: if ``net`` is not fixed sized and ``size`` is ``None``
     :raises ValueError: if ``timesteps < 1``
     """
     if not isinstance(net, Network):
         raise TypeError("net must be a NEET network")
-    if not is_fixed_sized(net) and size is None:
-        raise ValueError("network is not fixed sized; must provide a size")
-    elif is_fixed_sized(net) and size is not None:
-        raise ValueError("cannot provide a size with a fixed sized network")
     if timesteps < 1:
         raise ValueError("time series must have at least one timestep")
 
-    if size is None:
-        state_space = net.state_space()
-    else:
-        state_space = net.state_space(size)
+    state_space = net.state_space()
 
     shape = (state_space.ndim, state_space.volume, timesteps + 1)
     series = np.empty(shape, dtype=np.int)
 
-    trans = list(transitions(net, size=size, encode=False))
+    trans = list(transitions(net, encode=False))
     encoded_trans = [state_space._unsafe_encode(state) for state in trans]
 
     for (index, init) in enumerate(state_space):
@@ -419,7 +371,7 @@ class Landscape(StateSpace):
     the state transition graph.
     """
 
-    def __init__(self, net, size=None, index=None, pin=None, values=None):
+    def __init__(self, net, index=None, pin=None, values=None):
         """
         Construct the landscape for a network.
 
@@ -429,32 +381,20 @@ class Landscape(StateSpace):
 
             >>> Landscape(s_pombe)
             <neet.synchronous.Landscape object at 0x...>
-            >>> Landscape(ECA(30), size=5)
+            >>> Landscape(ECA(30, 5))
             <neet.synchronous.Landscape object at 0x...>
 
         :param net: the network
-        :param size: the size of the network (``None`` if fixed sized)
         :param index: the index to update (or None)
         :param pin: the indices to pin during update (or None)
         :param values: a dictionary of index-value pairs to set after update
         :raises TypeError: if ``net`` is not a network
-        :raises ValueError: if ``net`` is fixed sized and ``size`` is not
-                           ``None``
-        :raises ValueError: if ``net`` is not fixed sized and ``size`` is
-                           ``None``
         """
 
         if not isinstance(net, Network):
             raise TypeError("net is not a network")
-        elif is_fixed_sized(net):
-            if size is not None:
-                raise ValueError("size must be None for fixed sized networks")
-            state_space = net.state_space()
         else:
-            if size is None:
-                raise ValueError(
-                    "size must not be None for variable sized networks")
-            state_space = net.state_space(size)
+            state_space = net.state_space()
 
         if state_space.is_uniform:
             super(Landscape, self).__init__(state_space.ndim, state_space.base)

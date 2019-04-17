@@ -13,7 +13,7 @@ Interfaces
 The :mod:`neet.interfaces` module provides a collection of functions for
 determining if types adhere to various network interfaces, and generic
 functions for operating upon them. This done primarily through the
-:func:`is_fixed_sized` and :func:`is_boolean_network` functions.
+and :func:`is_boolean_network` functions.
 
 API Documentation
 -----------------
@@ -39,37 +39,6 @@ class Network(object):
     @abstractproperty
     def size(self):
         pass
-
-
-def is_fixed_sized(thing):
-    """
-    Determine whether an *object* is a network and has a fixed size.
-
-    .. rubric:: Example
-
-    .. doctest:: interfaces
-
-        >>> class IsNetwork(Network):
-        ...     def update(self):
-        ...         pass
-        ...     def state_space(self):
-        ...         return StateSpace(1)
-        ...     def neighbors(self, i):
-        ...         return []
-        ...
-        >>> class FixedSized(IsNetwork):
-        ...     def size():
-        ...         return 5
-        ...
-        >>> is_fixed_sized(IsNetwork())
-        False
-        >>> is_fixed_sized(FixedSized())
-        True
-
-    :param thing: an object or a type
-    :returns: ``True`` if ``thing`` is a network with a size attribute
-    """
-    return isinstance(thing, Network) and hasattr(thing, 'size')
 
 
 def is_boolean_network(thing):

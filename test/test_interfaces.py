@@ -1,5 +1,5 @@
 import unittest
-from neet.interfaces import (Network, is_fixed_sized, is_boolean_network, neighbors,
+from neet.interfaces import (Network, is_boolean_network, neighbors,
                              to_networkx_graph)
 from neet.statespace import StateSpace
 import neet.automata as ca
@@ -24,11 +24,6 @@ class TestCore(unittest.TestCase):
 
     Network.register(IsNetwork)
 
-    class FixedSizeNetwork(IsNetwork):
-        pass
-
-    Network.register(IsNetwork)
-
     class IsNotNetwork(object):
         def update(self, lattice):
             pass
@@ -38,10 +33,6 @@ class TestCore(unittest.TestCase):
 
         def neighbors(self):
             pass
-
-    class NotFixedSizedNetwork(IsNotNetwork):
-        def size(self):
-            return 5
 
     class BaseThreeNetwork(Network):
         def update(self, lattice):
@@ -83,19 +74,6 @@ class TestCore(unittest.TestCase):
         self.assertFalse(isinstance(not_net, Network))
 
         self.assertFalse(isinstance(5, Network))
-
-    def test_is_fixed_sized(self):
-        net = self.IsNetwork()
-        self.assertTrue(is_fixed_sized(net))
-
-        not_net = self.IsNotNetwork()
-        self.assertFalse(is_fixed_sized(not_net))
-
-        net = self.FixedSizeNetwork()
-        self.assertTrue(is_fixed_sized(net))
-
-        not_net = self.NotFixedSizedNetwork()
-        self.assertFalse(is_fixed_sized(not_net))
 
     def test_is_boolean_network(self):
         net = self.IsNetwork()
