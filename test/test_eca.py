@@ -6,12 +6,10 @@ import numpy as np
 class TestECA(unittest.TestCase):
     def test_is_network(self):
         from neet.interfaces import is_network
-        self.assertTrue(is_network(ca.ECA))
         self.assertTrue(is_network(ca.ECA(23)))
 
     def test_is_not_fixed_sized(self):
         from neet.interfaces import is_fixed_sized
-        self.assertFalse(is_fixed_sized(ca.ECA))
         self.assertFalse(is_fixed_sized(ca.ECA(23)))
 
     def test_fail_init(self):

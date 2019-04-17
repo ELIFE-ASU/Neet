@@ -13,7 +13,6 @@ class TestRewiredECA(unittest.TestCase):
         Ensure that RewiredECA meets the requirement of a network
         """
         from neet.interfaces import is_network
-        self.assertTrue(is_network(RewiredECA))
         self.assertTrue(is_network(RewiredECA(23, size=3)))
         self.assertTrue(is_network(RewiredECA(
             30, wiring=[[-1, 0, 1], [0, 1, 2], [1, 2, 3]])))
@@ -23,7 +22,6 @@ class TestRewiredECA(unittest.TestCase):
         Ensure that RewiredECA is of fixed size
         """
         from neet.interfaces import is_fixed_sized
-        self.assertTrue(is_fixed_sized(RewiredECA))
         self.assertTrue(is_fixed_sized(RewiredECA(23, size=3)))
         self.assertTrue(is_fixed_sized(RewiredECA(
             30, wiring=[[-1, 0, 1], [0, 1, 2], [1, 2, 3]])))

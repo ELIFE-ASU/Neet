@@ -1,5 +1,5 @@
 import unittest
-from neet.interfaces import (is_network, is_fixed_sized,
+from neet.interfaces import (Network, is_network, is_fixed_sized,
                              is_boolean_network, neighbors,
                              to_networkx_graph)
 from neet.statespace import StateSpace
@@ -9,7 +9,7 @@ from neet.boolean.examples import s_pombe
 
 
 class TestCore(unittest.TestCase):
-    class IsNetwork(object):
+    class IsNetwork(Network):
         def update(self, lattice):
             pass
 
@@ -24,7 +24,14 @@ class TestCore(unittest.TestCase):
             return 5
 
     class IsNotNetwork(object):
-        pass
+        def update(self, lattice):
+            pass
+
+        def state_space(self):
+            return StateSpace(1)
+
+        def neighbors(self):
+            pass
 
     class NotFixedSizedNetwork(IsNotNetwork):
         def size(self):
@@ -53,31 +60,24 @@ class TestCore(unittest.TestCase):
     def test_is_network(self):
         net = self.IsNetwork()
         self.assertTrue(is_network(net))
-        self.assertTrue(is_network(type(net)))
 
         not_net = self.IsNotNetwork()
         self.assertFalse(is_network(not_net))
-        self.assertFalse(is_network(type(not_net)))
 
         self.assertFalse(is_network(5))
-        self.assertFalse(is_network(int))
 
     def test_is_fixed_sized(self):
         net = self.IsNetwork()
         self.assertFalse(is_fixed_sized(net))
-        self.assertFalse(is_fixed_sized(type(net)))
 
         not_net = self.IsNotNetwork()
         self.assertFalse(is_fixed_sized(not_net))
-        self.assertFalse(is_fixed_sized(type(not_net)))
 
         net = self.FixedSizeNetwork()
         self.assertTrue(is_fixed_sized(net))
-        self.assertTrue(is_fixed_sized(type(net)))
 
         not_net = self.NotFixedSizedNetwork()
         self.assertFalse(is_fixed_sized(not_net))
-        self.assertFalse(is_fixed_sized(type(not_net)))
 
     def test_is_boolean_network(self):
         net = self.IsNetwork()

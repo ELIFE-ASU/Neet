@@ -13,9 +13,10 @@ import numpy as np
 import networkx as nx
 import re
 from neet.statespace import StateSpace
+from neet.interfaces import Network
 
 
-class WTNetwork(object):
+class WTNetwork(Network):
     """
     The WTNetwork class represents weight/threshold-based boolean networks. As
     such it is specified in terms of a matrix of edge weights (rows are target

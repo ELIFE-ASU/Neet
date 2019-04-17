@@ -12,10 +12,11 @@ import re
 from neet.python import long
 from neet.statespace import StateSpace
 from neet.exceptions import FormatError
+from neet.interfaces import Network
 import networkx as nx
 
 
-class LogicNetwork(object):
+class LogicNetwork(Network):
     """
     The LogicNetwork class represents boolean networks whose update rules
     follow logic relations among nodes. Each node state is expressed as ``0``

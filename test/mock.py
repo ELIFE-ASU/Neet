@@ -1,4 +1,5 @@
 import neet.statespace
+from neet.interfaces import Network
 
 
 class MockObject(object):
@@ -8,7 +9,7 @@ class MockObject(object):
     pass
 
 
-class MockNetwork(object):
+class MockNetwork(Network):
     """
     A mock, variable sized network
     """
@@ -32,7 +33,7 @@ class MockNetwork(object):
         pass
 
 
-class MockFixedSizedNetwork(object):
+class MockFixedSizedNetwork(Network):
     """
     A mock fixed-sized network
     """
