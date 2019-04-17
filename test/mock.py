@@ -31,7 +31,13 @@ class MockNetwork(Network):
         """
         return neet.statespace.StateSpace(self.size)
 
-    def neighbors(self):
+    def neighbors_in(self, *args, **kwargs):
+        """
+        mock neighbors method
+        """
+        pass
+
+    def neighbors_out(self, *args, **kwargs):
         """
         mock neighbors method
         """
@@ -57,7 +63,13 @@ class MockBooleanNetwork(BooleanNetwork):
         """
         pass
 
-    def neighbors(self):
+    def neighbors_in(self, *args, **kwargs):
+        """
+        mock neighbors method
+        """
+        pass
+
+    def neighbors_out(self, *args, **kwargs):
         """
         mock neighbors method
         """

@@ -1,5 +1,5 @@
 import unittest
-from neet.interfaces import (Network, BooleanNetwork, neighbors, to_networkx_graph)
+from neet.interfaces import (Network, BooleanNetwork, to_networkx_graph)
 import neet.automata as ca
 import neet.boolean as bnet
 from neet.boolean.examples import s_pombe
@@ -25,25 +25,25 @@ class TestCore(unittest.TestCase):
         eca = ca.ECA(30, 4)
 
         with self.assertRaises(ValueError):
-            neighbors(eca, 1, direction='')
+            eca.neighbors(1, direction='')
 
-        self.assertTrue(neighbors(eca, 1), set([0, 1, 2]))
+        self.assertTrue(eca.neighbors(1), set([0, 1, 2]))
 
     def test_neighbors_WTNetwork(self):
         net = bnet.WTNetwork([[1, 0], [1, 1]])
 
         with self.assertRaises(ValueError):
-            neighbors(net, 0, direction='')
+            net.neighbors(0, direction='')
 
-        self.assertTrue(neighbors(net, 0), [set([0])])
+        self.assertTrue(net.neighbors(0), [set([0])])
 
     def test_neighbors_LogicNetwork(self):
         net = bnet.LogicNetwork([((0,), {'0'})])
 
         with self.assertRaises(ValueError):
-            neighbors(net, 0, direction='')
+            net.neighbors(0, direction='')
 
-        self.assertTrue(neighbors(net, 0), [set([0])])
+        self.assertTrue(net.neighbors(0), [set([0])])
 
     def test_to_networkx_graph_LogicNetwork(self):
         net = bnet.LogicNetwork([((1, 2), {'01', '10'}),
