@@ -93,7 +93,7 @@ class WTNetwork(Network):
         else:
             self.thresholds = np.asarray(thresholds, dtype=np.float)
 
-        self.__size = self.thresholds.size
+        super(WTNetwork, self).__init__(self.thresholds.size)
 
         if isinstance(names, str):
             self.names = list(names)
@@ -119,25 +119,6 @@ class WTNetwork(Network):
             raise(ValueError(msg))
 
         self.metadata = {}
-
-    @property
-    def size(self):
-        """
-        The number of nodes in the network.
-
-        .. doctest:: wtnetwork
-
-            >>> net = WTNetwork(5)
-            >>> net.size
-            5
-            >>> WTNetwork(0)
-            Traceback (most recent call last):
-                ...
-            ValueError: invalid network size
-
-        :type: int
-        """
-        return self.__size
 
     def state_space(self):
         """

@@ -52,8 +52,8 @@ class ECA(Network):
         :raises TypeError: if ``boundary`` is neither ``None`` or an instance of tuple
         :raises ValueError: if ``boundary`` is a neither ``None`` or a pair of binary states
         """
+        super(ECA, self).__init__(size)
         self.code = code
-        self.size = size
         self.boundary = boundary
 
     @property
@@ -92,15 +92,15 @@ class ECA(Network):
 
     @property
     def size(self):
-        return self.__size
+        return self._size
 
-    @size.setter
+    @size.setter # noqa
     def size(self, size):
         if not isinstance(size, int):
             raise TypeError("ECA size is not an int")
         if size < 1:
             raise ValueError("ECA size is negative")
-        self.__size = size
+        self._size = size
 
     @property
     def boundary(self):

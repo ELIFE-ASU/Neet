@@ -80,8 +80,8 @@ class RewiredECA(Network):
         if size is not None and wiring is not None:
             raise ValueError("cannot provide size and wiring at the same time")
         elif size is not None:
+            super(RewiredECA, self).__init__(size)
             self.code = code
-            self.size = size
             self.boundary = boundary
             self.__wiring = np.zeros((3, size), dtype=int)
             self.__wiring[0, :] = range(-1, size - 1)
@@ -101,8 +101,8 @@ class RewiredECA(Network):
             elif np.any(wiring_array > shape[1]):
                 raise ValueError("invalid input node in wiring")
 
+            super(RewiredECA, self).__init__(int(shape[1]))
             self.code = code
-            self.size = int(shape[1])
             self.boundary = boundary
             self.__wiring = wiring_array
         else:
@@ -141,18 +141,6 @@ class RewiredECA(Network):
         if 255 < code or code < 0:
             raise ValueError("invalid ECA code")
         self.__code = code
-
-    @property
-    def size(self):
-        return self.__size
-
-    @size.setter
-    def size(self, size):
-        if not isinstance(size, int):
-            raise TypeError("ECA size is not an int")
-        if size < 1:
-            raise ValueError("ECA size is negative")
-        self.__size = size
 
     @property
     def boundary(self):

@@ -1,88 +1,53 @@
 import unittest
 from neet.interfaces import (Network, is_boolean_network, neighbors,
                              to_networkx_graph)
-from neet.statespace import StateSpace
 import neet.automata as ca
 import neet.boolean as bnet
+from neet.statespace import StateSpace
 from neet.boolean.examples import s_pombe
+from .mock import MockObject, MockNetwork
+
+
+class MockBaseThreeNetwork(MockNetwork):
+    def __init__(self, size):
+        super(MockBaseThreeNetwork, self).__init__(size)
+
+    def state_space(self):
+        return StateSpace(self.size, base=3)
+
+
+MockNetwork.register(MockBaseThreeNetwork)
+
+
+class MockMultipleBaseNetwork(MockNetwork):
+    def __init__(self, size):
+        super(MockMultipleBaseNetwork, self).__init__(size)
+
+    def state_space(self):
+        return StateSpace([1, 2, 3])
+
+
+MockNetwork.register(MockMultipleBaseNetwork)
 
 
 class TestCore(unittest.TestCase):
-    class IsNetwork(Network):
-        def update(self, lattice):
-            pass
-
-        def state_space(self):
-            return StateSpace(1)
-
-        def neighbors(self):
-            pass
-
-        @property
-        def size(self):
-            return 0
-
-    Network.register(IsNetwork)
-
-    class IsNotNetwork(object):
-        def update(self, lattice):
-            pass
-
-        def state_space(self):
-            return StateSpace(1)
-
-        def neighbors(self):
-            pass
-
-    class BaseThreeNetwork(Network):
-        def update(self, lattice):
-            pass
-
-        def state_space(self):
-            return StateSpace(1, base=3)
-
-        def neighbors(self):
-            pass
-
-        @property
-        def size(self):
-            return 0
-
-    Network.register(BaseThreeNetwork)
-
-    class MultipleBaseNetwork(Network):
-        def update(self, lattice):
-            pass
-
-        def state_space(self):
-            return StateSpace([1, 2, 3])
-
-        def neighbors(self):
-            pass
-
-        @property
-        def size(self):
-            return 0
-
-    Network.register(MultipleBaseNetwork)
-
     def test_is_network(self):
-        net = self.IsNetwork()
+        net = MockNetwork(5)
         self.assertTrue(isinstance(net, Network))
 
-        not_net = self.IsNotNetwork()
+        not_net = MockObject()
         self.assertFalse(isinstance(not_net, Network))
 
         self.assertFalse(isinstance(5, Network))
 
     def test_is_boolean_network(self):
-        net = self.IsNetwork()
+        net = MockNetwork(5)
         self.assertTrue(is_boolean_network(net))
 
-        not_bool_net = self.BaseThreeNetwork()
+        not_bool_net = MockBaseThreeNetwork(5)
         self.assertFalse(is_boolean_network(not_bool_net))
 
-        not_bool_net = self.MultipleBaseNetwork()
+        not_bool_net = MockMultipleBaseNetwork(5)
         self.assertFalse(is_boolean_network(not_bool_net))
 
     def test_neighbors_ECA(self):

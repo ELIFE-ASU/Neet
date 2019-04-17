@@ -19,11 +19,18 @@ API Documentation
 -----------------
 """
 import six
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 
 
 @six.add_metaclass(ABCMeta)
 class Network(object):
+    def __init__(self, size):
+        if not isinstance(size, int):
+            raise TypeError("Network size is not an int")
+        elif size < 1:
+            raise ValueError("Network size is negative")
+        self._size = size
+
     @abstractmethod
     def update(self):
         pass
@@ -36,9 +43,9 @@ class Network(object):
     def neighbors(self):
         pass
 
-    @abstractproperty
+    @property
     def size(self):
-        pass
+        return self._size
 
 
 def is_boolean_network(thing):
