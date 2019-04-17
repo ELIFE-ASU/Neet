@@ -33,6 +33,9 @@ class MockNetwork(Network):
         pass
 
 
+Network.register(MockNetwork)
+
+
 class MockFixedSizedNetwork(Network):
     """
     A mock fixed-sized network
@@ -62,3 +65,6 @@ class MockFixedSizedNetwork(Network):
         mock neighbors method
         """
         pass
+
+
+Network.register(MockFixedSizedNetwork)

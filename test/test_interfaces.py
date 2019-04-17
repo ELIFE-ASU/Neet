@@ -18,9 +18,13 @@ class TestCore(unittest.TestCase):
         def neighbors(self):
             pass
 
+    Network.register(IsNetwork)
+
     class FixedSizeNetwork(IsNetwork):
         def size(self):
             return 5
+
+    Network.register(IsNetwork)
 
     class IsNotNetwork(object):
         def update(self, lattice):
