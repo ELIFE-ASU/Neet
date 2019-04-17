@@ -562,7 +562,7 @@ class WTNetwork(BooleanNetwork):
             else:
                 return 1
 
-    def neighbors_in(self, index):
+    def neighbors_in(self, index, *args, **kwargs):
         """
         Return the set of all neighbor nodes, where edge(neighbor_node-->index)
         exists. An important consideration is that some threshold functions
@@ -593,7 +593,7 @@ class WTNetwork(BooleanNetwork):
             # when we convert all WTNetworks to logicnetworks by default.
             return set(np.flatnonzero(self.weights[index])) | set([index])
 
-    def neighbors_out(self, index):
+    def neighbors_out(self, index, *args, **kwargs):
         """
         Return the set of all neighbor nodes, where
         edge(index-->neighbor_node) exists.
@@ -622,27 +622,6 @@ class WTNetwork(BooleanNetwork):
             # Assume every other theta has self loops. This will be depreciated
             # when we convert all WTNetworks to logicnetworks by default.
             return set(np.flatnonzero(self.weights[:, index])) | set([index])
-
-    def neighbors(self, index):
-        """
-        Return a set of neighbors for a specified node, or a list of sets of
-        neighbors for all nodes in the network.
-
-        :param index: node index
-        :returns: a set (if index!=None) or list of sets of neighbors of a
-                  node or network or nodes
-
-        .. doctest:: wtnetwork
-
-            >>> net = WTNetwork([[0,0,0],[1,0,1],[0,1,0]],
-            ... theta=WTNetwork.split_threshold)
-            >>> [net.neighbors(node) for node in range(net.size)]
-            [{0, 1}, {0, 1, 2}, {1, 2}]
-            >>> net.theta = WTNetwork.negative_threshold
-            >>> [net.neighbors(node) for node in range(net.size)]
-            [{1}, {0, 2}, {1}]
-        """
-        return self.neighbors_in(index) | self.neighbors_out(index)
 
     def to_networkx_graph(self, labels='indices'):
         """

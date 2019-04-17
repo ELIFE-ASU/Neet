@@ -378,7 +378,7 @@ class ECA(BooleanNetwork):
 
         return self._unsafe_update(lattice, index, pin, values)
 
-    def neighbors_in(self, index, **kwargs):
+    def neighbors_in(self, index, *args, **kwargs):
         """
         Return the set of all incoming neighbor nodes.
 
@@ -438,7 +438,7 @@ class ECA(BooleanNetwork):
 
         return {left, index, right}
 
-    def neighbors_out(self, index):
+    def neighbors_out(self, index, *args, **kwargs):
         """
         Return the set of all outgoing neighbor nodes.
 
@@ -493,50 +493,6 @@ class ECA(BooleanNetwork):
             right = 0 if self.boundary is None else size - 1
 
         return {left, index, right}
-
-    def neighbors(self, index):
-        """
-        Return a set of neighbors for a specified node.
-
-        In the cases of the lattices having fixed boundary conditions, the
-        left boundary, being on the left of the leftmost index 0, has an index
-        of -1, while the right boundary's index is the size+1. The full state
-        of the lattices and the boundaries is equavolent to: `[cell0, cell1,
-        ..., cellN, right_boundary, left_boundary]` if it is ever presented as
-        a single list in Python.
-
-        :param index: node index
-        :param size: size of ECA
-        :returns: the set of all node indices adjacent to the index node
-        :raises ValueError: if `index < 0 or index > n - 1`
-
-        .. rubric:: Basic Use:
-
-        .. doctest:: automata
-
-            >>> net = ECA(30)
-            >>> net.neighbors(1, size=3)
-            {0, 1, 2}
-            >>> net.neighbors(2, size=3)
-            {0, 1, 2}
-            >>> net.boundary = (1,1)
-            >>> net.neighbors(2, size=3)
-            {1, 2, 3}
-            >>> net.neighbors(0, 3)
-            {0, 1, -1}
-
-        .. rubric:: Erroneous Usage:
-
-        .. doctest:: automata
-
-            >>> net = ECA(30,boundary=(1, 1))
-            >>> net.neighbors(5, 3)
-            Traceback (most recent call last):
-                ...
-            ValueError: index must be a non-negative integer less than size
-        """
-        # Outgoing neighbors are a subset of incoming neighbors.
-        return self.neighbors_in(index)
 
     def to_networkx_graph(self):
         """

@@ -578,7 +578,7 @@ class LogicNetwork(BooleanNetwork):
 
         return cls(table, names, reduced)
 
-    def neighbors_in(self, index):
+    def neighbors_in(self, index, *args, **kwargs):
         """
         Return the set of all neighbor nodes, where edge(neighbor_node-->index)
         exists.
@@ -599,7 +599,7 @@ class LogicNetwork(BooleanNetwork):
         """
         return set(self.table[index][0])
 
-    def neighbors_out(self, index):
+    def neighbors_out(self, index, *args, **kwargs):
         """
         Return the set of all neighbor nodes, where edge(index-->neighbor_node)
         exists.
@@ -625,27 +625,6 @@ class LogicNetwork(BooleanNetwork):
                 outgoing_neighbors.add(i)
 
         return outgoing_neighbors
-
-    def neighbors(self, index):
-        """
-        Return a set of neighbors for a specified node, or a list of sets of
-        neighbors for all nodes in the network.
-
-        .. rubric:: Examples
-
-        .. doctest:: logicnetwork
-
-            >>> net = LogicNetwork([((1, 2), {'11', '10'}),
-            ... ((0,), {'1'}),
-            ... ((0, 1, 2), {'010', '011', '101'}),
-            ... ((3,), {'1'})])
-            >>> [net.neighbors(node) for node in range(net.size)]
-            [{1, 2}, {0, 2}, {0, 1, 2}, {3}]
-
-        :param index: node index
-        :returns: a set of neighbors of a node
-        """
-        return self.neighbors_in(index) | self.neighbors_out(index)
 
     def to_networkx_graph(self, labels='indices'):
         """

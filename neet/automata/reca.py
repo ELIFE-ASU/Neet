@@ -320,7 +320,7 @@ class RewiredECA(BooleanNetwork):
 
         return self._unsafe_update(lattice, index=index, pin=pin, values=values)
 
-    def neighbors_in(self, index):
+    def neighbors_in(self, index, *args, **kwargs):
         if not isinstance(index, int):
             raise TypeError("index must be a non-negative integer")
 
@@ -332,7 +332,7 @@ class RewiredECA(BooleanNetwork):
 
         return set(self.wiring[:, index])
 
-    def neighbors_out(self, index):
+    def neighbors_out(self, index, *args, **kwargs):
         if not isinstance(index, int):
             raise TypeError("index must be a non-negative integer")
 
@@ -343,9 +343,6 @@ class RewiredECA(BooleanNetwork):
                     neighbors.add(j)
 
         return neighbors
-
-    def neighbors(self, index):
-        return self.neighbors_in(index).union(self.neighbors_out(index))
 
 
 BooleanNetwork.register(RewiredECA)
