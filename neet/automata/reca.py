@@ -344,5 +344,10 @@ class RewiredECA(BooleanNetwork):
 
         return neighbors
 
+    def to_networkx_graph(self, *args, **kwargs):
+        kwargs['code'] = self.code
+        kwargs['boundary'] = self.boundary
+        return super(RewiredECA, self).to_networkx_graph(**kwargs)
+
 
 BooleanNetwork.register(RewiredECA)

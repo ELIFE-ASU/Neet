@@ -43,6 +43,12 @@ class MockNetwork(Network):
         """
         pass
 
+    def to_networkx_graph(self, **kwargs):
+        """
+        mock method to create networkx graph
+        """
+        return super(MockNetwork, self).to_networkx_graph(**kwargs)
+
 
 Network.register(MockNetwork)
 
@@ -74,6 +80,12 @@ class MockBooleanNetwork(BooleanNetwork):
         mock neighbors method
         """
         pass
+
+    def to_networkx_graph(self, **kwargs):
+        """
+        mock method to create networkx graph
+        """
+        return super(MockNetwork, self).to_networkx_graph(**kwargs)
 
 
 BooleanNetwork.register(MockBooleanNetwork)

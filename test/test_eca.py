@@ -387,5 +387,4 @@ class TestECA(unittest.TestCase):
         nx_net = net.to_networkx_graph()
 
         self.assertEqual(nx_net.graph['code'], 30)
-        self.assertEqual(nx_net.graph['size'], 3)
         self.assertEqual(nx_net.graph['boundary'], (1, 0))

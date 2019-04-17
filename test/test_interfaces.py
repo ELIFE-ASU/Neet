@@ -1,5 +1,5 @@
 import unittest
-from neet.interfaces import (Network, BooleanNetwork, to_networkx_graph)
+from neet.interfaces import Network, BooleanNetwork
 import neet.automata as ca
 import neet.boolean as bnet
 from neet.boolean.examples import s_pombe
@@ -50,20 +50,21 @@ class TestCore(unittest.TestCase):
                                  ((0, 2), ((0, 1), '10', [1, 1])),
                                  ((0, 1), {'11'})], ['A', 'B', 'C'])
 
-        nx_net = to_networkx_graph(net, labels='names')
+        nx_net = net.to_networkx_graph(labels='names', title='Logic Network')
         self.assertEqual(set(nx_net), set(['A', 'B', 'C']))
+        self.assertEqual(nx_net.graph['title'], 'Logic Network')
 
     def test_to_networkx_graph_WTNetwork(self):
-
-        nx_net = to_networkx_graph(s_pombe, labels='names')
+        nx_net = s_pombe.to_networkx_graph(labels='names', title='S. pombe')
         self.assertEqual(set(nx_net), set(s_pombe.names))
+        self.assertEqual(nx_net.graph['name'], 's_pombe')
+        self.assertEqual(nx_net.graph['title'], 'S. pombe')
 
     def test_to_networkx_ECA_metadata(self):
         net = ca.ECA(30, 3)
         net.boundary = (1, 0)
 
-        nx_net = to_networkx_graph(net)
+        nx_net = net.to_networkx_graph()
 
         self.assertEqual(nx_net.graph['code'], 30)
-        self.assertEqual(nx_net.graph['size'], 3)
         self.assertEqual(nx_net.graph['boundary'], (1, 0))
