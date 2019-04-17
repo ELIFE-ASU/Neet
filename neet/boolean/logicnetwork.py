@@ -731,3 +731,6 @@ class LogicNetwork(Network):
         """
         nx.nx_agraph.view_pygraphviz(self.to_networkx_graph(
             labels=labels), prog='circo', path=filename)
+
+
+Network.register(LogicNetwork)

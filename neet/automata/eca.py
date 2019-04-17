@@ -592,3 +592,6 @@ class ECA(Network):
         """
         nx.nx_agraph.view_pygraphviz(
             self.to_networkx_graph(size), prog='circo', path=filename)
+
+
+Network.register(ECA)

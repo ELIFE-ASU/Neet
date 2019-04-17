@@ -21,6 +21,7 @@ wiring, but all ``RewiredECA`` are *fixed sized* networks.
 """
 import numpy as np
 from neet.statespace import StateSpace
+from neet.interfaces import Network
 from . import eca
 
 
@@ -289,3 +290,6 @@ class RewiredECA(eca.ECA):
                     raise ValueError("invalid state in values argument")
 
         return self._unsafe_update(lattice, index=index, pin=pin, values=values)
+
+
+Network.register(RewiredECA)
