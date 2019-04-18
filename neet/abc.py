@@ -1,10 +1,10 @@
 """
-.. currentmodule:: neet.interfaces
+.. currentmodule:: neet.abc
 
-.. testsetup:: interfaces
+.. testsetup:: abc
 
     from neet.automata import ECA
-    from neet.interfaces import *
+    from neet.abc import *
     from neet.statespace import StateSpace
 
 API Documentation

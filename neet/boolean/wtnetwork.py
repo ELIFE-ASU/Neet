@@ -11,7 +11,7 @@ Weight/Threshold Networks
 """
 import numpy as np
 import re
-from neet.interfaces import BooleanNetwork
+from neet.abc import BooleanNetwork
 
 
 class WTNetwork(BooleanNetwork):

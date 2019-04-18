@@ -4,11 +4,11 @@ import numpy as np
 from neet.python import long
 from neet.boolean import LogicNetwork
 from neet.exceptions import FormatError
+from neet.abc import Network
 
 
 class TestLogicNetwork(unittest.TestCase):
     def test_is_network(self):
-        from neet.interfaces import Network
         self.assertTrue(isinstance(LogicNetwork([([0], {'0'})]), Network))
 
     def test_init(self):
