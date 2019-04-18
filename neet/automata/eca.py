@@ -499,9 +499,10 @@ class ECA(BooleanNetwork):
 
         :returns: a ``networkx.DiGraph``
         """
+        kwargs.update(self.metadata)
         kwargs['code'] = self.code
         kwargs['boundary'] = self.boundary
-        return super(ECA, self).to_networkx_graph(**kwargs)
+        return super(ECA, self).to_networkx_graph(*args, **kwargs)
 
 
 BooleanNetwork.register(ECA)

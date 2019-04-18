@@ -647,7 +647,7 @@ class WTNetwork(BooleanNetwork):
             for j in self.neighbors_out(i):
                 edges.append((labels[i], labels[j]))
 
-        kwargs['name'] = self.metadata.get('name')
+        kwargs.update(self.metadata)
         return nx.DiGraph(edges, **kwargs)
 
     def draw(self, filename=None, labels='indices', *args, **kwargs):
