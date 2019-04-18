@@ -80,17 +80,17 @@ class StateSpace(object):
             elif base < 1:
                 raise ValueError("base must be positive, nonzero")
 
-            self.__is_uniform = True
-            self.__ndim = spec
-            self.__base = base
-            self.__volume = base**spec
+            self._is_uniform = True
+            self._ndim = spec
+            self._base = base
+            self._volume = base**spec
 
         elif isinstance(spec, list):
             if len(spec) == 0:
                 raise ValueError("bases cannot be an empty")
             else:
-                self.__is_uniform = True
-                self.__volume = 1
+                self._is_uniform = True
+                self._volume = 1
                 first_base = spec[0]
                 if base is not None and first_base != base:
                     raise ValueError("base does not match base of spec")
@@ -100,16 +100,16 @@ class StateSpace(object):
                     elif spec_base < 1:
                         msg = "spec may only contain positive elements"
                         raise ValueError(msg)
-                    if self.__is_uniform and spec_base != first_base:
-                        self.__is_uniform = False
+                    if self._is_uniform and spec_base != first_base:
+                        self._is_uniform = False
                         if base is not None:
                             raise ValueError("b does not match base of spec")
-                    self.__volume *= spec_base
-                self.__ndim = len(spec)
-                if self.__is_uniform:
-                    self.__base = first_base
+                    self._volume *= spec_base
+                self._ndim = len(spec)
+                if self._is_uniform:
+                    self._base = first_base
                 else:
-                    self.__base = spec[:]
+                    self._base = spec[:]
         else:
             raise TypeError("spec must be an int or a list")
 
@@ -118,7 +118,7 @@ class StateSpace(object):
         """
         Get the dimensionality of the state space.
         """
-        return self.__ndim
+        return self._ndim
 
     @property
     def base(self):
@@ -130,21 +130,21 @@ class StateSpace(object):
 
         :return: a list of bases, one for each dimension
         """
-        return self.__base
+        return self._base
 
     @property
     def volume(self):
         """
         Get the volume of the state space.
         """
-        return self.__volume
+        return self._volume
 
     @property
     def is_uniform(self):
         """
         Get whether every direction in the state space has the same base.
         """
-        return self.__is_uniform
+        return self._is_uniform
 
     def __iter__(self):
         """
@@ -185,7 +185,7 @@ class StateSpace(object):
         yield state[:]
         i = 0
         while i != self.ndim:
-            base = self.__base if self.__is_uniform else self.__base[i]
+            base = self._base if self._is_uniform else self._base[i]
             if state[i] + 1 < base:
                 state[i] += 1
                 for j in range(i):
@@ -271,7 +271,7 @@ class StateSpace(object):
         """
         encoded, place = long(0), long(1)
 
-        base = self.__base
+        base = self._base
         if self.is_uniform:
             for x in state:
                 encoded += place * x
@@ -340,15 +340,15 @@ class StateSpace(object):
         :type encoded: int
         :returns: the decoded state as a list
         """
-        state = [0] * self.__ndim
-        base = self.__base
+        state = [0] * self._ndim
+        base = self._base
         if self.is_uniform:
             b = base
-            for i in range(self.__ndim):
+            for i in range(self._ndim):
                 state[i] = encoded % b
                 encoded = int(encoded / b)
         else:
-            for i in range(self.__ndim):
+            for i in range(self._ndim):
                 b = base[i]
                 state[i] = encoded % b
                 encoded = int(encoded / b)
