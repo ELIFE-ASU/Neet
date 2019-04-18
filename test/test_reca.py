@@ -2,6 +2,7 @@ import unittest
 import numpy as np
 from neet.boolean import ECA, RewiredECA
 from neet.network import Network
+from neet.boolean.network import BooleanNetwork
 
 
 class TestRewiredECA(unittest.TestCase):
@@ -14,8 +15,11 @@ class TestRewiredECA(unittest.TestCase):
         Ensure that RewiredECA meets the requirement of a network
         """
         self.assertTrue(isinstance(RewiredECA(23, size=3), Network))
+        self.assertTrue(isinstance(RewiredECA(23, size=3), BooleanNetwork))
         self.assertTrue(isinstance(RewiredECA(
             30, wiring=[[-1, 0, 1], [0, 1, 2], [1, 2, 3]]), Network))
+        self.assertTrue(isinstance(RewiredECA(
+            30, wiring=[[-1, 0, 1], [0, 1, 2], [1, 2, 3]]), BooleanNetwork))
 
     def test_invalid_code(self):
         """

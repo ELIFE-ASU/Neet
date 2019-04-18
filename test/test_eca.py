@@ -2,11 +2,13 @@ import unittest
 from neet.boolean import ECA
 import numpy as np
 from neet.network import Network
+from neet.boolean.network import BooleanNetwork
 
 
 class TestECA(unittest.TestCase):
     def test_is_network(self):
         self.assertTrue(isinstance(ECA(23, 3), Network))
+        self.assertTrue(isinstance(ECA(23, 3), BooleanNetwork))
 
     def test_fail_init(self):
         with self.assertRaises(ValueError):
