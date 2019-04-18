@@ -18,12 +18,27 @@ import six
 
 @six.add_metaclass(ABCMeta)
 class Network(object):
-    def __init__(self, size):
+    def __init__(self, size, metadata=None):
         if not isinstance(size, int):
             raise TypeError("Network size is not an int")
         elif size < 1:
             raise ValueError("Network size is negative")
+
+        if metadata is None:
+            metadata = dict()
+        elif not isinstance(metadata, dict):
+            raise TypeError('metadata is not a dict')
+
         self._size = size
+        self._metadata = metadata
+
+    @property
+    def size(self):
+        return self._size
+
+    @property
+    def metadata(self):
+        return self._metadata
 
     @abstractmethod
     def update(self):
@@ -32,10 +47,6 @@ class Network(object):
     @abstractmethod
     def state_space(self):
         pass
-
-    @property
-    def size(self):
-        return self._size
 
     @abstractmethod
     def neighbors_in(self, index, *args, **kwargs):
@@ -70,8 +81,8 @@ class Network(object):
 
 
 class BooleanNetwork(Network):
-    def __init__(self, size):
-        super(BooleanNetwork, self).__init__(size)
+    def __init__(self, size, metadata=None):
+        super(BooleanNetwork, self).__init__(size, metadata)
         self._state_space = StateSpace(self.size, base=2)
 
     def state_space(self):

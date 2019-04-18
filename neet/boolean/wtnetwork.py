@@ -117,8 +117,6 @@ class WTNetwork(BooleanNetwork):
             msg = "either all or none of the nodes may have a name"
             raise(ValueError(msg))
 
-        self.metadata = {}
-
     def _unsafe_update(self, states, index=None, pin=None, values=None):
         """
         Update ``states``, in place, according to the network update rules
