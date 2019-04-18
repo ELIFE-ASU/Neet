@@ -1,7 +1,7 @@
 import unittest
 import neet.boolean as bnet
 import numpy as np
-from neet.abc import Network
+from neet.network import Network
 
 
 class TestWTNetwork(unittest.TestCase):

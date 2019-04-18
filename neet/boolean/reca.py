@@ -20,7 +20,7 @@ wiring, but all ``RewiredECA`` are *fixed sized* networks.
     [1, 0, 1]
 """
 import numpy as np
-from .abc import BooleanNetwork
+from .network import BooleanNetwork
 
 
 class RewiredECA(BooleanNetwork):

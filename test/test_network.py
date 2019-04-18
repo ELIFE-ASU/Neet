@@ -1,12 +1,12 @@
 from .mock import MockObject, MockNetwork, MockBooleanNetwork
-from neet.abc import Network
-from neet.boolean.abc import BooleanNetwork
+from neet.network import Network
+from neet.boolean.network import BooleanNetwork
 from neet.boolean.examples import s_pombe
 import neet.boolean as bnet
 import unittest
 
 
-class TestABC(unittest.TestCase):
+class TestNetwork(unittest.TestCase):
     def test_is_network(self):
         net = MockNetwork(5)
         self.assertTrue(isinstance(net, Network))
