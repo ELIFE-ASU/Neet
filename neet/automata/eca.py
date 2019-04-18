@@ -494,12 +494,6 @@ class ECA(BooleanNetwork):
         return {left, index, right}
 
     def to_networkx_graph(self, *args, **kwargs):
-        """
-        Return networkx graph given neet network. Requires networkx.
-
-        :returns: a ``networkx.DiGraph``
-        """
-        kwargs.update(self.metadata)
         kwargs['code'] = self.code
         kwargs['boundary'] = self.boundary
         return super(ECA, self).to_networkx_graph(*args, **kwargs)

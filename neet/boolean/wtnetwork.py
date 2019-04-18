@@ -10,7 +10,6 @@ Weight/Threshold Networks
 =========================
 """
 import numpy as np
-import networkx as nx
 import re
 from neet.interfaces import BooleanNetwork
 
@@ -610,35 +609,6 @@ class WTNetwork(BooleanNetwork):
             # Assume every other theta has self loops. This will be depreciated
             # when we convert all WTNetworks to logicnetworks by default.
             return set(np.flatnonzero(self.weights[:, index])) | set([index])
-
-    def to_networkx_graph(self, labels='indices', *args, **kwargs):
-        """
-        Return networkx graph given neet network.
-        Return a ``networkx`` graph from a :class:`WTNetwork`.
-
-        :param labels: how nodes are labeled and thus identified in networkx
-                       graph (``'names'`` or ``'indices'``)
-        :returns: a ``networkx.DiGraph``
-        """
-        if labels == 'names':
-            if hasattr(self, 'names') and (self.names is not None):
-                labels = self.names
-            else:
-                raise ValueError("network nodes do not have names")
-
-        elif labels == 'indices':
-            labels = range(self.size)
-
-        else:
-            raise ValueError("labels must be 'names' or 'indices'")
-
-        edges = []
-        for i, label in enumerate(labels):
-            for j in self.neighbors_out(i):
-                edges.append((labels[i], labels[j]))
-
-        kwargs.update(self.metadata)
-        return nx.DiGraph(edges, **kwargs)
 
     def draw(self, filename=None, labels='indices', *args, **kwargs):
         """
