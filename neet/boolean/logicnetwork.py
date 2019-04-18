@@ -75,15 +75,7 @@ class LogicNetwork(BooleanNetwork):
         if not isinstance(table, (list, tuple)):
             raise TypeError("table must be a list or tuple")
 
-        super(LogicNetwork, self).__init__(len(table))
-
-        if names:
-            if not isinstance(names, (list, tuple)):
-                raise TypeError("names must be a list or tuple")
-            elif len(names) != self.size:
-                raise ValueError("number of names must match network size")
-            else:
-                self.names = list(names)
+        super(LogicNetwork, self).__init__(size=len(table), names=names)
 
         # Store positive truth table for human reader.
         self.table = []
