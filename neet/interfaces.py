@@ -59,12 +59,38 @@ class Network(object):
         self._names = names
 
     @abstractmethod
-    def update(self):
+    def state_space(self):
         pass
 
     @abstractmethod
-    def state_space(self):
+    def _unsafe_update(self, state, index, pin, values, *args, **kwargs):
         pass
+
+    def update(self, state, index=None, pin=None, values=None, *args, **kwargs):
+        space = self.state_space()
+
+        if state not in space:
+            raise ValueError("the provided state is not in the network's state space")
+
+        if index is not None:
+            if index < 0 or index >= self.size:
+                raise IndexError("index out of range")
+            elif pin is not None and pin != []:
+                raise ValueError("cannot provide both the index and pin arguments")
+            elif values is not None and values != {}:
+                raise ValueError("cannot provide both the index and values arguments")
+        elif pin is not None and values is not None:
+            for k in values.keys():
+                if k in pin:
+                    raise ValueError("cannot set a value for a pinned state")
+        if values is not None:
+            bases = [space.base for _ in range(space.ndim)] if space.is_uniform else space.base
+            for key in values.keys():
+                val = values[key]
+                if val < 0 or val >= bases[key]:
+                    raise ValueError("invalid state in values argument")
+
+        return self._unsafe_update(state, index, pin, values, *args, **kwargs)
 
     @abstractmethod
     def neighbors_in(self, index, *args, **kwargs):

@@ -219,7 +219,7 @@ class TestRewiredECA(unittest.TestCase):
             reca.update([0, 0, 0, 0, 1], index=6)
 
         with self.assertRaises(IndexError):
-            reca.update([0, 0, 0, 0, 1], index=-6)
+            reca.update([0, 0, 0, 0, 1], index=-1)
 
     def test_reca_index(self):
         """
@@ -229,13 +229,10 @@ class TestRewiredECA(unittest.TestCase):
             [0, 4, 1, 2, 3], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
         ])
 
-        state = [0, 0, 0, 0, 1]
-        self.assertEqual([0, 0, 0, 1, 1], reca.update(state, index=3))
-        self.assertEqual([0, 0, 1, 1, 1], reca.update(state, index=2))
-        self.assertEqual([0, 0, 1, 1, 0], reca.update(state, index=-1))
-        self.assertEqual([0, 1, 1, 1, 0], reca.update(state, index=1))
-        self.assertEqual([0, 1, 0, 1, 0], reca.update(state, index=-3))
-        self.assertEqual([0, 1, 0, 1, 0], reca.update(state, index=0))
+        self.assertEqual([0, 0, 0, 1, 1], reca.update([0, 0, 0, 0, 1], index=3))
+        self.assertEqual([0, 0, 1, 1, 1], reca.update([0, 0, 0, 1, 1], index=2))
+        self.assertEqual([0, 1, 1, 1, 0], reca.update([0, 0, 1, 1, 0], index=1))
+        self.assertEqual([0, 1, 0, 1, 0], reca.update([0, 1, 0, 1, 0], index=0))
 
     def test_reca_pin_none(self):
         """

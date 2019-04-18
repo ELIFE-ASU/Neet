@@ -19,7 +19,7 @@ class MockNetwork(Network):
         """
         super(MockNetwork, self).__init__(size)
 
-    def update(self, lattice):
+    def _unsafe_update(self, lattice, index=None, pin=None, value=None):
         """
         mock update method
         """
@@ -43,12 +43,6 @@ class MockNetwork(Network):
         """
         pass
 
-    def to_networkx_graph(self, **kwargs):
-        """
-        mock method to create networkx graph
-        """
-        return super(MockNetwork, self).to_networkx_graph(**kwargs)
-
 
 Network.register(MockNetwork)
 
@@ -63,7 +57,7 @@ class MockBooleanNetwork(BooleanNetwork):
         """
         super(MockBooleanNetwork, self).__init__(size)
 
-    def update(self, lattice):
+    def _unsafe_update(self, lattice, index=None, pin=None, value=None):
         """
         mock update method
         """
@@ -80,12 +74,6 @@ class MockBooleanNetwork(BooleanNetwork):
         mock neighbors method
         """
         pass
-
-    def to_networkx_graph(self, **kwargs):
-        """
-        mock method to create networkx graph
-        """
-        return super(MockNetwork, self).to_networkx_graph(**kwargs)
 
 
 BooleanNetwork.register(MockBooleanNetwork)
