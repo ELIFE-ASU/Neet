@@ -17,7 +17,7 @@ setup(
     license=LICENSE,
     install_requires=['six', 'numpy', 'networkx', 'pyinform'],
     setup_requires=['green'],
-    packages=['neet', 'neet.automata', 'neet.boolean'],
+    packages=['neet', 'neet.boolean'],
     package_data={'neet.boolean': ['data/*.txt', 'data/*.dat']},
     test_suite='test',
     platforms=['Windows', 'OS X', 'Linux']
