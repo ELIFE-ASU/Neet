@@ -1,5 +1,6 @@
 from .mock import MockObject, MockNetwork, MockBooleanNetwork
-from neet.abc import Network, BooleanNetwork
+from neet.abc import Network
+from neet.boolean.abc import BooleanNetwork
 from neet.boolean.examples import s_pombe
 import neet.boolean as bnet
 import unittest
