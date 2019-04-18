@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from neet.automata.reca import RewiredECA
+from neet.boolean import ECA, RewiredECA
 from neet.abc import Network
 
 
@@ -163,7 +163,6 @@ class TestRewiredECA(unittest.TestCase):
         """
         Ensure that RewiredECAs can reproduce closed ECAs
         """
-        from neet.automata import ECA
         reca = RewiredECA(30, size=7)
         eca = ECA(30, size=7)
         state = [0, 0, 0, 1, 0, 0, 0]
@@ -176,7 +175,6 @@ class TestRewiredECA(unittest.TestCase):
         """
         Ensure that RewiredECAs can reproduce open ECAs
         """
-        from neet.automata import ECA
         reca = RewiredECA(30, boundary=(1, 0), size=7)
         eca = ECA(30, size=7, boundary=(1, 0))
         state = [0, 0, 0, 1, 0, 0, 0]
