@@ -12,7 +12,6 @@ import re
 from neet.python import long
 from neet.exceptions import FormatError
 from neet.interfaces import BooleanNetwork
-import networkx as nx
 
 
 class LogicNetwork(BooleanNetwork):
@@ -615,34 +614,6 @@ class LogicNetwork(BooleanNetwork):
                 outgoing_neighbors.add(i)
 
         return outgoing_neighbors
-
-    def to_networkx_graph(self, labels='indices', *args, **kwargs):
-        """
-        Return networkx graph given neet network.
-
-        :param labels: how node is labeled and thus identified in networkx
-                       graph (``'names'`` or ``'indices'``)
-        :returns: a ``networkx.DiGraph``
-        """
-        if labels == 'names':
-            if hasattr(self, 'names') and (self.names is not None):
-                labels = self.names
-            else:
-                raise ValueError("network nodes do not have names")
-
-        elif labels == 'indices':
-            labels = range(self.size)
-
-        else:
-            raise ValueError("labels must be 'names' or 'indices'")
-
-        edges = []
-        for i, label in enumerate(labels):
-            for j in self.neighbors_out(i):
-                edges.append((labels[i], labels[j]))
-
-        kwargs.update(self.metadata)
-        return nx.DiGraph(edges, **kwargs)
 
     def draw(self, filename=None, labels='indices', *args, **kwargs):
         """

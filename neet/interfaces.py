@@ -87,10 +87,18 @@ class Network(object):
             outputs = self.neighbors_out(index, *args, **kwargs)
             return inputs.union(outputs)
 
-    @abstractmethod
-    def to_networkx_graph(self, *args, **kwargs):
-        edges = [(i, j) for i in range(self.size) for j in self.neighbors_out(i)]
+    def to_networkx_graph(self, labels='indices', *args, **kwargs):
+        if labels == 'indices':
+            edges = [(i, j) for i in range(self.size) for j in self.neighbors_out(i)]
+        elif labels == 'names' and self.names is not None:
+            names = self.names
+            edges = [(names[i], names[j]) for i in range(self.size) for j in self.neighbors_out(i)]
+        elif labels == 'names' and self.names is None:
+            raise ValueError("network nodes do not have names")
+        else:
+            raise ValueError("labels argument must be 'names' or 'indices', got {}".format(labels))
 
+        kwargs.update(self.metadata)
         return nx.DiGraph(edges, **kwargs)
 
     def draw(self, filename=None, *args, **kwargs):
