@@ -10,7 +10,6 @@
 API Documentation
 -----------------
 """
-from .statespace import StateSpace
 from abc import ABCMeta, abstractmethod
 import networkx as nx
 import six
@@ -130,15 +129,3 @@ class Network(object):
     def draw(self, filename=None, *args, **kwargs):
         graph = self.to_networkx_graph(*args, **kwargs)
         nx.nx_agraph.view_pygraphviz(graph, prog='circo', path=filename)
-
-
-class BooleanNetwork(Network):
-    def __init__(self, size, names=None, metadata=None):
-        super(BooleanNetwork, self).__init__(size, names, metadata)
-        self._state_space = StateSpace(self.size, base=2)
-
-    def state_space(self):
-        return self._state_space
-
-
-Network.register(BooleanNetwork)

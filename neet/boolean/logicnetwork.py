@@ -11,7 +11,7 @@ Logic-based Networks
 import re
 from neet.python import long
 from neet.exceptions import FormatError
-from neet.abc import BooleanNetwork
+from .abc import BooleanNetwork
 
 
 class LogicNetwork(BooleanNetwork):

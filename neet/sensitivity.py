@@ -19,7 +19,7 @@ target regardless of other sources.
 API Documentation
 -----------------
 """
-from .abc import BooleanNetwork
+from .boolean.abc import BooleanNetwork
 from .synchronous import transitions
 
 import copy
