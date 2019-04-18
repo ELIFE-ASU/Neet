@@ -615,26 +615,5 @@ class LogicNetwork(BooleanNetwork):
 
         return outgoing_neighbors
 
-    def draw(self, filename=None, labels='indices', *args, **kwargs):
-        """
-        Output a file with a simple network drawing.
-
-        Requires ``networkx`` and ``pygraphviz``.
-
-        Supported image formats are determined by ``graphviz``. In particular,
-        pdf support requires ``'cairo'`` and ``'pango'`` to be installed prior
-        to graphviz installation.
-
-        :param labels: how node is labeled and thus identified in networkx
-                       graph (``'names'`` or ``'indices'``), only used if
-                       network is a :class:`LogicNetwork` or
-                       :class:`neet.boolean.WTNetwork`
-        :param filename: filename to write drawing to. Temporary filename will
-                         be used if no filename provided.
-        :returns: a ``pygraphviz`` network drawing
-        """
-        kwargs['labels'] = labels
-        super(LogicNetwork, self).draw(filename=filename, *args, **kwargs)
-
 
 BooleanNetwork.register(LogicNetwork)
