@@ -266,60 +266,6 @@ class RewiredECA(BooleanNetwork):
 
         return lattice
 
-    def update(self, lattice, index=None, pin=None, values=None):
-        """
-        Update the state of the ``lattice`` in place.
-
-        .. rubric:: Examples
-
-        .. doctest:: automata
-
-            >>> reca = RewiredECA(30, size=5)
-            >>> reca.update([1,0,0,0,0])
-            [1, 1, 0, 0, 1]
-            >>> reca.wiring[:,:] = [[-1, 2, 1, 2, -1], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]]
-            >>> reca.update([0,0,1,0,0])
-            [0, 0, 1, 1, 0]
-            >>> reca.update([1,1,1,1,1])
-            [0, 0, 0, 0, 0]
-            >>> reca.update([1,1,1,1,1], index=2)
-            [1, 1, 0, 1, 1]
-            >>> reca.update([1,1,1,1,1], pin=[1, 3])
-            [0, 1, 0, 1, 0]
-            >>> reca.update([1,1,1,1,1], values={0: 1, -1: 1})
-            [1, 0, 0, 0, 1]
-
-        :param lattice: the one-dimensional sequence of states
-        :param index: the index to update (optional)
-        :param pin: a sequence of indices to fix (optional)
-        :param values: a dict of index/value pairs to set (optional)
-        :returns: the updated lattice
-        """
-        size = len(lattice)
-        if lattice not in self.state_space():
-            msg = "the provided state is not in the RewiredECA's state space"
-            raise ValueError(msg)
-
-        if index is not None:
-            if index < -size:
-                raise IndexError("lattice index out of range")
-            elif pin is not None and pin != []:
-                msg = "cannot provide both the index and pin arguments"
-                raise ValueError(msg)
-            elif values is not None and values != {}:
-                msg = "cannot provide both the index and values arguments"
-                raise ValueError(msg)
-        elif pin is not None and values is not None:
-            for key in values.keys():
-                if key in pin:
-                    raise ValueError("cannot set a value for a pinned state")
-        if values is not None:
-            for val in values.values():
-                if val != 0 and val != 1:
-                    raise ValueError("invalid state in values argument")
-
-        return self._unsafe_update(lattice, index=index, pin=pin, values=values)
-
     def neighbors_in(self, index, *args, **kwargs):
         if not isinstance(index, int):
             raise TypeError("index must be a non-negative integer")

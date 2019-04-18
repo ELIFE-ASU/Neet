@@ -215,7 +215,7 @@ class TestECA(unittest.TestCase):
             eca.update([0, 0], index=2)
 
         with self.assertRaises(IndexError):
-            eca.update([0, 0], index=-3)
+            eca.update([0, 0], index=-1)
 
     def test_update_index(self):
         eca = ca.ECA(30, 5, (1, 1))
@@ -227,10 +227,6 @@ class TestECA(unittest.TestCase):
         lattice = [0, 0, 0, 0, 0]
         eca.update(lattice, index=1)
         self.assertEqual([0, 0, 0, 0, 0], lattice)
-
-        lattice = [0, 0, 0, 0, 0]
-        eca.update(lattice, index=-1)
-        self.assertEqual([0, 0, 0, 0, 1], lattice)
 
         lattice = [0, 0, 1, 0, 0]
         eca.update(lattice, index=1)
@@ -246,10 +242,6 @@ class TestECA(unittest.TestCase):
         lattice = np.asarray([0, 0, 0, 0, 0])
         eca.update(lattice, index=1)
         self.assertTrue(np.array_equal([0, 0, 0, 0, 0], lattice))
-
-        lattice = np.asarray([0, 0, 0, 0, 0])
-        eca.update(lattice, index=-1)
-        self.assertTrue(np.array_equal([0, 0, 0, 0, 1], lattice))
 
         lattice = np.asarray([0, 0, 1, 0, 0])
         eca.update(lattice, index=1)
