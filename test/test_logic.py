@@ -5,11 +5,13 @@ from neet.python import long
 from neet.boolean import LogicNetwork
 from neet.exceptions import FormatError
 from neet.network import Network
+from neet.boolean.network import BooleanNetwork
 
 
 class TestLogicNetwork(unittest.TestCase):
     def test_is_network(self):
         self.assertTrue(isinstance(LogicNetwork([([0], {'0'})]), Network))
+        self.assertTrue(isinstance(LogicNetwork([([0], {'0'})]), BooleanNetwork))
 
     def test_init(self):
         net = LogicNetwork([((0,), {'0'})])

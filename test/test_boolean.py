@@ -2,11 +2,13 @@ import unittest
 import neet.boolean as bnet
 import numpy as np
 from neet.network import Network
+from neet.boolean.network import BooleanNetwork
 
 
 class TestWTNetwork(unittest.TestCase):
     def test_is_network(self):
         self.assertTrue(isinstance(bnet.WTNetwork([[1]]), Network))
+        self.assertTrue(isinstance(bnet.WTNetwork([[1]]), BooleanNetwork))
 
     def test_init_failed(self):
         with self.assertRaises(ValueError):
