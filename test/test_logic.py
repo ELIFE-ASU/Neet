@@ -27,7 +27,7 @@ class TestLogicNetwork(unittest.TestCase):
             LogicNetwork("not a list or tuple")
 
         with self.assertRaises(TypeError):
-            LogicNetwork([((0,), {'0'})], names="A")
+            LogicNetwork([((0,), {'0'})], names=5)
 
         with self.assertRaises(ValueError):
             LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})], names=['A'])

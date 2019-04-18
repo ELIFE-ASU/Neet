@@ -92,12 +92,7 @@ class WTNetwork(BooleanNetwork):
         else:
             self.thresholds = np.asarray(thresholds, dtype=np.float)
 
-        super(WTNetwork, self).__init__(self.thresholds.size)
-
-        if isinstance(names, str):
-            self.names = list(names)
-        else:
-            self.names = names
+        super(WTNetwork, self).__init__(self.thresholds.size, names=names)
 
         if theta is None:
             self.theta = type(self).split_threshold
@@ -110,11 +105,6 @@ class WTNetwork(BooleanNetwork):
             raise(ValueError("thresholds must be a vector"))
         elif shape[0] != self.size:
             msg = "weights and thresholds have different dimensions"
-            raise(ValueError(msg))
-        elif self.size < 1:
-            raise(ValueError("invalid network size"))
-        elif names is not None and len(names) != self.size:
-            msg = "either all or none of the nodes may have a name"
             raise(ValueError(msg))
 
     def _unsafe_update(self, states, index=None, pin=None, values=None):

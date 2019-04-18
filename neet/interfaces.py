@@ -18,7 +18,7 @@ import six
 
 @six.add_metaclass(ABCMeta)
 class Network(object):
-    def __init__(self, size, metadata=None):
+    def __init__(self, size, names=None, metadata=None):
         if not isinstance(size, int):
             raise TypeError("Network size is not an int")
         elif size < 1:
@@ -31,6 +31,7 @@ class Network(object):
 
         self._size = size
         self._metadata = metadata
+        self.names = names
 
     @property
     def size(self):
@@ -39,6 +40,23 @@ class Network(object):
     @property
     def metadata(self):
         return self._metadata
+
+    @property
+    def names(self):
+        return self._names
+
+    @names.setter
+    def names(self, names):
+        if names is not None:
+            try:
+                names = list(names)
+            except TypeError:
+                raise TypeError('names must be convertable to a list')
+
+            if len(names) != self.size:
+                raise ValueError('number of names does not match network size')
+
+        self._names = names
 
     @abstractmethod
     def update(self):
@@ -81,8 +99,8 @@ class Network(object):
 
 
 class BooleanNetwork(Network):
-    def __init__(self, size, metadata=None):
-        super(BooleanNetwork, self).__init__(size, metadata)
+    def __init__(self, size, names=None, metadata=None):
+        super(BooleanNetwork, self).__init__(size, names, metadata)
         self._state_space = StateSpace(self.size, base=2)
 
     def state_space(self):
