@@ -1,7 +1,6 @@
 from .mock import MockObject, MockNetwork, MockBooleanNetwork
 from neet.abc import Network, BooleanNetwork
 from neet.boolean.examples import s_pombe
-import neet.automata as ca
 import neet.boolean as bnet
 import unittest
 
@@ -22,7 +21,7 @@ class TestABC(unittest.TestCase):
         self.assertFalse(isinstance(MockNetwork(5), BooleanNetwork))
 
     def test_neighbors_ECA(self):
-        eca = ca.ECA(30, 4)
+        eca = bnet.ECA(30, 4)
 
         with self.assertRaises(ValueError):
             eca.neighbors(1, direction='')
@@ -61,7 +60,7 @@ class TestABC(unittest.TestCase):
         self.assertEqual(nx_net.graph['title'], 'S. pombe')
 
     def test_to_networkx_ECA_metadata(self):
-        net = ca.ECA(30, 3)
+        net = bnet.ECA(30, 3)
         net.boundary = (1, 0)
 
         nx_net = net.to_networkx_graph()

@@ -1,7 +1,6 @@
 import unittest
 from collections import Counter
-from neet.automata import ECA
-from neet.boolean import WTNetwork, LogicNetwork
+from neet.boolean import ECA, WTNetwork, LogicNetwork
 from neet.boolean.examples import s_pombe, s_cerevisiae, c_elegans
 from neet.synchronous import (trajectory, transitions, transition_graph,
                               attractors, basins, basin_entropy,
