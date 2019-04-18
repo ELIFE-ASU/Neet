@@ -11,7 +11,7 @@ Weight/Threshold Networks
 """
 import numpy as np
 import re
-from .abc import BooleanNetwork
+from .network import BooleanNetwork
 
 
 class WTNetwork(BooleanNetwork):

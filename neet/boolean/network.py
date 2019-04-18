@@ -1,16 +1,16 @@
 """
-.. currentmodule:: neet.boolean.abc
+.. currentmodule:: neet.boolean.network
 
-.. testsetup:: boolean_abc
+.. testsetup:: boolean_network
 
     from neet.automata import ECA
-    from neet.boolean.abc import *
+    from neet.boolean.network import *
     from neet.statespace import StateSpace
 
 API Documentation
 -----------------
 """
-from neet.abc import Network
+from neet.network import Network
 from neet.statespace import StateSpace
 
 

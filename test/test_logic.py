@@ -4,7 +4,7 @@ import numpy as np
 from neet.python import long
 from neet.boolean import LogicNetwork
 from neet.exceptions import FormatError
-from neet.abc import Network
+from neet.network import Network
 
 
 class TestLogicNetwork(unittest.TestCase):
