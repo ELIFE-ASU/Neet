@@ -108,8 +108,6 @@ class LogicNetwork(BooleanNetwork):
         # Encode truth table for faster computation.
         self._encode_table()
 
-        self.metadata = {}
-
     def _encode_table(self):
         self._encoded_table = []
         for indices, conditions in self.table:
