@@ -1,11 +1,11 @@
 import unittest
 import neet.automata as ca
 import numpy as np
+from neet.abc import Network
 
 
 class TestECA(unittest.TestCase):
     def test_is_network(self):
-        from neet.interfaces import Network
         self.assertTrue(isinstance(ca.ECA(23, 3), Network))
 
     def test_fail_init(self):

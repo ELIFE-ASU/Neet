@@ -37,7 +37,7 @@ import networkx as nx
 import numpy as np
 import pyinform as pi
 from .statespace import StateSpace
-from .interfaces import Network
+from .abc import Network
 
 
 def trajectory(net, state, timesteps=1, encode=False):

@@ -1,5 +1,5 @@
 import neet.statespace
-from neet.interfaces import Network, BooleanNetwork
+from neet.abc import Network, BooleanNetwork
 
 
 class MockObject(object):

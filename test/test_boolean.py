@@ -1,11 +1,11 @@
 import unittest
 import neet.boolean as bnet
 import numpy as np
+from neet.abc import Network
 
 
 class TestWTNetwork(unittest.TestCase):
     def test_is_network(self):
-        from neet.interfaces import Network
         self.assertTrue(isinstance(bnet.WTNetwork([[1]]), Network))
 
     def test_init_failed(self):

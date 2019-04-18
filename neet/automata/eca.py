@@ -10,7 +10,7 @@ with an arbitrary rule.
 """
 import numpy as np
 from neet.statespace import StateSpace
-from neet.interfaces import BooleanNetwork
+from neet.abc import BooleanNetwork
 
 
 class ECA(BooleanNetwork):
