@@ -11,13 +11,13 @@ API Documentation
 -----------------
 """
 from neet.network import Network
-from neet.statespace import StateSpace
+from neet.statespace import UniformSpace
 
 
 class BooleanNetwork(Network):
     def __init__(self, size, names=None, metadata=None):
         super(BooleanNetwork, self).__init__(size, names, metadata)
-        self._state_space = StateSpace(self.size, base=2)
+        self._state_space = UniformSpace(ndim=size, base=2)
 
     def state_space(self):
         return self._state_space

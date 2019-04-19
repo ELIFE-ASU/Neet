@@ -83,7 +83,7 @@ class Network(object):
                 if k in pin:
                     raise ValueError("cannot set a value for a pinned state")
         if values is not None:
-            bases = [space.base for _ in range(space.ndim)] if space.is_uniform else space.base
+            bases = space.shape
             for key in values.keys():
                 val = values[key]
                 if val < 0 or val >= bases[key]:
