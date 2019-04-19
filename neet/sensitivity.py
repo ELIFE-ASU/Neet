@@ -20,7 +20,7 @@ API Documentation
 -----------------
 """
 from .boolean.network import BooleanNetwork
-from .synchronous import transitions
+from .synchronous import Landscape
 
 import copy
 import numpy as np
@@ -200,7 +200,8 @@ def average_difference_matrix(net, states=None, weights=None, calc_trans=True):
 
         # optionally pre-calculate transitions
         if calc_trans:
-            trans = list(transitions(net))
+            decoder = net.state_space().decode
+            trans = list(map(decoder, Landscape(net).transitions))
         else:
             trans = None
 
