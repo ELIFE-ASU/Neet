@@ -134,21 +134,6 @@ def difference_matrix(net, state, transitions=None):
     return Q
 
 
-def _states_limited(nodes, state):
-    """
-    All possible states that vary only nodes with given indices.
-    """
-    if len(nodes) == 0:
-        return [state]
-    for i in nodes:
-        stateFlipped = copy.copy(state)
-        stateFlipped[nodes[0]] = (stateFlipped[nodes[0]] + 1) % 2
-
-        left_rec = _states_limited(nodes[1:], state)
-        right_rec = _states_limited(nodes[1:], stateFlipped)
-        return left_rec + right_rec
-
-
 def average_difference_matrix(net, states=None, weights=None, calc_trans=True):
     """
     Averaged over states, what is the probability
@@ -232,6 +217,8 @@ def average_difference_matrix(net, states=None, weights=None, calc_trans=True):
     else:  # make use of sparse connectivity to be more efficient
         state0 = np.zeros(N, dtype=int)
 
+        space = net.state_space()
+
         for i in range(N):
             nodesInfluencingI = list(net.neighbors_in(i))
             for jindex, j in enumerate(nodesInfluencingI):
@@ -239,7 +226,7 @@ def average_difference_matrix(net, states=None, weights=None, calc_trans=True):
                 # for each state of other nodes, does j matter?
                 otherNodes = list(copy.copy(nodesInfluencingI))
                 otherNodes.pop(jindex)
-                otherNodeStates = _states_limited(otherNodes, state0)
+                otherNodeStates = list(space.subspace(otherNodes, state0))
                 for state in otherNodeStates:
                     # might be able to do faster by calculating transitions
                     # once for each i also we only need the update for node i
@@ -306,11 +293,12 @@ def is_canalizing(net, node_i, neighbor_j):
     else:
         jindex = nodesInfluencingI.index(neighbor_j)
 
+        space = net.state_space()
+
         # for every state of other nodes, does j determine i?
         otherNodes = list(copy.copy(nodesInfluencingI))
         otherNodes.pop(jindex)
-        otherNodeStates = _states_limited(
-            otherNodes, np.zeros(net.size, dtype=int))
+        otherNodeStates = list(space.subspace(otherNodes, np.zeros(net.size, dtype=int)))
 
         jOnForced, jOffForced = True, True
         jOnForcedValue, jOffForcedValue = None, None

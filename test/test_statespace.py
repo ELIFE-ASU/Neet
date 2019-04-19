@@ -405,6 +405,9 @@ class TestUniformSpace(unittest.TestCase):
 
 
 class TestBooleanSpace(unittest.TestCase):
+    def assertArrayEqual(self, a, b):
+        self.assertTrue(np.array_equal(a, b))
+
     def test_invalid_ndim_type(self):
         with self.assertRaises(TypeError):
             BooleanSpace('a')
@@ -521,3 +524,78 @@ class TestBooleanSpace(unittest.TestCase):
         state_space = BooleanSpace(100)
         code = state_space.encode(np.ones(100, dtype=int))
         self.assertIsInstance(code, long)
+
+    def test_subspace_invalid_indices(self):
+        space = BooleanSpace(3)
+
+        with self.assertRaises(TypeError):
+            list(space.subspace(3))
+
+        with self.assertRaises(TypeError):
+            list(space.subspace('abc'))
+
+        with self.assertRaises(IndexError):
+            list(space.subspace([-1]))
+
+        with self.assertRaises(IndexError):
+            list(space.subspace([0, -1]))
+
+        with self.assertRaises(IndexError):
+            list(space.subspace([10]))
+
+        with self.assertRaises(IndexError):
+            list(space.subspace([0, 10]))
+
+    def test_subspace_invalid_state(self):
+        space = BooleanSpace(3)
+        with self.assertRaises(ValueError):
+            list(space.subspace([0, 1], [0, 0]))
+
+        with self.assertRaises(ValueError):
+            list(space.subspace([0, 1], [0, 0, 0, 0]))
+
+    def test_subspace_no_indices(self):
+        space = BooleanSpace(3)
+        self.assertEqual(list(space.subspace([])), [[0, 0, 0]])
+        self.assertEqual(list(space.subspace([], [1, 1, 0])), [[1, 1, 0]])
+
+    def test_subspace_all_indices(self):
+        space = BooleanSpace(3)
+        self.assertEqual(list(space.subspace([0, 1, 2])), list(space))
+        self.assertEqual(list(space.subspace([1, 2, 2, 0, 1])), list(space))
+        self.assertEqual(list(space.subspace([0, 1, 2], [0, 1, 0])), list(space))
+        self.assertEqual(list(space.subspace([1, 2, 2, 0, 1], [0, 1, 0])), list(space))
+
+    def test_subspace(self):
+        space = BooleanSpace(3)
+        self.assertEqual(list(space.subspace([1])),
+                         [[0, 0, 0], [0, 1, 0]])
+        self.assertEqual(list(space.subspace([1, 1])),
+                         [[0, 0, 0], [0, 1, 0]])
+
+        self.assertEqual(list(space.subspace([1], [1, 1, 0])),
+                         [[1, 1, 0], [1, 0, 0]])
+        self.assertEqual(list(space.subspace([1, 1], [1, 1, 0])),
+                         [[1, 1, 0], [1, 0, 0]])
+
+        self.assertEqual(list(space.subspace([0, 2])),
+                         [[0, 0, 0], [1, 0, 0], [0, 0, 1], [1, 0, 1]])
+        self.assertEqual(list(space.subspace([0, 2, 2])),
+                         [[0, 0, 0], [1, 0, 0], [0, 0, 1], [1, 0, 1]])
+
+        self.assertEqual(list(space.subspace([0, 2], [1, 1, 0])),
+                         [[1, 1, 0], [0, 1, 0], [1, 1, 1], [0, 1, 1]])
+        self.assertEqual(list(space.subspace([0, 2, 0], [1, 1, 0])),
+                         [[1, 1, 0], [0, 1, 0], [1, 1, 1], [0, 1, 1]])
+
+    def test_subspace_numpy(self):
+        space = BooleanSpace(3)
+        self.assertArrayEqual(list(space.subspace([1], np.asarray([1, 1, 0]))),
+                              [[1, 1, 0], [1, 0, 0]])
+        self.assertArrayEqual(list(space.subspace([1, 1], np.asarray([1, 1, 0]))),
+                              [[1, 1, 0], [1, 0, 0]])
+
+        self.assertArrayEqual(list(space.subspace([0, 2], np.asarray([1, 1, 0]))),
+                              [[1, 1, 0], [0, 1, 0], [1, 1, 1], [0, 1, 1]])
+        self.assertArrayEqual(list(space.subspace([0, 2, 0], np.asarray([1, 1, 0]))),
+                              [[1, 1, 0], [0, 1, 0], [1, 1, 1], [0, 1, 1]])
