@@ -130,3 +130,12 @@ myeloid.metadata.update({
     'citation': '',
 })
 myeloid_from_expr = LogicNetwork.read_logic(MYELOID_LOGIC_EXPRESSIONS)
+
+IL_6_SIGNALING_EXPRESSIONS = join(DATA_PATH, 'il-6-signaling-expressions.txt')
+IL_6_SIGNALING_EXTERNAL = join(DATA_PATH, 'il-6-signaling-external.txt')
+il_6_signaling = LogicNetwork.read_logic(IL_6_SIGNALING_EXPRESSIONS, IL_6_SIGNALING_EXTERNAL)
+
+HGF_SIGNALING_EXPRESSIONS = join(DATA_PATH, 'hgf-signaling-expressions.txt')
+HGF_SIGNALING_EXTERNAL = join(DATA_PATH, 'hgf-signaling-external.txt')
+hgf_signaling_in_keratinocytes = LogicNetwork.read_logic(HGF_SIGNALING_EXPRESSIONS,
+                                                         HGF_SIGNALING_EXTERNAL)
