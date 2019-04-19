@@ -63,10 +63,10 @@ class StateSpace(object):
         encoded, place = long(0), long(1)
 
         for (x, b) in zip(state, self.shape):
-            encoded += place * x
+            encoded += place * long(x)
             place *= b
 
-        return long(encoded)
+        return encoded
 
     def encode(self, state):
         if state not in self:
