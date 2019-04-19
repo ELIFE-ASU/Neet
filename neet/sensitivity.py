@@ -64,11 +64,13 @@ def sensitivity(net, state, transitions=None):
 
     nextState = net.update(state)
 
+    encoder = net.state_space()._unsafe_encode
+
     # count sum of differences found in neighbors of the original
     s = 0.
     for neighbor in neighbors:
         if transitions is not None:
-            newState = transitions[_fast_encode(neighbor)]
+            newState = transitions[encoder(neighbor)]
         else:
             newState = net._unsafe_update(neighbor)
         s += _boolean_distance(newState, nextState)
@@ -119,10 +121,12 @@ def difference_matrix(net, state, transitions=None):
 
     nextState = net.update(state)
 
+    encoder = net.state_space()._unsafe_encode
+
     # count differences found in neighbors of the original
     for j, neighbor in enumerate(neighbors):
         if transitions is not None:
-            newState = transitions[_fast_encode(neighbor)]
+            newState = transitions[encoder(neighbor)]
         else:
             newState = net._unsafe_update(neighbor)
         Q[:, j] = [(nextState[i] + newState[i]) % 2 for i in range(N)]
@@ -419,18 +423,6 @@ def lambdaQ(net, **kwargs):
     """
     Q = average_difference_matrix(net, **kwargs)
     return max(abs(linalg.eigvals(Q)))
-
-
-def _fast_encode(state):
-    """
-    Quickly find encoding of a binary state.
-
-    Same result as ``net.state_space().encode(state)``.
-    """
-    out = 0
-    for bit in state[::-1]:
-        out = (out << 1) | bit
-    return out
 
 
 def _boolean_distance(state1, state2):
