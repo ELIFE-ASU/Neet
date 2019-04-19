@@ -141,3 +141,52 @@ class UniformSpace(StateSpace):
             state[i] = encoded % base
             encoded = int(encoded / base)
         return state
+
+
+class BooleanSpace(UniformSpace):
+    def __init__(self, ndim):
+        super(BooleanSpace, self).__init__(ndim, base=2)
+
+    def __iter__(self):
+        ndim = self.ndim
+        state = [0] * ndim
+        yield state[:]
+        i = 0
+        while i != ndim:
+            if state[i] == 0:
+                state[i] += 1
+                for j in range(i):
+                    state[j] = 0
+                i = 0
+                yield state[:]
+            else:
+                i += 1
+
+    def __contains__(self, state):
+        try:
+            if len(state) != self.ndim:
+                return False
+
+            for x in state:
+                if x != 0 and x != 1:
+                    return False
+            return True
+        except TypeError:
+            return False
+        except IndexError:
+            return False
+
+    def _unsafe_encode(self, state):
+        encoded, place = long(0), long(1)
+        for x in state:
+            encoded += place * long(x)
+            place <<= 1
+        return encoded
+
+    def decode(self, encoded):
+        ndim = self.ndim
+        state = [0] * ndim
+        for i in range(ndim):
+            state[i] = encoded & 1
+            encoded >>= 1
+        return state
