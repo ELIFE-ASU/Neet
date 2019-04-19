@@ -57,7 +57,7 @@ Information Measures
 """
 import numpy as np
 import pyinform as pi
-from neet.synchronous import timeseries
+from neet.synchronous import Landscape
 
 
 def active_information(net, k, timesteps, local=False):
@@ -93,7 +93,7 @@ def active_information(net, k, timesteps, local=False):
     :param local: whether or not to compute the local active information
     :returns: a numpy array of active information values
     """
-    series = timeseries(net, timesteps=timesteps,)
+    series = Landscape(net).timeseries(timesteps=timesteps)
     shape = series.shape
     if local:
         active_info = np.empty(
@@ -140,7 +140,7 @@ def entropy_rate(net, k, timesteps, local=False):
     :param local: whether or not to compute the local entropy rate
     :returns: a numpy array of entropy rate values
     """
-    series = timeseries(net, timesteps=timesteps,)
+    series = Landscape(net).timeseries(timesteps=timesteps)
     shape = series.shape
     if local:
         rate = np.empty((shape[0], shape[1], shape[2] - k), dtype=np.float)
@@ -212,7 +212,7 @@ def transfer_entropy(net, k, timesteps, local=False):
     :param local: whether or not to compute the local transfer entropy
     :returns: a numpy matrix of transfer entropy values
     """
-    series = timeseries(net, timesteps=timesteps)
+    series = Landscape(net).timeseries(timesteps=timesteps)
     shape = series.shape
     if local:
         trans_entropy = np.empty(
@@ -279,7 +279,7 @@ def mutual_information(net, timesteps, local=False):
     :param local: whether or not to compute the local mutual information
     :returns: a numpy matrix of mutual information values
     """
-    series = timeseries(net, timesteps=timesteps)
+    series = Landscape(net).timeseries(timesteps=timesteps)
     shape = series.shape
     if local:
         mutual_info = np.empty(
@@ -341,7 +341,7 @@ class Architecture(object):
         :param timesteps: the number of timesteps to evaluate the network
         """
         self.__k = k
-        self.__series = timeseries(net, timesteps=timesteps)
+        self.__series = Landscape(net).timeseries(timesteps=timesteps)
         shape = self.__series.shape
 
         self.__local_active_info = np.empty((shape[0], shape[1], shape[2] - k))
