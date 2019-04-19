@@ -199,6 +199,9 @@ class TestStateSpace(unittest.TestCase):
         self.assertTrue([0, 0] not in state_space)
         self.assertTrue([1, 2, 0] not in state_space)
 
+        self.assertFalse(1 in state_space)
+        self.assertFalse("string" in state_space)
+
     def test_check_states_varied(self):
         self.assertTrue([0, 2, 1] in StateSpace([2, 3, 2]))
         self.assertFalse([0, 1] in StateSpace([2, 2, 3]))
@@ -207,6 +210,9 @@ class TestStateSpace(unittest.TestCase):
         self.assertFalse([0, 2, 1] not in StateSpace([2, 3, 2]))
         self.assertTrue([0, 1] not in StateSpace([2, 2, 3]))
         self.assertTrue([1, 1, 6] not in StateSpace([2, 3, 4]))
+
+        self.assertFalse(1 in StateSpace([2, 3, 2]))
+        self.assertFalse("string" in StateSpace([2, 3, 2]))
 
     def test_long_encoding(self):
         state_space = StateSpace([2] * 10)
@@ -367,6 +373,9 @@ class TestUniformSpace(unittest.TestCase):
         self.assertTrue([0, 0] not in state_space)
         self.assertTrue([1, 2, 0] not in state_space)
 
+        self.assertFalse(1 in state_space)
+        self.assertFalse("string" in state_space)
+
         state_space = UniformSpace(ndim=3, base=3)
         self.assertTrue([0, 1, 1] in state_space)
         self.assertFalse([0, 0] in state_space)
@@ -377,6 +386,9 @@ class TestUniformSpace(unittest.TestCase):
         self.assertTrue([0, 0] not in state_space)
         self.assertFalse([1, 2, 0] not in state_space)
         self.assertTrue([1, 2, 3] not in state_space)
+
+        self.assertFalse(1 in state_space)
+        self.assertFalse("string" in state_space)
 
     def test_long_encoding(self):
         state_space = UniformSpace(ndim=10, base=2)
@@ -493,6 +505,9 @@ class TestBooleanSpace(unittest.TestCase):
         self.assertFalse([0, 1, 1] not in state_space)
         self.assertTrue([0, 0] not in state_space)
         self.assertTrue([1, 2, 0] not in state_space)
+
+        self.assertFalse(1 in state_space)
+        self.assertFalse("string" in state_space)
 
     def test_long_encoding(self):
         state_space = BooleanSpace(10)
