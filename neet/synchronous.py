@@ -396,10 +396,7 @@ class Landscape(StateSpace):
         else:
             state_space = net.state_space()
 
-        if state_space.is_uniform:
-            super(Landscape, self).__init__(state_space.ndim, state_space.base)
-        else:
-            super(Landscape, self).__init__(state_space.bases)
+        super(Landscape, self).__init__(state_space.shape)
 
         self.__net = net
         self.__index = index
