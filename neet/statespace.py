@@ -58,8 +58,6 @@ class StateSpace(object):
             return True
         except TypeError:
             return False
-        except IndexError:
-            return False
 
     def _unsafe_encode(self, state):
         encoded, place = long(0), long(1)
@@ -121,8 +119,6 @@ class UniformSpace(StateSpace):
             return True
         except TypeError:
             return False
-        except IndexError:
-            return False
 
     def _unsafe_encode(self, state):
         encoded, place = long(0), long(1)
@@ -172,8 +168,6 @@ class BooleanSpace(UniformSpace):
                     return False
             return True
         except TypeError:
-            return False
-        except IndexError:
             return False
 
     def _unsafe_encode(self, state):
