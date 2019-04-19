@@ -531,7 +531,7 @@ class TestBooleanSpace(unittest.TestCase):
         with self.assertRaises(TypeError):
             list(space.subspace(3))
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(Exception):
             list(space.subspace('abc'))
 
         with self.assertRaises(IndexError):
