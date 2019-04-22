@@ -1,7 +1,7 @@
 import unittest
-from neet.sensitivity import (sensitivity, average_sensitivity, lambdaQ,
-                              is_canalizing, canalizing_edges,
-                              canalizing_nodes)
+from neet.boolean.sensitivity import (sensitivity, average_sensitivity, lambdaQ,
+                                      is_canalizing, canalizing_edges,
+                                      canalizing_nodes)
 from neet.statespace import StateSpace
 import neet.boolean as NB
 import numpy as np
