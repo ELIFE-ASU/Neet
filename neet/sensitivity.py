@@ -62,6 +62,7 @@ def sensitivity(net, state, transitions=None):
     # list Hamming neighbors
     space = net.state_space()
     encoder = space._unsafe_encode
+    distance = space.distance
     neighbors = space.hamming_neighbors(state)
 
     nextState = net.update(state)
@@ -73,7 +74,7 @@ def sensitivity(net, state, transitions=None):
             newState = transitions[encoder(neighbor)]
         else:
             newState = net._unsafe_update(neighbor)
-        s += _boolean_distance(newState, nextState)
+        s += distance(newState, nextState)
 
     return s / net.size
 
@@ -411,16 +412,6 @@ def lambdaQ(net, **kwargs):
     """
     Q = average_difference_matrix(net, **kwargs)
     return max(abs(linalg.eigvals(Q)))
-
-
-def _boolean_distance(state1, state2):
-    """
-    Boolean distance between two states.
-    """
-    out = 0
-    for i in range(len(state1)):
-        out += state1[i] ^ state2[i]
-    return out
 
 
 def average_sensitivity(net, states=None, weights=None, calc_trans=True):

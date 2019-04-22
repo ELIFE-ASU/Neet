@@ -229,3 +229,13 @@ class BooleanSpace(UniformSpace):
             neighbors[i] = copy.copy(state)
             neighbors[i][i] ^= 1
         return neighbors
+
+    def distance(self, a, b):
+        if a not in self:
+            raise ValueError('first state is not in state space')
+        if b not in self:
+            raise ValueError('second state is not in state space')
+        out = 0
+        for i in range(self.ndim):
+            out += a[i] ^ b[i]
+        return out

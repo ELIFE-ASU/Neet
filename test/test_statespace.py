@@ -627,3 +627,34 @@ class TestBooleanSpace(unittest.TestCase):
 
         state = np.asarray(state)
         self.assertTrue(neighbors, list(space.hamming_neighbors(state)))
+
+    def test_distance_raises(self):
+        space = BooleanSpace(3)
+
+        with self.assertRaises(ValueError):
+            space.distance([0, 0], [0, 0, 0])
+
+        with self.assertRaises(ValueError):
+            space.distance([0, 0, 0, 0], [0, 0, 0])
+
+        with self.assertRaises(ValueError):
+            space.distance([0, 0, 0], [0, 0])
+
+        with self.assertRaises(ValueError):
+            space.distance([0, 0, 0], [0, 0, 0, 0])
+
+        with self.assertRaises(ValueError):
+            space.distance([0, 1, 2], [0, 1, 1])
+
+        with self.assertRaises(ValueError):
+            space.distance([0, 1, 1], [0, 1, 2])
+
+    def test_distance(self):
+        space = BooleanSpace(3)
+
+        self.assertEqual(0, space.distance([0, 1, 1], [0, 1, 1]))
+        self.assertEqual(1, space.distance([0, 0, 0], [1, 0, 0]))
+        self.assertEqual(1, space.distance([0, 0, 0], [0, 1, 0]))
+        self.assertEqual(1, space.distance([0, 0, 0], [0, 0, 1]))
+        self.assertEqual(2, space.distance([0, 1, 0], [1, 0, 0]))
+        self.assertEqual(2, space.distance([1, 0, 0], [0, 1, 0]))
