@@ -5,13 +5,13 @@
 
     from neet.automata import ECA
     from neet.boolean.network import *
-    from neet.statespace import StateSpace
+    from neet.statespace import BooleanSpace
 
 API Documentation
 -----------------
 """
 from neet.network import Network
-from neet.statespace import BooleanSpace
+from .statespace import BooleanSpace
 from .sensitivity import SensitivityMixin
 
 
