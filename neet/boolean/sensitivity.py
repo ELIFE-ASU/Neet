@@ -27,7 +27,7 @@ import numpy.linalg as linalg
 
 
 class SensitivityMixin:
-    def sensitivity(net, state, transitions=None):
+    def sensitivity(self, state, transitions=None):
         """
         Calculate Boolean network sensitivity, as defined in [Shmulevich2004]_
 
@@ -36,7 +36,7 @@ class SensitivityMixin:
         value is different than on :math:`x`.
 
         This calculates the average sensitivity over all :math:`N` boolean
-        functions, where :math:`N` is the size of net.
+        functions, where :math:`N` is the size of self.
 
         .. rubric:: Examples
 
@@ -51,17 +51,16 @@ class SensitivityMixin:
             >>> sensitivity(c_elegans, [1, 1, 1, 1, 1, 1, 1, 1])
             1.25
 
-        :param net: :mod:`neet` boolean network
         :param state: a single network state, represented as a list of node states
         :param transitions: a list of precomputed state transitions (*optional*)
         :type transitions: list or None
         """
-        space = net.state_space()
+        space = self.state_space()
         encoder = space._unsafe_encode
         distance = space.distance
         neighbors = space.hamming_neighbors(state)
 
-        nextState = net.update(state)
+        nextState = self.update(state)
 
         # count sum of differences found in neighbors of the original
         s = 0.
@@ -69,12 +68,12 @@ class SensitivityMixin:
             if transitions is not None:
                 newState = transitions[encoder(neighbor)]
             else:
-                newState = net._unsafe_update(neighbor)
+                newState = self._unsafe_update(neighbor)
             s += distance(newState, nextState)
 
-        return s / net.size
+        return s / self.size
 
-    def difference_matrix(net, state, transitions=None):
+    def difference_matrix(self, state, transitions=None):
         """
         Returns matrix answering the question: Starting at the given state, does
         flipping the state of node ``j`` change the state of node ``i``?
@@ -103,7 +102,6 @@ class SensitivityMixin:
                    [1., 0., 0., 0., 0., 0., 0., 0.],
                    [0., 0., 0., 0., 0., 0., 0., 1.]])
 
-        :param net: a :mod:`neet` boolean network
         :param state: the starting state
         :param transitions: a precomputed list of state transitions (*optional*)
         :type transitions: list or None
@@ -113,23 +111,23 @@ class SensitivityMixin:
         Q = np.empty((N, N))
 
         # list Hamming neighbors (in order!)
-        space = net.state_space()
+        space = self.state_space()
         encoder = space._unsafe_encode
         neighbors = space.hamming_neighbors(state)
 
-        nextState = net.update(state)
+        nextState = self.update(state)
 
         # count differences found in neighbors of the original
         for j, neighbor in enumerate(neighbors):
             if transitions is not None:
                 newState = transitions[encoder(neighbor)]
             else:
-                newState = net._unsafe_update(neighbor)
+                newState = self._unsafe_update(neighbor)
             Q[:, j] = [(nextState[i] + newState[i]) % 2 for i in range(N)]
 
         return Q
 
-    def average_difference_matrix(net, states=None, weights=None, calc_trans=True):
+    def average_difference_matrix(self, states=None, weights=None, calc_trans=True):
         """
         Averaged over states, what is the probability
         that node i's state is changed by a single bit flip of node j?
@@ -176,7 +174,7 @@ class SensitivityMixin:
         :type calc_trans: bool
         :return: boolean ``numpy`` array
         """
-        N = net.size
+        N = self.size
         Q = np.zeros((N, N))
 
         if (states is not None) or (weights is not None):
@@ -184,15 +182,15 @@ class SensitivityMixin:
 
             # optionally pre-calculate transitions
             if calc_trans:
-                decoder = net.state_space().decode
-                trans = list(map(decoder, Landscape(net).transitions))
+                decoder = self.state_space().decode
+                trans = list(map(decoder, Landscape(self).transitions))
             else:
                 trans = None
 
             # currently changes state generators to lists.
             # is there a way to avoid this?
             if states is None:
-                states = list(net.state_space())
+                states = list(self.state_space())
             else:
                 states = list(states)
 
@@ -207,15 +205,15 @@ class SensitivityMixin:
 
             norm = np.sum(weights)
             for i, state in enumerate(states):
-                Q += weights[i] * net.difference_matrix(state, trans) / norm
+                Q += weights[i] * self.difference_matrix(state, trans) / norm
 
         else:  # make use of sparse connectivity to be more efficient
             state0 = np.zeros(N, dtype=int)
 
-            space = net.state_space()
+            space = self.state_space()
 
             for i in range(N):
-                nodesInfluencingI = list(net.neighbors_in(i))
+                nodesInfluencingI = list(self.neighbors_in(i))
                 for jindex, j in enumerate(nodesInfluencingI):
 
                     # for each state of other nodes, does j matter?
@@ -229,17 +227,17 @@ class SensitivityMixin:
                         # start with two states, one with j on and one with j off
                         jOff = copy.copy(state)
                         jOff[j] = 0
-                        jOffNext = net._unsafe_update(jOff)[i]
+                        jOffNext = self._unsafe_update(jOff)[i]
                         jOn = copy.copy(state)
                         jOn[j] = 1
-                        jOnNext = net._unsafe_update(jOn)[i]
+                        jOnNext = self._unsafe_update(jOn)[i]
                         # are the results different?
                         Q[i, j] += (jOffNext + jOnNext) % 2
                     Q[i, j] /= float(len(otherNodeStates))
 
         return Q
 
-    def is_canalizing(net, node_i, neighbor_j):
+    def is_canalizing(self, node_i, neighbor_j):
         """
         Determine whether a given network edge is canalizing: if ``node_i``'s
         value at :math:`t+1` is fully determined when ``neighbor_j``'s value has
@@ -270,7 +268,6 @@ class SensitivityMixin:
             >>> is_canalizing(c_elegans, 4, 3)
             False
 
-        :param net: a :mod:`neet` boolean network
         :param node_i: target node index
         :param neighbor_j: source node index
         :return: ``True`` if the edge ``(neighbor_j, node_i)`` is canalizing, or
@@ -279,20 +276,20 @@ class SensitivityMixin:
         .. seealso:: :func:`canalizing_edges`
         .. seealso:: :func:`canalizing_nodes`
         """
-        nodesInfluencingI = list(net.neighbors_in(node_i))
+        nodesInfluencingI = list(self.neighbors_in(node_i))
 
-        if (neighbor_j not in nodesInfluencingI) or (node_i not in range(net.size)):
+        if (neighbor_j not in nodesInfluencingI) or (node_i not in range(self.size)):
             # can't be canalizing if j has no influence on i
             return None  # or False?
         else:
             jindex = nodesInfluencingI.index(neighbor_j)
 
-            space = net.state_space()
+            space = self.state_space()
 
             # for every state of other nodes, does j determine i?
             otherNodes = list(copy.copy(nodesInfluencingI))
             otherNodes.pop(jindex)
-            otherNodeStates = list(space.subspace(otherNodes, np.zeros(net.size, dtype=int)))
+            otherNodeStates = list(space.subspace(otherNodes, np.zeros(self.size, dtype=int)))
 
             jOnForced, jOffForced = True, True
             jOnForcedValue, jOffForcedValue = None, None
@@ -305,7 +302,7 @@ class SensitivityMixin:
                 if jOffForced:
                     jOff = copy.copy(state)
                     jOff[neighbor_j] = 0
-                    jOffNext = net.update(jOff)[node_i]
+                    jOffNext = self.update(jOff)[node_i]
                     if jOffForcedValue is None:
                         jOffForcedValue = jOffNext
                     elif jOffForcedValue != jOffNext:
@@ -316,7 +313,7 @@ class SensitivityMixin:
                 if jOnForced:
                     jOn = copy.copy(state)
                     jOn[neighbor_j] = 1
-                    jOnNext = net.update(jOn)[node_i]
+                    jOnNext = self.update(jOn)[node_i]
                     if jOnForcedValue is None:
                         jOnForcedValue = jOnNext
                     elif jOnForcedValue != jOnNext:
@@ -329,7 +326,7 @@ class SensitivityMixin:
             # print "jOnForced,jOffForced",jOnForced,jOffForced
             return jOnForced or jOffForced
 
-    def canalizing_edges(net):
+    def canalizing_edges(self):
         """
         Return a set of tuples corresponding to the edges in the network that
         are canalizing. Each tuple consists of two node indices, corresponding
@@ -345,20 +342,19 @@ class SensitivityMixin:
             >>> canalizing_edges(c_elegans)
             {(1, 2), (3, 2), (1, 3), (7, 6), (6, 0), (7, 7)}
 
-        :param net: a :mod:`neet` boolean network
         :return: the set of canalizing edges as in the form ``(target, source)``
 
         .. seealso:: :func:`is_canalizing`
         .. seealso:: :func:`canalizing_nodes`
         """
         canalizingList = []
-        for indexi in range(net.size):
-            for neighborj in net.neighbors_in(indexi):
-                if net.is_canalizing(indexi, neighborj):
+        for indexi in range(self.size):
+            for neighborj in self.neighbors_in(indexi):
+                if self.is_canalizing(indexi, neighborj):
                     canalizingList.append((indexi, neighborj))
         return set(canalizingList)
 
-    def canalizing_nodes(net):
+    def canalizing_nodes(self):
         """
         Find the nodes of the network which have at least one incoming canalizing
         edge.
@@ -372,16 +368,15 @@ class SensitivityMixin:
             >>> canalizing_nodes(c_elegans)
             {1, 3, 6, 7}
 
-        :param net: a :mod:`neet` boolean network
         :return: the set indices of nodes with at least one canalizing input edge
 
         .. seealso:: :func:`is_canalizing`
         .. seealso:: :func:`canalizing_edges`
         """
-        nodes = [e[0] for e in net.canalizing_edges()]
+        nodes = [e[0] for e in self.canalizing_edges()]
         return set(np.unique(nodes))
 
-    def lambdaQ(net, **kwargs):
+    def lambdaQ(self, **kwargs):
         """
         Calculate sensitivity eigenvalue, the largest eigenvalue of the
         sensitivity matrix :func:`average_difference_matrix`.
@@ -397,13 +392,12 @@ class SensitivityMixin:
             >>> lambdaQ(c_elegans)
             1.263099227661824
 
-        :param net: a :mod:`neet` boolean network
         :return: the sensitivity eigenvalue (:math:`\\lambda_Q`) of ``net``
         """
-        Q = net.average_difference_matrix(**kwargs)
+        Q = self.average_difference_matrix(**kwargs)
         return max(abs(linalg.eigvals(Q)))
 
-    def average_sensitivity(net, states=None, weights=None, calc_trans=True):
+    def average_sensitivity(self, states=None, weights=None, calc_trans=True):
         """
         Calculate average Boolean network sensitivity, as defined in
         [Shmulevich2004]_.
@@ -433,7 +427,6 @@ class SensitivityMixin:
             ...
             1.7
 
-        :param net: NEET boolean network
         :param states: Optional list or generator of states. If None, all states
                        are used.
         :param weights: Optional list or generator of weights for each state.
@@ -443,7 +436,7 @@ class SensitivityMixin:
         :return: the average sensitivity of ``net``
         """
 
-        Q = net.average_difference_matrix(states=states, weights=weights,
-                                          calc_trans=calc_trans)
+        Q = self.average_difference_matrix(states=states, weights=weights,
+                                           calc_trans=calc_trans)
 
-        return np.sum(Q) / net.size
+        return np.sum(Q) / self.size
