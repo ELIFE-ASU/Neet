@@ -220,3 +220,12 @@ class BooleanSpace(UniformSpace):
                     yield copy.copy(state)
                 else:
                     i += 1
+
+    def hamming_neighbors(self, state):
+        if state not in self:
+            raise ValueError('state is not in state space')
+        neighbors = [None] * self.ndim
+        for i in range(self.ndim):
+            neighbors[i] = copy.copy(state)
+            neighbors[i][i] ^= 1
+        return neighbors

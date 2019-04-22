@@ -599,3 +599,31 @@ class TestBooleanSpace(unittest.TestCase):
                               [[1, 1, 0], [0, 1, 0], [1, 1, 1], [0, 1, 1]])
         self.assertArrayEqual(list(space.subspace([0, 2, 0], np.asarray([1, 1, 0]))),
                               [[1, 1, 0], [0, 1, 0], [1, 1, 1], [0, 1, 1]])
+
+    def test_hamming_neighbors_input(self):
+        space = BooleanSpace(3)
+
+        with self.assertRaises(ValueError):
+            list(space.hamming_neighbors([0, 0]))
+
+        with self.assertRaises(ValueError):
+            list(space.hamming_neighbors([0, 0, 0, 0]))
+
+        with self.assertRaises(ValueError):
+            list(space.hamming_neighbors([0, 1, 2]))
+
+        with self.assertRaises(ValueError):
+            list(space.hamming_neighbors([[0, 0, 1], [1, 0, 0]]))
+
+    def test_hamming_neighbors_example(self):
+        space = BooleanSpace(4)
+
+        state = [0, 1, 1, 0]
+        neighbors = [[1, 1, 1, 0],
+                     [0, 0, 1, 0],
+                     [0, 1, 0, 0],
+                     [0, 1, 1, 1]]
+        self.assertTrue(neighbors, list(space.hamming_neighbors(state)))
+
+        state = np.asarray(state)
+        self.assertTrue(neighbors, list(space.hamming_neighbors(state)))
