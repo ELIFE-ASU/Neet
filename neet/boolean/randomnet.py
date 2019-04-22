@@ -22,7 +22,7 @@ Random networks
 """
 import random
 import numpy as np
-from neet.sensitivity import canalizing_nodes
+from .sensitivity import canalizing_nodes
 from .logicnetwork import LogicNetwork
 
 

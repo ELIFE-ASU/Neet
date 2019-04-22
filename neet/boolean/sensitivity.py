@@ -19,8 +19,8 @@ target regardless of other sources.
 API Documentation
 -----------------
 """
-from .boolean.network import BooleanNetwork
-from .synchronous import Landscape
+from .network import BooleanNetwork
+from neet.synchronous import Landscape
 
 import copy
 import numpy as np
