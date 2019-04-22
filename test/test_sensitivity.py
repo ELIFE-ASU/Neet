@@ -2,7 +2,6 @@ import unittest
 from neet.sensitivity import (sensitivity, average_sensitivity, lambdaQ,
                               is_canalizing, canalizing_edges,
                               canalizing_nodes)
-from neet.sensitivity import _hamming_neighbors
 from neet.statespace import StateSpace
 import neet.boolean as NB
 import numpy as np
@@ -32,21 +31,6 @@ class TestSensitivityWTNetwork(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             sensitivity(self.IsNotBooleanNetwork(), [0, 0, 0])
-
-    def test_hamming_neighbors_input(self):
-        with self.assertRaises(ValueError):
-            _hamming_neighbors([0, 1, 2])
-
-        with self.assertRaises(ValueError):
-            _hamming_neighbors([[0, 0, 1], [1, 0, 0]])
-
-    def test_hamming_neighbors_example(self):
-        state = [0, 1, 1, 0]
-        neighbors = [[1, 1, 1, 0],
-                     [0, 0, 1, 0],
-                     [0, 1, 0, 0],
-                     [0, 1, 1, 1]]
-        self.assertTrue(np.array_equal(neighbors, _hamming_neighbors(state)))
 
     def test_sensitivity(self):
         net = NB.WTNetwork([[1, -1], [0, 1]], [0.5, 0])

@@ -60,11 +60,11 @@ def sensitivity(net, state, transitions=None):
         raise(TypeError("net must be a boolean network"))
 
     # list Hamming neighbors
-    neighbors = _hamming_neighbors(state)
+    space = net.state_space()
+    encoder = space._unsafe_encode
+    neighbors = space.hamming_neighbors(state)
 
     nextState = net.update(state)
-
-    encoder = net.state_space()._unsafe_encode
 
     # count sum of differences found in neighbors of the original
     s = 0.
@@ -117,11 +117,11 @@ def difference_matrix(net, state, transitions=None):
     Q = np.empty((N, N))
 
     # list Hamming neighbors (in order!)
-    neighbors = _hamming_neighbors(state)
+    space = net.state_space()
+    encoder = space._unsafe_encode
+    neighbors = space.hamming_neighbors(state)
 
     nextState = net.update(state)
-
-    encoder = net.state_space()._unsafe_encode
 
     # count differences found in neighbors of the original
     for j, neighbor in enumerate(neighbors):
@@ -421,31 +421,6 @@ def _boolean_distance(state1, state2):
     for i in range(len(state1)):
         out += state1[i] ^ state2[i]
     return out
-
-
-def _hamming_neighbors(state):
-    """
-    Return Hamming neighbors of a boolean state.
-
-    .. rubric:: Examples
-
-    .. doctest:: sensitivity
-
-        >>> _hamming_neighbors([0,0,1])
-        array([[1, 0, 1],
-               [0, 1, 1],
-               [0, 0, 0]])
-    """
-    state = np.asarray(state, dtype=int)
-    if len(state.shape) > 1:
-        raise(ValueError("state must be 1-dimensional"))
-    if not np.array_equal(state % 2, state):
-        raise(ValueError("state must be binary"))
-
-    repeat = np.tile(state, (len(state), 1))
-    neighbors = (repeat + np.diag(np.ones_like(state))) % 2
-
-    return neighbors
 
 
 def average_sensitivity(net, states=None, weights=None, calc_trans=True):
