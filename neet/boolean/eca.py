@@ -9,7 +9,7 @@ with an arbitrary rule.
 .. rubric:: Examples
 """
 import numpy as np
-from neet.statespace import BooleanSpace
+from .statespace import BooleanSpace
 from .network import BooleanNetwork
 
 
