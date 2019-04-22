@@ -22,7 +22,6 @@ Random networks
 """
 import random
 import numpy as np
-from .sensitivity import canalizing_nodes
 from .logicnetwork import LogicNetwork
 
 
@@ -208,7 +207,7 @@ def _logic_table_row_is_canalizing(row, i, size):
     table = [((), set()) for j in range(size)]
     table[i] = row
     net = LogicNetwork(table)
-    return i in canalizing_nodes(net)
+    return i in net.canalizing_nodes()
 
 
 def _random_logic_fixed_connections(logic_net, ps, fix_external=False,

@@ -1,125 +1,89 @@
 import unittest
-from neet.boolean.sensitivity import (sensitivity, average_sensitivity, lambdaQ,
-                                      is_canalizing, canalizing_edges,
-                                      canalizing_nodes)
-from neet.statespace import StateSpace
-import neet.boolean as NB
+from neet.boolean import (LogicNetwork, WTNetwork)
 import numpy as np
 
 
-class TestSensitivityWTNetwork(unittest.TestCase):
-    class IsBooleanNetwork(object):
-        def update(self, lattice):
-            pass
-
-        def state_space(self):
-            return StateSpace(1)
-
-    class IsNotBooleanNetwork(object):
-        def update(self, lattice):
-            pass
-
-        def state_space(self):
-            return StateSpace([2, 3, 4])
-
-    class IsNotNetwork(object):
-        pass
-
-    def test_sensitivity_net_type(self):
-        with self.assertRaises(TypeError):
-            sensitivity(self.IsNotNetwork(), [0, 0, 0])
-
-        with self.assertRaises(TypeError):
-            sensitivity(self.IsNotBooleanNetwork(), [0, 0, 0])
-
+class TestSensitivity(unittest.TestCase):
     def test_sensitivity(self):
-        net = NB.WTNetwork([[1, -1], [0, 1]], [0.5, 0])
-        self.assertEqual(1.0, sensitivity(net, [0, 0]))
-
-    def test_average_sensitivity_net_type(self):
-        with self.assertRaises(TypeError):
-            average_sensitivity(self.IsNotNetwork())
-
-        with self.assertRaises(TypeError):
-            average_sensitivity(self.IsNotBooleanNetwork())
+        net = WTNetwork([[1, -1], [0, 1]], [0.5, 0])
+        self.assertEqual(1.0, net.sensitivity([0, 0]))
 
     def test_average_sensitivity_lengths(self):
-        net = NB.WTNetwork([[1, -1], [0, 1]], [0.5, 0])
+        net = WTNetwork([[1, -1], [0, 1]], [0.5, 0])
 
         with self.assertRaises(ValueError):
-            average_sensitivity(
-                net, states=[[0, 0], [0, 1]], weights=[0, 1, 2])
+            net.average_sensitivity(states=[[0, 0], [0, 1]], weights=[0, 1, 2])
 
     def test_average_sensitivity(self):
-        net = NB.WTNetwork([[1, -1], [0, 1]], [0.5, 0])
-        self.assertEqual(1.0, average_sensitivity(net))
+        net = WTNetwork([[1, -1], [0, 1]], [0.5, 0])
+        self.assertEqual(1.0, net.average_sensitivity())
 
     def test_sensitivity_s_pombe(self):
         from neet.boolean.examples import s_pombe
-        s = sensitivity(s_pombe, [0, 0, 0, 0, 0, 1, 1, 0, 0])
+        s = s_pombe.sensitivity([0, 0, 0, 0, 0, 1, 1, 0, 0])
         self.assertAlmostEqual(s, 1.0)
 
     def test_average_sensitivity_c_elegans(self):
         from neet.boolean.examples import c_elegans
 
-        s = average_sensitivity(c_elegans)
+        s = c_elegans.average_sensitivity()
         self.assertAlmostEqual(s, 1.265625)
 
-        s = average_sensitivity(c_elegans,
-                                states=[[0, 0, 0, 0, 0, 0, 0, 0],
-                                        [1, 1, 1, 1, 1, 1, 1, 1]],
-                                weights=[9, 1])
+        s = c_elegans.average_sensitivity(
+            states=[[0, 0, 0, 0, 0, 0, 0, 0],
+                    [1, 1, 1, 1, 1, 1, 1, 1]],
+            weights=[9, 1])
         self.assertAlmostEqual(s, 1.7)
 
     def test_lambdaQ_c_elegans(self):
         from neet.boolean.examples import c_elegans
-        self.assertAlmostEqual(lambdaQ(c_elegans), 1.263099227661824)
+        self.assertAlmostEqual(c_elegans.lambdaQ(), 1.263099227661824)
 
     def test_average_sensitivity_logic_network(self):
-        net = NB.LogicNetwork([((1, 2), {'01', '10'}),
-                               ((0, 2), ('01', '10', '11')),
-                               ((0, 1), {'11'})])
+        net = LogicNetwork([((1, 2), {'01', '10'}),
+                            ((0, 2), ('01', '10', '11')),
+                            ((0, 1), {'11'})])
 
-        s = average_sensitivity(net)
+        s = net.average_sensitivity()
         self.assertAlmostEqual(s, 1.3333333333333333)
 
-        s = average_sensitivity(net, weights=np.ones(8))
+        s = net.average_sensitivity(weights=np.ones(8))
         self.assertAlmostEqual(s, 1.3333333333333333)
 
-        s = average_sensitivity(net, states=net.state_space())
+        s = net.average_sensitivity(states=net.state_space())
         self.assertAlmostEqual(s, 1.3333333333333333)
 
     def test_lambdaQ_logic_network(self):
-        net = NB.LogicNetwork([((1, 2), {'01', '10'}),
-                               ((0, 2), ('01', '10', '11')),
-                               ((0, 1), {'11'})])
-        self.assertAlmostEqual(lambdaQ(net), 1.2807764064044149)
+        net = LogicNetwork([((1, 2), {'01', '10'}),
+                            ((0, 2), ('01', '10', '11')),
+                            ((0, 1), {'11'})])
+        self.assertAlmostEqual(net.lambdaQ(), 1.2807764064044149)
 
     def test_is_canalizing_logic_network(self):
-        net = NB.LogicNetwork([((1, 2), {'01', '10'}),
-                               ((0, 2), ('01', '10', '11')),
-                               ((0, 1), {'11'})])
+        net = LogicNetwork([((1, 2), {'01', '10'}),
+                            ((0, 2), ('01', '10', '11')),
+                            ((0, 1), {'11'})])
 
-        self.assertFalse(is_canalizing(net, 0, 1))
-        self.assertTrue(is_canalizing(net, 1, 0))
-        self.assertTrue(is_canalizing(net, 2, 1))
+        self.assertFalse(net.is_canalizing(0, 1))
+        self.assertTrue(net.is_canalizing(1, 0))
+        self.assertTrue(net.is_canalizing(2, 1))
 
     def test_canalizing(self):
-        net = NB.LogicNetwork([((1, 2), {'01', '10'}),
-                               ((0, 2), ('01', '10', '11')),
-                               ((0, 1), {'11'})])
+        net = LogicNetwork([((1, 2), {'01', '10'}),
+                            ((0, 2), ('01', '10', '11')),
+                            ((0, 1), {'11'})])
 
-        edges = canalizing_edges(net)
+        edges = net.canalizing_edges()
         self.assertEqual(edges, {(1, 0), (1, 2), (2, 0), (2, 1)})
 
-        nodes = canalizing_nodes(net)
+        nodes = net.canalizing_nodes()
         self.assertEqual(nodes, {1, 2})
 
     def test_average_sensitivity_hgf(self):
         from neet.boolean.examples import hgf_signaling_in_keratinocytes
-        self.assertAlmostEqual(average_sensitivity(hgf_signaling_in_keratinocytes),
+        self.assertAlmostEqual(hgf_signaling_in_keratinocytes.average_sensitivity(),
                                0.981618, places=6)
 
     def test_average_sensitivity_il_6(self):
         from neet.boolean.examples import il_6_signaling
-        self.assertAlmostEqual(average_sensitivity(il_6_signaling), 0.914971, places=6)
+        self.assertAlmostEqual(il_6_signaling.average_sensitivity(), 0.914971, places=6)
