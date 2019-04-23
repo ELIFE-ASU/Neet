@@ -227,10 +227,10 @@ class SensitivityMixin:
                         # start with two states, one with j on and one with j off
                         jOff = copy.copy(state)
                         jOff[j] = 0
-                        jOffNext = self._unsafe_update(jOff)[i]
+                        jOffNext = self._unsafe_update(jOff, index=i)[i]
                         jOn = copy.copy(state)
                         jOn[j] = 1
-                        jOnNext = self._unsafe_update(jOn)[i]
+                        jOnNext = self._unsafe_update(jOn, index=i)[i]
                         # are the results different?
                         Q[i, j] += (jOffNext + jOnNext) % 2
                     Q[i, j] /= float(len(otherNodeStates))
@@ -302,7 +302,7 @@ class SensitivityMixin:
                 if jOffForced:
                     jOff = copy.copy(state)
                     jOff[neighbor_j] = 0
-                    jOffNext = self.update(jOff)[node_i]
+                    jOffNext = self._unsafe_update(jOff, index=node_i)[node_i]
                     if jOffForcedValue is None:
                         jOffForcedValue = jOffNext
                     elif jOffForcedValue != jOffNext:
@@ -313,7 +313,7 @@ class SensitivityMixin:
                 if jOnForced:
                     jOn = copy.copy(state)
                     jOn[neighbor_j] = 1
-                    jOnNext = self.update(jOn)[node_i]
+                    jOnNext = self._unsafe_update(jOn, index=node_i)[node_i]
                     if jOnForcedValue is None:
                         jOnForcedValue = jOnNext
                     elif jOnForcedValue != jOnNext:
