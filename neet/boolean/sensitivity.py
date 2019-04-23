@@ -217,20 +217,16 @@ class SensitivityMixin:
                 for jindex, j in enumerate(nodesInfluencingI):
 
                     # for each state of other nodes, does j matter?
-                    otherNodes = list(copy.copy(nodesInfluencingI))
+                    otherNodes = copy.copy(nodesInfluencingI)
                     otherNodes.pop(jindex)
                     otherNodeStates = list(space.subspace(otherNodes, state0))
                     for state in otherNodeStates:
-                        # might be able to do faster by calculating transitions
-                        # once for each i also we only need the update for node i
-
-                        # start with two states, one with j on and one with j off
-                        jOff = copy.copy(state)
-                        jOff[j] = 0
-                        jOffNext = self._unsafe_update(jOff, index=i)[i]
-                        jOn = copy.copy(state)
-                        jOn[j] = 1
-                        jOnNext = self._unsafe_update(jOn, index=i)[i]
+                        iState = state[i]
+                        state[j] = 0
+                        jOffNext = self._unsafe_update(state, index=i)[i]
+                        state[i] = iState
+                        state[j] = 1
+                        jOnNext = self._unsafe_update(state, index=i)[i]
                         # are the results different?
                         Q[i, j] += (jOffNext + jOnNext) % 2
                     Q[i, j] /= float(len(otherNodeStates))
