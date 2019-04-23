@@ -382,3 +382,103 @@ class TestECA(unittest.TestCase):
 
         self.assertEqual(nx_net.graph['code'], 30)
         self.assertEqual(nx_net.graph['boundary'], (1, 0))
+
+
+class TestECAIntegerUpdate(unittest.TestCase):
+    def test_invalid_state(self):
+        eca = ECA(30, 3)
+
+        with self.assertRaises(ValueError):
+            eca.update(-1)
+
+        with self.assertRaises(ValueError):
+            eca.update(9)
+
+    def test_update_closed(self):
+        eca = ECA(30, 1)
+
+        lattice = 0
+
+        self.assertEqual(0, eca.update(lattice))
+        self.assertEqual(0, lattice)
+
+        eca.size = 2
+        lattice = 0
+
+        self.assertEqual(0, eca.update(lattice))
+        self.assertEqual(0, lattice)
+
+        eca.size = 5
+        lattice = 4
+
+        self.assertEqual(14, eca.update(lattice))
+        self.assertEqual(4, lattice)
+
+        lattice = 14
+        self.assertEqual(19, eca.update(lattice))
+        self.assertEqual(14, lattice)
+
+    def test_update_open(self):
+        eca = ECA(30, 1, (0, 1))
+
+        lattice = 0
+        self.assertEqual(1, eca.update(lattice))
+        self.assertEqual(0, lattice)
+
+        eca.size = 2
+        lattice = 0
+        self.assertEqual(2, eca.update(lattice))
+        self.assertEqual(0, lattice)
+
+        eca.size = 5
+        lattice = 4
+        self.assertEqual(30, eca.update(lattice))
+        self.assertEqual(4, lattice)
+
+        lattice = 14
+        self.assertEqual(3, eca.update(lattice))
+        self.assertEqual(14, lattice)
+
+    def test_update_long_time_closed(self):
+        eca = ECA(45, 14)
+        lattice = 10571
+        expected = 5462
+
+        state_space = eca.state_space()
+        for n in range(1000):
+            lattice = eca.update(lattice)
+        self.assertEqual(expected, lattice)
+
+    def test_update_index(self):
+        eca = ECA(30, 5, (1, 1))
+
+        self.assertEqual(1, eca.update(0, index=0))
+        self.assertEqual(0, eca.update(0, index=1))
+        self.assertEqual(6, eca.update(4, index=1))
+
+    def test_update_pin_none(self):
+        eca = ECA(30, 5)
+
+        self.assertEqual(14, eca.update(4, pin=None))
+        self.assertEqual(19, eca.update(14, pin=[]))
+
+    def test_update_pin(self):
+        eca = ECA(30, 5)
+
+        self.assertEqual(12, eca.update(4, pin=[1]))
+        self.assertEqual(20, eca.update(12, pin=[1]))
+        self.assertEqual(21, eca.update(20, pin=[1]))
+
+        eca.boundary = (1, 1)
+        self.assertEqual(1, eca.update(0, pin=[-1]))
+        self.assertEqual(3, eca.update(1, pin=[0, -1]))
+
+    def test_update_values(self):
+        eca = ECA(30, 5)
+
+        self.assertEqual(10, eca.update(4, values={2: 0}))
+        self.assertEqual(17, eca.update(10, values={1: 0, 3: 0}))
+        self.assertEqual(10, eca.update(17, values={-1: 0}))
+
+        eca.boundary = (1, 1)
+        self.assertEqual(21, eca.update(0, values={2: 1}))
