@@ -13,6 +13,7 @@ API Documentation
 from abc import ABCMeta, abstractmethod
 import networkx as nx
 import six
+from .python import long
 
 
 @six.add_metaclass(ABCMeta)
@@ -65,11 +66,17 @@ class Network(object):
     def _unsafe_update(self, state, index, pin, values, *args, **kwargs):
         pass
 
+    def _unsafe_update_int(self, state, index, pin, values, *args, **kwargs):
+        space = self.state_space()
+        decode = space.decode
+        encode = space._unsafe_encode
+
+        array_state = decode(state)
+        self._unsafe_update(array_state, index, pin, values, *args, **kwargs)
+        return encode(array_state)
+
     def update(self, state, index=None, pin=None, values=None, *args, **kwargs):
         space = self.state_space()
-
-        if state not in space:
-            raise ValueError("the provided state is not in the network's state space")
 
         if index is not None:
             if index < 0 or index >= self.size:
@@ -89,6 +96,13 @@ class Network(object):
                 if val < 0 or val >= bases[key]:
                     raise ValueError("invalid state in values argument")
 
+        if isinstance(state, (int, long)):
+            if state < 0 or state >= space.volume:
+                raise ValueError("the provided state is not in the network's state space")
+            return self._unsafe_update_int(state, index, pin, values, *args, **kwargs)
+        else:
+            if state not in space:
+                raise ValueError("the provided state is not in the network's state space")
         return self._unsafe_update(state, index, pin, values, *args, **kwargs)
 
     @abstractmethod
