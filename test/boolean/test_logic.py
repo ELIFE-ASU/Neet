@@ -316,6 +316,35 @@ class TestLogicNetwork(unittest.TestCase):
 
         self.assertEqual(nx_net.graph['name'], net.metadata['name'])
 
-    # def test_draw(self):
-    #     net = bnet.LogicNetwork([((0,), {'0'})])
-    #     draw(net,labels='indices')
+
+class TestLogicNetworkIntegerUpdate(unittest.TestCase):
+    def test_update(self):
+        net = LogicNetwork([((0,), {'0'})])
+        self.assertEqual(net.update(0, 0), 1)
+        self.assertEqual(net.update(1, 0), 0)
+        self.assertEqual(net.update(0), 1)
+        self.assertEqual(net.update(1), 0)
+
+        net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
+        self.assertEqual(net.update(0, 0), 1)
+        self.assertEqual(net.update(0, 1), 0)
+        self.assertEqual(net.update(0), 1)
+        self.assertEqual(net.update(2, 0), 3)
+        self.assertEqual(net.update(2, 1), 0)
+        self.assertEqual(net.update(2), 1)
+        self.assertEqual(net.update(1, 0), 1)
+        self.assertEqual(net.update(1, 1), 3)
+        self.assertEqual(net.update(1), 3)
+        self.assertEqual(net.update(3), 3)
+
+        net = LogicNetwork([((1, 2), {'01', '10'}),
+                            ((0, 2), {(0, 1), '10', (1, 1)}),
+                            ((0, 1), {'11'})])
+        self.assertEqual(net.update(2), 1)
+        self.assertEqual(net.update(7, 1), 7)
+        self.assertEqual(net.update(4), 3)
+        self.assertEqual(net.update(4, pin=[1]), 1)
+        self.assertEqual(net.update(4, pin=[0, 1]), 0)
+
+        self.assertEqual(net.update(4, values={0: 0}), 2)
+        self.assertEqual(net.update(4, pin=[1], values={0: 0}), 0)
