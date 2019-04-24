@@ -444,7 +444,6 @@ class TestECAIntegerUpdate(unittest.TestCase):
         lattice = 10571
         expected = 5462
 
-        state_space = eca.state_space()
         for n in range(1000):
             lattice = eca.update(lattice)
         self.assertEqual(expected, lattice)
