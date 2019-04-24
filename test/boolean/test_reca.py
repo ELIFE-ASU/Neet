@@ -356,3 +356,95 @@ class TestRewiredECA(unittest.TestCase):
         self.assertEqual([0, 0, 1, 0, 0], reca.update(xs, values={-2: 0}))
         self.assertEqual([0, 1, 0, 1, 0], reca.update(
             xs, values={2: 0, -5: 0}))
+
+
+class TestRewiredECAIntegerUpdate(unittest.TestCase):
+    def test_reproduce_closed_ecas(self):
+        reca = RewiredECA(30, size=7)
+        eca = ECA(30, size=7)
+        state = 8
+        for _ in range(10):
+            expect = eca.update(state)
+            got = reca.update(state)
+            self.assertTrue(np.array_equal(expect, got))
+            state = expect
+
+    def test_reproduce_open_ecas(self):
+        reca = RewiredECA(30, boundary=(1, 0), size=7)
+        eca = ECA(30, size=7, boundary=(1, 0))
+        state = 8
+        for _ in range(10):
+            expect = eca.update(state)
+            got = reca.update(state)
+            self.assertTrue(np.array_equal(expect, got))
+            state = expect
+
+    def test_rewired_network(self):
+        reca = RewiredECA(30, wiring=[
+            [-1, 0, 1, 2, 3], [0, 1, 2, 3, 4], [1, 2, 3, 4, 5]
+        ])
+        self.assertEqual(25, reca.update(16))
+
+        reca.wiring[:, :] = [
+            [0, 4, 1, 2, 3], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
+        ]
+        self.assertEqual(26, reca.update(16))
+        self.assertEqual(8, reca.update(26))
+        self.assertEqual(28, reca.update(8))
+        self.assertEqual(4, reca.update(28))
+        self.assertEqual(14, reca.update(4))
+        self.assertEqual(18, reca.update(14))
+        self.assertEqual(28, reca.update(18))
+
+    def test_reca_index(self):
+        reca = RewiredECA(30, wiring=[
+            [0, 4, 1, 2, 3], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
+        ])
+
+        self.assertEqual(24, reca.update(16, index=3))
+        self.assertEqual(28, reca.update(24, index=2))
+        self.assertEqual(14, reca.update(12, index=1))
+        self.assertEqual(10, reca.update(10, index=0))
+
+    def test_reca_pin_none(self):
+        reca = RewiredECA(30, size=5)
+
+        self.assertEqual(14, reca.update(4, pin=None))
+        self.assertEqual(19, reca.update(14, pin=[]))
+
+    def test_reca_pin(self):
+        reca = RewiredECA(30, wiring=[
+            [-1, 4, 1, 2, -1], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
+        ])
+
+        self.assertEqual(12, reca.update(4, pin=[1]))
+        self.assertEqual(14, reca.update(12, pin=[3]))
+        self.assertEqual(14, reca.update(14, pin=[3, 2]))
+        self.assertEqual(10, reca.update(14, pin=[-2]))
+
+        reca.boundary = (1, 1)
+        self.assertEqual(5, reca.update(4, pin=[1, 3]))
+        self.assertEqual(7, reca.update(5, pin=[-2, -5]))
+        self.assertEqual(15, reca.update(7, pin=[0, 2]))
+
+    def test_reca_values_none(self):
+        reca = RewiredECA(30, size=5)
+
+        self.assertEqual(14, reca.update(4, values=None))
+        self.assertEqual(19, reca.update(14, values={}))
+
+    def test_reca_values(self):
+        reca = RewiredECA(30, wiring=[
+            [-1, 4, 1, 2, -1], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
+        ])
+
+        self.assertEqual(15, reca.update(4, values={0: 1}))
+        self.assertEqual(3, reca.update(15, values={-1: 0}))
+        self.assertEqual(31, reca.update(3, values={-2: 1}))
+        self.assertEqual(5, reca.update(31, values={2: 1, -5: 1}))
+
+        reca.boundary = (1, 1)
+        self.assertEqual(14, reca.update(4, values={0: 0}))
+        self.assertEqual(19, reca.update(14, values={-1: 1}))
+        self.assertEqual(4, reca.update(19, values={-2: 0}))
+        self.assertEqual(10, reca.update(4, values={2: 0, -5: 0}))
