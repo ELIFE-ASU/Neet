@@ -29,7 +29,7 @@ class TestBooleanSpace(unittest.TestCase):
         space = BooleanSpace(5)
         self.assertEqual(2, space.base)
         self.assertEqual(32, space.volume)
-        self.assertEqual(5, space.ndim)
+        self.assertEqual(5, space.size)
         self.assertEqual([2, 2, 2, 2, 2], space.shape)
 
     def test_states(self):

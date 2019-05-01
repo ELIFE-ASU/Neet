@@ -55,10 +55,9 @@ class SensitivityMixin:
         :param transitions: a list of precomputed state transitions (*optional*)
         :type transitions: list or None
         """
-        space = self.state_space()
-        encoder = space._unsafe_encode
-        distance = space.distance
-        neighbors = space.hamming_neighbors(state)
+        encoder = self._unsafe_encode
+        distance = self.distance
+        neighbors = self.hamming_neighbors(state)
 
         nextState = self.update(state)
 
@@ -111,9 +110,8 @@ class SensitivityMixin:
         Q = np.empty((N, N))
 
         # list Hamming neighbors (in order!)
-        space = self.state_space()
-        encoder = space._unsafe_encode
-        neighbors = space.hamming_neighbors(state)
+        encoder = self._unsafe_encode
+        neighbors = self.hamming_neighbors(state)
 
         nextState = self.update(state)
 
@@ -182,7 +180,7 @@ class SensitivityMixin:
 
             # optionally pre-calculate transitions
             if calc_trans:
-                decoder = self.state_space().decode
+                decoder = self.decode
                 trans = list(map(decoder, Landscape(self).transitions))
             else:
                 trans = None
@@ -190,7 +188,7 @@ class SensitivityMixin:
             # currently changes state generators to lists.
             # is there a way to avoid this?
             if states is None:
-                states = list(self.state_space())
+                states = list(self)
             else:
                 states = list(states)
 
@@ -210,7 +208,7 @@ class SensitivityMixin:
         else:  # make use of sparse connectivity to be more efficient
             state0 = np.zeros(N, dtype=int)
 
-            space = self.state_space()
+            subspace = self.subspace
 
             for i in range(N):
                 nodesInfluencingI = list(self.neighbors_in(i))
@@ -219,7 +217,7 @@ class SensitivityMixin:
                     # for each state of other nodes, does j matter?
                     otherNodes = copy.copy(nodesInfluencingI)
                     otherNodes.pop(jindex)
-                    otherNodeStates = list(space.subspace(otherNodes, state0))
+                    otherNodeStates = list(subspace(otherNodes, state0))
                     for state in otherNodeStates:
                         iState = state[i]
                         state[j] = 0
@@ -280,12 +278,12 @@ class SensitivityMixin:
         else:
             jindex = nodesInfluencingI.index(neighbor_j)
 
-            space = self.state_space()
+            subspace = self.subspace
 
             # for every state of other nodes, does j determine i?
             otherNodes = list(copy.copy(nodesInfluencingI))
             otherNodes.pop(jindex)
-            otherNodeStates = list(space.subspace(otherNodes, np.zeros(self.size, dtype=int)))
+            otherNodeStates = list(subspace(otherNodes, np.zeros(self.size, dtype=int)))
 
             jOnForced, jOffForced = True, True
             jOnForcedValue, jOffForcedValue = None, None

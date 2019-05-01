@@ -31,7 +31,7 @@ class TestLogicExamples(unittest.TestCase):
             self.assertEqual(ex.myeloid.update(state[:]), state)
 
         # Assert non-attractors.
-        for state in ex.myeloid.state_space():
+        for state in ex.myeloid:
             if state not in attractors:
                 self.assertNotEqual(ex.myeloid.update(state[:]), state)
 
@@ -51,7 +51,7 @@ class TestLogicExamples(unittest.TestCase):
             self.assertEqual(ex.myeloid_from_expr.update(state[:]), state)
 
         # Assert non-attractors.
-        for state in ex.myeloid.state_space():
+        for state in ex.myeloid:
             if state not in attractors:
                 self.assertNotEqual(
                     ex.myeloid_from_expr.update(state[:]), state)
@@ -89,7 +89,7 @@ class TestLogicExamples(unittest.TestCase):
             self.assertEqual(ex.mouse_cortical_7B.update(state[:]), state)
 
         # Assert non-attractors.
-        for state in ex.mouse_cortical_7B.state_space():
+        for state in ex.mouse_cortical_7B:
             if state not in attractors:
                 self.assertNotEqual(
                     ex.mouse_cortical_7B.update(state[:]), state)
@@ -116,7 +116,7 @@ class TestLogicExamples(unittest.TestCase):
                 ex.mouse_cortical_7B_from_expr.update(state[:]), state)
 
         # Assert non-attractors.
-        for state in ex.mouse_cortical_7B.state_space():
+        for state in ex.mouse_cortical_7B:
             if state not in attractors:
                 self.assertNotEqual(
                     ex.mouse_cortical_7B_from_expr.update(state[:]), state)
@@ -154,7 +154,7 @@ class TestLogicExamples(unittest.TestCase):
             self.assertEqual(ex.mouse_cortical_7C.update(state[:]), state)
 
         # Assert non-attractors.
-        for state in ex.mouse_cortical_7C.state_space():
+        for state in ex.mouse_cortical_7C:
             if state not in attractors:
                 self.assertNotEqual(
                     ex.mouse_cortical_7C.update(state[:]), state)
@@ -180,7 +180,7 @@ class TestLogicExamples(unittest.TestCase):
                 ex.mouse_cortical_7C_from_expr.update(state[:]), state)
 
         # Assert non-attractors.
-        for state in ex.mouse_cortical_7C.state_space():
+        for state in ex.mouse_cortical_7C:
             if state not in attractors:
                 self.assertNotEqual(
                     ex.mouse_cortical_7C_from_expr.update(state[:]), state)

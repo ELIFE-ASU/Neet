@@ -9,7 +9,6 @@ with an arbitrary rule.
 .. rubric:: Examples
 """
 import numpy as np
-from .statespace import BooleanSpace
 from .network import BooleanNetwork
 
 
@@ -100,7 +99,8 @@ class ECA(BooleanNetwork):
         if size < 1:
             raise ValueError("ECA size is negative")
         self._size = size
-        self._state_space = BooleanSpace(size)
+        self._volume = 2**size
+        self._shape = [2] * size
 
     @property
     def boundary(self):

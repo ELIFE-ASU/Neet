@@ -11,30 +11,24 @@ API Documentation
 -----------------
 """
 from abc import ABCMeta, abstractmethod
+from .python import long
+from .statespace import StateSpace
 import networkx as nx
 import six
 
 
 @six.add_metaclass(ABCMeta)
-class Network(object):
-    def __init__(self, size, names=None, metadata=None):
-        if not isinstance(size, int):
-            raise TypeError("Network size is not an int")
-        elif size < 1:
-            raise ValueError("Network size is negative")
+class Network(StateSpace):
+    def __init__(self, shape, names=None, metadata=None):
+        super(Network, self).__init__(shape)
 
         if metadata is None:
             metadata = dict()
         elif not isinstance(metadata, dict):
             raise TypeError('metadata is not a dict')
 
-        self._size = size
         self._metadata = metadata
         self.names = names
-
-    @property
-    def size(self):
-        return self._size
 
     @property
     def metadata(self):
@@ -58,17 +52,11 @@ class Network(object):
         self._names = names
 
     @abstractmethod
-    def state_space(self):
-        pass
-
-    @abstractmethod
     def _unsafe_update(self, state, index, pin, values, *args, **kwargs):
         pass
 
     def update(self, state, index=None, pin=None, values=None, *args, **kwargs):
-        space = self.state_space()
-
-        if state not in space:
+        if state not in self:
             raise ValueError("the provided state is not in the network's state space")
 
         if index is not None:
@@ -83,7 +71,7 @@ class Network(object):
                 if k in pin:
                     raise ValueError("cannot set a value for a pinned state")
         if values is not None:
-            bases = space.shape
+            bases = self.shape
             for key in values.keys():
                 val = values[key]
                 if val < 0 or val >= bases[key]:
@@ -129,3 +117,62 @@ class Network(object):
     def draw(self, filename=None, *args, **kwargs):
         graph = self.to_networkx_graph(*args, **kwargs)
         nx.nx_agraph.view_pygraphviz(graph, prog='circo', path=filename)
+
+
+class UniformNetwork(Network):
+    def __init__(self, size, base, names=None, metadata=None):
+        super(UniformNetwork, self).__init__([base] * size, names, metadata)
+        self._base = base
+
+    @property
+    def base(self):
+        return self._base
+
+    def __iter__(self):
+        size, base = self.size, self.base
+        state = [0] * size
+        yield state[:]
+        i = 0
+        while i != size:
+            if state[i] + 1 < base:
+                state[i] += 1
+                for j in range(i):
+                    state[j] = 0
+                i = 0
+                yield state[:]
+            else:
+                i += 1
+
+    def __contains__(self, state):
+        try:
+            if len(state) != self.size:
+                return False
+
+            base = self.base
+            for x in state:
+                if x < 0 or x >= base:
+                    return False
+            return True
+        except TypeError:
+            return False
+
+    def _unsafe_encode(self, state):
+        encoded, place = long(0), long(1)
+
+        base = self.base
+        for x in state:
+            encoded += place * long(x)
+            place *= base
+
+        return encoded
+
+    def decode(self, encoded):
+        size, base = self.size, self.base
+        state = [0] * size
+        for i in range(size):
+            state[i] = encoded % base
+            encoded = int(encoded / base)
+        return state
+
+
+Network.register(UniformNetwork)

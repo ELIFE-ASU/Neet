@@ -14,14 +14,14 @@ class StateSpace(object):
                     elif base < 1:
                         raise ValueError("shape may only contain positive elements")
                     self._volume *= base
-                self._ndim = len(shape)
+                self._size = len(shape)
                 self._shape = shape[:]
         else:
             raise TypeError("shape must be a list")
 
     @property
-    def ndim(self):
-        return self._ndim
+    def size(self):
+        return self._size
 
     @property
     def shape(self):
@@ -32,11 +32,11 @@ class StateSpace(object):
         return self._volume
 
     def __iter__(self):
-        ndim, shape = self.ndim, self.shape
-        state = [0] * ndim
+        size, shape = self.size, self.shape
+        state = [0] * size
         yield state[:]
         i = 0
-        while i != ndim:
+        while i != size:
             base = shape[i]
             if state[i] + 1 < base:
                 state[i] += 1
@@ -49,7 +49,7 @@ class StateSpace(object):
 
     def __contains__(self, states):
         try:
-            if len(states) != self.ndim:
+            if len(states) != self.size:
                 return False
 
             for state, base in zip(states, self.shape):
@@ -75,8 +75,8 @@ class StateSpace(object):
         return self._unsafe_encode(state)
 
     def decode(self, encoded):
-        ndim = self.ndim
-        state = [0] * ndim
+        size = self.size
+        state = [0] * size
         for (i, base) in enumerate(self.shape):
             state[i] = encoded % base
             encoded = int(encoded / base)
@@ -84,8 +84,8 @@ class StateSpace(object):
 
 
 class UniformSpace(StateSpace):
-    def __init__(self, ndim, base):
-        super(UniformSpace, self).__init__([base] * ndim)
+    def __init__(self, size, base):
+        super(UniformSpace, self).__init__([base] * size)
         self._base = base
 
     @property
@@ -93,11 +93,11 @@ class UniformSpace(StateSpace):
         return self._base
 
     def __iter__(self):
-        ndim, base = self.ndim, self.base
-        state = [0] * ndim
+        size, base = self.size, self.base
+        state = [0] * size
         yield state[:]
         i = 0
-        while i != ndim:
+        while i != size:
             if state[i] + 1 < base:
                 state[i] += 1
                 for j in range(i):
@@ -109,7 +109,7 @@ class UniformSpace(StateSpace):
 
     def __contains__(self, state):
         try:
-            if len(state) != self.ndim:
+            if len(state) != self.size:
                 return False
 
             base = self.base
@@ -131,9 +131,9 @@ class UniformSpace(StateSpace):
         return encoded
 
     def decode(self, encoded):
-        ndim, base = self.ndim, self.base
-        state = [0] * ndim
-        for i in range(ndim):
+        size, base = self.size, self.base
+        state = [0] * size
+        for i in range(size):
             state[i] = encoded % base
             encoded = int(encoded / base)
         return state

@@ -268,7 +268,7 @@ class LogicNetwork(BooleanNetwork):
         :type values: dict
         :returns: the updated states
         """
-        encoded_state = self.state_space()._unsafe_encode(net_state)
+        encoded_state = self._unsafe_encode(net_state)
 
         if index is None:
             indices = range(self.size)

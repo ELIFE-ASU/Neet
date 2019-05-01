@@ -8,7 +8,7 @@ import unittest
 
 class TestNetwork(unittest.TestCase):
     def test_is_network(self):
-        net = MockNetwork(5)
+        net = MockNetwork([3, 3, 3, 3, 3])
         self.assertTrue(isinstance(net, Network))
 
         not_net = MockObject()
@@ -19,7 +19,7 @@ class TestNetwork(unittest.TestCase):
     def test_is_boolean_network(self):
         self.assertTrue(isinstance(MockBooleanNetwork(5), BooleanNetwork))
 
-        self.assertFalse(isinstance(MockNetwork(5), BooleanNetwork))
+        self.assertFalse(isinstance(MockNetwork([4, 3, 2, 4, 5]), BooleanNetwork))
 
     def test_neighbors_ECA(self):
         eca = bnet.ECA(30, 4)

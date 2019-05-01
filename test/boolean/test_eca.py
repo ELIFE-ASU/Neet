@@ -98,9 +98,9 @@ class TestECA(unittest.TestCase):
             eca.boundary = [0, 1]
 
     def test_state_space(self):
-        self.assertEqual(2, len(list(ECA(30, 1).state_space())))
-        self.assertEqual(4, len(list(ECA(30, 2).state_space())))
-        self.assertEqual(8, len(list(ECA(30, 3).state_space())))
+        self.assertEqual(2, len(list(ECA(30, 1))))
+        self.assertEqual(4, len(list(ECA(30, 2))))
+        self.assertEqual(8, len(list(ECA(30, 3))))
 
     def test_invalid_lattice_state_update(self):
         eca = ECA(30, 3)
@@ -172,8 +172,7 @@ class TestECA(unittest.TestCase):
         eca = ECA(45, 14)
         lattice = [1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1]
         expected = [0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
-        state_space = eca.state_space()
-        if lattice in state_space:
+        if lattice in eca:
             for n in range(1000):
                 eca._unsafe_update(lattice)
         self.assertEqual(expected, lattice)
@@ -182,8 +181,7 @@ class TestECA(unittest.TestCase):
         eca = ECA(45, 14, (0, 1))
         lattice = [1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1]
         expected = [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1]
-        state_space = eca.state_space()
-        if lattice in state_space:
+        if lattice in eca:
             for n in range(1000):
                 eca._unsafe_update(lattice)
         self.assertEqual(expected, lattice)
