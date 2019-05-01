@@ -266,17 +266,15 @@ class TestLandscape(unittest.TestCase):
     def test_is_state_space(self):
         self.assertTrue(issubclass(Landscape, StateSpace))
 
-        space = s_pombe.state_space()
         landscape = Landscape(s_pombe)
-        self.assertEqual(list(space), list(landscape))
-        self.assertEqual([space.encode(state) for state in space],
+        self.assertEqual(list(s_pombe), list(landscape))
+        self.assertEqual([s_pombe.encode(state) for state in s_pombe],
                          list(map(landscape.encode, landscape)))
 
         ca = ECA(30, 10)
-        space = ca.state_space()
         landscape = Landscape(ca)
-        self.assertEqual(list(space), list(landscape))
-        self.assertEqual([space.encode(state) for state in space],
+        self.assertEqual(list(ca), list(landscape))
+        self.assertEqual([ca.encode(state) for state in ca],
                          list(map(landscape.encode, landscape)))
 
     def test_attractors_eca(self):
@@ -500,7 +498,7 @@ class TestLandscape(unittest.TestCase):
             time = 10
             series = landscape.timeseries(time)
             self.assertEqual((size, 2**size, time + 1), series.shape)
-            for index, state in enumerate(rule.state_space()):
+            for index, state in enumerate(rule):
                 traj = landscape.trajectory(state, timesteps=time)
                 for t, expect in enumerate(traj):
                     got = series[:, index, t]
@@ -512,7 +510,7 @@ class TestLandscape(unittest.TestCase):
             time = 10
             series = landscape.timeseries(time)
             self.assertEqual((size, 2**size, time + 1), series.shape)
-            for index, state in enumerate(net.state_space()):
+            for index, state in enumerate(net):
                 traj = landscape.trajectory(state, timesteps=time)
                 for t, expect in enumerate(traj):
                     got = series[:, index, t]

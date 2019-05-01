@@ -1,4 +1,3 @@
-import neet.statespace
 from neet.network import Network
 from neet.boolean.network import BooleanNetwork
 
@@ -14,6 +13,7 @@ class MockNetwork(Network):
     """
     A mock network
     """
+
     def __init__(self, size):
         """
         mock init simply calls super's __init__
@@ -25,12 +25,6 @@ class MockNetwork(Network):
         mock update method
         """
         pass
-
-    def state_space(self):
-        """
-        mock state space method
-        """
-        return neet.statespace.StateSpace(self.size)
 
     def neighbors_in(self, *args, **kwargs):
         """
@@ -52,6 +46,7 @@ class MockBooleanNetwork(BooleanNetwork):
     """
     A mock Boolean network
     """
+
     def __init__(self, size):
         """
         mock init simply calls super's __init__

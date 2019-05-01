@@ -58,10 +58,8 @@ class Landscape(StateSpace):
 
         if not isinstance(net, Network):
             raise TypeError("net is not a network")
-        else:
-            state_space = net.state_space()
 
-        super(Landscape, self).__init__(state_space.shape)
+        super(Landscape, self).__init__(net.shape)
 
         self.__net = net
         self.__index = index
@@ -87,21 +85,6 @@ class Landscape(StateSpace):
             <neet.boolean.wtnetwork.WTNetwork object at 0x...>
         """
         return self.__net
-
-    @property
-    def size(self):
-        """
-        The number of nodes in the landscape's dynamical network
-
-        .. rubric:: Examples
-
-        .. doctest:: synchronous
-
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.size
-            9
-        """
-        return self.ndim
 
     @property
     def transitions(self):
@@ -608,7 +591,7 @@ class Landscape(StateSpace):
         decode = self.decode
         decoded_trans = [decode(state) for state in trans]
 
-        shape = (self.ndim, self.volume, timesteps + 1)
+        shape = (self.size, self.volume, timesteps + 1)
         series = np.empty(shape, dtype=np.int)
 
         for index, init in enumerate(self):

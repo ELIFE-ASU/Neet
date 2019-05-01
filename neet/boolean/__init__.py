@@ -10,7 +10,7 @@ The :mod:`neet.boolean` module provides network types (:class:`WTNetwork` and
 API Documentation
 -----------------
 """
-from .eca import ECA # noqa
-from .reca import RewiredECA # noqa
+from .eca import ECA  # noqa
+from .reca import RewiredECA  # noqa
 from .wtnetwork import WTNetwork  # noqa
 from .logicnetwork import LogicNetwork  # noqa

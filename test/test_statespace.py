@@ -30,23 +30,23 @@ class TestStateSpace(unittest.TestCase):
 
     def test_uniform_shape(self):
         space = StateSpace([2, 2, 2, 2, 2])
-        self.assertEqual(5, space.ndim)
+        self.assertEqual(5, space.size)
         self.assertEqual([2, 2, 2, 2, 2], space.shape)
         self.assertEqual(32, space.volume)
 
         space = StateSpace([4, 4, 4, 4, 4, 4, 4, 4])
-        self.assertEqual(8, space.ndim)
+        self.assertEqual(8, space.size)
         self.assertEqual([4, 4, 4, 4, 4, 4, 4, 4], space.shape)
         self.assertEqual(65536, space.volume)
 
         space = StateSpace([3, 3, 3, 3])
-        self.assertEqual(4, space.ndim)
+        self.assertEqual(4, space.size)
         self.assertEqual([3, 3, 3, 3], space.shape)
         self.assertEqual(81, space.volume)
 
     def test_nonuniform_shape(self):
         space = StateSpace([1, 2, 3, 2, 1])
-        self.assertEqual(5, space.ndim)
+        self.assertEqual(5, space.size)
         self.assertEqual([1, 2, 3, 2, 1], space.shape)
         self.assertEqual(12, space.volume)
 
@@ -229,7 +229,7 @@ class TestStateSpace(unittest.TestCase):
 
 
 class TestUniformSpace(unittest.TestCase):
-    def test_invalid_ndim_type(self):
+    def test_invalid_size_type(self):
         with self.assertRaises(TypeError):
             UniformSpace('a', 2)
 
@@ -264,63 +264,63 @@ class TestUniformSpace(unittest.TestCase):
             UniformSpace(5, -1)
 
     def test_shape(self):
-        space = UniformSpace(ndim=5, base=2)
+        space = UniformSpace(size=5, base=2)
         self.assertEqual(2, space.base)
         self.assertEqual(32, space.volume)
-        self.assertEqual(5, space.ndim)
+        self.assertEqual(5, space.size)
         self.assertEqual([2, 2, 2, 2, 2], space.shape)
 
-        space = UniformSpace(ndim=8, base=4)
+        space = UniformSpace(size=8, base=4)
         self.assertEqual(4, space.base)
         self.assertEqual(65536, space.volume)
-        self.assertEqual(8, space.ndim)
+        self.assertEqual(8, space.size)
         self.assertEqual([4, 4, 4, 4, 4, 4, 4, 4], space.shape)
 
     def test_states_boolean(self):
-        space = UniformSpace(ndim=1, base=2)
+        space = UniformSpace(size=1, base=2)
         self.assertEqual([[0], [1]], list(space))
 
-        space = UniformSpace(ndim=2, base=2)
+        space = UniformSpace(size=2, base=2)
         self.assertEqual([[0, 0], [1, 0], [0, 1], [1, 1]], list(space))
 
-        space = UniformSpace(ndim=3, base=2)
+        space = UniformSpace(size=3, base=2)
         self.assertEqual([[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0],
                           [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]],
                          list(space))
 
     def test_states_nonboolean(self):
-        space = UniformSpace(ndim=1, base=1)
+        space = UniformSpace(size=1, base=1)
         self.assertEqual([[0]], list(space))
 
-        space = UniformSpace(ndim=1, base=3)
+        space = UniformSpace(size=1, base=3)
         self.assertEqual([[0], [1], [2]], list(space))
 
-        space = UniformSpace(ndim=2, base=1)
+        space = UniformSpace(size=2, base=1)
         self.assertEqual([[0, 0]], list(space))
 
-        space = UniformSpace(ndim=2, base=3)
+        space = UniformSpace(size=2, base=3)
         self.assertEqual([[0, 0], [1, 0], [2, 0],
                           [0, 1], [1, 1], [2, 1],
                           [0, 2], [1, 2], [2, 2]],
                          list(space))
 
     def test_states_count(self):
-        space = UniformSpace(ndim=5, base=3)
+        space = UniformSpace(size=5, base=3)
         count = 0
         for state in space:
             count += 1
         self.assertEqual(3**5, count)
 
     def test_encoding_error(self):
-        space = UniformSpace(ndim=3, base=2)
+        space = UniformSpace(size=3, base=2)
         with self.assertRaises(ValueError):
             space.encode([1, 1])
 
-        space = UniformSpace(ndim=1, base=2)
+        space = UniformSpace(size=1, base=2)
         with self.assertRaises(ValueError):
             space.encode([2])
 
-        space = UniformSpace(ndim=2, base=3)
+        space = UniformSpace(size=2, base=3)
         with self.assertRaises(ValueError):
             space.encode([1, 3])
 
@@ -328,9 +328,9 @@ class TestUniformSpace(unittest.TestCase):
             space.encode([1, -1])
 
     def test_encoding(self):
-        for ndim in range(1, 5):
+        for size in range(1, 5):
             for base in range(1, 5):
-                space = UniformSpace(ndim, base)
+                space = UniformSpace(size, base)
                 counter = 0
                 for state in space:
                     encoding = space.encode(state)
@@ -338,33 +338,33 @@ class TestUniformSpace(unittest.TestCase):
                     counter += 1
 
     def test_decoding(self):
-        for ndim in range(1, 5):
+        for size in range(1, 5):
             for base in range(1, 5):
-                space = UniformSpace(ndim, base)
+                space = UniformSpace(size, base)
                 states = list(space)
                 decoded = list(map(space.decode, range(space.volume)))
                 self.assertEqual(states, decoded)
 
     def test_encode_decode(self):
-        for ndim in range(1, 5):
+        for size in range(1, 5):
             for base in range(1, 5):
-                space = UniformSpace(ndim, base)
+                space = UniformSpace(size, base)
                 for state in space:
                     encoded = space.encode(state)
                     decoded = space.decode(encoded)
                     self.assertEqual(state, decoded)
 
     def test_decode_encode(self):
-        for ndim in range(1, 5):
+        for size in range(1, 5):
             for base in range(1, 5):
-                space = UniformSpace(ndim, base)
-                for i in range(base**ndim):
+                space = UniformSpace(size, base)
+                for i in range(base**size):
                     decoded = space.decode(i)
                     encoded = space.encode(decoded)
                     self.assertEqual(i, encoded)
 
     def test_check_states(self):
-        state_space = UniformSpace(ndim=3, base=2)
+        state_space = UniformSpace(size=3, base=2)
         self.assertTrue([0, 1, 1] in state_space)
         self.assertFalse([0, 0] in state_space)
         self.assertFalse([1, 2, 0] in state_space)
@@ -376,7 +376,7 @@ class TestUniformSpace(unittest.TestCase):
         self.assertFalse(1 in state_space)
         self.assertFalse("string" in state_space)
 
-        state_space = UniformSpace(ndim=3, base=3)
+        state_space = UniformSpace(size=3, base=3)
         self.assertTrue([0, 1, 1] in state_space)
         self.assertFalse([0, 0] in state_space)
         self.assertTrue([1, 2, 0] in state_space)
@@ -391,14 +391,14 @@ class TestUniformSpace(unittest.TestCase):
         self.assertFalse("string" in state_space)
 
     def test_long_encoding(self):
-        state_space = UniformSpace(ndim=10, base=2)
+        state_space = UniformSpace(size=10, base=2)
         code = state_space.encode(np.ones(10, dtype=int))
         self.assertIsInstance(code, long)
 
-        state_space = UniformSpace(ndim=68, base=2)
+        state_space = UniformSpace(size=68, base=2)
         code = state_space.encode(np.ones(68, dtype=int))
         self.assertIsInstance(code, long)
 
-        state_space = UniformSpace(ndim=100, base=2)
+        state_space = UniformSpace(size=100, base=2)
         code = state_space.encode(np.ones(100, dtype=int))
         self.assertIsInstance(code, long)

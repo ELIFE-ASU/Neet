@@ -4,15 +4,15 @@ import copy
 
 
 class BooleanSpace(UniformSpace):
-    def __init__(self, ndim):
-        super(BooleanSpace, self).__init__(ndim, base=2)
+    def __init__(self, size):
+        super(BooleanSpace, self).__init__(size, base=2)
 
     def __iter__(self):
-        ndim = self.ndim
-        state = [0] * ndim
+        size = self.size
+        state = [0] * size
         yield state[:]
         i = 0
-        while i != ndim:
+        while i != size:
             if state[i] == 0:
                 state[i] = 1
                 for j in range(i):
@@ -24,7 +24,7 @@ class BooleanSpace(UniformSpace):
 
     def __contains__(self, state):
         try:
-            if len(state) != self.ndim:
+            if len(state) != self.size:
                 return False
 
             for x in state:
@@ -42,20 +42,20 @@ class BooleanSpace(UniformSpace):
         return encoded
 
     def decode(self, encoded):
-        ndim = self.ndim
-        state = [0] * ndim
-        for i in range(ndim):
+        size = self.size
+        state = [0] * size
+        for i in range(size):
             state[i] = encoded & 1
             encoded >>= 1
         return state
 
     def subspace(self, indices, state=None):
-        ndim = self.ndim
+        size = self.size
 
         if state is not None and state not in self:
             raise ValueError('provided state is not in the state space')
         elif state is None:
-            state = [0] * ndim
+            state = [0] * size
 
         indices = list(set(indices))
         indices.sort()
@@ -63,9 +63,9 @@ class BooleanSpace(UniformSpace):
 
         if nindices == 0:
             yield copy.copy(state)
-        elif indices[0] < 0 or indices[-1] >= ndim:
+        elif indices[0] < 0 or indices[-1] >= size:
             raise IndexError('index out of range')
-        elif nindices == ndim:
+        elif nindices == size:
             for state in self:
                 yield state
         else:
@@ -87,8 +87,8 @@ class BooleanSpace(UniformSpace):
     def hamming_neighbors(self, state):
         if state not in self:
             raise ValueError('state is not in state space')
-        neighbors = [None] * self.ndim
-        for i in range(self.ndim):
+        neighbors = [None] * self.size
+        for i in range(self.size):
             neighbors[i] = copy.copy(state)
             neighbors[i][i] ^= 1
         return neighbors
@@ -99,6 +99,6 @@ class BooleanSpace(UniformSpace):
         if b not in self:
             raise ValueError('second state is not in state space')
         out = 0
-        for i in range(self.ndim):
+        for i in range(self.size):
             out += a[i] ^ b[i]
         return out

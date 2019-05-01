@@ -133,11 +133,11 @@ class TestWTNetwork(unittest.TestCase):
 
     def test_state_space(self):
         net = bnet.WTNetwork([[1]])
-        self.assertEqual(2, len(list(net.state_space())))
+        self.assertEqual(2, len(list(net)))
         net = bnet.WTNetwork([[1, 0], [1, 1]])
-        self.assertEqual(4, len(list(net.state_space())))
+        self.assertEqual(4, len(list(net)))
         net = bnet.WTNetwork([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        self.assertEqual(8, len(list(net.state_space())))
+        self.assertEqual(8, len(list(net)))
 
     def test_update_empty_states(self):
         net = bnet.WTNetwork([[1, 0], [1, 1]])
@@ -374,7 +374,7 @@ class TestWTNetwork(unittest.TestCase):
             [0.0, -0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
 
         self.assertEqual(9, net.size)
-        self.assertEqual(512, len(list(net.state_space())))
+        self.assertEqual(512, len(list(net)))
 
         init = [1, 0, 1, 1, 0, 0, 1, 0, 0]
         bio_sequence = [[0, 0, 0, 0, 0, 0, 1, 0, 0],
@@ -403,7 +403,7 @@ class TestWTNetwork(unittest.TestCase):
             [0.0, -0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0])
 
         self.assertEqual(9, net.size)
-        self.assertEqual(512, len(list(net.state_space())))
+        self.assertEqual(512, len(list(net)))
 
         init = np.asarray([1, 0, 1, 1, 0, 0, 1, 0, 0])
         bio_sequence = np.asarray([[0, 0, 0, 0, 0, 0, 1, 0, 0],

@@ -50,7 +50,7 @@ class TestSensitivity(unittest.TestCase):
         s = net.average_sensitivity(weights=np.ones(8))
         self.assertAlmostEqual(s, 1.3333333333333333)
 
-        s = net.average_sensitivity(states=net.state_space())
+        s = net.average_sensitivity(states=list(net))
         self.assertAlmostEqual(s, 1.3333333333333333)
 
     def test_lambdaQ_logic_network(self):
