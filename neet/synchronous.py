@@ -647,4 +647,6 @@ class Landscape(StateSpace):
 
         :param pygraphkwargs: kwargs to pass to view_pygraphviz
         """
+        if not self.__graph:
+            self.graph
         nx.nx_agraph.view_pygraphviz(self.__graph, **pygraphkwargs)
