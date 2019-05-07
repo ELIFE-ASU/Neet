@@ -114,10 +114,9 @@ class Network(StateSpace):
         kwargs.update(self.metadata)
         return nx.DiGraph(edges, **kwargs)
 
-    def draw(self, filename=None, *args, **kwargs):
-        graph = self.to_networkx_graph(*args, **kwargs)
-        nx.nx_agraph.view_pygraphviz(graph, prog='circo', path=filename)
-
+    def draw(self, graphargs=dict(), graphkwargs=dict(), pygraphargs=dict(), pygraphkwargs={'prog':'circo'}):
+        graph = self.to_networkx_graph(*graphargs, **graphkwargs)
+        nx.nx_agraph.view_pygraphviz(graph, *pygraphargs, **pygraphkwargs)
 
 class UniformNetwork(Network):
     def __init__(self, size, base, names=None, metadata=None):
