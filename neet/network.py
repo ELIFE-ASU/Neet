@@ -100,7 +100,7 @@ class Network(StateSpace):
             outputs = self.neighbors_out(index, *args, **kwargs)
             return inputs.union(outputs)
 
-    def to_networkx_graph(self, labels='indices', *args, **kwargs):
+    def to_networkx_graph(self, labels='indices', **kwargs):
         if labels == 'indices':
             edges = [(i, j) for i in range(self.size) for j in self.neighbors_out(i)]
         elif labels == 'names' and self.names is not None:
@@ -114,9 +114,9 @@ class Network(StateSpace):
         kwargs.update(self.metadata)
         return nx.DiGraph(edges, **kwargs)
 
-    def draw(self, graphargs=dict(), graphkwargs=dict(), pygraphargs=dict(), pygraphkwargs={'prog':'circo'}):
-        graph = self.to_networkx_graph(*graphargs, **graphkwargs)
-        nx.nx_agraph.view_pygraphviz(graph, *pygraphargs, **pygraphkwargs)
+    def draw(self, graphkwargs=dict(), pygraphkwargs={'prog':'circo'}):
+        graph = self.to_networkx_graph(**graphkwargs)
+        nx.nx_agraph.view_pygraphviz(graph,**pygraphkwargs)
 
 class UniformNetwork(Network):
     def __init__(self, size, base, names=None, metadata=None):

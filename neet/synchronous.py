@@ -636,3 +636,15 @@ class Landscape(StateSpace):
             self.__expound()
         dist = pi.Dist(self.__basin_sizes)
         return pi.shannon.entropy(dist, b=base)
+
+    def draw(self, pygraphkwargs={'prog':'dot'}):
+        """
+        Draw networkx graph using PyGraphviz. 
+        
+        Requires graphviz (cannot be installed via pip--see: 
+        https://graphviz.gitlab.io/download/) and pygraphviz 
+        (can be installed via pip).
+
+        :param pygraphkwargs: kwargs to pass to view_pygraphviz
+        """
+        nx.nx_agraph.view_pygraphviz(self.__graph, **pygraphkwargs)
