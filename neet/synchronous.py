@@ -53,6 +53,10 @@ class LandscapeMixin:
     __landscaped = False
     __landscape_data = LandscapeData()
 
+    def clear_landscape(self):
+        self.__landscaped = False
+        self.__landscape_data = LandscapeData()
+
     def landscape(self, index=None, pin=None, values=None):
         """
         Construct the landscape for a network.
@@ -73,7 +77,6 @@ class LandscapeMixin:
         :raises TypeError: if ``net`` is not a network
         """
 
-        self.__landscape_data = LandscapeData()
         self.__index = index
         self.__pin = pin
         self.__values = values
@@ -91,6 +94,7 @@ class LandscapeMixin:
                                            pin=self.__pin,
                                            values=self.__values))
 
+        self.clear_landscape()
         self.__landscape_data.transitions = transitions
         self.__landscaped = True
 
