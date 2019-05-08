@@ -1,9 +1,7 @@
 import unittest
 from neet.boolean import ECA, WTNetwork, LogicNetwork
 from neet.boolean.examples import s_pombe, s_cerevisiae, c_elegans
-from neet.statespace import StateSpace
 import numpy as np
-from .mock import MockObject
 
 
 class TestLandscape(unittest.TestCase):

@@ -24,7 +24,6 @@ API Documentation
 import networkx as nx
 import numpy as np
 import pyinform as pi
-from .statespace import StateSpace
 
 
 class LandscapeMixin:
@@ -644,12 +643,12 @@ class LandscapeMixin:
         dist = pi.Dist(self.__data.basin_sizes)
         return pi.shannon.entropy(dist, b=base)
 
-    def draw(self, pygraphkwargs={'prog':'dot'}):
+    def draw(self, pygraphkwargs={'prog': 'dot'}):
         """
-        Draw networkx graph using PyGraphviz. 
-        
-        Requires graphviz (cannot be installed via pip--see: 
-        https://graphviz.gitlab.io/download/) and pygraphviz 
+        Draw networkx graph using PyGraphviz.
+
+        Requires graphviz (cannot be installed via pip--see:
+        https://graphviz.gitlab.io/download/) and pygraphviz
         (can be installed via pip).
 
         :param pygraphkwargs: kwargs to pass to view_pygraphviz
@@ -660,16 +659,17 @@ class LandscapeMixin:
             self.graph
         nx.nx_agraph.view_pygraphviz(self.__transition_graph, **pygraphkwargs)
 
+
 class LandscapeData(object):
     """
-    The ``LandscapeData`` class stores the attributes calcluated in the 
+    The ``LandscapeData`` class stores the attributes calcluated in the
     ``Landscape`` class.
     """
     transitions = None
-    basins = None 
-    basin_sizes = None 
-    attractors = None 
-    attractor_lengths = None 
-    in_degrees = None 
-    heights = None 
-    recurrence_times = None 
+    basins = None
+    basin_sizes = None
+    attractors = None
+    attractor_lengths = None
+    in_degrees = None
+    heights = None
+    recurrence_times = None
