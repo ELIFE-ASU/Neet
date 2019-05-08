@@ -21,7 +21,6 @@ class BooleanNetwork(SensitivityMixin, UniformNetwork):
         super(BooleanNetwork, self).__init__(size, 2, names, metadata)
 
     def __iter__(self):
-        print "yes"
         size = self.size
         state = [0] * size
         yield state[:]
