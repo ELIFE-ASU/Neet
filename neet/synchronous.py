@@ -26,6 +26,22 @@ import numpy as np
 import pyinform as pi
 
 
+class LandscapeData(object):
+    """
+    The ``LandscapeData`` class stores the attributes calcluated in the
+    ``Landscape`` class.
+    """
+    transitions = None
+    basins = None
+    basin_sizes = None
+    attractors = None
+    attractor_lengths = None
+    in_degrees = None
+    heights = None
+    recurrence_times = None
+    basin_entropy = None
+
+
 class LandscapeMixin:
     """
     The ``Landscape`` class represents the structure and topology of the
@@ -33,6 +49,9 @@ class LandscapeMixin:
     together with information about state transitions and the topology of
     the state transition graph.
     """
+
+    __landscaped = False
+    __landscape_data = LandscapeData()
 
     def landscape(self, index=None, pin=None, values=None):
         """
@@ -54,7 +73,7 @@ class LandscapeMixin:
         :raises TypeError: if ``net`` is not a network
         """
 
-        self.__data = LandscapeData()
+        self.__landscape_data = LandscapeData()
         self.__index = index
         self.__pin = pin
         self.__values = values
@@ -62,9 +81,24 @@ class LandscapeMixin:
         self.__expounded = False
         self.__transition_graph = None
 
-        self.__setup()
-        self._landscaped = True
+        update = self._unsafe_update
+        encode = self._unsafe_encode
+
+        transitions = np.empty(self.volume, dtype=np.int)
+        for i, state in enumerate(self):
+            transitions[i] = encode(update(state,
+                                           index=self.__index,
+                                           pin=self.__pin,
+                                           values=self.__values))
+
+        self.__landscape_data.transitions = transitions
+        self.__landscaped = True
+
         return self
+
+    @property
+    def landscape_data(self):
+        return self.__landscape_data
 
     @property
     def transitions(self):
@@ -86,9 +120,9 @@ class LandscapeMixin:
                    208, 208, 336, 336, 464, 464, 340, 336, 464, 464, 344, 336, 464,
                    464, 348, 336, 464, 464])
         """
-        if not self._landscaped:
+        if not self.__landscaped:
             self.landscape()
-        return self.__data.transitions
+        return self.__landscape_data.transitions
 
     @property
     def attractors(self):
@@ -109,11 +143,11 @@ class LandscapeMixin:
                    array([136]), array([140]), array([196]), array([200]),
                    array([204])], dtype=object)
         """
-        if not self._landscaped:
+        if not self.__landscaped:
             self.landscape()
         if not self.__expounded:
-            self.__expound()
-        return self.__data.attractors
+            self.expound()
+        return self.__landscape_data.attractors
 
     @property
     def basins(self):
@@ -132,11 +166,11 @@ class LandscapeMixin:
                     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                     0,  0])
         """
-        if not self._landscaped:
+        if not self.__landscaped:
             self.landscape()
         if not self.__expounded:
-            self.__expound()
-        return self.__data.basins
+            self.expound()
+        return self.__landscape_data.basins
 
     @property
     def basin_sizes(self):
@@ -151,11 +185,11 @@ class LandscapeMixin:
             >>> landscape.basin_sizes
             array([378,   2,   2,   2, 104,   6,   6,   2,   2,   2,   2,   2,   2])
         """
-        if not self._landscaped:
+        if not self.__landscaped:
             self.landscape()
         if not self.__expounded:
-            self.__expound()
-        return self.__data.basin_sizes
+            self.expound()
+        return self.__landscape_data.basin_sizes
 
     @property
     def in_degrees(self):
@@ -174,11 +208,11 @@ class LandscapeMixin:
                     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                     0,  0])
         """
-        if not self._landscaped:
+        if not self.__landscaped:
             self.landscape()
         if not self.__expounded:
-            self.__expound()
-        return self.__data.in_degrees
+            self.expound()
+        return self.__landscape_data.in_degrees
 
     @property
     def heights(self):
@@ -200,11 +234,11 @@ class LandscapeMixin:
                    3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
                    3, 3, 3, 3, 3, 3])
         """
-        if not self._landscaped:
+        if not self.__landscaped:
             self.landscape()
         if not self.__expounded:
-            self.__expound()
-        return self.__data.heights
+            self.expound()
+        return self.__landscape_data.heights
 
     @property
     def attractor_lengths(self):
@@ -220,11 +254,11 @@ class LandscapeMixin:
             >>> landscape.attractor_lengths
             array([1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1])
         """
-        if not self._landscaped:
+        if not self.__landscaped:
             self.landscape()
         if not self.__expounded:
-            self.__expound()
-        return self.__data.attractor_lengths
+            self.expound()
+        return self.__landscape_data.attractor_lengths
 
     @property
     def recurrence_times(self):
@@ -246,11 +280,11 @@ class LandscapeMixin:
                    3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
                    3, 3, 3, 3, 3, 3])
         """
-        if not self._landscaped:
+        if not self.__landscaped:
             self.landscape()
         if not self.__expounded:
-            self.__expound()
-        return self.__data.recurrence_times
+            self.expound()
+        return self.__landscape_data.recurrence_times
 
     @property
     def transition_graph(self):
@@ -266,32 +300,42 @@ class LandscapeMixin:
             >>> landscape.graph
             <networkx.classes.digraph.DiGraph object at 0x106504810>
         """
-        if not self._landscaped:
+        if not self.__landscaped:
             self.landscape()
         if self.__transition_graph is None:
-            self.__transition_graph = nx.DiGraph(list(enumerate(self.__data.transitions)))
+            self.__transition_graph = nx.DiGraph(
+                list(enumerate(self.__landscape_data.transitions)))
         return self.__transition_graph
 
-    def __setup(self):
+    @property
+    def basin_entropy(self):
         """
-        This function performs all of the initilization-time setup of
-        the ``Landscape`` object. At present this is limited to
-        computing the state transitions array, but subsequent versions
-        may expand the work that ``__setup`` does.
+        Compute the basin entropy of the landscape [Krawitz2007]_.
+
+        This method computes the Shannon entropy (in bits) of the
+        distribution of basin sizes.
+
+        .. rubric:: Examples
+
+        .. doctest:: synchronous
+
+            >>> landscape = Landscape(s_pombe)
+            >>> landscape.basin_entropy()
+            1.221888833884975
+            >>> landscape.basin_entropy(base=2)
+            1.221888833884975
+
+        :type base: a number or ``None``
+        :return: the basin entropy of the landscape of type ``float``
         """
-        update = self._unsafe_update
-        encode = self._unsafe_encode
+        if not self.__landscaped:
+            self.landscape()
+        if not self.__expounded:
+            self.expound()
 
-        transitions = np.empty(self.volume, dtype=np.int)
-        for i, state in enumerate(self):
-            transitions[i] = encode(update(state,
-                                           index=self.__index,
-                                           pin=self.__pin,
-                                           values=self.__values))
+        return self.__landscape_data.basin_entropy
 
-        self.__data.transitions = transitions
-
-    def __expound(self):
+    def expound(self):
         """
         This function performs the bulk of the calculations that the
         ``Landscape`` is concerned with. Most of the properties in this
@@ -311,8 +355,11 @@ class LandscapeMixin:
             - :method:`attractor_lengths`
             - :method:`recurrence_times`
         """
+        if not self.__landscaped:
+            self.landscape()
+
         # Get the state transitions
-        trans = self.__data.transitions
+        trans = self.__landscape_data.transitions
         # Create an array to store whether a given state has visited
         visited = np.zeros(self.volume, dtype=np.bool)
         # Create an array to store which attractor basin each state is in
@@ -435,14 +482,22 @@ class LandscapeMixin:
             if len(cycle) != 0:
                 attractors.append(np.asarray(cycle, dtype=np.int))
 
-        self.__data.basins = basins
-        self.__data.basin_sizes = np.asarray(basin_sizes)
-        self.__data.attractors = np.asarray(attractors)
-        self.__data.attractor_lengths = np.asarray(attractor_lengths)
-        self.__data.in_degrees = in_degrees
-        self.__data.heights = heights
-        self.__data.recurrence_times = np.asarray(recurrence_times)
+        data = self.__landscape_data
+
+        data.basins = basins
+        data.basin_sizes = np.asarray(basin_sizes)
+        data.attractors = np.asarray(attractors)
+        data.attractor_lengths = np.asarray(attractor_lengths)
+        data.in_degrees = in_degrees
+        data.heights = heights
+        data.recurrence_times = np.asarray(recurrence_times)
+
+        dist = pi.Dist(self.__landscape_data.basin_sizes)
+        data.basin_entropy = pi.shannon.entropy(dist, b=2)
+
         self.__expounded = True
+
+        return self
 
     def trajectory(self, init, timesteps=None, encode=None):
         """
@@ -495,7 +550,7 @@ class LandscapeMixin:
         :raises ValueError: if ``init`` an empty array
         :raises ValueError: if ``timesteps`` is less than :math:`1`
         """
-        if not self._landscaped:
+        if not self.__landscaped:
             self.landscape()
 
         decoded = isinstance(init, list) or isinstance(init, np.ndarray)
@@ -509,7 +564,7 @@ class LandscapeMixin:
         elif encode is None:
             encode = True
 
-        trans = self.__data.transitions
+        trans = self.__landscape_data.transitions
         if timesteps is not None:
             if timesteps < 1:
                 raise ValueError("number of steps must be positive, non-zero")
@@ -585,13 +640,13 @@ class LandscapeMixin:
 
         :raises ValueError: if ``timesteps`` is less than :math:`1`
         """
-        if not self._landscaped:
+        if not self.__landscaped:
             self.landscape()
 
         if timesteps < 1:
             raise ValueError("number of steps must be positive, non-zero")
 
-        trans = self.__data.transitions
+        trans = self.__landscape_data.transitions
         decode = self.decode
         decoded_trans = [decode(state) for state in trans]
 
@@ -607,42 +662,6 @@ class LandscapeMixin:
 
         return series
 
-    def basin_entropy(self, base=2.0):
-        """
-        Compute the basin entropy of the landscape [Krawitz2007]_.
-
-        This method computes the Shannon entropy of the distribution of
-        basin sizes. The base of the logarithm is chosen to be the
-        number of basins so that the result is :math:`0 \\leq h \\leq 1`.
-        If there is fewer than :math:`2` basins, then the base is taken
-        to be :math:`2` so that the result is never `NaN`. The base can
-        be forcibly overridden with the ``base`` keyword argument.
-
-        .. rubric:: Examples
-
-        .. doctest:: synchronous
-
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.basin_entropy()
-            1.221888833884975
-            >>> landscape.basin_entropy(base=2)
-            1.221888833884975
-            >>> landscape.basin_entropy(base=10)
-            0.36782519036626105
-            >>> landscape.basin_entropy(base=e)
-            0.8469488001650497
-
-        :param base: the base of the logarithm
-        :type base: a number or ``None``
-        :return: the basin entropy of the landscape of type ``float``
-        """
-        if not self._landscaped:
-            self.landscape()
-        if not self.__expounded:
-            self.__expound()
-        dist = pi.Dist(self.__data.basin_sizes)
-        return pi.shannon.entropy(dist, b=base)
-
     def draw(self, pygraphkwargs={'prog': 'dot'}):
         """
         Draw networkx graph using PyGraphviz.
@@ -653,23 +672,8 @@ class LandscapeMixin:
 
         :param pygraphkwargs: kwargs to pass to view_pygraphviz
         """
-        if not self._landscaped:
+        if not self.__landscaped:
             self.landscape()
         if not self.__transition_graph:
             self.graph
         nx.nx_agraph.view_pygraphviz(self.__transition_graph, **pygraphkwargs)
-
-
-class LandscapeData(object):
-    """
-    The ``LandscapeData`` class stores the attributes calcluated in the
-    ``Landscape`` class.
-    """
-    transitions = None
-    basins = None
-    basin_sizes = None
-    attractors = None
-    attractor_lengths = None
-    in_degrees = None
-    heights = None
-    recurrence_times = None
