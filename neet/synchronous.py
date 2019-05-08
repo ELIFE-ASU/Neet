@@ -61,6 +61,7 @@ class Landscape(StateSpace):
 
         super(Landscape, self).__init__(net.shape)
 
+        self.__data = LandscapeData()
         self.__net = net
         self.__index = index
         self.__pin = pin
@@ -106,7 +107,7 @@ class Landscape(StateSpace):
                    208, 208, 336, 336, 464, 464, 340, 336, 464, 464, 344, 336, 464,
                    464, 348, 336, 464, 464])
         """
-        return self.__transitions
+        return self.__data.transitions
 
     @property
     def attractors(self):
@@ -127,9 +128,9 @@ class Landscape(StateSpace):
                    array([136]), array([140]), array([196]), array([200]),
                    array([204])], dtype=object)
         """
-        if not self.__expounded:
+        if not self.__data.attractors:
             self.__expound()
-        return self.__attractors
+        return self.__data.attractors
 
     @property
     def basins(self):
@@ -148,9 +149,9 @@ class Landscape(StateSpace):
                     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                     0,  0])
         """
-        if not self.__expounded:
+        if not self.__data.basins:
             self.__expound()
-        return self.__basins
+        return self.__data.basins
 
     @property
     def basin_sizes(self):
@@ -165,9 +166,9 @@ class Landscape(StateSpace):
             >>> landscape.basin_sizes
             array([378,   2,   2,   2, 104,   6,   6,   2,   2,   2,   2,   2,   2])
         """
-        if not self.__expounded:
+        if not self.__data.basin_sizes:
             self.__expound()
-        return self.__basin_sizes
+        return self.__data.basin_sizes
 
     @property
     def in_degrees(self):
@@ -186,9 +187,9 @@ class Landscape(StateSpace):
                     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                     0,  0])
         """
-        if not self.__expounded:
+        if not self.__data.in_degrees:
             self.__expound()
-        return self.__in_degrees
+        return self.__data.in_degrees
 
     @property
     def heights(self):
@@ -210,9 +211,9 @@ class Landscape(StateSpace):
                    3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
                    3, 3, 3, 3, 3, 3])
         """
-        if not self.__expounded:
+        if not self.__data.heights:
             self.__expound()
-        return self.__heights
+        return self.__data.heights
 
     @property
     def attractor_lengths(self):
@@ -228,9 +229,9 @@ class Landscape(StateSpace):
             >>> landscape.attractor_lengths
             array([1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1])
         """
-        if not self.__expounded:
+        if not self.__data.attractor_lengths:
             self.__expound()
-        return self.__attractor_lengths
+        return self.__data.attractor_lengths
 
     @property
     def recurrence_times(self):
@@ -252,9 +253,9 @@ class Landscape(StateSpace):
                    3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
                    3, 3, 3, 3, 3, 3])
         """
-        if not self.__expounded:
+        if not self.__data.recurrence_times:
             self.__expound()
-        return self.__recurrence_times
+        return self.__data.recurrence_times
 
     @property
     def graph(self):
@@ -271,7 +272,7 @@ class Landscape(StateSpace):
             <networkx.classes.digraph.DiGraph object at 0x106504810>
         """
         if self.__graph is None:
-            self.__graph = nx.DiGraph(list(enumerate(self.__transitions)))
+            self.__graph = nx.DiGraph(list(enumerate(self.__data.transitions)))
         return self.__graph
 
     def __setup(self):
@@ -291,7 +292,7 @@ class Landscape(StateSpace):
                                            pin=self.__pin,
                                            values=self.__values))
 
-        self.__transitions = transitions
+        self.__data.transitions = transitions
 
     def __expound(self):
         """
@@ -314,7 +315,7 @@ class Landscape(StateSpace):
             - :method:`recurrence_times`
         """
         # Get the state transitions
-        trans = self.__transitions
+        trans = self.__data.transitions
         # Create an array to store whether a given state has visited
         visited = np.zeros(self.volume, dtype=np.bool)
         # Create an array to store which attractor basin each state is in
@@ -437,13 +438,13 @@ class Landscape(StateSpace):
             if len(cycle) != 0:
                 attractors.append(np.asarray(cycle, dtype=np.int))
 
-        self.__basins = basins
-        self.__basin_sizes = np.asarray(basin_sizes)
-        self.__attractors = np.asarray(attractors)
-        self.__attractor_lengths = np.asarray(attractor_lengths)
-        self.__in_degrees = in_degrees
-        self.__heights = heights
-        self.__recurrence_times = np.asarray(recurrence_times)
+        self.__data.basins = basins
+        self.__data.basin_sizes = np.asarray(basin_sizes)
+        self.__data.attractors = np.asarray(attractors)
+        self.__data.attractor_lengths = np.asarray(attractor_lengths)
+        self.__data.in_degrees = in_degrees
+        self.__data.heights = heights
+        self.__data.recurrence_times = np.asarray(recurrence_times)
         self.__expounded = True
 
     def trajectory(self, init, timesteps=None, encode=None):
@@ -508,7 +509,7 @@ class Landscape(StateSpace):
         elif encode is None:
             encode = True
 
-        trans = self.__transitions
+        trans = self.__data.transitions
         if timesteps is not None:
             if timesteps < 1:
                 raise ValueError("number of steps must be positive, non-zero")
@@ -587,7 +588,7 @@ class Landscape(StateSpace):
         if timesteps < 1:
             raise ValueError("number of steps must be positive, non-zero")
 
-        trans = self.__transitions
+        trans = self.__data.transitions
         decode = self.decode
         decoded_trans = [decode(state) for state in trans]
 
@@ -632,10 +633,16 @@ class Landscape(StateSpace):
         :type base: a number or ``None``
         :return: the basin entropy of the landscape of type ``float``
         """
-        if not self.__expounded:
-            self.__expound()
-        dist = pi.Dist(self.__basin_sizes)
-        return pi.shannon.entropy(dist, b=base)
+        if base in self.__data.basin_entropy:
+            return self.__data.basin_entropy[base]
+        else:
+            if not self.__data.basin_sizes:
+                self.__expound()
+            # if not self.__expounded:
+            #     self.__expound()
+            dist = pi.Dist(self.__data.basin_sizes)
+            self.__data.basin_entropy[base] = pi.shannon.entropy(dist, b=base)
+            return self.__data.basin_entropy[base]
 
     def draw(self, pygraphkwargs={'prog':'dot'}):
         """
@@ -650,3 +657,20 @@ class Landscape(StateSpace):
         if not self.__graph:
             self.graph
         nx.nx_agraph.view_pygraphviz(self.__graph, **pygraphkwargs)
+
+class LandscapeData(object):
+    """
+    The ``LandscapeData`` class stores the attributes calcluated in the 
+    ``Landscape`` class.
+    """
+    transitions = None
+    basins = None 
+    basin_sizes = None 
+    attractors = None 
+    attractor_lengths = None 
+    in_degrees = None 
+    heights = None 
+    recurrence_times = None 
+
+    basin_entropy = dict()
+
