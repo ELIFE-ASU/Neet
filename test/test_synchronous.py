@@ -15,6 +15,11 @@ class TestLandscape(unittest.TestCase):
         """
         self.assertTrue(True)
 
+    def tearDown(self):
+        s_pombe.clear_landscape()
+        s_cerevisiae.clear_landscape()
+        c_elegans.clear_landscape()
+
     def test_transitions_eca(self):
         net = ECA(30, 1)
         self.assertEqual([0, 0], list(net.transitions))
@@ -411,6 +416,7 @@ class TestLandscape(unittest.TestCase):
             histogram = [0] * (np.max(basins) + 1)
             for b in basins:
                 histogram[b] += 1
+            net.clear_landscape()
             self.assertEqual(histogram, list(net.basin_sizes))
 
     def test_basin_entropy_eca(self):
@@ -457,12 +463,14 @@ class TestLandscape(unittest.TestCase):
                 for i in range(net.volume):
                     in_degrees[i] = np.count_nonzero(
                         net.transitions == i)
+                net.clear_landscape()
                 self.assertEqual(list(in_degrees), list(net.in_degrees))
 
         for net in [s_pombe, s_cerevisiae, c_elegans]:
             in_degrees = np.empty(net.volume, dtype=np.int)
             for i in range(net.volume):
                 in_degrees[i] = np.count_nonzero(net.transitions == i)
+            net.clear_landscape()
             self.assertEqual(list(in_degrees), list(net.in_degrees))
 
     def test_heights(self):
@@ -476,6 +484,7 @@ class TestLandscape(unittest.TestCase):
                     while state not in net.attractors[b]:
                         heights[i] += 1
                         state = net.transitions[state]
+                net.clear_landscape()
                 self.assertEqual(heights, list(net.heights))
 
         for net in [s_pombe, s_cerevisiae, c_elegans]:
@@ -486,6 +495,7 @@ class TestLandscape(unittest.TestCase):
                 while state not in net.attractors[b]:
                     heights[i] += 1
                     state = net.transitions[state]
+            net.clear_landscape()
             self.assertEqual(heights, list(net.heights))
 
     def test_attractor_lengths(self):
@@ -493,10 +503,12 @@ class TestLandscape(unittest.TestCase):
             for size in range(2, 7):
                 net = ECA(code, size)
                 lengths = list(map(len, net.attractors))
+                net.clear_landscape()
                 self.assertEqual(lengths, list(net.attractor_lengths))
 
         for net in [s_pombe, s_cerevisiae, c_elegans]:
             lengths = list(map(len, net.attractors))
+            net.clear_landscape()
             self.assertEqual(lengths, list(net.attractor_lengths))
 
     def test_recurrence_times(self):
@@ -508,6 +520,7 @@ class TestLandscape(unittest.TestCase):
                     b = net.basins[i]
                     recurrence_times[i] = net.heights[i] + \
                         net.attractor_lengths[b] - 1
+                net.clear_landscape()
                 self.assertEqual(recurrence_times, list(
                     net.recurrence_times))
 
@@ -517,6 +530,7 @@ class TestLandscape(unittest.TestCase):
                 b = net.basins[i]
                 recurrence_times[i] = net.heights[i] + \
                     net.attractor_lengths[b] - 1
+            net.clear_landscape()
             self.assertEqual(recurrence_times, list(
                 net.recurrence_times))
 
@@ -544,6 +558,23 @@ class TestLandscape(unittest.TestCase):
             "basin_entropy"
         ]))
         self.assertEqual(set(data_after_expound.__dict__.keys()), set([
+            "transitions",
+            "basins",
+            "basin_sizes",
+            "attractors",
+            "attractor_lengths",
+            "in_degrees",
+            "heights",
+            "recurrence_times",
+            "basin_entropy"
+        ]))
+
+    def test_expound(self):
+        net = ECA(30, size=5)
+        before = net.landscape_data
+        after = net.expound().landscape_data
+        self.assertEqual(before.__dict__, {})
+        self.assertEqual(set(after.__dict__.keys()), set([
             "transitions",
             "basins",
             "basin_sizes",
