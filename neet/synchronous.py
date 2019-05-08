@@ -25,10 +25,9 @@ import networkx as nx
 import numpy as np
 import pyinform as pi
 from .statespace import StateSpace
-from .network import Network
 
 
-class Landscape(StateSpace):
+class LandscapeMixin:
     """
     The ``Landscape`` class represents the structure and topology of the
     "landscape" of state transitions. That is, it is the state space
@@ -36,7 +35,7 @@ class Landscape(StateSpace):
     the state transition graph.
     """
 
-    def __init__(self, net, index=None, pin=None, values=None):
+    def landscape(self, index=None, pin=None, values=None):
         """
         Construct the landscape for a network.
 
@@ -56,36 +55,17 @@ class Landscape(StateSpace):
         :raises TypeError: if ``net`` is not a network
         """
 
-        if not isinstance(net, Network):
-            raise TypeError("net is not a network")
-
-        super(Landscape, self).__init__(net.shape)
-
         self.__data = LandscapeData()
-        self.__net = net
         self.__index = index
         self.__pin = pin
         self.__values = values
 
         self.__expounded = False
-        self.__graph = None
+        self.__transition_graph = None
 
         self.__setup()
-
-    @property
-    def network(self):
-        """
-        The landscape's dynamical network
-
-        .. rubric:: Examples
-
-        .. doctest:: synchronous
-
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.network
-            <neet.boolean.wtnetwork.WTNetwork object at 0x...>
-        """
-        return self.__net
+        self._landscaped = True
+        return self
 
     @property
     def transitions(self):
@@ -107,6 +87,8 @@ class Landscape(StateSpace):
                    208, 208, 336, 336, 464, 464, 340, 336, 464, 464, 344, 336, 464,
                    464, 348, 336, 464, 464])
         """
+        if not self._landscaped:
+            self.landscape()
         return self.__data.transitions
 
     @property
@@ -128,6 +110,8 @@ class Landscape(StateSpace):
                    array([136]), array([140]), array([196]), array([200]),
                    array([204])], dtype=object)
         """
+        if not self._landscaped:
+            self.landscape()
         if self.__data.attractors is None:
             self.__expound()
         return self.__data.attractors
@@ -149,6 +133,8 @@ class Landscape(StateSpace):
                     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                     0,  0])
         """
+        if not self._landscaped:
+            self.landscape()
         if self.__data.basins is None:
             self.__expound()
         return self.__data.basins
@@ -166,6 +152,8 @@ class Landscape(StateSpace):
             >>> landscape.basin_sizes
             array([378,   2,   2,   2, 104,   6,   6,   2,   2,   2,   2,   2,   2])
         """
+        if not self._landscaped:
+            self.landscape()
         if self.__data.basin_sizes is None:
             self.__expound()
         return self.__data.basin_sizes
@@ -187,6 +175,8 @@ class Landscape(StateSpace):
                     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                     0,  0])
         """
+        if not self._landscaped:
+            self.landscape()
         if self.__data.in_degrees is None:
             self.__expound()
         return self.__data.in_degrees
@@ -211,6 +201,8 @@ class Landscape(StateSpace):
                    3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
                    3, 3, 3, 3, 3, 3])
         """
+        if not self._landscaped:
+            self.landscape()
         if self.__data.heights is None:
             self.__expound()
         return self.__data.heights
@@ -229,6 +221,8 @@ class Landscape(StateSpace):
             >>> landscape.attractor_lengths
             array([1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1])
         """
+        if not self._landscaped:
+            self.landscape()
         if self.__data.attractor_lengths is None:
             self.__expound()
         return self.__data.attractor_lengths
@@ -253,12 +247,14 @@ class Landscape(StateSpace):
                    3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
                    3, 3, 3, 3, 3, 3])
         """
+        if not self._landscaped:
+            self.landscape()
         if self.__data.recurrence_times is None:
             self.__expound()
         return self.__data.recurrence_times
 
     @property
-    def graph(self):
+    def transition_graph(self):
         """
         The state transitions graph of the landscape as a
         ``networkx.Digraph``.
@@ -271,9 +267,11 @@ class Landscape(StateSpace):
             >>> landscape.graph
             <networkx.classes.digraph.DiGraph object at 0x106504810>
         """
-        if self.__graph is None:
-            self.__graph = nx.DiGraph(list(enumerate(self.__data.transitions)))
-        return self.__graph
+        if not self._landscaped:
+            self.landscape()
+        if self.__transition_graph is None:
+            self.__transition_graph = nx.DiGraph(list(enumerate(self.__data.transitions)))
+        return self.__transition_graph
 
     def __setup(self):
         """
@@ -282,7 +280,7 @@ class Landscape(StateSpace):
         computing the state transitions array, but subsequent versions
         may expand the work that ``__setup`` does.
         """
-        update = self.__net._unsafe_update
+        update = self._unsafe_update
         encode = self._unsafe_encode
 
         transitions = np.empty(self.volume, dtype=np.int)
@@ -498,6 +496,9 @@ class Landscape(StateSpace):
         :raises ValueError: if ``init`` an empty array
         :raises ValueError: if ``timesteps`` is less than :math:`1`
         """
+        if not self._landscaped:
+            self.landscape()
+
         decoded = isinstance(init, list) or isinstance(init, np.ndarray)
 
         if decoded:
@@ -585,6 +586,9 @@ class Landscape(StateSpace):
 
         :raises ValueError: if ``timesteps`` is less than :math:`1`
         """
+        if not self._landscaped:
+            self.landscape()
+
         if timesteps < 1:
             raise ValueError("number of steps must be positive, non-zero")
 
@@ -633,6 +637,8 @@ class Landscape(StateSpace):
         :type base: a number or ``None``
         :return: the basin entropy of the landscape of type ``float``
         """
+        if not self._landscaped:
+            self.landscape()
         if self.__data.basin_sizes is None:
             self.__expound()
         dist = pi.Dist(self.__data.basin_sizes)
@@ -648,9 +654,11 @@ class Landscape(StateSpace):
 
         :param pygraphkwargs: kwargs to pass to view_pygraphviz
         """
-        if not self.__graph:
+        if not self._landscaped:
+            self.landscape()
+        if not self.__transition_graph:
             self.graph
-        nx.nx_agraph.view_pygraphviz(self.__graph, **pygraphkwargs)
+        nx.nx_agraph.view_pygraphviz(self.__transition_graph, **pygraphkwargs)
 
 class LandscapeData(object):
     """

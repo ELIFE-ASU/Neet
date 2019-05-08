@@ -13,12 +13,13 @@ API Documentation
 from abc import ABCMeta, abstractmethod
 from .python import long
 from .statespace import StateSpace
+from .synchronous import LandscapeMixin
 import networkx as nx
 import six
 
 
 @six.add_metaclass(ABCMeta)
-class Network(StateSpace):
+class Network(LandscapeMixin,StateSpace):
     def __init__(self, shape, names=None, metadata=None):
         super(Network, self).__init__(shape)
 
@@ -29,6 +30,7 @@ class Network(StateSpace):
 
         self._metadata = metadata
         self.names = names
+        self._landscaped = False
 
     @property
     def metadata(self):

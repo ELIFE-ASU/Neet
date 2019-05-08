@@ -1,7 +1,6 @@
 import unittest
 from neet.boolean import ECA, WTNetwork, LogicNetwork
 from neet.boolean.examples import s_pombe, s_cerevisiae, c_elegans
-from neet.synchronous import Landscape
 from neet.statespace import StateSpace
 import numpy as np
 from .mock import MockObject
@@ -18,38 +17,30 @@ class TestLandscape(unittest.TestCase):
         """
         self.assertTrue(True)
 
-    def test_init_not_network(self):
-        """
-        ``Landscape.__init__`` should raise a type error if ``net`` is not a
-        network.
-        """
-        with self.assertRaises(TypeError):
-            Landscape(MockObject())
-
     def test_transitions_eca(self):
         ca = ECA(30, 1)
 
-        landscape = Landscape(ca)
-        self.assertEqual(ca, landscape.network)
+        landscape = ca.landscape()
+        # self.assertEqual(ca, landscape.network)
         self.assertEqual(1, landscape.size)
         self.assertEqual([0, 0], list(landscape.transitions))
 
         ca.size = 2
-        landscape = Landscape(ca)
-        self.assertEqual(ca, landscape.network)
+        landscape = ca.landscape()
+        # self.assertEqual(ca, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([0, 1, 2, 0], list(landscape.transitions))
 
         ca.size = 3
-        landscape = Landscape(ca)
-        self.assertEqual(ca, landscape.network)
+        landscape = ca.landscape()
+        # self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], list(landscape.transitions))
 
         ca.size = 10
-        landscape = Landscape(ca)
+        landscape = ca.landscape()
         trans = landscape.transitions
-        self.assertEqual(ca, landscape.network)
+        # self.assertEqual(ca, landscape.network)
         self.assertEqual(10, landscape.size)
         self.assertEqual(1024, len(trans))
         self.assertEqual([0, 515, 7, 517, 14, 525, 11,
@@ -59,52 +50,52 @@ class TestLandscape(unittest.TestCase):
 
     def test_transitions_eca_index(self):
         ca = ECA(30, 3)
-        landscape = Landscape(ca, index=1)
-        self.assertEqual(ca, landscape.network)
+        landscape = ca.landscape(index=1)
+        # self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 3, 2, 1, 6, 5, 6, 5], list(landscape.transitions))
 
-        landscape = Landscape(ca, index=0)
-        self.assertEqual(ca, landscape.network)
+        landscape = ca.landscape(index=0)
+        # self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 1, 3, 3, 5, 4, 6, 6], list(landscape.transitions))
 
-        landscape = Landscape(ca, index=None)
-        self.assertEqual(ca, landscape.network)
+        landscape = ca.landscape(index=None)
+        # self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], list(landscape.transitions))
 
     def test_transitions_eca_pin(self):
         ca = ECA(30, 3)
-        landscape = Landscape(ca, pin=[1])
-        self.assertEqual(ca, landscape.network)
+        landscape = ca.landscape(pin=[1])
+        # self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 5, 7, 3, 5, 4, 2, 2], list(landscape.transitions))
 
-        landscape = Landscape(ca, pin=[0])
-        self.assertEqual(ca, landscape.network)
+        landscape = ca.landscape(pin=[0])
+        # self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 7, 6, 1, 6, 5, 2, 1], list(landscape.transitions))
 
-        landscape = Landscape(ca, pin=None)
-        self.assertEqual(ca, landscape.network)
+        landscape = ca.landscape(pin=None)
+        # self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], list(landscape.transitions))
 
     def test_transitions_eca_values(self):
         ca = ECA(30, 3)
-        landscape = Landscape(ca, values={0: 1})
-        self.assertEqual(ca, landscape.network)
+        landscape = ca.landscape(values={0: 1})
+        # self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([1, 7, 7, 1, 7, 5, 3, 1], list(landscape.transitions))
 
-        landscape = Landscape(ca, values={1: 0})
-        self.assertEqual(ca, landscape.network)
+        landscape = ca.landscape(values={1: 0})
+        # self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 5, 5, 1, 5, 4, 0, 0], list(landscape.transitions))
 
-        landscape = Landscape(ca, values={})
-        self.assertEqual(ca, landscape.network)
+        landscape = ca.landscape(values={})
+        # self.assertEqual(ca, landscape.network)
         self.assertEqual(3, landscape.size)
         self.assertEqual([0, 7, 7, 1, 7, 4, 2, 0], list(landscape.transitions))
 
@@ -115,8 +106,8 @@ class TestLandscape(unittest.TestCase):
             theta=WTNetwork.positive_threshold
         )
 
-        landscape = Landscape(net)
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape()
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([2, 1, 2, 3], list(landscape.transitions))
 
@@ -127,18 +118,18 @@ class TestLandscape(unittest.TestCase):
             theta=WTNetwork.positive_threshold
         )
 
-        landscape = Landscape(net, index=1)
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(index=1)
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([2, 1, 2, 3], list(landscape.transitions))
 
-        landscape = Landscape(net, index=0)
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(index=0)
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([0, 1, 2, 3], list(landscape.transitions))
 
-        landscape = Landscape(net, index=None)
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(index=None)
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([2, 1, 2, 3], list(landscape.transitions))
 
@@ -149,18 +140,18 @@ class TestLandscape(unittest.TestCase):
             theta=WTNetwork.positive_threshold
         )
 
-        landscape = Landscape(net, pin=[1])
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(pin=[1])
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([0, 1, 2, 3], list(landscape.transitions))
 
-        landscape = Landscape(net, pin=[0])
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(pin=[0])
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([2, 1, 2, 3], list(landscape.transitions))
 
-        landscape = Landscape(net, pin=None)
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(pin=None)
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([2, 1, 2, 3], list(landscape.transitions))
 
@@ -171,18 +162,18 @@ class TestLandscape(unittest.TestCase):
             theta=WTNetwork.positive_threshold
         )
 
-        landscape = Landscape(net, values={0: 1})
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(values={0: 1})
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([3, 1, 3, 3], list(landscape.transitions))
 
-        landscape = Landscape(net, values={1: 0})
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(values={1: 0})
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([0, 1, 0, 1], list(landscape.transitions))
 
-        landscape = Landscape(net, values={})
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(values={})
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([2, 1, 2, 3], list(landscape.transitions))
 
@@ -191,70 +182,70 @@ class TestLandscape(unittest.TestCase):
     def test_transitions_logicnetwork(self):
         net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
 
-        landscape = Landscape(net)
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape()
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([1, 3, 1, 3], list(landscape.transitions))
 
     def test_transitions_logicnetwork_index(self):
         net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
 
-        landscape = Landscape(net, index=1)
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(index=1)
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([0, 3, 0, 3], list(landscape.transitions))
 
-        landscape = Landscape(net, index=0)
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(index=0)
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([1, 1, 3, 3], list(landscape.transitions))
 
-        landscape = Landscape(net, index=None)
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(index=None)
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([1, 3, 1, 3], list(landscape.transitions))
 
     def test_transitions_logicnetwork_pin(self):
         net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
 
-        landscape = Landscape(net, pin=[1])
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(pin=[1])
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([1, 1, 3, 3], list(landscape.transitions))
 
-        landscape = Landscape(net, pin=[0])
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(pin=[0])
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([0, 3, 0, 3], list(landscape.transitions))
 
-        landscape = Landscape(net, pin=None)
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(pin=None)
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([1, 3, 1, 3], list(landscape.transitions))
 
     def test_transitions_logicnetwork_values(self):
         net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
 
-        landscape = Landscape(net, values={0: 1})
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(values={0: 1})
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([1, 3, 1, 3], list(landscape.transitions))
 
-        landscape = Landscape(net, values={1: 0})
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(values={1: 0})
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([1, 1, 1, 1], list(landscape.transitions))
 
-        landscape = Landscape(net, values={})
-        self.assertEqual(net, landscape.network)
+        landscape = net.landscape(values={})
+        # self.assertEqual(net, landscape.network)
         self.assertEqual(2, landscape.size)
         self.assertEqual([1, 3, 1, 3], list(landscape.transitions))
 
         # Add more test for different thetas?
 
     def test_transitions_spombe(self):
-        landscape = Landscape(s_pombe)
-        self.assertEqual(s_pombe, landscape.network)
+        landscape = s_pombe.landscape()
+        # self.assertEqual(s_pombe, landscape.network)
         self.assertEqual(9, landscape.size)
         trans = landscape.transitions
         self.assertEqual(512, len(trans))
@@ -264,15 +255,15 @@ class TestLandscape(unittest.TestCase):
                           336, 464, 464], list(trans[-10:]))
 
     def test_is_state_space(self):
-        self.assertTrue(issubclass(Landscape, StateSpace))
+        # self.assertTrue(issubclass(Landscape, StateSpace))
 
-        landscape = Landscape(s_pombe)
+        landscape = s_pombe.landscape()
         self.assertEqual(list(s_pombe), list(landscape))
         self.assertEqual([s_pombe.encode(state) for state in s_pombe],
                          list(map(landscape.encode, landscape)))
 
         ca = ECA(30, 10)
-        landscape = Landscape(ca)
+        landscape = ca.landscape()
         self.assertEqual(list(ca), list(landscape))
         self.assertEqual([ca.encode(state) for state in ca],
                          list(map(landscape.encode, landscape)))
@@ -284,7 +275,7 @@ class TestLandscape(unittest.TestCase):
                     (ECA(110, 6), 3)]
 
         for rule, size in networks:
-            landscape = Landscape(rule)
+            landscape = rule.landscape()
             self.assertEqual(size, len(landscape.attractors))
 
     def test_basins_eca(self):
@@ -294,7 +285,7 @@ class TestLandscape(unittest.TestCase):
                     (ECA(110, 6), 3)]
 
         for rule, size in networks:
-            landscape = Landscape(rule)
+            landscape = rule.landscape()
             self.assertEqual(landscape.volume, len(landscape.basins))
             self.assertEqual(size, 1 + np.max(landscape.basins))
 
@@ -305,7 +296,7 @@ class TestLandscape(unittest.TestCase):
     def test_attractors_wtnetworks(self):
         networks = [(s_pombe, 13), (s_cerevisiae, 7), (c_elegans, 5)]
         for net, size in networks:
-            landscape = Landscape(net)
+            landscape = net.landscape()
             self.assertEqual(size, len(landscape.attractors))
             self.assertEqual(landscape.volume, len(landscape.basins))
             self.assertEqual(size, 1 + np.max(landscape.basins))
@@ -315,7 +306,7 @@ class TestLandscape(unittest.TestCase):
             self.assertEqual(list(range(size)), unique)
 
     def test_trajectory_too_short(self):
-        landscape = Landscape(ECA(30, 3))
+        landscape = ECA(30, 3).landscape()
         with self.assertRaises(ValueError):
             landscape.trajectory([0, 0, 0], timesteps=-1)
 
@@ -323,7 +314,7 @@ class TestLandscape(unittest.TestCase):
             landscape.trajectory([0, 0, 0], timesteps=0)
 
     def test_trajectory_eca(self):
-        landscape = Landscape(ECA(30, 3))
+        landscape = ECA(30, 3).landscape()
 
         with self.assertRaises(ValueError):
             landscape.trajectory([])
@@ -386,7 +377,7 @@ class TestLandscape(unittest.TestCase):
             theta=WTNetwork.positive_threshold
         )
 
-        landscape = Landscape(net)
+        landscape = net.landscape()
 
         state = [0, 0]
         got = landscape.trajectory(state)
@@ -437,7 +428,7 @@ class TestLandscape(unittest.TestCase):
                             ((0, 2), {'01', '10', '11'}),
                             ((0, 1), {'11'})])
 
-        landscape = Landscape(net)
+        landscape = net.landscape()
 
         state = [0, 1, 0]
         got = landscape.trajectory(state, encode=False)
@@ -484,7 +475,7 @@ class TestLandscape(unittest.TestCase):
         self.assertEqual([[0, 1, 0], [1, 0, 0], [0, 1, 0], [1, 0, 0]], got)
 
     def test_timeseries_too_short(self):
-        landscape = Landscape(ECA(30, 3))
+        landscape = ECA(30, 3).landscape()
         with self.assertRaises(ValueError):
             landscape.timeseries(-1)
 
@@ -494,7 +485,7 @@ class TestLandscape(unittest.TestCase):
     def test_timeseries_eca(self):
         for size in [5, 7, 11]:
             rule = ECA(30, size)
-            landscape = Landscape(rule)
+            landscape = rule.landscape()
             time = 10
             series = landscape.timeseries(time)
             self.assertEqual((size, 2**size, time + 1), series.shape)
@@ -506,7 +497,7 @@ class TestLandscape(unittest.TestCase):
 
     def test_timeseries_wtnetworks(self):
         for net, size in [(s_pombe, 9), (s_cerevisiae, 11), (c_elegans, 8)]:
-            landscape = Landscape(net)
+            landscape = net.landscape()
             time = 10
             series = landscape.timeseries(time)
             self.assertEqual((size, 2**size, time + 1), series.shape)
@@ -518,7 +509,7 @@ class TestLandscape(unittest.TestCase):
 
     def test_basin_sizes(self):
         for net in [s_pombe, s_cerevisiae, c_elegans]:
-            landscape = Landscape(net)
+            landscape = net.landscape()
             basins = landscape.basins
             histogram = [0] * (np.max(basins) + 1)
             for b in basins:
@@ -538,7 +529,7 @@ class TestLandscape(unittest.TestCase):
                     (ECA(110, 6), 1.469012, 0.442217)]
 
         for net, base2, base10 in networks:
-            landscape = Landscape(net)
+            landscape = net.landscape()
             self.assertAlmostEqual(base2, landscape.basin_entropy(), places=6)
             self.assertAlmostEqual(
                 base2, landscape.basin_entropy(base=2), places=6)
@@ -551,7 +542,7 @@ class TestLandscape(unittest.TestCase):
                     (c_elegans, 0.854267, 0.257160)]
 
         for net, base2, base10 in networks:
-            landscape = Landscape(net)
+            landscape = net.landscape()
             self.assertAlmostEqual(base2, landscape.basin_entropy(), places=6)
             self.assertAlmostEqual(
                 base2, landscape.basin_entropy(base=2), places=6)
@@ -560,22 +551,22 @@ class TestLandscape(unittest.TestCase):
 
     def test_graph_eca(self):
         for size in range(2, 7):
-            landscape = Landscape(ECA(30, size))
-            g = landscape.graph
+            landscape = ECA(30, size).landscape()
+            g = landscape.transition_graph
             self.assertEqual(landscape.volume, g.number_of_nodes())
             self.assertEqual(landscape.volume, g.number_of_edges())
 
     def test_graph_wtnetworks(self):
         for net in [s_pombe, s_cerevisiae, c_elegans]:
-            landscape = Landscape(net)
-            g = landscape.graph
+            landscape = net.landscape()
+            g = landscape.transition_graph
             self.assertEqual(landscape.volume, g.number_of_nodes())
             self.assertEqual(landscape.volume, g.number_of_edges())
 
     def test_in_degree(self):
         for code in [30, 110, 21, 43]:
             for size in range(2, 7):
-                landscape = Landscape(ECA(code, size))
+                landscape = ECA(code, size).landscape()
                 in_degrees = np.empty(landscape.volume, dtype=np.int)
                 for i in range(landscape.volume):
                     in_degrees[i] = np.count_nonzero(
@@ -583,7 +574,7 @@ class TestLandscape(unittest.TestCase):
                 self.assertEqual(list(in_degrees), list(landscape.in_degrees))
 
         for net in [s_pombe, s_cerevisiae, c_elegans]:
-            landscape = Landscape(net)
+            landscape = net.landscape()
             in_degrees = np.empty(landscape.volume, dtype=np.int)
             for i in range(landscape.volume):
                 in_degrees[i] = np.count_nonzero(landscape.transitions == i)
@@ -592,7 +583,7 @@ class TestLandscape(unittest.TestCase):
     def test_heights(self):
         for code in [30, 110, 21, 43]:
             for size in range(2, 7):
-                landscape = Landscape(ECA(code, size))
+                landscape = ECA(code, size).landscape()
                 heights = [0] * landscape.volume
                 for i in range(landscape.volume):
                     b = landscape.basins[i]
@@ -603,7 +594,7 @@ class TestLandscape(unittest.TestCase):
                 self.assertEqual(heights, list(landscape.heights))
 
         for net in [s_pombe, s_cerevisiae, c_elegans]:
-            landscape = Landscape(net)
+            landscape = net.landscape()
             heights = [0] * landscape.volume
             for i in range(landscape.volume):
                 b = landscape.basins[i]
@@ -616,19 +607,19 @@ class TestLandscape(unittest.TestCase):
     def test_attractor_lengths(self):
         for code in [30, 110, 21, 43]:
             for size in range(2, 7):
-                landscape = Landscape(ECA(code, size))
+                landscape = ECA(code, size).landscape()
                 lengths = list(map(len, landscape.attractors))
                 self.assertEqual(lengths, list(landscape.attractor_lengths))
 
         for net in [s_pombe, s_cerevisiae, c_elegans]:
-            landscape = Landscape(net)
+            landscape = net.landscape()
             lengths = list(map(len, landscape.attractors))
             self.assertEqual(lengths, list(landscape.attractor_lengths))
 
     def test_recurrence_times(self):
         for code in [30, 110, 21, 43]:
             for size in range(2, 7):
-                landscape = Landscape(ECA(code, size))
+                landscape = ECA(code, size).landscape()
                 recurrence_times = [0] * landscape.volume
                 for i in range(landscape.volume):
                     b = landscape.basins[i]
@@ -638,7 +629,7 @@ class TestLandscape(unittest.TestCase):
                     landscape.recurrence_times))
 
         for net in [s_pombe, s_cerevisiae, c_elegans]:
-            landscape = Landscape(net)
+            landscape = net.landscape()
             recurrence_times = [0] * landscape.volume
             for i in range(landscape.volume):
                 b = landscape.basins[i]
