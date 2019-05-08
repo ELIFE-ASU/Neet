@@ -58,6 +58,7 @@ Information Measures
 import numpy as np
 import pyinform as pi
 
+
 class Architecture(object):
     """
     A class to represent the k-history informational architecture of a network.

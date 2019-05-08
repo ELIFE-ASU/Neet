@@ -19,7 +19,7 @@ import six
 
 
 @six.add_metaclass(ABCMeta)
-class Network(LandscapeMixin,StateSpace):
+class Network(LandscapeMixin, StateSpace):
     def __init__(self, shape, names=None, metadata=None):
         super(Network, self).__init__(shape)
 
@@ -116,9 +116,10 @@ class Network(LandscapeMixin,StateSpace):
         kwargs.update(self.metadata)
         return nx.DiGraph(edges, **kwargs)
 
-    def draw(self, graphkwargs=dict(), pygraphkwargs={'prog':'circo'}):
+    def draw(self, graphkwargs=dict(), pygraphkwargs={'prog': 'circo'}):
         graph = self.to_networkx_graph(**graphkwargs)
-        nx.nx_agraph.view_pygraphviz(graph,**pygraphkwargs)
+        nx.nx_agraph.view_pygraphviz(graph, **pygraphkwargs)
+
 
 class UniformNetwork(Network):
     def __init__(self, size, base, names=None, metadata=None):
