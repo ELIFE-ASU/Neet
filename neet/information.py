@@ -57,8 +57,6 @@ Information Measures
 """
 import numpy as np
 import pyinform as pi
-from neet.synchronous import Landscape
-
 
 class Architecture(object):
     """
@@ -104,7 +102,7 @@ class Architecture(object):
         :param timesteps: the number of timesteps to evaluate the network
         """
         self.__k = k
-        self.__series = Landscape(net).timeseries(timesteps=timesteps)
+        self.__series = net.timeseries(timesteps=timesteps)
         shape = self.__series.shape
 
         self.__local_active_info = np.empty((shape[0], shape[1], shape[2] - k))

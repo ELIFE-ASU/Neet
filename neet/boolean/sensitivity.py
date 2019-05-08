@@ -19,7 +19,7 @@ target regardless of other sources.
 API Documentation
 -----------------
 """
-from neet.synchronous import Landscape
+# from neet.synchronous import Landscape
 
 import copy
 import numpy as np
@@ -181,7 +181,7 @@ class SensitivityMixin:
             # optionally pre-calculate transitions
             if calc_trans:
                 decoder = self.decode
-                trans = list(map(decoder, Landscape(self).transitions))
+                trans = list(map(decoder, self.transitions))
             else:
                 trans = None
 
