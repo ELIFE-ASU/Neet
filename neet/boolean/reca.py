@@ -140,6 +140,7 @@ class RewiredECA(BooleanNetwork):
         if 255 < code or code < 0:
             raise ValueError("invalid ECA code")
         self.__code = code
+        self.clear_landscape()
 
     @property
     def boundary(self):
@@ -179,6 +180,7 @@ class RewiredECA(BooleanNetwork):
                 if x != 0 and x != 1:
                     raise ValueError("invalid ECA boundary value")
         self.__boundary = boundary
+        self.clear_landscape()
 
     @property
     def wiring(self):
