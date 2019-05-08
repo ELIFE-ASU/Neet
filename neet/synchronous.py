@@ -128,7 +128,7 @@ class Landscape(StateSpace):
                    array([136]), array([140]), array([196]), array([200]),
                    array([204])], dtype=object)
         """
-        if not self.__data.attractors:
+        if self.__data.attractors is None:
             self.__expound()
         return self.__data.attractors
 
@@ -149,7 +149,7 @@ class Landscape(StateSpace):
                     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                     0,  0])
         """
-        if not self.__data.basins:
+        if self.__data.basins is None:
             self.__expound()
         return self.__data.basins
 
@@ -166,7 +166,7 @@ class Landscape(StateSpace):
             >>> landscape.basin_sizes
             array([378,   2,   2,   2, 104,   6,   6,   2,   2,   2,   2,   2,   2])
         """
-        if not self.__data.basin_sizes:
+        if self.__data.basin_sizes is None:
             self.__expound()
         return self.__data.basin_sizes
 
@@ -187,7 +187,7 @@ class Landscape(StateSpace):
                     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                     0,  0])
         """
-        if not self.__data.in_degrees:
+        if self.__data.in_degrees is None:
             self.__expound()
         return self.__data.in_degrees
 
@@ -211,7 +211,7 @@ class Landscape(StateSpace):
                    3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
                    3, 3, 3, 3, 3, 3])
         """
-        if not self.__data.heights:
+        if self.__data.heights is None:
             self.__expound()
         return self.__data.heights
 
@@ -229,7 +229,7 @@ class Landscape(StateSpace):
             >>> landscape.attractor_lengths
             array([1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1])
         """
-        if not self.__data.attractor_lengths:
+        if self.__data.attractor_lengths is None:
             self.__expound()
         return self.__data.attractor_lengths
 
@@ -253,7 +253,7 @@ class Landscape(StateSpace):
                    3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
                    3, 3, 3, 3, 3, 3])
         """
-        if not self.__data.recurrence_times:
+        if self.__data.recurrence_times is None:
             self.__expound()
         return self.__data.recurrence_times
 
@@ -633,16 +633,10 @@ class Landscape(StateSpace):
         :type base: a number or ``None``
         :return: the basin entropy of the landscape of type ``float``
         """
-        if base in self.__data.basin_entropy:
-            return self.__data.basin_entropy[base]
-        else:
-            if not self.__data.basin_sizes:
-                self.__expound()
-            # if not self.__expounded:
-            #     self.__expound()
-            dist = pi.Dist(self.__data.basin_sizes)
-            self.__data.basin_entropy[base] = pi.shannon.entropy(dist, b=base)
-            return self.__data.basin_entropy[base]
+        if self.__data.basin_sizes is None:
+            self.__expound()
+        dist = pi.Dist(self.__data.basin_sizes)
+        return pi.shannon.entropy(dist, b=base)
 
     def draw(self, pygraphkwargs={'prog':'dot'}):
         """
@@ -671,6 +665,3 @@ class LandscapeData(object):
     in_degrees = None 
     heights = None 
     recurrence_times = None 
-
-    basin_entropy = dict()
-
