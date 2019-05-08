@@ -45,7 +45,7 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
-*,cover
+*.cover
 .hypothesis/
 
 # Translations
@@ -93,3 +93,6 @@ ENV/
 
 # Visual Studio Code
 .vscode
+
+#Mac
+*.DS_Store
