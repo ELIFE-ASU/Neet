@@ -111,7 +111,7 @@ class LandscapeMixin:
         """
         if not self._landscaped:
             self.landscape()
-        if self.__data.attractors is None:
+        if not self.__expounded:
             self.__expound()
         return self.__data.attractors
 
@@ -134,7 +134,7 @@ class LandscapeMixin:
         """
         if not self._landscaped:
             self.landscape()
-        if self.__data.basins is None:
+        if not self.__expounded:
             self.__expound()
         return self.__data.basins
 
@@ -153,7 +153,7 @@ class LandscapeMixin:
         """
         if not self._landscaped:
             self.landscape()
-        if self.__data.basin_sizes is None:
+        if not self.__expounded:
             self.__expound()
         return self.__data.basin_sizes
 
@@ -176,7 +176,7 @@ class LandscapeMixin:
         """
         if not self._landscaped:
             self.landscape()
-        if self.__data.in_degrees is None:
+        if not self.__expounded:
             self.__expound()
         return self.__data.in_degrees
 
@@ -202,7 +202,7 @@ class LandscapeMixin:
         """
         if not self._landscaped:
             self.landscape()
-        if self.__data.heights is None:
+        if not self.__expounded:
             self.__expound()
         return self.__data.heights
 
@@ -222,7 +222,7 @@ class LandscapeMixin:
         """
         if not self._landscaped:
             self.landscape()
-        if self.__data.attractor_lengths is None:
+        if not self.__expounded:
             self.__expound()
         return self.__data.attractor_lengths
 
@@ -248,7 +248,7 @@ class LandscapeMixin:
         """
         if not self._landscaped:
             self.landscape()
-        if self.__data.recurrence_times is None:
+        if not self.__expounded:
             self.__expound()
         return self.__data.recurrence_times
 
@@ -638,7 +638,7 @@ class LandscapeMixin:
         """
         if not self._landscaped:
             self.landscape()
-        if self.__data.basin_sizes is None:
+        if not self.__expounded:
             self.__expound()
         dist = pi.Dist(self.__data.basin_sizes)
         return pi.shannon.entropy(dist, b=base)
