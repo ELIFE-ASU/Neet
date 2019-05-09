@@ -86,6 +86,7 @@ class ECA(BooleanNetwork):
             raise TypeError("ECA code is not an int")
         if 255 < code or code < 0:
             raise ValueError("invalid ECA code")
+        self.clear_landscape()
         self.__code = code
 
     @property
@@ -101,6 +102,7 @@ class ECA(BooleanNetwork):
         self._size = size
         self._volume = 2**size
         self._shape = [2] * size
+        self.clear_landscape()
 
     @property
     def boundary(self):
@@ -140,6 +142,7 @@ class ECA(BooleanNetwork):
                 if x != 0 and x != 1:
                     raise ValueError("invalid ECA boundary value")
         self.__boundary = boundary
+        self.clear_landscape()
 
     def _unsafe_update(self, lattice, index=None, pin=None, values=None):
         """

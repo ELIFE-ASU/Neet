@@ -30,7 +30,6 @@ class Network(LandscapeMixin, StateSpace):
 
         self._metadata = metadata
         self.names = names
-        self._landscaped = False
 
     @property
     def metadata(self):
