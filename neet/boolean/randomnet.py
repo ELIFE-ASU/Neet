@@ -106,7 +106,7 @@ def random_logic(logic_net, p=0.5, connections='fixed-structure',
         return random_styles[connections](logic_net, ps, fix_external,
                                           make_irreducible, fix_canalizing)
     except KeyError:
-        msg = "connections must be 'fixed', 'fixed-in-degree'," \
+        msg = "connections must be 'fixed-structure', 'fixed-in-degree'," \
               "'fixed-mean-degree', or 'free'"
         raise ValueError(msg)
 
