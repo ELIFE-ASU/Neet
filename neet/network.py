@@ -120,22 +120,6 @@ class Network(LandscapeMixin, StateSpace):
         graph = self.to_networkx_network(**graphkwargs)
         view_pygraphviz(graph, **pygraphkwargs)
 
-    # def draw3(self, path, graphkwargs=dict(), pygraphkwargs={'prog': 'circo'}):
-    #     graph = self.to_networkx_graph(**graphkwargs)
-    #     agraph = nx.nx_agraph.to_agraph(graph)
-    #     agraph.layout(**pygraphkwargs)
-    #     agraph.draw(path, **pygraphkwargs)
-    #     return agraph
-
-    # def draw2(self, path, graphkwargs=dict(), pygraphkwargs={'prog': 'circo'}):
-    #     graph = self.to_networkx_graph(**graphkwargs)
-    #     A = nx.nx_agraph.to_agraph(graph)
-    #     nx.nx_agraph.display_pygraphviz(A, path, **pygraphkwargs)
-
-    # def draw(self, graphkwargs=dict(), pygraphkwargs={'prog': 'circo'}):
-    #     graph = self.to_networkx_graph(**graphkwargs)
-    #     nx.nx_agraph.view_pygraphviz(graph, **pygraphkwargs)
-
 class UniformNetwork(Network):
     def __init__(self, size, base, names=None, metadata=None):
         super(UniformNetwork, self).__init__([base] * size, names, metadata)
