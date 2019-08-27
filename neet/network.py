@@ -102,7 +102,7 @@ class Network(LandscapeMixin, StateSpace):
             outputs = self.neighbors_out(index, *args, **kwargs)
             return inputs.union(outputs)
 
-    def to_networkx_graph(self, labels='indices', **kwargs):
+    def to_networkx_network(self, labels='indices', **kwargs):
         if labels == 'indices':
             edges = [(i, j) for i in range(self.size) for j in self.neighbors_out(i)]
         elif labels == 'names' and self.names is not None:
@@ -117,7 +117,7 @@ class Network(LandscapeMixin, StateSpace):
         return nx.DiGraph(edges, **kwargs)
 
     def draw_network(self, graphkwargs=dict(), pygraphkwargs={'prog': 'circo'}):
-        graph = self.to_networkx_graph(**graphkwargs)
+        graph = self.to_networkx_network(**graphkwargs)
         view_pygraphviz(graph, **pygraphkwargs)
 
     # def draw3(self, path, graphkwargs=dict(), pygraphkwargs={'prog': 'circo'}):

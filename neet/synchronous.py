@@ -311,7 +311,7 @@ class LandscapeMixin:
     #             list(enumerate(self.__landscape_data.transitions)))
     #     return self.__transition_graph
 
-    def to_transition_graph(self, **kwargs):
+    def to_networkx_landscape(self, **kwargs):
         """
         The state transitions graph of the landscape as a
         ``networkx.Digraph``.
@@ -333,7 +333,7 @@ class LandscapeMixin:
         #         list(enumerate(self.__landscape_data.transitions)))
         # return self.__transition_graph
     
-    def draw_transitions(self, graphkwargs=dict(), pygraphkwargs={'prog': 'dot'}):
+    def draw_landscape(self, graphkwargs=dict(), pygraphkwargs={'prog': 'dot'}):
         """
         Draw networkx graph using PyGraphviz.
 
@@ -347,7 +347,7 @@ class LandscapeMixin:
         #     self.landscape()
         # if not self.__transition_graph:
         #     self.transition_graph
-        graph = self.to_transition_graph(**graphkwargs)
+        graph = self.to_networkx_landscape(**graphkwargs)
         view_pygraphviz(graph, **pygraphkwargs)
         # nx.nx_agraph.view_pygraphviz(self.__transition_graph, **pygraphkwargs)
 
