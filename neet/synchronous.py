@@ -24,7 +24,7 @@ API Documentation
 import networkx as nx
 import numpy as np
 import pyinform as pi
-
+from .draw import view_pygraphviz
 
 class LandscapeData(object):
     """
@@ -301,7 +301,7 @@ class LandscapeMixin:
         .. doctest:: synchronous
 
             >>> landscape = Landscape(s_pombe)
-            >>> landscape.graph
+            >>> landscape.transition_graph
             <networkx.classes.digraph.DiGraph object at 0x106504810>
         """
         if not self.__landscaped:
@@ -310,6 +310,46 @@ class LandscapeMixin:
             self.__transition_graph = nx.DiGraph(
                 list(enumerate(self.__landscape_data.transitions)))
         return self.__transition_graph
+
+    def to_transition_graph(self, **kwargs):
+        """
+        The state transitions graph of the landscape as a
+        ``networkx.Digraph``.
+
+        .. rubric:: Examples
+
+        .. doctest:: synchronous
+
+            >>> landscape = Landscape(s_pombe)
+            >>> landscape.transition_graph
+            <networkx.classes.digraph.DiGraph object at 0x106504810>
+        """
+        if not self.__landscaped:
+            self.landscape()
+        return nx.DiGraph(
+                list(enumerate(self.__landscape_data.transitions)), **kwargs)
+        # if self.__transition_graph is None:
+        #     self.__transition_graph = nx.DiGraph(
+        #         list(enumerate(self.__landscape_data.transitions)))
+        # return self.__transition_graph
+    
+    def draw_transitions(self, graphkwargs=dict(), pygraphkwargs={'prog': 'dot'}):
+        """
+        Draw networkx graph using PyGraphviz.
+
+        Requires graphviz (cannot be installed via pip--see:
+        https://graphviz.gitlab.io/download/) and pygraphviz
+        (can be installed via pip).
+
+        :param pygraphkwargs: kwargs to pass to view_pygraphviz
+        """
+        # if not self.__landscaped:
+        #     self.landscape()
+        # if not self.__transition_graph:
+        #     self.transition_graph
+        graph = self.to_transition_graph(**graphkwargs)
+        view_pygraphviz(graph, **pygraphkwargs)
+        # nx.nx_agraph.view_pygraphviz(self.__transition_graph, **pygraphkwargs)
 
     @property
     def basin_entropy(self):
@@ -666,7 +706,7 @@ class LandscapeMixin:
 
         return series
 
-    def draw(self, pygraphkwargs={'prog': 'dot'}):
+    def draw_transition_graph(self, pygraphkwargs={'prog': 'dot'}):
         """
         Draw networkx graph using PyGraphviz.
 
@@ -679,5 +719,5 @@ class LandscapeMixin:
         if not self.__landscaped:
             self.landscape()
         if not self.__transition_graph:
-            self.graph
+            self.transition_graph
         nx.nx_agraph.view_pygraphviz(self.__transition_graph, **pygraphkwargs)
