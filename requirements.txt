@@ -2,3 +2,4 @@ six
 numpy
 networkx
 pyinform
+pygraphviz
