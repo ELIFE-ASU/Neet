@@ -445,13 +445,13 @@ class TestLandscape(unittest.TestCase):
     def test_graph_eca(self):
         for size in range(2, 7):
             net = ECA(30, size)
-            g = net.transition_graph
+            g = net.to_transition_graph()
             self.assertEqual(net.volume, g.number_of_nodes())
             self.assertEqual(net.volume, g.number_of_edges())
 
     def test_graph_wtnetworks(self):
         for net in [s_pombe, s_cerevisiae, c_elegans]:
-            g = net.transition_graph
+            g = net.to_transition_graph()
             self.assertEqual(net.volume, g.number_of_nodes())
             self.assertEqual(net.volume, g.number_of_edges())
 

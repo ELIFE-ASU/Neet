@@ -82,7 +82,7 @@ class LandscapeMixin:
         self.__values = values
 
         self.__expounded = False
-        self.__transition_graph = None
+        # self.__transition_graph = None
 
         update = self._unsafe_update
         encode = self._unsafe_encode
@@ -290,26 +290,26 @@ class LandscapeMixin:
             self.expound()
         return self.__landscape_data.recurrence_times
 
-    @property
-    def transition_graph(self):
-        """
-        The state transitions graph of the landscape as a
-        ``networkx.Digraph``.
+    # @property
+    # def transition_graph(self):
+    #     """
+    #     The state transitions graph of the landscape as a
+    #     ``networkx.Digraph``.
 
-        .. rubric:: Examples
+    #     .. rubric:: Examples
 
-        .. doctest:: synchronous
+    #     .. doctest:: synchronous
 
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.transition_graph
-            <networkx.classes.digraph.DiGraph object at 0x106504810>
-        """
-        if not self.__landscaped:
-            self.landscape()
-        if self.__transition_graph is None:
-            self.__transition_graph = nx.DiGraph(
-                list(enumerate(self.__landscape_data.transitions)))
-        return self.__transition_graph
+    #         >>> landscape = Landscape(s_pombe)
+    #         >>> landscape.transition_graph
+    #         <networkx.classes.digraph.DiGraph object at 0x106504810>
+    #     """
+    #     if not self.__landscaped:
+    #         self.landscape()
+    #     if self.__transition_graph is None:
+    #         self.__transition_graph = nx.DiGraph(
+    #             list(enumerate(self.__landscape_data.transitions)))
+    #     return self.__transition_graph
 
     def to_transition_graph(self, **kwargs):
         """
@@ -706,18 +706,18 @@ class LandscapeMixin:
 
         return series
 
-    def draw_transition_graph(self, pygraphkwargs={'prog': 'dot'}):
-        """
-        Draw networkx graph using PyGraphviz.
+    # def draw_transition_graph(self, pygraphkwargs={'prog': 'dot'}):
+    #     """
+    #     Draw networkx graph using PyGraphviz.
 
-        Requires graphviz (cannot be installed via pip--see:
-        https://graphviz.gitlab.io/download/) and pygraphviz
-        (can be installed via pip).
+    #     Requires graphviz (cannot be installed via pip--see:
+    #     https://graphviz.gitlab.io/download/) and pygraphviz
+    #     (can be installed via pip).
 
-        :param pygraphkwargs: kwargs to pass to view_pygraphviz
-        """
-        if not self.__landscaped:
-            self.landscape()
-        if not self.__transition_graph:
-            self.transition_graph
-        nx.nx_agraph.view_pygraphviz(self.__transition_graph, **pygraphkwargs)
+    #     :param pygraphkwargs: kwargs to pass to view_pygraphviz
+    #     """
+    #     if not self.__landscaped:
+    #         self.landscape()
+    #     if not self.__transition_graph:
+    #         self.transition_graph
+    #     nx.nx_agraph.view_pygraphviz(self.__transition_graph, **pygraphkwargs)
