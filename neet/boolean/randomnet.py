@@ -26,7 +26,7 @@ from .logicnetwork import LogicNetwork
 from deprecated.sphinx import deprecated
 
 
-@deprecated(version='1.0', reason='This function will be removed in version 2.0.0')
+@deprecated(version='1.0', reason='This function will be replaced in version 2.0.0')
 def random_logic(logic_net, p=0.5, connections='fixed-structure',
                  fix_external=False, make_irreducible=False,
                  fix_canalizing=False):
