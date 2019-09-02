@@ -24,7 +24,6 @@ API Documentation
 import networkx as nx
 import numpy as np
 import pyinform as pi
-from .draw import view_pygraphviz
 
 class LandscapeData(object):
     """
@@ -325,6 +324,7 @@ class LandscapeMixin:
         :param graphkwargs: kwargs to pass to `landscape_graph`
         :param pygraphkwargs: kwargs to pass to `view_pygraphviz`
         """
+        from .draw import view_pygraphviz
         default_args = { 'prog': 'dot' }
         graph = self.landscape_graph(**graphkwargs)
         view_pygraphviz(graph, **dict(default_args, **pygraphkwargs))

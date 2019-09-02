@@ -14,7 +14,6 @@ from abc import ABCMeta, abstractmethod
 from .python import long
 from .statespace import StateSpace
 from .synchronous import LandscapeMixin
-from .draw import view_pygraphviz
 import networkx as nx
 import six
 
@@ -117,6 +116,7 @@ class Network(LandscapeMixin, StateSpace):
         return nx.DiGraph(edges, **kwargs)
 
     def draw_network_graph(self, graphkwargs={}, pygraphkwargs={}):
+        from .draw import view_pygraphviz
         default_args = { 'prog': 'circo' }
         graph = self.network_graph(**graphkwargs)
         view_pygraphviz(graph, **dict(default_args, **pygraphkwargs))
