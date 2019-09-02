@@ -15,7 +15,7 @@ setup(
     maintainer_email='doug@dglmoore.com',
     url='https://github.com/elife-asu/neet',
     license=LICENSE,
-    install_requires=['six', 'numpy', 'networkx', 'pyinform', 'pygraphviz'],
+    install_requires=['six', 'numpy', 'networkx', 'pyinform', 'deprecated', 'pygraphviz'],
     setup_requires=['green'],
     packages=['neet', 'neet.boolean'],
     package_data={'neet.boolean': ['data/*.txt', 'data/*.dat']},

@@ -3,3 +3,4 @@ numpy
 networkx
 pyinform
 pygraphviz
+deprecated
