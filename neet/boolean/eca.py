@@ -365,10 +365,10 @@ class ECA(BooleanNetwork):
 
         return {left, index, right}
 
-    def to_networkx_network(self, *args, **kwargs):
+    def network_graph(self, *args, **kwargs):
         kwargs['code'] = self.code
         kwargs['boundary'] = self.boundary
-        return super(ECA, self).to_networkx_network(*args, **kwargs)
+        return super(ECA, self).network_graph(*args, **kwargs)
 
 
 BooleanNetwork.register(ECA)

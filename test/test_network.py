@@ -45,17 +45,17 @@ class TestNetwork(unittest.TestCase):
 
         self.assertTrue(net.neighbors(0), [set([0])])
 
-    def test_to_networkx_network_LogicNetwork(self):
+    def test_network_graph_LogicNetwork(self):
         net = bnet.LogicNetwork([((1, 2), {'01', '10'}),
                                  ((0, 2), ((0, 1), '10', [1, 1])),
                                  ((0, 1), {'11'})], ['A', 'B', 'C'])
 
-        nx_net = net.to_networkx_network(labels='names', title='Logic Network')
+        nx_net = net.network_graph(labels='names', title='Logic Network')
         self.assertEqual(set(nx_net), set(['A', 'B', 'C']))
         self.assertEqual(nx_net.graph['title'], 'Logic Network')
 
-    def test_to_networkx_network_WTNetwork(self):
-        nx_net = s_pombe.to_networkx_network(labels='names', title='S. pombe')
+    def test_network_graph_WTNetwork(self):
+        nx_net = s_pombe.network_graph(labels='names', title='S. pombe')
         self.assertEqual(set(nx_net), set(s_pombe.names))
         self.assertEqual(nx_net.graph['name'], 's_pombe')
         self.assertEqual(nx_net.graph['title'], 'S. pombe')
@@ -64,7 +64,7 @@ class TestNetwork(unittest.TestCase):
         net = bnet.ECA(30, 3)
         net.boundary = (1, 0)
 
-        nx_net = net.to_networkx_network()
+        nx_net = net.network_graph()
 
         self.assertEqual(nx_net.graph['code'], 30)
         self.assertEqual(nx_net.graph['boundary'], (1, 0))
