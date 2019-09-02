@@ -14,6 +14,7 @@ from abc import ABCMeta, abstractmethod
 from .python import long
 from .statespace import StateSpace
 from .synchronous import LandscapeMixin
+from .draw import view_pygraphviz
 import networkx as nx
 import six
 
@@ -101,7 +102,7 @@ class Network(LandscapeMixin, StateSpace):
             outputs = self.neighbors_out(index, *args, **kwargs)
             return inputs.union(outputs)
 
-    def to_networkx_graph(self, labels='indices', **kwargs):
+    def network_graph(self, labels='indices', **kwargs):
         if labels == 'indices':
             edges = [(i, j) for i in range(self.size) for j in self.neighbors_out(i)]
         elif labels == 'names' and self.names is not None:
@@ -115,10 +116,10 @@ class Network(LandscapeMixin, StateSpace):
         kwargs.update(self.metadata)
         return nx.DiGraph(edges, **kwargs)
 
-    def draw(self, graphkwargs=dict(), pygraphkwargs={'prog': 'circo'}):
-        graph = self.to_networkx_graph(**graphkwargs)
-        nx.nx_agraph.view_pygraphviz(graph, **pygraphkwargs)
-
+    def draw_network_graph(self, graphkwargs={}, pygraphkwargs={}):
+        default_args = { 'prog': 'circo' }
+        graph = self.network_graph(**graphkwargs)
+        view_pygraphviz(graph, **dict(default_args, **pygraphkwargs))
 
 class UniformNetwork(Network):
     def __init__(self, size, base, names=None, metadata=None):

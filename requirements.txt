@@ -2,4 +2,5 @@ six
 numpy
 networkx
 pyinform
+pygraphviz
 deprecated

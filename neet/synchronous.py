@@ -24,7 +24,7 @@ API Documentation
 import networkx as nx
 import numpy as np
 import pyinform as pi
-
+from .draw import view_pygraphviz
 
 class LandscapeData(object):
     """
@@ -82,7 +82,7 @@ class LandscapeMixin:
         self.__values = values
 
         self.__expounded = False
-        self.__transition_graph = None
+        self.__landscape_graph = None
 
         update = self._unsafe_update
         encode = self._unsafe_encode
@@ -290,8 +290,7 @@ class LandscapeMixin:
             self.expound()
         return self.__landscape_data.recurrence_times
 
-    @property
-    def transition_graph(self):
+    def landscape_graph(self, **kwargs):
         """
         The state transitions graph of the landscape as a
         ``networkx.Digraph``.
@@ -301,15 +300,34 @@ class LandscapeMixin:
         .. doctest:: synchronous
 
             >>> landscape = Landscape(s_pombe)
-            >>> landscape.graph
+            >>> landscape.landscape_graph
             <networkx.classes.digraph.DiGraph object at 0x106504810>
+        
+        :param kwargs: kwargs to pass to `nx.DiGraph`
         """
         if not self.__landscaped:
             self.landscape()
-        if self.__transition_graph is None:
-            self.__transition_graph = nx.DiGraph(
-                list(enumerate(self.__landscape_data.transitions)))
-        return self.__transition_graph
+        if self.__landscape_graph is None:
+            self.__landscape_graph = nx.DiGraph(
+                list(enumerate(self.__landscape_data.transitions)), **kwargs)
+        elif (len(kwargs)!=0):
+            self.__landscape_graph.graph.update(kwargs)
+        return self.__landscape_graph
+
+    def draw_landscape_graph(self, graphkwargs={}, pygraphkwargs={}):
+        """
+        Draw networkx graph using PyGraphviz.
+
+        Requires graphviz (cannot be installed via pip--see:
+        https://graphviz.gitlab.io/download/) and pygraphviz
+        (can be installed via pip).
+
+        :param graphkwargs: kwargs to pass to `landscape_graph`
+        :param pygraphkwargs: kwargs to pass to `view_pygraphviz`
+        """
+        default_args = { 'prog': 'dot' }
+        graph = self.landscape_graph(**graphkwargs)
+        view_pygraphviz(graph, **dict(default_args, **pygraphkwargs))
 
     @property
     def basin_entropy(self):
@@ -665,19 +683,3 @@ class LandscapeMixin:
                 k = trans[k]
 
         return series
-
-    def draw(self, pygraphkwargs={'prog': 'dot'}):
-        """
-        Draw networkx graph using PyGraphviz.
-
-        Requires graphviz (cannot be installed via pip--see:
-        https://graphviz.gitlab.io/download/) and pygraphviz
-        (can be installed via pip).
-
-        :param pygraphkwargs: kwargs to pass to view_pygraphviz
-        """
-        if not self.__landscaped:
-            self.landscape()
-        if not self.__transition_graph:
-            self.graph
-        nx.nx_agraph.view_pygraphviz(self.__transition_graph, **pygraphkwargs)
