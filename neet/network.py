@@ -119,7 +119,7 @@ class Network(LandscapeMixin, StateSpace):
     def draw_network_graph(self, graphkwargs={}, pygraphkwargs={}):
         default_args = { 'prog': 'circo' }
         graph = self.network_graph(**graphkwargs)
-        view_pygraphviz(graph, dict(default_args, **pygraphkwargs))
+        view_pygraphviz(graph, **dict(default_args, **pygraphkwargs))
 
 class UniformNetwork(Network):
     def __init__(self, size, base, names=None, metadata=None):

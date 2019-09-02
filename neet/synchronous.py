@@ -328,7 +328,7 @@ class LandscapeMixin:
         """
         default_args = { 'prog': 'dot' }
         graph = self.landscape_graph(**graphkwargs)
-        view_pygraphviz(graph, dict(default_args, **pygraphkwargs))
+        view_pygraphviz(graph, **dict(default_args, **pygraphkwargs))
 
     @property
     def basin_entropy(self):
