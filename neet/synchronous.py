@@ -290,7 +290,7 @@ class LandscapeMixin:
             self.expound()
         return self.__landscape_data.recurrence_times
 
-    def landscape_graph(self, replace=False, **kwargs):
+    def landscape_graph(self, **kwargs):
         """
         The state transitions graph of the landscape as a
         ``networkx.Digraph``.
@@ -303,16 +303,15 @@ class LandscapeMixin:
             >>> landscape.landscape_graph
             <networkx.classes.digraph.DiGraph object at 0x106504810>
         
-        :param replace: create and cache a new `landscape_graph`
         :param kwargs: kwargs to pass to `nx.DiGraph`
         """
         if not self.__landscaped:
             self.landscape()
-        if (self.__landscape_graph is None) or (replace == True):
+        if self.__landscape_graph is None:
             self.__landscape_graph = nx.DiGraph(
                 list(enumerate(self.__landscape_data.transitions)), **kwargs)
-        elif (replace==False) and (len(kwargs)!=0):
-            raise ValueError("kwargs can only be provided if self.__landscape_graph==None or replace==True")
+        elif (len(kwargs)!=0):
+            self.__landscape_graph.graph.update(kwargs)
         return self.__landscape_graph
 
     def draw_landscape_graph(self, graphkwargs={}, pygraphkwargs={}):
