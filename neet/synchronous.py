@@ -82,7 +82,7 @@ class LandscapeMixin:
         self.__values = values
 
         self.__expounded = False
-        # self.__transition_graph = None
+        self.__landscape_graph = None
 
         update = self._unsafe_update
         encode = self._unsafe_encode
@@ -290,7 +290,7 @@ class LandscapeMixin:
             self.expound()
         return self.__landscape_data.recurrence_times
 
-    def to_networkx_landscape(self, **kwargs):
+    def landscape_graph(self, replace=False, **kwargs):
         """
         The state transitions graph of the landscape as a
         ``networkx.Digraph``.
@@ -300,15 +300,22 @@ class LandscapeMixin:
         .. doctest:: synchronous
 
             >>> landscape = Landscape(s_pombe)
-            >>> landscape.transition_graph
+            >>> landscape.landscape_graph
             <networkx.classes.digraph.DiGraph object at 0x106504810>
+        
+        :param replace: create and cache a new `landscape_graph`
+        :param kwargs: kwargs to pass to `nx.DiGraph`
         """
         if not self.__landscaped:
             self.landscape()
-        return nx.DiGraph(
+        if (self.__landscape_graph is None) or (replace == True):
+            self.__landscape_graph = nx.DiGraph(
                 list(enumerate(self.__landscape_data.transitions)), **kwargs)
-    
-    def draw_landscape(self, graphkwargs=dict(), pygraphkwargs={'prog': 'dot'}):
+        elif (replace==False) and (len(kwargs)!=0):
+            raise ValueError("kwargs can only be provided if self.__landscape_graph==None or replace==True")
+        return self.__landscape_graph
+
+    def draw_landscape_graph(self, graphkwargs={}, pygraphkwargs={}):
         """
         Draw networkx graph using PyGraphviz.
 
@@ -316,10 +323,12 @@ class LandscapeMixin:
         https://graphviz.gitlab.io/download/) and pygraphviz
         (can be installed via pip).
 
-        :param pygraphkwargs: kwargs to pass to view_pygraphviz
+        :param graphkwargs: kwargs to pass to `landscape_graph`
+        :param pygraphkwargs: kwargs to pass to `view_pygraphviz`
         """
-        graph = self.to_networkx_landscape(**graphkwargs)
-        view_pygraphviz(graph, **pygraphkwargs)
+        default_args = { 'prog': 'dot' }
+        graph = self.landscape_graph(**graphkwargs)
+        view_pygraphviz(graph, dict(default_args, **pygraphkwargs))
 
     @property
     def basin_entropy(self):
