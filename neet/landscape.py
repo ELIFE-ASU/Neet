@@ -326,7 +326,7 @@ class LandscapeMixin:
 
     def draw_landscape_graph(self, graphkwargs={}, pygraphkwargs={}):
         """
-        Draw networkx graph using PyGraphviz.
+        Draw landscape's networkx graph using PyGraphviz.
 
         Requires graphviz (cannot be installed via pip--see:
         https://graphviz.gitlab.io/download/) and pygraphviz
