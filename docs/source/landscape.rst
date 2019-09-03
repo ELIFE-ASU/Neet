@@ -1,4 +1,4 @@
-.. automodule:: neet.synchronous
+.. automodule:: neet.landscape
     :synopsis: Landscape analysis of synchronous networks
 
     Time Series Generation

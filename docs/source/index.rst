@@ -68,7 +68,7 @@ Contents
     interfaces
     automata
     boolean
-    synchronous
+    landscape
     sensitivity
     information
     exceptions

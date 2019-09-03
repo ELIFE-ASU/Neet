@@ -6,7 +6,7 @@
     from neet.boolean import LogicNetwork
     from neet.boolean.conv import *
     from neet.boolean.examples import s_pombe
-    from neet.synchronous import transitions
+    from neet.landscape import transitions
 
 Network Type Conversion
 =======================

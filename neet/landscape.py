@@ -1,15 +1,15 @@
 """
-.. currentmodule:: neet.synchronous
+.. currentmodule:: neet.landscape
 
-.. testsetup:: synchronous
+.. testsetup:: landscape
 
     from math import e
     from neet.automata import ECA
     from neet.boolean import WTNetwork
     from neet.boolean.examples import s_pombe
-    from neet.synchronous import *
+    from neet.landscape import *
 
-Synchronous Network Analysis
+Landscape Network Analysis
 ============================
 
 The disadvantage of these functions is that they cannot share any
@@ -63,12 +63,12 @@ class LandscapeMixin:
 
         .. rubric:: Examples
 
-        .. doctest:: synchronous
+        .. doctest:: landscape
 
             >>> Landscape(s_pombe)
-            <neet.synchronous.Landscape object at 0x...>
+            <neet.landscape.Landscape object at 0x...>
             >>> Landscape(ECA(30, 5))
-            <neet.synchronous.Landscape object at 0x...>
+            <neet.landscape.Landscape object at 0x...>
 
         :param net: the network
         :param index: the index to update (or None)
@@ -113,7 +113,7 @@ class LandscapeMixin:
 
         .. rubric:: Examples
 
-        .. doctest:: synchronous
+        .. doctest:: landscape
 
             >>> landscape = Landscape(s_pombe)
             >>> landscape.transitions
@@ -137,7 +137,7 @@ class LandscapeMixin:
 
         .. rubric:: Examples
 
-        .. doctest:: synchronous
+        .. doctest:: landscape
 
             >>> landscape = Landscape(s_pombe)
             >>> landscape.attractors
@@ -159,7 +159,7 @@ class LandscapeMixin:
 
         .. rubric:: Examples
 
-        .. doctest:: synchronous
+        .. doctest:: landscape
 
             >>> landscape = Landscape(s_pombe)
             >>> landscape.basins
@@ -182,7 +182,7 @@ class LandscapeMixin:
 
         .. rubric:: Examples
 
-        .. doctest:: synchronous
+        .. doctest:: landscape
 
             >>> landscape = Landscape(s_pombe)
             >>> landscape.basin_sizes
@@ -201,7 +201,7 @@ class LandscapeMixin:
 
         .. rubric:: Examples
 
-        .. doctest:: synchronous
+        .. doctest:: landscape
 
             >>> landscape = Landscape(s_pombe)
             >>> landscape.in_degrees
@@ -227,7 +227,7 @@ class LandscapeMixin:
 
         .. rubric:: Examples
 
-        .. doctest:: synchronous
+        .. doctest:: landscape
 
             >>> landscape = Landscape(s_pombe)
             >>> landscape.heights
@@ -251,7 +251,7 @@ class LandscapeMixin:
 
         .. rubric:: Examples
 
-        .. doctest:: synchronous
+        .. doctest:: landscape
 
             >>> landscape = Landscape(s_pombe)
             >>> landscape.attractor_lengths
@@ -273,7 +273,7 @@ class LandscapeMixin:
 
         .. rubric:: Examples
 
-        .. doctest:: synchronous
+        .. doctest:: landscape
 
             >>> landscape = Landscape(s_pombe)
             >>> landscape.recurrence_times
@@ -296,7 +296,7 @@ class LandscapeMixin:
 
         .. rubric:: Examples
 
-        .. doctest:: synchronous
+        .. doctest:: landscape
 
             >>> landscape = Landscape(s_pombe)
             >>> landscape.landscape_graph
@@ -339,7 +339,7 @@ class LandscapeMixin:
 
         .. rubric:: Examples
 
-        .. doctest:: synchronous
+        .. doctest:: landscape
 
             >>> landscape = Landscape(s_pombe)
             >>> landscape.basin_entropy()
@@ -540,7 +540,7 @@ class LandscapeMixin:
 
         .. rubric:: Examples
 
-        .. doctest:: synchronous
+        .. doctest:: landscape
 
             >>> landscape = Landscape(s_pombe)
             >>> landscape.trajectory([1,0,0,1,0,1,1,0,1])
@@ -618,7 +618,7 @@ class LandscapeMixin:
 
         .. rubric:: Examples
 
-        .. doctest:: synchronous
+        .. doctest:: landscape
 
             >>> landscape = Landscape(s_pombe)
             >>> landscape.timeseries(5)

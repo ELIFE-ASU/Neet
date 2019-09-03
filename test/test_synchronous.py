@@ -6,7 +6,7 @@ import numpy as np
 
 class TestLandscape(unittest.TestCase):
     """
-    Test the ``neet.synchronous.Landscape`` class
+    Test the ``neet.landscape.Landscape`` class
     """
 
     def test_canary(self):

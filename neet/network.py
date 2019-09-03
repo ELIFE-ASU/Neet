@@ -13,7 +13,7 @@ API Documentation
 from abc import ABCMeta, abstractmethod
 from .python import long
 from .statespace import StateSpace
-from .synchronous import LandscapeMixin
+from .landscape import LandscapeMixin
 import networkx as nx
 import six
 

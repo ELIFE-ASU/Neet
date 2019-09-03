@@ -19,8 +19,6 @@ target regardless of other sources.
 API Documentation
 -----------------
 """
-# from neet.synchronous import Landscape
-
 import copy
 import numpy as np
 import numpy.linalg as linalg
