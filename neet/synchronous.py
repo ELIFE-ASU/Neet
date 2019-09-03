@@ -54,6 +54,7 @@ class LandscapeMixin:
 
     def clear_landscape(self):
         self.__landscaped = False
+        self.__landscape_graph = None
         self.__landscape_data = LandscapeData()
 
     def landscape(self, index=None, pin=None, values=None):
@@ -81,7 +82,6 @@ class LandscapeMixin:
         self.__values = values
 
         self.__expounded = False
-        self.__landscape_graph = None
 
         update = self._unsafe_update
         encode = self._unsafe_encode
