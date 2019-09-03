@@ -53,6 +53,9 @@ class LandscapeMixin:
     __landscape_data = LandscapeData()
 
     def clear_landscape(self):
+        """
+        Clears landscape's data and graph from memory, and sets `self.__landscaped == False`
+        """
         self.__landscaped = False
         self.__landscape_graph = None
         self.__landscape_data = LandscapeData()
@@ -65,16 +68,14 @@ class LandscapeMixin:
 
         .. doctest:: landscape
 
-            >>> Landscape(s_pombe)
-            <neet.landscape.Landscape object at 0x...>
-            >>> Landscape(ECA(30, 5))
-            <neet.landscape.Landscape object at 0x...>
+            >>> s_pombe.landscape()
+            <neet.boolean.wtnetwork.WTNetwork at 0x...>
+            >>> ECA(30,5).landscape()
+            <neet.boolean.eca.ECA at 0x...>
 
-        :param net: the network
         :param index: the index to update (or None)
         :param pin: the indices to pin during update (or None)
         :param values: a dictionary of index-value pairs to set after update
-        :raises TypeError: if ``net`` is not a network
         """
 
         self.__index = index
