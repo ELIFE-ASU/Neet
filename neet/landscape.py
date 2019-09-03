@@ -4,8 +4,7 @@
 .. testsetup:: landscape
 
     from math import e
-    from neet.automata import ECA
-    from neet.boolean import WTNetwork
+    from neet.boolean import WTNetwork, ECA
     from neet.boolean.examples import s_pombe
     from neet.landscape import *
 
@@ -102,6 +101,9 @@ class LandscapeMixin:
 
     @property
     def landscape_data(self):
+        """
+        Property used to store calculated (expounded) data.
+        """
         return self.__landscape_data
 
     @property
@@ -116,13 +118,14 @@ class LandscapeMixin:
 
         .. doctest:: landscape
 
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.transitions
+            >>> s_pombe.transitions
             array([  2,   2, 130, 130,   4,   0, 128, 128,   8,   0, 128, 128,  12,
                      0, 128, 128, 256, 256, 384, 384, 260, 256, 384, 384, 264, 256,
                    ...
                    208, 208, 336, 336, 464, 464, 340, 336, 464, 464, 344, 336, 464,
                    464, 348, 336, 464, 464])
+        
+        :return: array of state transitions
         """
         if not self.__landscaped:
             self.landscape()
@@ -140,12 +143,13 @@ class LandscapeMixin:
 
         .. doctest:: landscape
 
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.attractors
+            >>> s_pombe.attractors
             array([array([76]), array([4]), array([8]), array([12]),
                    array([144, 110, 384]), array([68]), array([72]), array([132]),
                    array([136]), array([140]), array([196]), array([200]),
                    array([204])], dtype=object)
+        
+        :return: array of attractors, where each attractor is an array
         """
         if not self.__landscaped:
             self.landscape()
@@ -162,13 +166,14 @@ class LandscapeMixin:
 
         .. doctest:: landscape
 
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.basins
+            >>> s_pombe.basins
             array([ 0,  0,  0,  0,  1,  0,  0,  0,  2,  0,  0,  0,  3,  0,  0,  0,  0,
                     0,  4,  4,  0,  0,  4,  4,  0,  0,  4,  4,  0,  0,  4,  4,  4,  4,
                     ...
                     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                     0,  0])
+        
+        :return: array of basin numbers
         """
         if not self.__landscaped:
             self.landscape()
@@ -185,9 +190,10 @@ class LandscapeMixin:
 
         .. doctest:: landscape
 
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.basin_sizes
+            >>> s_pombe.basin_sizes
             array([378,   2,   2,   2, 104,   6,   6,   2,   2,   2,   2,   2,   2])
+        
+        :return: array of basin sizes
         """
         if not self.__landscaped:
             self.landscape()
@@ -204,13 +210,14 @@ class LandscapeMixin:
 
         .. doctest:: landscape
 
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.in_degrees
+            >>> s_pombe.in_degrees
             array([ 6,  0,  4,  0,  2,  0,  0,  0,  2,  0,  0,  0,  2,  0,  0,  0, 12,
                     0,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                     ...
                     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                     0,  0])
+        
+        :return: array of the in-degree of each state
         """
         if not self.__landscaped:
             self.landscape()
@@ -230,13 +237,14 @@ class LandscapeMixin:
 
         .. doctest:: landscape
 
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.heights
+            >>> s_pombe.heights
             array([7, 7, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 8, 8, 1, 1, 2, 8,
                    1, 1, 2, 8, 1, 1, 2, 8, 1, 1, 2, 2, 2, 2, 9, 9, 1, 1, 9, 9, 1, 1,
                    ...
                    3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
                    3, 3, 3, 3, 3, 3])
+        
+        :return: array of the height of each state
         """
         if not self.__landscaped:
             self.landscape()
@@ -254,9 +262,10 @@ class LandscapeMixin:
 
         .. doctest:: landscape
 
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.attractor_lengths
+            >>> s_pombe.attractor_lengths
             array([1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1])
+        
+        :return: array of attractor lengths
         """
         if not self.__landscaped:
             self.landscape()
@@ -276,13 +285,14 @@ class LandscapeMixin:
 
         .. doctest:: landscape
 
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.recurrence_times
+            >>> s_pombe.recurrence_times
             array([7, 7, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 0, 8, 6, 6, 8, 8, 3, 3, 2, 8,
                    3, 3, 2, 8, 3, 3, 2, 8, 3, 3, 4, 4, 4, 4, 9, 9, 3, 3, 9, 9, 3, 3,
                    ...
                    3, 9, 9, 9, 3, 9, 9, 9, 3, 9, 9, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
                    3, 3, 3, 3, 3, 3])
+        
+        :return: array of recurrance times
         """
         if not self.__landscaped:
             self.landscape()
@@ -299,11 +309,11 @@ class LandscapeMixin:
 
         .. doctest:: landscape
 
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.landscape_graph
+            >>> s_pombe.landscape_graph()
             <networkx.classes.digraph.DiGraph object at 0x106504810>
         
         :param kwargs: kwargs to pass to `nx.DiGraph`
+        :return: a networkx DiGraph object
         """
         if not self.__landscaped:
             self.landscape()
@@ -321,6 +331,12 @@ class LandscapeMixin:
         Requires graphviz (cannot be installed via pip--see:
         https://graphviz.gitlab.io/download/) and pygraphviz
         (can be installed via pip).
+
+        .. rubric:: Examples
+
+        .. doctest:: landscape
+
+            >>> s_pombe.draw_landscape_graph()
 
         :param graphkwargs: kwargs to pass to `landscape_graph`
         :param pygraphkwargs: kwargs to pass to `view_pygraphviz`
@@ -342,14 +358,10 @@ class LandscapeMixin:
 
         .. doctest:: landscape
 
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.basin_entropy()
-            1.221888833884975
-            >>> landscape.basin_entropy(base=2)
+            >>> s_pombe.basin_entropy
             1.221888833884975
 
-        :type base: a number or ``None``
-        :return: the basin entropy of the landscape of type ``float``
+        :return: basin entropy in bits
         """
         if not self.__landscaped:
             self.landscape()
@@ -373,6 +385,7 @@ class LandscapeMixin:
             - :method:`attractors`
             - :method:`basins`
             - :method:`basin_sizes`
+            - :method:`basin_entropy`
             - :method:`in_degrees`
             - :method:`heights`
             - :method:`attractor_lengths`
@@ -543,23 +556,22 @@ class LandscapeMixin:
 
         .. doctest:: landscape
 
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.trajectory([1,0,0,1,0,1,1,0,1])
+            >>> s_pombe.trajectory([1,0,0,1,0,1,1,0,1])
             [[1, 0, 0, 1, 0, 1, 1, 0, 1], ... [0, 0, 1, 1, 0, 0, 1, 0, 0]]
 
-            >>> landscape.trajectory([1,0,0,1,0,1,1,0,1], encode=True)
+            >>> s_pombe.trajectory([1,0,0,1,0,1,1,0,1], encode=True)
             [361, 80, 320, 78, 128, 162, 178, 400, 332, 76]
 
-            >>> landscape.trajectory(361)
+            >>> s_pombe.trajectory(361)
             [361, 80, 320, 78, 128, 162, 178, 400, 332, 76]
 
-            >>> landscape.trajectory(361, encode=False)
+            >>> s_pombe.trajectory(361, encode=False)
             [[1, 0, 0, 1, 0, 1, 1, 0, 1], ... [0, 0, 1, 1, 0, 0, 1, 0, 0]]
 
-            >>> landscape.trajectory(361, timesteps=5)
+            >>> s_pombe.trajectory(361, timesteps=5)
             [361, 80, 320, 78, 128, 162]
 
-            >>> landscape.trajectory(361, timesteps=10)
+            >>> s_pombe.trajectory(361, timesteps=10)
             [361, 80, 320, 78, 128, 162, 178, 400, 332, 76, 76]
 
         :param init: the initial state
@@ -621,8 +633,7 @@ class LandscapeMixin:
 
         .. doctest:: landscape
 
-            >>> landscape = Landscape(s_pombe)
-            >>> landscape.timeseries(5)
+            >>> s_pombe.timeseries(5)
             array([[[0, 0, 0, 0, 0, 0],
                     [1, 0, 0, 0, 0, 0],
                     [0, 0, 0, 0, 0, 0],
