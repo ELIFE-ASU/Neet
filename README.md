@@ -2,15 +2,6 @@
 
 [![][doc-stable-img]][doc-stable-url] [![][doc-latest-img]][doc-latest-url] [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url]
 
-**Neet** is a python package designed to provide an easy-to-use API for creating
-and evaluating network models. In its current state, **Neet** supports
-simulating synchronous Boolean network models, though the API is designed to be
-model generic. Future work will implement asynchronous update mechanisms and
-more general network types.
-
-If you are interested in using **Neet**, you'll definitely be interested in
-checking out the documentation - https://elife-asu.github.io/Neet.
-
 [travis-img]: https://travis-ci.org/ELIFE-ASU/Neet.svg?branch=master
 [travis-url]: https://travis-ci.org/ELIFE-ASU/Neet
 
@@ -25,6 +16,12 @@ checking out the documentation - https://elife-asu.github.io/Neet.
 
 [doc-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [doc-stable-url]: https://neet.readthedocs.io/en/stable
+
+**Neet** is a python package designed to provide an easy-to-use API for creating
+and evaluating network models. In its current state, **Neet** supports
+simulating synchronous Boolean network models, though the API is designed to be
+model generic. Future work will implement asynchronous update mechanisms and
+more general network types.
 
 ## Installation
 
