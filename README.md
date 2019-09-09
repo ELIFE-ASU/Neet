@@ -1,5 +1,7 @@
 # Neet: Simulating and analyzing network models
 
+[![][doc-stable-img]][doc-stable-url] [![][doc-latest-img]][doc-latest-url] [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url]
+
 **Neet** is a python package designed to provide an easy-to-use API for creating
 and evaluating network models. In its current state, **Neet** supports
 simulating synchronous Boolean network models, though the API is designed to be
@@ -9,10 +11,6 @@ more general network types.
 If you are interested in using **Neet**, you'll definitely be interested in
 checking out the documentation - https://elife-asu.github.io/Neet.
 
-| **Build Status**                                                                                |
-|:-----------------------------------------------------------------------------------------------:|
-| [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
-
 [travis-img]: https://travis-ci.org/ELIFE-ASU/Neet.svg?branch=master
 [travis-url]: https://travis-ci.org/ELIFE-ASU/Neet
 
@@ -21,6 +19,12 @@ checking out the documentation - https://elife-asu.github.io/Neet.
 
 [codecov-img]: https://codecov.io/gh/elife-asu/neet/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/elife-asu/neet
+
+[doc-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
+[doc-latest-url]: https://neet.readthedocs.io/en/latest
+
+[doc-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
+[doc-stable-url]: https://neet.readthedocs.io/en/stable
 
 ## Installation
 
