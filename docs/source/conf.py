@@ -155,6 +155,3 @@ texinfo_documents = [
      author, 'Neet', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-

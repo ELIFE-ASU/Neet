@@ -64,14 +64,7 @@ Contents
 .. toctree::
 
     getting-started
-    statespace
-    interfaces
-    automata
-    boolean
-    landscape
-    sensitivity
-    information
-    exceptions
+    api
     zrefs
 
 Indices and tables
