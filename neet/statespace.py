@@ -64,6 +64,7 @@ class StateSpace(object):
     :type shape: list
     :see: :class:`UniformSpace`
     """
+
     def __init__(self, shape):
         if isinstance(shape, list):
             if len(shape) == 0:
@@ -368,6 +369,7 @@ class UniformSpace(StateSpace):
     :type base: int
     :Derives From: :class:`StateSpace`
     """
+
     def __init__(self, size, base):
         super(UniformSpace, self).__init__([base] * size)
         self._base = base

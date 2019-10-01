@@ -1,7 +1,8 @@
 import networkx as nx
-import pygraphviz
+import pygraphviz  # noqa
 import tempfile
 import os
+
 
 @nx.utils.open_file(5, 'w+b')
 def view_pygraphviz(G, edgelabel=None, prog='dot', args='',
@@ -186,5 +187,5 @@ def display_pygraphviz(graph, path, format=None, prog=None, args='', display_ima
     # We must close the file before viewing it.
     graph.draw(path, format, prog, args)
     path.close()
-    if display_image == True:
+    if display_image:
         nx.utils.default_opener(filename)

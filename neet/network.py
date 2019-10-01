@@ -50,6 +50,7 @@ class Network(LandscapeMixin, StateSpace):
     :param metadata: metadata dictionary for the network
     :type matadata: dict
     """
+
     def __init__(self, shape, names=None, metadata=None):
         super(Network, self).__init__(shape)
 
@@ -350,7 +351,7 @@ class Network(LandscapeMixin, StateSpace):
         :param pygraphkwargs: kwargs to pass to `view_pygraphviz`
         """
         from .draw import view_pygraphviz
-        default_args = { 'prog': 'circo' }
+        default_args = {'prog': 'circo'}
         graph = self.network_graph(**graphkwargs)
         view_pygraphviz(graph, **dict(default_args, **pygraphkwargs))
 
@@ -386,6 +387,7 @@ class UniformNetwork(Network):
     :param metadata: metadata dictionary for the network
     :type matadata: dict
     """
+
     def __init__(self, size, base, names=None, metadata=None):
         super(UniformNetwork, self).__init__([base] * size, names, metadata)
         self._base = base
