@@ -4,11 +4,15 @@
 .. testsetup:: network
 
     from neet.boolean import ECA
-    from neet.network import *
-    from neet.statespace import StateSpace
+    from neet.boolean.examples import s_pombe
 
-API Documentation
------------------
+The :mod:`neet.network` module provides the :class:`Network` and
+:class:`UniformNetwork` classes from which all concrete Neet networks inherit,
+providing an abstract interface which algorithms can leverage for generic
+implementation of various network-theoretic analyses.
+
+.. inheritance-diagram:: neet.network
+   :parts: 1
 """
 from abc import ABCMeta, abstractmethod
 from .python import long
@@ -21,12 +25,30 @@ import six
 @six.add_metaclass(ABCMeta)
 class Network(LandscapeMixin, StateSpace):
     """
-    The ``Network`` class represents the core of Neet's functionality of 
-    simulating and analyzing network models, such as gene-regulatory networks.
-    The ``Network`` class currently supports simulating synchronous Boolean 
-    network models, though the API is designed to be model generic. Future 
-    work will implement asynchronous update mechanisms and more general network 
-    types.
+    The :class:`Network` class is the core base class for all Neet networks. It
+    provides an interface for describing network state updating and simple
+    graph-theoretic analyses.
+
+    :class:`Network` is an *abstract* class, meaning it cannot be instantiated,
+    and inherits from :class:`neet.landscape.LandscapeMixin` and
+    :class:`neet.statespace.StateSpace`. Initialization of the :class:`Network`
+    requires, at a minimum, a specification of the shape of the network's state
+    space, and optionally allows the user to specify a list of names for the
+    nodes of the network and a metadata dictionary for the network as a whole
+    (e.g. citation information).
+
+    Any concrete deriving class must overload the following methods:
+
+    * :meth:`_unsafe_udate`
+    * :meth:`neighbors_in`
+    * :meth:`neighbors_out`
+
+    :param shape: the base of each node of the network
+    :type shape: list
+    :param names: an interable object of the names of the nodes in the network
+    :type names: sequence
+    :param metadata: metadata dictionary for the network
+    :type matadata: dict
     """
     def __init__(self, shape, names=None, metadata=None):
         super(Network, self).__init__(shape)
@@ -41,40 +63,20 @@ class Network(LandscapeMixin, StateSpace):
 
     @property
     def metadata(self):
+        """
+        Get any metadata associated with the network.
+
+        :returns: the network's metadata
+        """
         return self._metadata
 
     @property
     def names(self):
         """
-        The names of nodes in the network.
+        Get or set the names of the nodes of the network.
 
-        .. rubric:: Examples
-
-        .. doctest:: network
-
-            >>> s_pombe.names
-            ['SK',
-            'Cdc2_Cdc13',
-            'Ste9',
-            'Rum1',
-            'Slp1',
-            'Cdc2_Cdc13_active',
-            'Wee1_Mik1',
-            'Cdc25',
-            'PP']
-            >>> s_pombe.names = ["name_"+str(i) for i in range(len(s_pombe.names))]
-            ['name_0',
-            'name_1',
-            'name_2',
-            'name_3',
-            'name_4',
-            'name_5',
-            'name_6',
-            'name_7',
-            'name_8']
-        
-        :param names: list of node names to use for network (length must equal the number of nodes).
-        :return: list of node names
+        :raises TypeError: if the assigned value is not convertable to a list
+        :raises ValueError: if the length fo the assigned values does not match the networks's size
         """
         return self._names
 
@@ -93,13 +95,117 @@ class Network(LandscapeMixin, StateSpace):
 
     @abstractmethod
     def _unsafe_update(self, state, index, pin, values, *args, **kwargs):
+        """
+        Unsafely update the state of a network in place.
+
+        This function accepts three optional arguments by default:
+
+        * ``index``  - update only the specified node (by index)
+        * ``pin``    - do not update the state of any node in a list
+        * ``values`` - set the state of some subset of nodes to specified values
+
+        .. Note::
+
+            As an abstract method, every concrete class derving from
+            :class:`Network` must overload this method. The overload **should
+            not** perform no ensurance checks on the arguments to maximize
+            performance, as those check are performed in the :meth:`update`
+            method. Further, it is assumed that this method *modifies* the
+            ``state`` argument in-place and no others.
+
+        :param state: the state of the network to update
+        :type state: list or numpy.ndarray
+        :param index: the index to update
+        :type index: int or None
+        :param pin: which nodes to pin to their current state
+        :type pin: list, numpy.ndarray or None
+        :param values: a dictionary mapping nodes to a state to which to reset the node to
+        :type values: dict or None
+        :returns: the updated state
+        """
         pass
 
     def update(self, state, index=None, pin=None, values=None, *args, **kwargs):
         """
-        Updates the network from its current state to its next state.
+        Update the state of a network in place.
 
-        Refer to documentation for `_unsafe_update` for usage.
+        This function accepts three optional arguments by default:
+
+        * ``index``  - update only the specified node (by index)
+        * ``pin``    - do not update the state of any node in a list
+        * ``values`` - set the state of some subset of nodes to specified values
+
+        .. rubric:: Examples
+
+        **Updates States In-Place:**
+
+        .. doctest:: network
+
+            >>> rule = ECA(30, size=5)
+            >>> state = [0, 0, 1, 0, 0]
+            >>> rule.update(state)
+            [0, 1, 1, 1, 0]
+            >>> state
+            [0, 1, 1, 1, 0]
+
+        **Updating A Single Node:**
+
+        .. doctest:: network
+
+            >>> rule = ECA(30, size=5)
+            >>> rule.update([0, 0, 1, 0, 0])
+            [0, 1, 1, 1, 0]
+            >>> rule.update([0, 0, 1, 0, 0], index=1)
+            [0, 1, 1, 0, 0]
+
+        **Pinning States:**
+
+        .. doctest:: network
+
+            >>> rule = ECA(30, size=5)
+            >>> rule.update([0, 0, 1, 0, 0])
+            [0, 1, 1, 1, 0]
+            >>> rule.update([0, 0, 1, 0, 0], pin=[1])
+            [0, 0, 1, 1, 0]
+
+
+        **Overriding States:**
+
+        .. doctest:: network
+
+            >>> rule = ECA(30, size=5)
+            >>> rule.update([0, 0, 1, 0, 0])
+            [0, 1, 1, 1, 0]
+            >>> rule.update([0, 0, 1, 0, 0], values={0: 1, 2: 0})
+            [1, 1, 0, 1, 0]
+
+        This function ensures that:
+
+        1. If ``index`` is provided, then neither ``pin`` nor ``values`` is
+           provided.
+        2. If ``pin`` and ``values`` are both provided, then they do not affect
+           the same nodes.
+        3. If ``values`` is provided, then the overriding states specified in
+           it are consistent with the state space of the network.
+
+        .. Note::
+
+            Typically, this method should not be overloaded unless the
+            particular deriving class makes use of the ``args`` or ``kwargs``
+            arguments. In that case, it should first ensure that those
+            arguments are well-behaved, and and the delegate subsequent checks
+            and the call to :meth:`_unsafe_update` to a call to this
+            :meth:`neet.networks.Network.update`.
+
+        :param state: the state of the network to update
+        :type state: list or numpy.ndarray
+        :param index: the index to update
+        :type index: int or None
+        :param pin: which nodes to pin to their current state
+        :type pin: list, numpy.ndarray or None
+        :param values: a dictionary mapping nodes to a state to which to reset the node to
+        :type values: dict or None
+        :returns: the updated state
         """
         if state not in self:
             raise ValueError("the provided state is not in the network's state space")
@@ -126,36 +232,64 @@ class Network(LandscapeMixin, StateSpace):
 
     @abstractmethod
     def neighbors_in(self, index, *args, **kwargs):
+        """
+        Get a set of all incoming neighbors of the node at ``index``.
+
+        All concrete network classes must overload this method.
+
+        :param index: the index of the node target node
+        :type index: int
+        :returns: a set of incoming neighbor indices
+        """
         pass
 
     @abstractmethod
     def neighbors_out(self, index, *args, **kwargs):
+        """
+        Get a set of all outgoing neighbors of the node at ``index``.
+
+        All concrete network classes must overload this method.
+
+        :param index: the index of the node source node
+        :type index: int
+        :returns: a set of outgoing neighbor indices
+        """
         pass
 
     def neighbors(self, index, direction='both', *args, **kwargs):
         """
-        Return the set of all neighbor nodes, where either 
-        edge(neighbor_node-->index) and/or edge(index-->neighbor_node) exists.
-
-        Calls the `neighbors_in` and/or `neighbors_out` methods of the specific
-        network type.
+        Get a set of the neighbors of the node at ``index``. Optionally,
+        specify the directionality of the neighboring edges, e.g. ``'in'``,
+        ``'out'`` or ``'both'``.
 
         .. rubric:: Examples
 
+        **All Neighbors:**
+
         .. doctest:: network
 
-            >>> net = WTNetwork([[0,0,0],[1,0,1],[0,1,0]],
-            ... theta=WTNetwork.split_threshold)
-            >>> net.neighbors(0)
-            {0, 1}
-            >>> [net.neighbors_in(node) for node in range(net.size)]
-            [{0, 1}, {0, 1, 2}, {1, 2}]
-        
-        :param index: node index
-        :param direction: `in`coming or `out`going neighbors, or `both`
-        :param args: arguments passed to network's `neighbors_in` and/or `neighbors_out`
-        :param kwargs: arguments passed to network's `neighbors_in` and/or `neighbors_out`
-        :returns: the set of all node indices which point toward the index node
+            >>> s_pombe.neighbors(7)
+            {1, 5, 7, 8}
+
+        **Incoming Neighbors:**
+
+        .. doctest:: network
+
+            >>> s_pombe.neighbors(7, direction='in')
+            {8, 1, 7}
+
+        **Outgoing Neighbors:**
+
+        .. doctest:: network
+
+            >>> s_pombe.neighbors(7, direction='out')
+            {5, 7}
+
+        :param index: the index of the node
+        :type index: int
+        :param direction: the directionality of the neighboring edges
+        :type direction: str
+        :returns: a set of neighboring node indices, respecting ``direction``.
         """
         if direction not in ('in', 'out', 'both'):
             raise ValueError('direction must be "in", "out" or "both"')
@@ -173,13 +307,16 @@ class Network(LandscapeMixin, StateSpace):
         """
         The graph of the network as a ``networkx.Digraph``.
 
+        This method should only be overloaded by derived classes if additional
+        metadata is to be added to the graph by default.
+
         .. rubric:: Examples
 
         .. doctest:: network
 
             >>> s_pombe.network_graph()
-            <networkx.classes.digraph.DiGraph object at 0x106504810>
-        
+            <networkx.classes.digraph.DiGraph object at 0x...>
+
         :param labels: label to be applied to graph nodes (either `indices` or `names`)
         :param kwargs: kwargs to pass to `nx.DiGraph`
         :return: a networkx DiGraph object
@@ -201,15 +338,13 @@ class Network(LandscapeMixin, StateSpace):
         """
         Draw network's networkx graph using PyGraphviz.
 
-        Requires graphviz (cannot be installed via pip--see:
-        https://graphviz.gitlab.io/download/) and pygraphviz
-        (can be installed via pip).
+        .. Note::
 
-        .. rubric:: Examples
-
-        .. doctest:: network
-
-            >>> s_pombe.draw_network_graph()
+            This method requires `Graphviz <https://graphviz.org/>`_ and
+            `pygraphviz <https://pypi.org/project/pygraphviz/>`_. The former
+            requires manual installation (see
+            https://graphviz.gitlab.io/download/), while the latter can be
+            installed via ``pip``.
 
         :param graphkwargs: kwargs to pass to `network_graph`
         :param pygraphkwargs: kwargs to pass to `view_pygraphviz`
@@ -219,13 +354,56 @@ class Network(LandscapeMixin, StateSpace):
         graph = self.network_graph(**graphkwargs)
         view_pygraphviz(graph, **dict(default_args, **pygraphkwargs))
 
+
 class UniformNetwork(Network):
+    """
+    The :class:`UnformNetwork` class represents a network in which every node
+    has the same number of discrete states. This allows for more efficient
+    default implementations of several methods. If your particular concrete
+    network type meets this condition, the you should derive from
+    :class:`UniformNetwork` rather than :class:`Network`.
+
+    :class:`UniformNetwork` derives from :class:`Network`, but is still
+    *abstract*, meaning it cannot be instantiated. Initialization of the
+    :class:`UniformNetwork` requires, at a minimum, the number of nodes in the
+    network (``size``) and the number of states the nodes can take (``base``).
+    As with :class:`Network`, the user can optionally specify a list of names
+    for the nodes of the network and a metadata dictionary for the network as a
+    whole (e.g. citation information).
+
+    Any concrete deriving class must overload the following methods:
+
+    * :meth:`_unsafe_udate`
+    * :meth:`neighbors_in`
+    * :meth:`neighbors_out`
+
+    :param size: the number of nodes in the network
+    :type size: int
+    :param base: the number of states each node can take
+    :type base: int
+    :param names: an interable object of the names of the nodes in the network
+    :type names: sequence
+    :param metadata: metadata dictionary for the network
+    :type matadata: dict
+    """
     def __init__(self, size, base, names=None, metadata=None):
         super(UniformNetwork, self).__init__([base] * size, names, metadata)
         self._base = base
 
     @property
     def base(self):
+        """
+        Get the number of states each node can take.
+
+        .. rubric:: Examples
+
+        .. doctest:: network
+
+           >>> ECA(30, size=5).base
+           2
+
+        :returns: the base of nodes of the network
+        """
         return self._base
 
     def __iter__(self):
