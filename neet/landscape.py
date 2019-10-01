@@ -492,7 +492,7 @@ class LandscapeMixin:
         .. doctest:: landscape
 
             >>> s_pombe.basin_entropy
-            1.221888833884975
+            1.2218888...
 
         .. rubric:: Pinning States
 
