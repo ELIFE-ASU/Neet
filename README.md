@@ -25,9 +25,30 @@ more general network types.
 
 ## Installation
 
+### Dependencies
+
+**Neet** depends on several packages which will be installed by default when **Neet** is installed
+via `pip`:
+
+* [six](https://pypi.org/project/six/)
+* [numpy](https://pypi.org/project/numpy/)
+* [networkx](https://pypi.org/project/networkx/)
+* [pyinform](https://pypi.org/project/pyinform/)
+* [deprecated](https://pypi.org/project/Deprecated/)
+
+However, network visualization is notoriously problematic, and so we have two optional dependencies
+which are only required if you wish to visualize networks using **Neet**'s builtin capabilities:
+
+* [Graphviz](https://graphviz.org/)
+* [pygraphviz](https://pypi.org/project/pygraphviz/)
+
+True to form, these dependencies are a pain. Graphviz, unfortunately, cannot be installed via pip
+(see: https://graphviz.gitlab.io/download/ for installation instructions). Once Graphviz has been
+installed, you can install `pygraphviz` via `pip`.
+
 ### Via Pip
 
-To install via `pip`, you can run the following
+To install **Neet** via `pip`, you can run the following
 
 ```bash
 $ pip install neet
