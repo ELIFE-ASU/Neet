@@ -6,3 +6,4 @@ API
     landscape
     statespace
     network
+    exceptions
