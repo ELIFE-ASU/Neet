@@ -5,26 +5,44 @@
 
     from neet.statespace import StateSpace, UniformSpace
 
-The :mod:`neet.statespace` modules provides the :class:`StateSpace` and
-:class:`UniformSpace` classes from which Neet network classes inherit. This
-endows networks with methods for iterating over the states of the network,
+The :mod:`neet.statespace` module provides the following classes from which all
+**Neet** network classes inherit:
+
+.. autosummary::
+    :nosignatures:
+
+    StateSpace
+    UniformSpace
+
+.. inheritance-diagram:: neet.statespace
+   :parts: 1
+
+This endows networks with methods for iterating over the states of the network,
 determining if a state exists in the network, and the ability to encode and
 decode states as integer values. In other words, these classes provide an
 interface for accessing the *unstructured* set of states of the network, with
 no dynamical information.
-
-.. inheritance-diagram:: neet.statespace
-   :parts: 1
 """
 from .python import long
 
 
 class StateSpace(object):
     """
-    The StateSpace is a base class providing state-space related functionality
-    to network classes. It represents potentially in-homogeneous discrete state
-    spaces, and implements iteration, inclusion testing and methods for
-    encoding and decoding states as integers sutable for array indexing.
+    StateSpace represents a (potentially in-homogeneous) discrete state space.
+    It implements iteration, inclusion testing and methods for encoding and
+    decoding states as integers sutable for array indexing:
+
+    .. autosummary::
+       :nosignatures:
+
+       size
+       shape
+       volume
+       __iter__
+       __contains__
+       _unsafe_encode
+       encode
+       decode
 
     StateSpace instances are created from a ``shape`` array of integer
     representing the number of discrete states for each dimension of the state
@@ -51,10 +69,10 @@ class StateSpace(object):
     particular :meth:`_unsafe_encode`. In fact, the following methods are
     recommended for overloading:
 
-    * :meth:`__iter__`
-    * :meth:`__contains__`
-    * :meth:`_unsafe_encode`
-    * :meth:`decode`
+       * :meth:`__iter__`
+       * :meth:`__contains__`
+       * :meth:`_unsafe_encode`
+       * :meth:`decode`
 
     The :meth:`encode` method uses :meth:`__contains__` and
     :meth:`_unsafe_encode` internally and rarely needs to be overloaded.
@@ -84,7 +102,7 @@ class StateSpace(object):
     @property
     def size(self):
         """
-        Get the size of the state space, that is the number of dimensions.
+        Get the size of the state space. That is the number of dimensions.
 
         .. rubric:: Examples
 
@@ -102,7 +120,7 @@ class StateSpace(object):
     @property
     def shape(self):
         """
-        Get the shape of the state space, that is the base of each dimension.
+        Get the shape of the state space. That is the base of each dimension.
 
         .. rubric:: Examples
 
@@ -120,7 +138,7 @@ class StateSpace(object):
     @property
     def volume(self):
         """
-        Get the volume of the state space, that is the number of states in the space.
+        Get the volume of the state space. That is the number of states in the space.
 
         .. rubric:: Examples
 
@@ -343,16 +361,20 @@ class StateSpace(object):
 
 class UniformSpace(StateSpace):
     """
-    The UniformSpace represents a state space with the same number of states in
-    each dimension. This allows for more efficient implementations of several
-    methods.
-
-    .. inheritance-diagram:: neet.statespace.UniformSpace
-       :parts: 1
+    A :class:`StateSpace` with the same number of states in each dimension.
+    This allows for more efficient implementations of several methods.
 
     UniformSpace instances are created from their ``size`` and ``base``; the
     number of dimensions and the number of states in each dimension,
     respectively.
+
+    In addition to the methods and attributes exposed by :class:`StateSpace`,
+    the UniformSpace also provides:
+
+    .. autosummary::
+       :nosignatures:
+
+       base
 
     .. rubric:: Examples
 
@@ -369,6 +391,7 @@ class UniformSpace(StateSpace):
     :type size: int
     :param base: the number of states in each dimension
     :type base: int
+    :see: :class:`StateSpace`
     """
 
     def __init__(self, size, base):

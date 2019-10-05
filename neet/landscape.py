@@ -38,18 +38,20 @@ class LandscapeData(object):
     of the landscape properties before modifying a network and observing the
     effects of that change on the landscape.
 
-    The following properties are stored in LandscapeData
+    The following properties are stored in LandscapeData:
 
-    * :attr:`LandscapeMixin.transitions`
-    * :attr:`LandscapeMixin.attractors`
-    * :attr:`LandscapeMixin.attractor_lengths`
-    * :attr:`LandscapeMixin.basins`
-    * :attr:`LandscapeMixin.basin_sizes`
-    * :attr:`LandscapeMixin.basin_entropy`
-    * :attr:`LandscapeMixin.heights`
-    * :attr:`LandscapeMixin.recurrence_times`
-    * :attr:`LandscapeMixin.in_degrees`
+    .. autosummary::
+       :nosignatures:
 
+        LandscapeMixin.transitions
+        LandscapeMixin.attractors
+        LandscapeMixin.attractor_lengths
+        LandscapeMixin.basins
+        LandscapeMixin.basin_sizes
+        LandscapeMixin.basin_entropy
+        LandscapeMixin.heights
+        LandscapeMixin.recurrence_times
+        LandscapeMixin.in_degrees
 
     .. rubric:: Basic Usage
 
@@ -96,43 +98,28 @@ class LandscapeMixin:
     with information about state transitions and the topology of the state
     transition graph.
 
-    +------------------------------+--------------------------------------------+
-    | Method/Property              | Description                                |
-    +==============================+============================================+
-    | :meth:`landscape`            | Setup the landscape                        |
-    +------------------------------+--------------------------------------------+
-    | :meth:`clear_landscape`      | Clear the landscape                        |
-    +------------------------------+--------------------------------------------+
-    | :attr:`landscape_data`       | Get cached landscape data                  |
-    +------------------------------+--------------------------------------------+
-    | :attr:`transitions`          | Get the state transitions                  |
-    +------------------------------+--------------------------------------------+
-    | :attr:`attractors`           | Get the attractor cycles                   |
-    +------------------------------+--------------------------------------------+
-    | :attr:`attractor_lengths`    | Get the lengths of the attractor cycles    |
-    +------------------------------+--------------------------------------------+
-    | :attr:`basins`               | Get the attractor basins                   |
-    +------------------------------+--------------------------------------------+
-    | :attr:`basin_sizes`          | Get the sizes of the attractor basins      |
-    +------------------------------+--------------------------------------------+
-    | :attr:`basin_entropy`        | Get the basin entropy                      |
-    +------------------------------+--------------------------------------------+
-    | :attr:`heights`              | Get the heights of the states              |
-    +------------------------------+--------------------------------------------+
-    | :attr:`recurrence_times`     | Get the recurrence times of the states     |
-    +------------------------------+--------------------------------------------+
-    | :attr:`in_degrees`           | Get the in-degrees of the states           |
-    +------------------------------+--------------------------------------------+
-    | :meth:`trajectory`           | Compute a trajectory from a given state    |
-    +------------------------------+--------------------------------------------+
-    | :meth:`timeseries`           | Compute a timeseries from all states       |
-    +------------------------------+--------------------------------------------+
-    | :meth:`landscape_graph`      | Construct a graph of the state transitions |
-    +------------------------------+--------------------------------------------+
-    | :meth:`draw_landscape_graph` | Draw the state transition graph            |
-    +------------------------------+--------------------------------------------+
-    | :meth:`expound`              | Compute all cached data                    |
-    +------------------------------+--------------------------------------------+
+    The LandscapeMixin class exposes the following methods:
+
+    .. autosummary::
+       :nosignatures:
+
+       landscape
+       clear_landscape
+       landscape_data
+       transitions
+       attractors
+       attractor_lengths
+       basins
+       basin_sizes
+       basin_entropy
+       heights
+       recurrence_times
+       in_degrees
+       trajectory
+       timeseries
+       landscape_graph
+       draw_landscape_graph
+       expound
     """
 
     # Whether or not the landscape data has been populated
@@ -142,6 +129,8 @@ class LandscapeMixin:
 
     def landscape(self, index=None, pin=None, values=None):
         """
+        Setup the landscape.
+
         Prepares the landscape for computation of the various properties,
         specifying which nodes will be updated (``index``), pinned (``pin``) or
         set to a particular state (``values``). In particular, it computes the
@@ -218,7 +207,7 @@ class LandscapeMixin:
 
     def clear_landscape(self):
         """
-        Clears the landscape's data and graph from memory.
+        Clear the landscape's data and graph from memory.
         """
         self.__landscaped = False
         self.__landscape_graph = None
@@ -227,7 +216,9 @@ class LandscapeMixin:
     @property
     def landscape_data(self):
         """
-        Get the :class:`LandscapeData` object containing any cached attractor
+        Get the :class:`LandscapeData` object.
+
+        The :class:`LandscapeData` object contains any cached attractor
         landscape information generated by a call to :meth:`expound`.
         """
         return self.__landscape_data
@@ -328,8 +319,8 @@ class LandscapeMixin:
     @property
     def attractor_lengths(self):
         """
-        Get the length of the attractors as an array, indexed by the
-        basin number. The order of the attractor lengths is the same as in
+        Get the length of the attractors as an array. The array is indexed by
+        the basin number. The order of the attractor lengths is the same as in
         :attr:`attractors`. For example,
 
         ::
@@ -427,8 +418,8 @@ class LandscapeMixin:
     @property
     def basin_sizes(self):
         """
-        Get the size of the attractor basins as an array, indexed by
-        the basin number. The order of the basin sizes is the same as in
+        Get the sizes of the attractor basins as an array. The array is indexed
+        by the basin number. The order of the basin sizes is the same as in
         :attr:`attractors`. For example, if
 
         ::
@@ -472,7 +463,7 @@ class LandscapeMixin:
     @property
     def basin_entropy(self):
         """
-        Compute the basin entropy of the landscape [Krawitz2007]_, that is
+        Compute the basin entropy of the landscape [Krawitz2007]_. That is
         the Shannon entropy (in bits) of the distribution of basin sizes. For
         example,
 
@@ -517,7 +508,7 @@ class LandscapeMixin:
     @property
     def heights(self):
         """
-        Get the heights of each state in the landscape, that is the fewest
+        Get the heights of each state in the landscape. That is the fewest
         number of time steps from that state to a state in it's attractor
         cycle, as an array. Each index of the array is an encoded state, and
         the corresponding value is the height. For example, if
@@ -573,7 +564,7 @@ class LandscapeMixin:
     @property
     def recurrence_times(self):
         """
-        Get the recurrence time of each state in the landscape, that is the
+        Get the recurrence time of each state in the landscape. That is the
         number of time steps from that state after which *some* state is
         repeated, as an array. Each index of the array is an encoded state,
         and the corresponding value is the recurrence time of that state. For
@@ -629,7 +620,7 @@ class LandscapeMixin:
     @property
     def in_degrees(self):
         """
-        Get the in-degree of each state in the landscape, that is the number
+        Get the in-degree of each state in the landscape. That is the number
         of states which transition to that state in a single time step,
         as a array. Each index of the array is an encoded state, and the
         corresponding value is the number of preceding states. For example, if
@@ -681,7 +672,7 @@ class LandscapeMixin:
 
     def landscape_graph(self, **kwargs):
         """
-        The state transitions graph of the landscape as a :class:`networkx.DiGraph`.
+        Construct a :class:`networkx.DiGraph` of the state transitions.
 
         If :meth:`landscape` has not been called, this method will implicitly call it.
 
@@ -707,7 +698,7 @@ class LandscapeMixin:
 
     def draw_landscape_graph(self, graphkwargs={}, pygraphkwargs={}):
         """
-        Draw landscape's networkx graph using PyGraphviz.
+        Draw the state transition graph.
 
         This method requires the optional dependency `pygraphviz
         <https://pygraphviz.github.io>`_, which can be installed via
@@ -733,7 +724,7 @@ class LandscapeMixin:
 
     def trajectory(self, init, timesteps=None, encode=None):
         """
-        Compute the trajectory of a state.
+        Compute the trajectory from a given state.
 
         This method computes a trajectory from ``init`` to the last before
         the trajectory begins to repeat. If ``timesteps`` is provided, then
@@ -820,7 +811,7 @@ class LandscapeMixin:
 
     def timeseries(self, timesteps):
         """
-        Compute the full time series of the landscape.
+        Compute a time series from all states.
 
         This method computes a 3-dimensional array elements are the states of
         each node in the network. The dimensions of the array are indexed by,
@@ -898,6 +889,8 @@ class LandscapeMixin:
 
     def expound(self):
         """
+        Compute all cached data.
+
         This function performs the bulk of the calculations that the
         LandscapeMixin is concerned with. Most of the properties in this class
         are computed by this function whenever *any one* of them is requested
@@ -909,14 +902,17 @@ class LandscapeMixin:
 
         The properties that are computed by this function include:
 
-        * :attr:`attractors`
-        * :attr:`attractor_lengths`
-        * :attr:`basins`
-        * :attr:`basin_sizes`
-        * :attr:`basin_entropy`
-        * :attr:`heights`
-        * :attr:`recurrence_times`
-        * :attr:`in_degrees`
+        .. autosummary::
+           :nosignatures:
+
+           attractors
+           attractor_lengths
+           basins
+           basin_sizes
+           basin_entropy
+           heights
+           recurrence_times
+           in_degrees
 
         """
         if not self.__landscaped:

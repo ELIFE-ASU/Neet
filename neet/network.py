@@ -6,13 +6,20 @@
     from neet.boolean import ECA
     from neet.boolean.examples import s_pombe
 
-The :mod:`neet.network` module provides the :class:`Network` and
-:class:`UniformNetwork` classes from which all concrete Neet networks inherit,
-providing an abstract interface which algorithms can leverage for generic
-implementation of various network-theoretic analyses.
+The :mod:`neet.network` module provides the following abstract network classes
+from which all concrete **Neet** networks inherit:
+
+.. autosummary::
+    :nosignatures:
+
+    Network
+    UniformNetwork
 
 .. inheritance-diagram:: neet.network
    :parts: 1
+
+These classes provide an abstract interface which algorithms can leverage for
+generic implementation of various network-theoretic analyses.
 """
 from abc import ABCMeta, abstractmethod
 from .python import long
@@ -28,6 +35,19 @@ class Network(LandscapeMixin, StateSpace):
     The Network class is the core base class for all **Neet** networks. It
     provides an interface for describing network state updating and simple
     graph-theoretic analyses.
+
+    .. autosummary::
+        :nosignatures:
+
+        names
+        metadata
+        _unsafe_update
+        update
+        neighbors_in
+        neighbors_out
+        neighbors
+        network_graph
+        draw_network_graph
 
     Network is an *abstract* class, meaning it cannot be instantiated, and
     inherits from :class:`neet.landscape.LandscapeMixin` and
@@ -364,6 +384,15 @@ class UniformNetwork(Network):
     .. inheritance-diagram:: neet.network.UniformNetwork
        :parts: 1
 
+
+    In addition to the methods provided by :class:`Network`, UniformNetwork
+    also provides the following attribute:
+
+    .. autosummary::
+        :nosignatures:
+
+        base
+
     UniformNetwork derives from :class:`Network`, but is still *abstract*,
     meaning it cannot be instantiated. Initialization of the
     :class:`UniformNetwork` requires, at a minimum, the number of nodes in the
@@ -374,7 +403,7 @@ class UniformNetwork(Network):
 
     Any concrete deriving class must overload the following methods:
 
-    * :meth:`_unsafe_udate`
+    * :meth:`_unsafe_update`
     * :meth:`neighbors_in`
     * :meth:`neighbors_out`
 
