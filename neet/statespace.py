@@ -21,15 +21,14 @@ from .python import long
 
 class StateSpace(object):
     """
-    The :class:`StateSpace` is a base class providing state-space related
-    functionality to network classes. It represents potentially in-homogeneous
-    discrete state spaces, and implements iteration, inclusion testing and
-    methods for encoding and decoding states as integers sutable for array
-    indexing.
+    The StateSpace is a base class providing state-space related functionality
+    to network classes. It represents potentially in-homogeneous discrete state
+    spaces, and implements iteration, inclusion testing and methods for
+    encoding and decoding states as integers sutable for array indexing.
 
-    :class:`StateSpace` instances are created from a `shape` array of
-    integer representing the number of discrete states for each dimension
-    of the state space.
+    StateSpace instances are created from a ``shape`` array of integer
+    representing the number of discrete states for each dimension of the state
+    space.
 
     .. rubric:: Examples
 
@@ -344,13 +343,16 @@ class StateSpace(object):
 
 class UniformSpace(StateSpace):
     """
-    The :class:`UniformSpace` represents a state space with the same number of
-    states in each dimension. This allows for more efficient implementations of
-    several methods.
+    The UniformSpace represents a state space with the same number of states in
+    each dimension. This allows for more efficient implementations of several
+    methods.
 
-    :class:`UniformSpace` instances are created from their ``size`` and
-    ``base``; the number of dimensions and the number of states in each
-    dimension, respectively.
+    .. inheritance-diagram:: neet.statespace.UniformSpace
+       :parts: 1
+
+    UniformSpace instances are created from their ``size`` and ``base``; the
+    number of dimensions and the number of states in each dimension,
+    respectively.
 
     .. rubric:: Examples
 
@@ -367,7 +369,6 @@ class UniformSpace(StateSpace):
     :type size: int
     :param base: the number of states in each dimension
     :type base: int
-    :Derives From: :class:`StateSpace`
     """
 
     def __init__(self, size, base):

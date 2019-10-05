@@ -25,13 +25,13 @@ import six
 @six.add_metaclass(ABCMeta)
 class Network(LandscapeMixin, StateSpace):
     """
-    The :class:`Network` class is the core base class for all Neet networks. It
+    The Network class is the core base class for all **Neet** networks. It
     provides an interface for describing network state updating and simple
     graph-theoretic analyses.
 
-    :class:`Network` is an *abstract* class, meaning it cannot be instantiated,
-    and inherits from :class:`neet.landscape.LandscapeMixin` and
-    :class:`neet.statespace.StateSpace`. Initialization of the :class:`Network`
+    Network is an *abstract* class, meaning it cannot be instantiated, and
+    inherits from :class:`neet.landscape.LandscapeMixin` and
+    :class:`neet.statespace.StateSpace`. Initialization of the Network
     requires, at a minimum, a specification of the shape of the network's state
     space, and optionally allows the user to specify a list of names for the
     nodes of the network and a metadata dictionary for the network as a whole
@@ -39,18 +39,17 @@ class Network(LandscapeMixin, StateSpace):
 
     Any concrete deriving class must overload the following methods:
 
-    * :meth:`_unsafe_udate`
+    * :meth:`_unsafe_update`
     * :meth:`neighbors_in`
     * :meth:`neighbors_out`
 
     :param shape: the base of each node of the network
     :type shape: list
     :param names: an interable object of the names of the nodes in the network
-    :type names: sequence
+    :type names: seq
     :param metadata: metadata dictionary for the network
-    :type matadata: dict
+    :type metadata: dict
     """
-
     def __init__(self, shape, names=None, metadata=None):
         super(Network, self).__init__(shape)
 
@@ -65,9 +64,7 @@ class Network(LandscapeMixin, StateSpace):
     @property
     def metadata(self):
         """
-        Get any metadata associated with the network.
-
-        :returns: the network's metadata
+        Any metadata associated with the network.
         """
         return self._metadata
 
@@ -107,15 +104,15 @@ class Network(LandscapeMixin, StateSpace):
 
         .. Note::
 
-            As an abstract method, every concrete class derving from
-            :class:`Network` must overload this method. The overload **should
-            not** perform no ensurance checks on the arguments to maximize
-            performance, as those check are performed in the :meth:`update`
-            method. Further, it is assumed that this method *modifies* the
-            ``state`` argument in-place and no others.
+            As an abstract method, every concrete class derving from Network
+            must overload this method. The overload **should not** perform no
+            ensurance checks on the arguments to maximize performance, as those
+            check are performed in the :meth:`update` method. Further, it is
+            assumed that this method *modifies* the ``state`` argument in-place
+            and no others.
 
         :param state: the state of the network to update
-        :type state: list or numpy.ndarray
+        :type state: list, numpy.ndarray
         :param index: the index to update
         :type index: int or None
         :param pin: which nodes to pin to their current state
@@ -306,7 +303,7 @@ class Network(LandscapeMixin, StateSpace):
 
     def network_graph(self, labels='indices', **kwargs):
         """
-        The graph of the network as a ``networkx.Digraph``.
+        The graph of the network as a :class:`networkx.DiGraph`.
 
         This method should only be overloaded by derived classes if additional
         metadata is to be added to the graph by default.
@@ -318,9 +315,9 @@ class Network(LandscapeMixin, StateSpace):
             >>> s_pombe.network_graph()
             <networkx.classes.digraph.DiGraph object at 0x...>
 
-        :param labels: label to be applied to graph nodes (either `indices` or `names`)
-        :param kwargs: kwargs to pass to `nx.DiGraph`
-        :return: a networkx DiGraph object
+        :param labels: label to be applied to graph nodes (either ``'indices'`` or ``'names'``)
+        :param kwargs: kwargs to pass to the :class:`networkx.DiGraph` constructor
+        :return: a :class:`networkx.DiGraph` object
         """
         if labels == 'indices':
             edges = [(i, j) for i in range(self.size) for j in self.neighbors_out(i)]
@@ -347,7 +344,7 @@ class Network(LandscapeMixin, StateSpace):
             https://graphviz.gitlab.io/download/), while the latter can be
             installed via ``pip``.
 
-        :param graphkwargs: kwargs to pass to `network_graph`
+        :param graphkwargs: kwargs to pass to :meth:`network_graph`
         :param pygraphkwargs: kwargs to pass to `view_pygraphviz`
         """
         from .draw import view_pygraphviz
@@ -358,14 +355,17 @@ class Network(LandscapeMixin, StateSpace):
 
 class UniformNetwork(Network):
     """
-    The :class:`UnformNetwork` class represents a network in which every node
-    has the same number of discrete states. This allows for more efficient
-    default implementations of several methods. If your particular concrete
-    network type meets this condition, the you should derive from
-    :class:`UniformNetwork` rather than :class:`Network`.
+    The UnformNetwork class represents a network in which every node has the
+    same number of discrete states. This allows for more efficient default
+    implementations of several methods. If your particular concrete network
+    type meets this condition, then you should derive from UniformNetwork
+    rather than Network.
 
-    :class:`UniformNetwork` derives from :class:`Network`, but is still
-    *abstract*, meaning it cannot be instantiated. Initialization of the
+    .. inheritance-diagram:: neet.network.UniformNetwork
+       :parts: 1
+
+    UniformNetwork derives from :class:`Network`, but is still *abstract*,
+    meaning it cannot be instantiated. Initialization of the
     :class:`UniformNetwork` requires, at a minimum, the number of nodes in the
     network (``size``) and the number of states the nodes can take (``base``).
     As with :class:`Network`, the user can optionally specify a list of names
@@ -383,9 +383,9 @@ class UniformNetwork(Network):
     :param base: the number of states each node can take
     :type base: int
     :param names: an interable object of the names of the nodes in the network
-    :type names: sequence
+    :type names: seq
     :param metadata: metadata dictionary for the network
-    :type matadata: dict
+    :type metadata: dict
     """
 
     def __init__(self, size, base, names=None, metadata=None):

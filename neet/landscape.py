@@ -32,13 +32,13 @@ import pyinform as pi
 
 class LandscapeData(object):
     """
-    The :class:`LandscapeData` class stores the various landscape properties
-    computed in the :class:`LandscapeMixin`. This is used rather an individual
-    properties within :class:`LandscapeMixin` to make it simple for users to
-    extract all of the landscape properties before modifying a network and
-    observing the effects of that change on the landscape.
+    The LandscapeData class stores the various landscape properties computed in
+    the :class:`LandscapeMixin`. This is used rather an individual properties
+    within :class:`LandscapeMixin` to make it simple for users to extract all
+    of the landscape properties before modifying a network and observing the
+    effects of that change on the landscape.
 
-    The following properties are stored in :class:`LandscapeData`
+    The following properties are stored in LandscapeData
 
     * :attr:`LandscapeMixin.transitions`
     * :attr:`LandscapeMixin.attractors`
@@ -91,10 +91,10 @@ class LandscapeData(object):
 
 class LandscapeMixin:
     """
-    The :class:`LandscapeMixin` class represents the structure and topology of the
-    "landscape" of state transitions. That is, it is the state space
-    together with information about state transitions and the topology of
-    the state transition graph.
+    The LandscapeMixin class represents the structure and topology of the
+    "landscape" of state transitions. That is, it is the state space together
+    with information about state transitions and the topology of the state
+    transition graph.
 
     +------------------------------+--------------------------------------------+
     | Method/Property              | Description                                |
@@ -191,7 +191,7 @@ class LandscapeMixin:
         :param index: the index to update (or None)
         :param pin: the indices to pin during update (or None)
         :param values: a dictionary of index-value pairs to set after update
-        :returns: ``self``
+        :return: ``self``
         """
 
         self.__index = index
@@ -274,7 +274,7 @@ class LandscapeMixin:
                    465, 348, 337, 464, 465])
             >>> s_pombe.clear_landscape()
 
-        :return: a ``numpy.ndarray`` of state transitions
+        :return: a :class:`numpy.ndarray` of state transitions
         """
         if not self.__landscaped:
             self.landscape()
@@ -316,8 +316,8 @@ class LandscapeMixin:
                    [510]])
             >>> s_pombe.clear_landscape()
 
-        :return: a ``numpy.ndarray`` of attractor cycles, each of which is an
-                 array of encoded states
+        :return: a :class:`numpy.ndarray` of attractor cycles, each of which is
+                  an array of encoded states
         """
         if not self.__landscaped:
             self.landscape()
@@ -360,7 +360,7 @@ class LandscapeMixin:
             array([1, 6, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1])
             >>> s_pombe.clear_landscape()
 
-        :return: a ``numpy.ndarray`` of the lengths of the attractors
+        :return: a :class:`numpy.ndarray` of the lengths of the attractors
         """
         if not self.__landscaped:
             self.landscape()
@@ -416,7 +416,7 @@ class LandscapeMixin:
                     1,  1])
             >>> s_pombe.clear_landscape()
 
-        :return: a ``numpy.ndarray`` of each state's attractor basin
+        :return: a :class:`numpy.ndarray` of each state's attractor basin
         """
         if not self.__landscaped:
             self.landscape()
@@ -461,7 +461,7 @@ class LandscapeMixin:
                      1,   1,   1,   4,   1,   1,   1])
             >>> s_pombe.clear_landscape()
 
-        :return: a ``numpy.ndarray`` of each attractor's basin size
+        :return: a :class:`numpy.ndarray` of each attractor's basin size
         """
         if not self.__landscaped:
             self.landscape()
@@ -561,7 +561,7 @@ class LandscapeMixin:
             >>> s_pombe.clear_landscape()
 
 
-        :return: a ``numpy.ndarray``, each value of which is the height of the
+        :return: a :class:`numpy.ndarray`, each value of which is the height of the
                  indexing state
         """
         if not self.__landscaped:
@@ -618,7 +618,7 @@ class LandscapeMixin:
             >>> s_pombe.clear_landscape()
 
 
-        :return: a ``numpy.ndarray`` of recurrence times, one for each state
+        :return: a :class:`numpy.ndarray` of recurrence times, one for each state
         """
         if not self.__landscaped:
             self.landscape()
@@ -671,7 +671,7 @@ class LandscapeMixin:
                     0,  0])
             >>> s_pombe.clear_landscape()
 
-        :return: a ``numpy.ndarray`` of the in-degree of each state
+        :return: a :class:`numpy.ndarray` of the in-degree of each state
         """
         if not self.__landscaped:
             self.landscape()
@@ -681,7 +681,7 @@ class LandscapeMixin:
 
     def landscape_graph(self, **kwargs):
         """
-        The state transitions graph of the landscape as a ``networkx.Digraph``.
+        The state transitions graph of the landscape as a :class:`networkx.DiGraph`.
 
         If :meth:`landscape` has not been called, this method will implicitly call it.
 
@@ -692,9 +692,9 @@ class LandscapeMixin:
             >>> s_pombe.landscape_graph()
             <networkx.classes.digraph.DiGraph object at 0x...>
 
-        :param kwargs: kwargs to pass to `nx.DiGraph`
-        :return: a ``networkx.DiGraph`` representing the state transition graph
-                 of the landscape
+        :param kwargs: kwargs to pass to :class:`networkx.DiGraph`
+        :return: a :class:`networkx.DiGraph` representing the state transition
+                 graph of the landscape
         """
         if not self.__landscaped:
             self.landscape()
@@ -773,11 +773,11 @@ class LandscapeMixin:
             [361, 80, 320, 78, 128, 162, 178, 400, 332, 76, 76]
 
         :param init: the initial state
-        :type init: ``int`` or an iterable
+        :type init: int or seq
         :param timesteps: the number of time steps to include in the trajectory
-        :type timesteps: ``int`` or ``None``
+        :type timesteps: int or None
         :param encode: whether to encode the states in the trajectory
-        :type encode: ``bool`` or ``None``
+        :type encode: bool or None
         :return: a list whose elements are subsequent states of the trajectory
 
         :raises ValueError: if ``init`` an empty array
@@ -869,7 +869,7 @@ class LandscapeMixin:
                     [1, 1, 1, 0, 0, 0]]])
 
         :param timesteps: the number of timesteps to evolve the system
-        :type timesteps: ``int``
+        :type timesteps: int
         :return: a 3-D array of node states
 
         :raises ValueError: if ``timesteps`` is less than :math:`1`
@@ -899,13 +899,13 @@ class LandscapeMixin:
     def expound(self):
         """
         This function performs the bulk of the calculations that the
-        :class:`LandscapeMixin` is concerned with. Most of the properties in
-        this class are computed by this function whenever *any one* of them is
-        requested and the results are cached. The advantage of this is that it
-        saves computation time; why traverse the state space for every property
-        call when you can do it all at once? The downside is that the cached
-        results may use a good bit more memory. This is a trade-off that we are
-        willing to make for now.
+        LandscapeMixin is concerned with. Most of the properties in this class
+        are computed by this function whenever *any one* of them is requested
+        and the results are cached. The advantage of this is that it saves
+        computation time; why traverse the state space for every property call
+        when you can do it all at once? The downside is that the cached results
+        may use a good bit more memory. This is a trade-off that we are willing
+        to make for now.
 
         The properties that are computed by this function include:
 
