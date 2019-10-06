@@ -1,12 +1,9 @@
 """
-.. currentmodule:: neet.boolean.logicnetwork
+.. currentmodule:: neet.boolean
 
 .. testsetup:: logicnetwork
 
-    from neet.boolean.logicnetwork import LogicNetwork
-
-Logic-based Networks
-====================
+    from neet.boolean import LogicNetwork
 """
 import re
 from neet.python import long

@@ -8,11 +8,11 @@ Network State Spaces
 
    .. autoclass:: StateSpace
 
-      .. autoattribute:: size
+      .. autoproperty:: size
 
-      .. autoattribute:: shape
+      .. autoproperty:: shape
 
-      .. autoattribute:: volume
+      .. autoproperty:: volume
 
       .. automethod:: __iter__
 
@@ -30,4 +30,4 @@ Network State Spaces
 
    .. autoclass:: UniformSpace
 
-      .. autoattribute:: base
+      .. autoproperty:: base

@@ -1,14 +1,11 @@
 """
-.. currentmodule:: neet.boolean.network
+.. currentmodule:: neet.boolean
 
 .. testsetup:: boolean_network
 
     from neet.automata import ECA
-    from neet.boolean.network import *
+    from neet.boolean import *
     from neet.statespace import BooleanSpace
-
-API Documentation
------------------
 """
 from neet.network import UniformNetwork
 from neet.python import long
@@ -17,6 +14,9 @@ import copy
 
 
 class BooleanNetwork(SensitivityMixin, UniformNetwork):
+    """
+    A generic boolean network
+    """
     def __init__(self, size, names=None, metadata=None):
         super(BooleanNetwork, self).__init__(size, 2, names, metadata)
 
@@ -63,6 +63,9 @@ class BooleanNetwork(SensitivityMixin, UniformNetwork):
         return state
 
     def subspace(self, indices, state=None):
+        """
+        Generate all states in a given subspace.
+        """
         size = self.size
 
         if state is not None and state not in self:
@@ -98,6 +101,9 @@ class BooleanNetwork(SensitivityMixin, UniformNetwork):
                     i += 1
 
     def hamming_neighbors(self, state):
+        """
+        Get all states that one unit of Hamming dinstance from a state.
+        """
         if state not in self:
             raise ValueError('state is not in state space')
         neighbors = [None] * self.size
@@ -107,6 +113,9 @@ class BooleanNetwork(SensitivityMixin, UniformNetwork):
         return neighbors
 
     def distance(self, a, b):
+        """
+        Compute the Hamming distance between two states.
+        """
         if a not in self:
             raise ValueError('first state is not in state space')
         if b not in self:

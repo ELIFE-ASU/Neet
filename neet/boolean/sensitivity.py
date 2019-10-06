@@ -1,13 +1,9 @@
 """
-.. currentmodule:: neet.sensitivity
+.. currentmodule:: neet.boolean.sensitivity
 
 .. testsetup:: sensitivity
 
     from neet.boolean.examples import c_elegans, s_pombe
-    from neet.sensitivity import *
-
-Sensitivity
-===========
 
 The :mod:`neet.sensitivity` module provides a collection of functions for
 computing measures of sensitivity of networks, i.e. the degree to which
@@ -15,9 +11,6 @@ perturbations of the network state propogate and spread. This module also
 provides a collection of functions for identifying "canalizing edges": edges
 for which a state of the source node uniquely determines the state of the
 target regardless of other sources.
-
-API Documentation
------------------
 """
 import copy
 import numpy as np

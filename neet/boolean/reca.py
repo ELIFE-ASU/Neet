@@ -1,6 +1,9 @@
 """
-Rewired Elementary Cellular Automata
-====================================
+.. currentmodule:: neet.boolean
+
+.. testsetup:: reca
+
+    from neet.boolean import RewiredECA
 
 The :class:`neet.automata.reca.RewiredECA` implements a variant of an ECA
 wherein the neighbors of a give cell can be specified by the user. This
@@ -10,7 +13,7 @@ wiring, but all ``RewiredECA`` are *fixed sized* networks.
 
 .. rubric:: Examples
 
-.. doctest:: automata
+.. doctest:: reca
 
     >>> ca = RewiredECA(30, size=3)
     >>> ca.update([0, 1, 0])
@@ -35,7 +38,7 @@ class RewiredECA(BooleanNetwork):
 
         .. rubric:: Examples
 
-        .. doctest:: automata
+        .. doctest:: reca
 
             >>> reca = RewiredECA(30, size=3)
             >>> reca.code
@@ -47,7 +50,7 @@ class RewiredECA(BooleanNetwork):
                    [ 0,  1,  2],
                    [ 1,  2,  3]])
 
-        .. doctest:: automata
+        .. doctest:: reca
 
             >>> reca = RewiredECA(30, wiring=[[0,1,2],[-1,0,0],[2,3,1]])
             >>> reca.code
@@ -114,7 +117,7 @@ class RewiredECA(BooleanNetwork):
 
         .. rubric:: Examples
 
-        .. doctest:: automata
+        .. doctest:: reca
 
             >>> eca = ECA(30, 5)
             >>> eca.code
@@ -149,7 +152,7 @@ class RewiredECA(BooleanNetwork):
 
         .. rubric:: Examples
 
-        .. doctest:: automata
+        .. doctest:: reca
 
             >>> eca = ECA(30)
             >>> eca.boundary
@@ -189,7 +192,7 @@ class RewiredECA(BooleanNetwork):
 
         .. rubric:: Examples
 
-        .. doctest:: automata
+        .. doctest:: reca
 
             >>> reca = RewiredECA(30, size=3)
             >>> reca.wiring

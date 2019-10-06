@@ -1,15 +1,19 @@
 """
 .. currentmodule:: neet.boolean
 
-Boolean Networks
-================
+.. autosummary::
+   :nosignatures:
 
-The :mod:`neet.boolean` module provides network types (:class:`WTNetwork` and
-:class:`LogicNetwork`) and functions for simulating Boolean network modules.
+   BooleanNetwork
+   ECA
+   RewiredECA
+   WTNetwork
+   LogicNetwork
 
-API Documentation
------------------
+.. inheritance-diagram:: neet.boolean.BooleanNetwork neet.boolean.ECA neet.boolean.RewiredECA neet.boolean.WTNetwork neet.boolean.LogicNetwork
+   :parts: 1
 """
+from .network import BooleanNetwork #noqa
 from .eca import ECA  # noqa
 from .reca import RewiredECA  # noqa
 from .wtnetwork import WTNetwork  # noqa

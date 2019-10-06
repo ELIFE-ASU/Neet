@@ -16,9 +16,6 @@
         return [len(net.neighbors_out(node)) for node in range(net.size)]
     def mean_degree(net):
         return np.mean(out_degree(net))
-
-Random networks
-===============
 """
 import random
 import numpy as np

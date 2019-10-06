@@ -8,9 +8,6 @@
     from neet.boolean.examples import s_pombe
     from neet.landscape import transitions
 
-Network Type Conversion
-=======================
-
 Some algorithms are more efficiently implemented on particular network type.
 This module allows the user to convert between network types, though not all
 conversions are possible. For example, not every

@@ -1,13 +1,10 @@
 """
-.. currentmodule:: neet.boolean.wtnetwork
+.. currentmodule:: neet.boolean
 
 .. testsetup:: wtnetwork
 
+    from neet.boolean import WTNetwork
     from neet.boolean.examples import s_pombe
-    from neet.boolean.wtnetwork import WTNetwork
-
-Weight/Threshold Networks
-=========================
 """
 import numpy as np
 import re

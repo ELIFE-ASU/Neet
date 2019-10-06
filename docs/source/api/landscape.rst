@@ -18,25 +18,25 @@ Network Landscape Analysis
 
       .. automethod:: clear_landscape
 
-      .. autoattribute:: landscape_data
+      .. autoproperty:: landscape_data
 
-      .. autoattribute:: transitions
+      .. autoproperty:: transitions
 
-      .. autoattribute:: attractors
+      .. autoproperty:: attractors
 
-      .. autoattribute:: attractor_lengths
+      .. autoproperty:: attractor_lengths
 
-      .. autoattribute:: basins
+      .. autoproperty:: basins
 
-      .. autoattribute:: basin_sizes
+      .. autoproperty:: basin_sizes
 
-      .. autoattribute:: basin_entropy
+      .. autoproperty:: basin_entropy
 
-      .. autoattribute:: heights
+      .. autoproperty:: heights
 
-      .. autoattribute:: recurrence_times
+      .. autoproperty:: recurrence_times
 
-      .. autoattribute:: in_degrees
+      .. autoproperty:: in_degrees
 
       .. automethod:: trajectory
 

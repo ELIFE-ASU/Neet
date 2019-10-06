@@ -1,12 +1,13 @@
 """
-Elementary Cellular Automata
-============================
+.. currentmodule:: neet.boolean
+
+.. testsetup:: eca
+
+    from neet.boolean import ECA
 
 The :class:`neet.automata.eca.ECA` class describes an `Elementary Cellular
 Automaton <https://en.wikipedia.org/wiki/Elementary_cellular_automaton>`_
 with an arbitrary rule.
-
-.. rubric:: Examples
 """
 import numpy as np
 from .network import BooleanNetwork
@@ -27,7 +28,7 @@ class ECA(BooleanNetwork):
 
         .. rubric:: Examples
 
-        .. doctest:: automata
+        .. doctest:: eca
 
             >>> ca = ECA(30, 5)
             >>> ca.code
@@ -61,7 +62,7 @@ class ECA(BooleanNetwork):
 
         .. rubric:: Examples
 
-        .. doctest:: automata
+        .. doctest:: eca
 
             >>> eca = ECA(30, 5)
             >>> eca.code
@@ -111,7 +112,7 @@ class ECA(BooleanNetwork):
 
         .. rubric:: Examples
 
-        .. doctest:: automata
+        .. doctest:: eca
 
             >>> eca = ECA(30)
             >>> eca.boundary
@@ -151,7 +152,7 @@ class ECA(BooleanNetwork):
 
         .. rubric:: Basic Use:
 
-        .. doctest:: automata
+        .. doctest:: eca
 
             >>> ca = ECA(30)
             >>> xs = [0,0,1,0,0]
@@ -163,7 +164,7 @@ class ECA(BooleanNetwork):
 
         .. rubric:: Single-Node Update:
 
-        .. doctest:: automata
+        .. doctest:: eca
 
             >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
@@ -177,7 +178,7 @@ class ECA(BooleanNetwork):
 
         .. rubric:: State Pinning:
 
-        .. doctest:: automata
+        .. doctest:: eca
 
             >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
@@ -189,7 +190,7 @@ class ECA(BooleanNetwork):
 
         .. rubric:: Value Fixing:
 
-        .. doctest:: automata
+        .. doctest:: eca
 
             >>> ca.boundary = None
             >>> xs = [0,0,1,0,0]
@@ -267,7 +268,7 @@ class ECA(BooleanNetwork):
 
         .. rubric:: Basic Use:
 
-        .. doctest:: automata
+        .. doctest:: eca
 
             >>> net = ECA(30)
             >>> net.neighbors_in(1, size=3)
@@ -282,7 +283,7 @@ class ECA(BooleanNetwork):
 
         .. rubric:: Erroneous Usage:
 
-        .. doctest:: automata
+        .. doctest:: eca
 
             >>> net = ECA(30,boundary=(1, 1))
             >>> net.neighbors_in(5, 3)
@@ -323,7 +324,7 @@ class ECA(BooleanNetwork):
 
         .. rubric:: Basic Use:
 
-        .. doctest:: automata
+        .. doctest:: eca
 
             >>> net = ECA(30)
             >>> net.neighbors_out(1, 3)
@@ -338,7 +339,7 @@ class ECA(BooleanNetwork):
 
         .. rubric:: Erroneous Usage:
 
-        .. doctest:: automata
+        .. doctest:: eca
 
             >>> net = ECA(30,boundary=(1, 1))
             >>> net.neighbors_out(5, 3)

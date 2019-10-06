@@ -1,9 +1,6 @@
 """
 .. currentmodule:: neet.boolean.examples
 
-Example Networks
-================
-
 The examples module provides a collection of pre-loaded model networks such as
 :attr:`s_pombe` (fission yeast) and :attr:`s_cerevisiae` (budding yeast).
 """
