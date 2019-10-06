@@ -1,49 +1,49 @@
 Network Landscape Analysis
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. automodule:: neet.landscape
-    :synopsis: Landscape analysis of synchronous networks
+   :synopsis: Landscape analysis of synchronous networks
 
-    LandscapeData
-    -------------
+   LandscapeData
+   -------------
 
-    .. autoclass:: LandscapeData
+   .. autoclass:: LandscapeData
 
 
-    LandscapeMixin
-    --------------
+   LandscapeMixin
+   --------------
 
-    .. autoclass:: LandscapeMixin
+   .. autoclass:: LandscapeMixin
 
-        .. automethod:: landscape
+      .. automethod:: landscape
 
-        .. automethod:: clear_landscape
+      .. automethod:: clear_landscape
 
-        .. autoattribute:: landscape_data
+      .. autoattribute:: landscape_data
 
-        .. autoattribute:: transitions
+      .. autoattribute:: transitions
 
-        .. autoattribute:: attractors
+      .. autoattribute:: attractors
 
-        .. autoattribute:: attractor_lengths
+      .. autoattribute:: attractor_lengths
 
-        .. autoattribute:: basins
+      .. autoattribute:: basins
 
-        .. autoattribute:: basin_sizes
+      .. autoattribute:: basin_sizes
 
-        .. autoattribute:: basin_entropy
+      .. autoattribute:: basin_entropy
 
-        .. autoattribute:: heights
+      .. autoattribute:: heights
 
-        .. autoattribute:: recurrence_times
+      .. autoattribute:: recurrence_times
 
-        .. autoattribute:: in_degrees
+      .. autoattribute:: in_degrees
 
-        .. automethod:: trajectory
+      .. automethod:: trajectory
 
-        .. automethod:: timeseries
+      .. automethod:: timeseries
 
-        .. automethod:: landscape_graph
+      .. automethod:: landscape_graph
 
-        .. automethod:: draw_landscape_graph
+      .. automethod:: draw_landscape_graph
 
-        .. automethod:: expound
+      .. automethod:: expound

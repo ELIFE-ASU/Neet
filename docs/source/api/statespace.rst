@@ -1,33 +1,33 @@
 Network State Spaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. automodule:: neet.statespace
-    :synopsis: State spaces for networks
+   :synopsis: State spaces for networks
 
-    StateSpace
-    ----------
+   StateSpace
+   ----------
 
-    .. autoclass:: StateSpace
+   .. autoclass:: StateSpace
 
-        .. autoattribute:: size
+      .. autoattribute:: size
 
-        .. autoattribute:: shape
+      .. autoattribute:: shape
 
-        .. autoattribute:: volume
+      .. autoattribute:: volume
 
-        .. automethod:: __iter__
+      .. automethod:: __iter__
 
-        .. automethod:: __contains__
+      .. automethod:: __contains__
 
-        .. automethod:: _unsafe_encode
+      .. automethod:: _unsafe_encode
 
-        .. automethod:: encode
+      .. automethod:: encode
 
-        .. automethod:: decode
+      .. automethod:: decode
 
 
-    UniformSpace
-    ------------
+   UniformSpace
+   ------------
 
-    .. autoclass:: UniformSpace
+   .. autoclass:: UniformSpace
 
-        .. autoattribute:: base
+      .. autoattribute:: base

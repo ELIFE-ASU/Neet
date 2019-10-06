@@ -1,14 +1,14 @@
 Information Analysis
 ^^^^^^^^^^^^^^^^^^^^
 .. automodule:: neet.information
-    :synopsis: Information analysis
+   :synopsis: Information analysis
 
-    .. autoclass:: Architecture
+   .. autoclass:: Architecture
 
-        .. automethod:: active_information
+      .. automethod:: active_information
 
-        .. automethod:: entropy_rate
+      .. automethod:: entropy_rate
 
-        .. automethod:: transfer_entropy
+      .. automethod:: transfer_entropy
 
-        .. automethod:: mutual_information
+      .. automethod:: mutual_information

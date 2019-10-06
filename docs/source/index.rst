@@ -63,9 +63,9 @@ Contents
 
 .. toctree::
 
-    getting-started
-    api
-    zrefs
+   getting-started
+   api
+   zrefs
 
 Indices and tables
 ==================

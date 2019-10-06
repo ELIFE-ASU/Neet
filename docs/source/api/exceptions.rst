@@ -1,10 +1,10 @@
 Custom Exceptions
 ^^^^^^^^^^^^^^^^^
 .. automodule:: neet.exceptions
-    :synopsis: Custom exception classes
+   :synopsis: Custom exception classes
 
-    FormatError
-    -----------
+   FormatError
+   -----------
 
-    .. autoclass:: FormatError
-       :members:
+   .. autoclass:: FormatError
+      :members:

@@ -3,9 +3,9 @@ API
 
 .. toctree::
 
-    api/landscape
-    api/statespace
-    api/network
-    api/draw
-    api/information
-    api/exceptions
+   api/landscape
+   api/statespace
+   api/network
+   api/draw
+   api/information
+   api/exceptions
