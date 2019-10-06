@@ -7,4 +7,5 @@ API
     statespace
     network
     draw
+    information
     exceptions

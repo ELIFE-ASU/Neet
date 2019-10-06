@@ -7,53 +7,12 @@
     from neet.information import *
     from neet.boolean.examples import s_pombe
 
-Information Architecture
-========================
-
-The :mod:`neet.information` provides a collection of functions which compute
+The :mod:`neet.information` provides the :class:`Architecture` class to compute
 various information measures over the dynamics of discrete-state network
-models. Each measure computes a time series of a desired length from each
-initial state of the network and uses the time series to populate probability
-distributions over the state transitions of each node. From there any number
-of information or entropy measures may be applied. All of this is bookkeeping
-is taken care of by the function; all you have to do is provide a network and
-any necessary parameters for the calculation
-
-
-.. rubric:: Example (Active Information for Fission Yeast)
-
-.. doctest:: information
-
-    >>> active_information(s_pombe, k=5, timesteps=20)
-    array([0.        , 0.4083436 , 0.62956679, 0.62956679, 0.37915718,
-           0.40046165, 0.67019615, 0.67019615, 0.39189127])
+models. 
 
 The core information-theoretic computations are supported by the `PyInform
 <https://elife-asu.github.io/PyInform>`_ package.
-
-
-API Documentation
------------------
-
-The :mod:`neet.information` module is broken into two parts: `Information
-Measures`_ and the `Architecture Class`_.
-
-The `Information Measures`_ are a collection of module-level functions which
-independently compute a variety of information measures over a network of
-interest:
-
-- Active Information Storage (:func:`active_information`)
-- Entropy Rate (:func:`entropy_rate`)
-- Transfer Entropy (:func:`transfer_entropy`)
-- Mutual Information (:func:`mutual_information`).
-
-However, since they do not share any data between them, if you plan to compute
-many different measures, it is much more efficient to cache the computed time
-series. This is done by the :class:`Architecture` class which provides all of
-the same measures, only computes the time series once.
-
-Information Measures
-^^^^^^^^^^^^^^^^^^^^
 """
 import numpy as np
 import pyinform as pi
@@ -61,47 +20,43 @@ import pyinform as pi
 
 class Architecture(object):
     """
-    A class to represent the k-history informational architecture of a network.
+    A class to represent the :math:`k`-history informational architecture of a
+    network.
 
-    .. note::
-        The class:`Architecture` computes the average information measures a
-        bit differently than the associated module-level functions.
-        Specifically, it first computes the local measures and then averages
-        them; this leads different numerical results on account of the subtlties
-        of floating-point mathematics. However, they will always be "close". In
-        particular
+    The Architecture is initialized with a network, a history length, and time
+    series length. A time series of the desired length is computed from each
+    initial state of the network, and used populate probability distributions
+    over the state transitions of each node. From there any number of
+    information or entropy measures may be applied.
 
-        .. doctest:: information
+    During initialization the following measures are computed and cached:
 
-              >>> arch = Architecture(s_pombe, k=5, timesteps=20)
-              >>> function = transfer_entropy(s_pombe, k=5, timesteps=20)
-              >>> method = arch.transfer_entropy()
-              >>> np.testing.assert_almost_equal(method, function)
+    .. autosummary::
+        :nosignatures:
 
+        active_information
+        entropy_rate
+        mutual_information
+        transfer_entropy
+
+    .. rubric:: Examples
+
+    .. doctest:: information
+
+        >>> arch = Architecture(s_pombe, k=5, timesteps=20)
+        >>> arch.active_information()
+        array([0.        , 0.4083436 , 0.62956679, 0.62956679, 0.37915718,
+               0.40046165, 0.67019615, 0.67019615, 0.39189127])
+
+    :param net: the network to analyze
+    :type net: neet.network.Network
+    :param k: the history length
+    :type k: int
+    :param timesteps: the number of timesteps to evaluate the network
+    :type timesteps: int
     """
 
     def __init__(self, net, k, timesteps):
-        """
-        Initialize the architecture given a network and enough information to
-        compute a time series.
-
-        During initialization the following measures are computed and cached:
-        * Local and Average Active Information Storage
-        * Local and Average Entropy Rate
-        * Local and Average Transfer Entropy
-        * Local and Average Mutual Information
-
-        .. doctest:: information
-
-            >>> arch = Architecture(s_pombe, k=5, timesteps=20)
-            >>> arch.active_information()
-            array([0.        , 0.4083436 , 0.62956679, 0.62956679, 0.37915718,
-                   0.40046165, 0.67019615, 0.67019615, 0.39189127])
-
-        :param net: a NEET network
-        :param k: the history length
-        :param timesteps: the number of timesteps to evaluate the network
-        """
         self.__k = k
         self.__series = net.timeseries(timesteps=timesteps)
         shape = self.__series.shape
@@ -162,7 +117,7 @@ class Architecture(object):
 
     def active_information(self, local=False):
         """
-        Get the local or average active information
+        Get the local or average active information.
 
         .. doctest:: information
 
@@ -176,21 +131,19 @@ class Architecture(object):
                     0.13079175],
                    [0.13079175, 0.13079175, 0.13079175, ..., 0.13079175, 0.13079175,
                     0.13079175],
-                   [0.13079175, 0.13079175, 0.13079175, ..., 0.13079175, 0.13079175,
-                    0.13079175],
                    ...,
-                   [0.13079175, 0.13079175, 0.13079175, ..., 0.13079175, 0.13079175,
-                    0.13079175],
                    [0.13079175, 0.13079175, 0.13079175, ..., 0.13079175, 0.13079175,
                     0.13079175],
                    [0.13079175, 0.13079175, 0.13079175, ..., 0.13079175, 0.13079175,
                     0.13079175]])
             >>> np.mean(lais[1])
-            0.4083435963963132
+            0.4083435...
 
-        :param local: whether to return local (True) or global active information
+        :param local: whether to return local (True) or global active
+                      information
         :type local: bool
-        :return: a numpy array containing the (local) active information
+        :return: a :class:`numpy.ndarray` containing the (local) active
+                 information
         """
         if local:
             return self.__local_active_info
@@ -199,7 +152,7 @@ class Architecture(object):
 
     def entropy_rate(self, local=False):
         """
-        Get the local or average entropy rate
+        Get the local or average entropy rate.
 
         .. doctest:: information
 
@@ -213,11 +166,7 @@ class Architecture(object):
                     0.00507099],
                    [0.        , 0.        , 0.        , ..., 0.00507099, 0.00507099,
                     0.00507099],
-                   [0.        , 0.        , 0.        , ..., 0.00507099, 0.00507099,
-                    0.00507099],
                    ...,
-                   [0.        , 0.29604946, 0.00507099, ..., 0.00507099, 0.00507099,
-                    0.00507099],
                    [0.        , 0.29604946, 0.00507099, ..., 0.00507099, 0.00507099,
                     0.00507099],
                    [0.        , 0.29604946, 0.00507099, ..., 0.00507099, 0.00507099,
@@ -225,7 +174,7 @@ class Architecture(object):
 
         :param local: whether to return local (True) or global entropy rate
         :type local: bool
-        :return: a numpy array containing the (local) entropy rate
+        :return: a :class:`numpy.ndarray` containing the (local) entropy rate
         """
         if local:
             return self.__local_entropy_rate
@@ -234,39 +183,21 @@ class Architecture(object):
 
     def transfer_entropy(self, local=False):
         """
-        Get the local or average transfer entropy
+        Get the local or average transfer entropy.
 
         .. doctest:: information
 
             >>> arch = Architecture(s_pombe, k=5, timesteps=20)
             >>> arch.transfer_entropy()
-            array([[ 0.00000000e+00,  3.37457926e-18, -2.18195687e-18,
-                    -2.18195687e-18, -5.39390581e-18,  3.37457926e-18,
-                     5.10930274e-18,  5.10930274e-18,  1.80248611e-18],
-                   [-3.25260652e-18, -3.25260652e-18, -3.05745013e-17,
-                    -3.05745013e-17,  1.69120759e-02, -3.25260652e-18,
-                    -3.25260652e-18, -3.25260652e-18, -3.25260652e-18],
-                   [-4.20670443e-17,  5.13704599e-02, -4.20670443e-17,
-                     1.22248438e-02,  1.99473023e-02,  5.13704599e-02,
-                     6.03879253e-03,  6.03879253e-03,  7.28026801e-02],
-                   [-4.20670443e-17,  5.13704599e-02,  1.22248438e-02,
-                    -4.20670443e-17,  1.99473023e-02,  5.13704599e-02,
-                     6.03879253e-03,  6.03879253e-03,  7.28026801e-02],
-                   [-1.09531524e-16,  5.84199434e-02,  4.76020591e-02,
-                     4.76020591e-02, -1.09531524e-16,  5.84199434e-02,
-                     4.76020591e-02,  4.76020591e-02, -1.09531524e-16],
-                   [-5.20417043e-18, -5.20417043e-18,  2.47940243e-02,
-                     2.47940243e-02, -5.20417043e-18, -5.20417043e-18,
-                     2.47940243e-02,  2.47940243e-02, -5.20417043e-18],
-                   [ 3.08997619e-17,  1.66898258e-02,  4.52634832e-03,
-                     4.52634832e-03,  1.19161772e-02,  1.66898258e-02,
-                     3.08997619e-17,  2.98276692e-03,  3.21733224e-02],
-                   [ 3.08997619e-17,  1.66898258e-02,  4.52634832e-03,
-                     4.52634832e-03,  1.19161772e-02,  1.66898258e-02,
-                     2.98276692e-03,  3.08997619e-17,  3.21733224e-02],
-                   [ 1.37693676e-17,  6.03036989e-02,  4.82889077e-02,
-                     4.82889077e-02,  8.96694146e-02,  6.03036989e-02,
-                     4.89270931e-02,  4.89270931e-02,  1.37693676e-17]])
+            array([[0.        , 0.        , 0.        , 0.        , 0.        ,
+                    0.        , 0.        , 0.        , 0.        ],
+                   [0.        , 0.        , 0.        , 0.        , 0.01691208,
+                    0.        , 0.        , 0.        , 0.        ],
+                   ...,
+                   [0.        , 0.01668983, 0.00452635, 0.00452635, 0.01191618,
+                    0.01668983, 0.00298277, 0.        , 0.03217332],
+                   [0.        , 0.0603037 , 0.04828891, 0.04828891, 0.08966941,
+                    0.0603037 , 0.04892709, 0.04892709, 0.        ]])
 
             >>> lte = arch.transfer_entropy(local=True)
             >>> lte[4,3]
@@ -274,11 +205,7 @@ class Architecture(object):
                     0.00507099],
                    [0.        , 0.        , 0.        , ..., 0.00507099, 0.00507099,
                     0.00507099],
-                   [0.        , 0.        , 0.        , ..., 0.00507099, 0.00507099,
-                    0.00507099],
                    ...,
-                   [0.        , 0.29604946, 0.00507099, ..., 0.00507099, 0.00507099,
-                    0.00507099],
                    [0.        , 0.29604946, 0.00507099, ..., 0.00507099, 0.00507099,
                     0.00507099],
                    [0.        , 0.29604946, 0.00507099, ..., 0.00507099, 0.00507099,
@@ -286,7 +213,8 @@ class Architecture(object):
 
         :param local: whether to return local (True) or global transfer entropy
         :type local: bool
-        :return: a numpy array containing the (local) transfer entropy
+        :return: a :class:`numpy.ndarray` containing the (local) transfer
+                 entropy
         """
         if local:
             return self.__local_transfer_entropy
@@ -295,7 +223,7 @@ class Architecture(object):
 
     def mutual_information(self, local=False):
         """
-        Get the local or average mutual information
+        Get the local or average mutual information.
 
         .. doctest:: information
 
@@ -305,16 +233,7 @@ class Architecture(object):
                     0.01586238, 0.00516987, 0.00516987, 0.01102766],
                    [0.01374672, 0.56660996, 0.00745714, 0.00745714, 0.00639113,
                     0.32790848, 0.0067609 , 0.0067609 , 0.00468342],
-                   [0.00428548, 0.00745714, 0.83837294, 0.475582  , 0.21157695,
-                    0.00432855, 0.4590254 , 0.4590254 , 0.12755745],
-                   [0.00428548, 0.00745714, 0.475582  , 0.83837294, 0.21157695,
-                    0.00432855, 0.4590254 , 0.4590254 , 0.12755745],
-                   [0.01340937, 0.00639113, 0.21157695, 0.21157695, 0.57459066,
-                    0.00703145, 0.17560769, 0.17560769, 0.01233356],
-                   [0.01586238, 0.32790848, 0.00432855, 0.00432855, 0.00703145,
-                    0.51905053, 0.00621124, 0.00621124, 0.00260667],
-                   [0.00516987, 0.0067609 , 0.4590254 , 0.4590254 , 0.17560769,
-                    0.00621124, 0.80831657, 0.49349527, 0.10390475],
+                   ...,
                    [0.00516987, 0.0067609 , 0.4590254 , 0.4590254 , 0.17560769,
                     0.00621124, 0.49349527, 0.80831657, 0.10390475],
                    [0.01102766, 0.00468342, 0.12755745, 0.12755745, 0.01233356,
@@ -325,19 +244,17 @@ class Architecture(object):
                      0.18484073,  0.18484073],
                    [-0.67489772, -0.67489772, -0.67489772, ...,  0.18484073,
                      0.18484073,  0.18484073],
-                   [-0.67489772, -0.67489772, -0.67489772, ...,  0.18484073,
-                     0.18484073,  0.18484073],
                    ...,
-                   [-2.89794147,  1.7513014 ,  0.18484073, ...,  0.18484073,
-                     0.18484073,  0.18484073],
                    [-2.89794147,  1.7513014 ,  0.18484073, ...,  0.18484073,
                      0.18484073,  0.18484073],
                    [-2.89794147,  1.7513014 ,  0.18484073, ...,  0.18484073,
                      0.18484073,  0.18484073]])
 
-        :param local: whether to return local (True) or global mutual information
+        :param local: whether to return local (True) or global mutual
+                      information
         :type local: bool
-        :return: a numpy array containing the (local) mutual information
+        :return: a :class:`numpy.ndarray` containing the (local) mutual
+                 information
         """
         if local:
             return self.__local_mutual_info
