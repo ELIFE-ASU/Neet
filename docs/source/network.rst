@@ -1,32 +1,34 @@
 Network Classes
 ^^^^^^^^^^^^^^^
 .. automodule:: neet.network
-    :synopsis: Network classes
+   :synopsis: Network classes
 
-    Network
-    -------
+   Network
+   -------
 
-    .. autoclass:: Network
+   .. autoclass:: Network
 
-        .. autoattribute:: metadata
+      .. autoattribute:: metadata
 
-        .. autoattribute:: names
+      .. autoattribute:: names
 
-        .. automethod:: _unsafe_update
+      .. automethod:: _unsafe_update
 
-        .. automethod:: neighbors_in
+      .. automethod:: neighbors_in
 
-        .. automethod:: neighbors_out
+      .. automethod:: neighbors_out
 
-        .. automethod:: update
+      .. automethod:: update
 
-        .. automethod:: neighbors
+      .. automethod:: neighbors
 
-        .. automethod:: network_graph
+      .. automethod:: network_graph
 
-        .. automethod:: draw_network_graph
+      .. automethod:: draw_network_graph
 
-    UniformNetwork
-    --------------
+   UniformNetwork
+   --------------
 
-    .. autoclass:: UniformNetwork
+   .. autoclass:: UniformNetwork
+
+      .. autoattribute:: base
