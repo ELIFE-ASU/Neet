@@ -1,3 +1,8 @@
+"""
+.. currentmodule:: neet.draw
+
+Utilities for drawing **Neet** objects and graph representations.
+"""
 import networkx as nx
 import pygraphviz  # noqa
 import tempfile
@@ -7,52 +12,49 @@ import os
 @nx.utils.open_file(5, 'w+b')
 def view_pygraphviz(G, edgelabel=None, prog='dot', args='',
                     suffix='', path=None, display_image=True):
-    """Views the graph G using the specified layout algorithm.
+    """
+    Views the graph G using the specified layout algorithm.
 
-    Modified from networkx.drawing.nx_agraph functions to allow display toggle.
-    Original copyright of view_pygraphviz:
+    This is a modified version of ``view_pyagraphviz`` from
+    :mod:`networkx.drawing.nx_agraph` to allow display toggle.
+    
+    Original copyright::
+
         Copyright (C) 2004-2019 by
-        Aric Hagberg <hagberg@lanl.gov>
-        Dan Schult <dschult@colgate.edu>
-        Pieter Swart <swart@lanl.gov>
-        All rights reserved.
-        BSD license.
+            Aric Hagberg <hagberg@lanl.gov>
+            Dan Schult <dschult@colgate.edu>
+            Pieter Swart <swart@lanl.gov>
+        All rights reserved. BSD license.
         Author: Aric Hagberg (hagberg@lanl.gov)
 
-    Parameters
-    ----------
-    G : NetworkX graph
-        The machine to draw.
-    edgelabel : str, callable, None
-        If a string, then it specifes the edge attribute to be displayed
-        on the edge labels. If a callable, then it is called for each
-        edge and it should return the string to be displayed on the edges.
-        The function signature of `edgelabel` should be edgelabel(data),
-        where `data` is the edge attribute dictionary.
-    prog : string
-        Name of Graphviz layout program.
-    args : str
-        Additional arguments to pass to the Graphviz layout program.
-    suffix : str
-        If `filename` is None, we save to a temporary file.  The value of
-        `suffix` will appear at the tail end of the temporary filename.
-    path : str, None
-        The filename used to save the image.  If None, save to a temporary
-        file.  File formats are the same as those from pygraphviz.agraph.draw.
+    :param G: the graph to draw
+    :type G: networkx.Graph or networkx.DiGraph
+    :param edgelabel: If a string, then it specifes the edge attribute to be
+                      displayed on the edge labels. If a callable, then it is
+                      called for each edge and it should return the string to
+                      be displayed on the edges.  The function signature of
+                      `edgelabel` should be edgelabel(data), where `data` is
+                      the edge attribute dictionary.
+    :type edgelabel: str, callable or None
+    :param prog: Name of Graphviz layout program.
+    :type prog: str
+    :param args: Additional arguments to pass to the Graphviz layout program.
+    :type args: str
+    :param suffix: If `filename` is None, we save to a temporary file.  The
+                   value of `suffix` will appear at the tail end of the
+                   temporary filename.
+    :type suffix: str
+    :param path: The filename used to save the image. If None, save to a
+                 temporary file. File formats are the same as those from
+                 pygraphviz.agraph.draw.
+    :type path: str or None
 
-    Returns
-    -------
-    path : str
-        The filename of the generated image.
-    A : PyGraphviz graph
-        The PyGraphviz graph instance used to generate the image.
+    :return: the filename of the generated image, and a ``PyGraphviz`` graph instance
 
-    Notes
-    -----
-    If this function is called in succession too quickly, sometimes the
-    image is not displayed. So you might consider time.sleep(.5) between
-    calls if you experience problems.
-
+    .. Note::
+        If this function is called in succession too quickly, sometimes the
+        image is not displayed. So you might consider time.sleep(.5) between
+        calls if you experience problems.
     """
     if not len(G):
         raise nx.NetworkXException("An empty graph cannot be drawn.")

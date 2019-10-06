@@ -365,7 +365,7 @@ class Network(LandscapeMixin, StateSpace):
             installed via ``pip``.
 
         :param graphkwargs: kwargs to pass to :meth:`network_graph`
-        :param pygraphkwargs: kwargs to pass to `view_pygraphviz`
+        :param pygraphkwargs: kwargs to pass to :func:`neet.draw.view_pygraphviz`
         """
         from .draw import view_pygraphviz
         default_args = {'prog': 'circo'}

@@ -6,4 +6,5 @@ API
     landscape
     statespace
     network
+    draw
     exceptions

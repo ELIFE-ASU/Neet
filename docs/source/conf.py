@@ -41,8 +41,9 @@ extensions = ['sphinx.ext.autodoc',
 
 intersphinx_mapping = {
         'python': ('https://docs.python.org/3', None),
-        'numpy': ('https://docs.scipy.org/doc/numpy/', None),
-        'networkx': ('https://networkx.github.io/documentation/networkx-2.3', None)
+        'numpy': ('https://docs.scipy.org/doc/numpy', None),
+        'networkx': ('https://networkx.github.io/documentation/networkx-2.3', None),
+        'pygraphviz': ('https://pygraphviz.github.io/', None)
     }
 
 # Add any paths that contain templates here, relative to this directory.
