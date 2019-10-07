@@ -3,11 +3,9 @@
 
 .. testsetup:: boolean_network
 
-    from neet.automata import ECA
-    from neet.boolean import *
-    from neet.statespace import BooleanSpace
+    from neet.boolean.examples import s_pombe
 """
-from neet.network import UniformNetwork
+from neet import UniformNetwork
 from neet.python import long
 from .sensitivity import SensitivityMixin
 import copy
@@ -15,9 +13,38 @@ import copy
 
 class BooleanNetwork(SensitivityMixin, UniformNetwork):
     """
-    A generic boolean network
-    """
+    The BooleanNetwork class is a base class for all of **Neet**'s Boolean
+    networks. The BooleanNetwork class inherits from both
+    :class:`neet.UniformNetwork` and :class:`neet.boolean.SensitivityMixin`,
+    and specializes the inherited :class:`neet.StateSpace` methods to exploit
+    the Boolean structure.
 
+    .. inheritance-diagram:: neet.boolean.BooleanNetwork
+        :parts: 1
+
+    In addition to all of its inherited methods, BooleanNetwork also exposes the following methods:
+
+    .. autosummary::
+        :nosignatures:
+
+        subspace
+        distance
+        hamming_neighbors
+
+    BooleanNetwork is an *abstract* class, meaning it cannot be instantiated.
+    Initialization of a BooleaNetwork requires, at a minimum, the number of
+    nodes in the network. As with all classes that derive from
+    :class:`neet.Network`, the user may optionally provide a list of names for
+    the nodes of the network and a metadata dictionary for the network as a
+    whole (e.g. citation information).
+
+    :param size: number of nodes in the network
+    :type size: int
+    :param names: an iterable object of the names of the nodes in the network
+    :type names: seq
+    :param metadata: metadata dictionary for the network
+    :type metadata: dict
+    """
     def __init__(self, size, names=None, metadata=None):
         super(BooleanNetwork, self).__init__(size, 2, names, metadata)
 
@@ -65,7 +92,37 @@ class BooleanNetwork(SensitivityMixin, UniformNetwork):
 
     def subspace(self, indices, state=None):
         """
-        Generate all states in a given subspace.
+        Generate all states in a given subspace. This method varies each node
+        specified by the ``indicies`` array independently. The optional
+        ``state`` parameter specifies the state of the non-varying states of
+        the network. If ``state`` is not provided, all nodes not in
+        ``indicies`` will have state ``0``.
+
+        .. rubric:: Examples
+
+        .. doctest:: boolean_network
+
+            >>> s_pombe.subspace([0])
+            <generator object BooleanNetwork.subspace at 0x...>
+            >>> list(s_pombe.subspace([0]))
+            [[0, 0, 0, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 0, 0]]
+            >>> list(s_pombe.subspace([0, 3]))
+            [[0, 0, 0, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0], [1, 0, 0, 1, 0, 0, 0, 0, 0]]
+
+        .. doctest:: boolean_network
+
+            >>> s_pombe.subspace([0], state=[0, 1, 0, 1, 0, 1, 0, 1, 0])
+            <generator object BooleanNetwork.subspace at 0x...>
+            >>> list(s_pombe.subspace([0], state=[0, 1, 0, 1, 0, 1, 0, 1, 0]))
+            [[0, 1, 0, 1, 0, 1, 0, 1, 0], [1, 1, 0, 1, 0, 1, 0, 1, 0]]
+            >>> list(s_pombe.subspace([0, 3], state=[0, 1, 0, 1, 0, 1, 0, 1, 0]))
+            [[0, 1, 0, 1, 0, 1, 0, 1, 0], [1, 1, 0, 1, 0, 1, 0, 1, 0], [0, 1, 0, 0, 0, 1, 0, 1, 0], [1, 1, 0, 0, 0, 1, 0, 1, 0]]
+
+        :param indicies: the indicies to vary in the subspace
+        :type indicies: list, numpy.ndarray, iterable
+        :param state: a state which specifes the state of the non-varying nodes
+        :type state: list, numpy.ndarray
+        :yield: the states of the subspace
         """
         size = self.size
 
@@ -103,7 +160,21 @@ class BooleanNetwork(SensitivityMixin, UniformNetwork):
 
     def hamming_neighbors(self, state):
         """
-        Get all states that one unit of Hamming dinstance from a state.
+        Get all states that one unit of Hamming distance from a given state.
+
+        .. rubric:: Examples
+
+        .. doctest:: boolean_network
+
+            >>> s_pombe.hamming_neighbors([0, 0, 0, 0, 0, 0, 0, 0, 0])
+            [[1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0, 0, 0], [0, 0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 0, 0, 1]]
+            >>> s_pombe.hamming_neighbors([0, 1, 1, 0, 1, 0, 1, 0, 0])
+            [[1, 1, 1, 0, 1, 0, 1, 0, 0], [0, 0, 1, 0, 1, 0, 1, 0, 0], [0, 1, 0, 0, 1, 0, 1, 0, 0], [0, 1, 1, 1, 1, 0, 1, 0, 0], [0, 1, 1, 0, 0, 0, 1, 0, 0], [0, 1, 1, 0, 1, 1, 1, 0, 0], [0, 1, 1, 0, 1, 0, 0, 0, 0], [0, 1, 1, 0, 1, 0, 1, 1, 0], [0, 1, 1, 0, 1, 0, 1, 0, 1]]
+
+        :param state: the state whose neighbors are desired
+        :type state: list, numpy.ndarray
+        :return: a list of neighbors of the given state
+        :raises ValueError: if the state is not in the network's state space
         """
         if state not in self:
             raise ValueError('state is not in state space')
@@ -116,6 +187,22 @@ class BooleanNetwork(SensitivityMixin, UniformNetwork):
     def distance(self, a, b):
         """
         Compute the Hamming distance between two states.
+
+        .. rubric:: Examples
+
+        .. doctest:: boolean_network
+
+            >>> s_pombe.distance([0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 0, 1, 1, 0, 1, 0, 0])
+            4
+            >>> s_pombe.distance([0, 1, 0, 1, 1, 0, 1, 0, 0], [0, 1, 0, 1, 1, 0, 1, 0, 0])
+            0
+
+        :param a: the first state
+        :type a: list, numpy.ndarray
+        :param b: the second state
+        :type b: list, numpy.ndarray
+        :return: the Hamming distance between the states
+        :raises ValueError: if either state is not in the network's state space
         """
         if a not in self:
             raise ValueError('first state is not in state space')

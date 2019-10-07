@@ -7,11 +7,3 @@ Boolean Networks
 .. toctree::
 
    boolean/network
-   boolean/eca
-   boolean/reca
-   boolean/wtnetwork
-   boolean/logicnetwork
-   boolean/sensitivity
-   boolean/conv
-   boolean/random
-   boolean/examples
