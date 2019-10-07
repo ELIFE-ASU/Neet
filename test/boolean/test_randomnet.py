@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from neet.boolean.examples import mouse_cortical_7B
-from neet.boolean.randomnet import (random_logic, random_binary_states,)
+from neet.boolean.randomnet import random_logic, random_binary_states
 
 TESTSEED = 314159
 

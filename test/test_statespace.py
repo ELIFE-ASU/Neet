@@ -1,6 +1,6 @@
 import unittest
 from neet.python import long
-from neet.statespace import StateSpace, UniformSpace
+from neet import StateSpace, UniformSpace
 import numpy as np
 
 

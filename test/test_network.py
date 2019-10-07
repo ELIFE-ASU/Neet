@@ -1,8 +1,7 @@
 from .mock import MockObject, MockNetwork, MockBooleanNetwork
-from neet.network import Network
-from neet.boolean.network import BooleanNetwork
+from neet import Network
+from neet.boolean import BooleanNetwork, ECA, LogicNetwork, WTNetwork
 from neet.boolean.examples import s_pombe
-import neet.boolean as bnet
 import unittest
 
 
@@ -22,7 +21,7 @@ class TestNetwork(unittest.TestCase):
         self.assertFalse(isinstance(MockNetwork([4, 3, 2, 4, 5]), BooleanNetwork))
 
     def test_neighbors_ECA(self):
-        eca = bnet.ECA(30, 4)
+        eca = ECA(30, 4)
 
         with self.assertRaises(ValueError):
             eca.neighbors(1, direction='')
@@ -30,7 +29,7 @@ class TestNetwork(unittest.TestCase):
         self.assertTrue(eca.neighbors(1), set([0, 1, 2]))
 
     def test_neighbors_WTNetwork(self):
-        net = bnet.WTNetwork([[1, 0], [1, 1]])
+        net = WTNetwork([[1, 0], [1, 1]])
 
         with self.assertRaises(ValueError):
             net.neighbors(0, direction='')
@@ -38,7 +37,7 @@ class TestNetwork(unittest.TestCase):
         self.assertTrue(net.neighbors(0), [set([0])])
 
     def test_neighbors_LogicNetwork(self):
-        net = bnet.LogicNetwork([((0,), {'0'})])
+        net = LogicNetwork([((0,), {'0'})])
 
         with self.assertRaises(ValueError):
             net.neighbors(0, direction='')
@@ -46,7 +45,7 @@ class TestNetwork(unittest.TestCase):
         self.assertTrue(net.neighbors(0), [set([0])])
 
     def test_network_graph_LogicNetwork(self):
-        net = bnet.LogicNetwork([((1, 2), {'01', '10'}),
+        net = LogicNetwork([((1, 2), {'01', '10'}),
                                  ((0, 2), ((0, 1), '10', [1, 1])),
                                  ((0, 1), {'11'})], ['A', 'B', 'C'])
 
@@ -61,7 +60,7 @@ class TestNetwork(unittest.TestCase):
         self.assertEqual(nx_net.graph['title'], 'S. pombe')
 
     def test_to_networkx_ECA_metadata(self):
-        net = bnet.ECA(30, 3)
+        net = ECA(30, 3)
         net.boundary = (1, 0)
 
         nx_net = net.network_graph()

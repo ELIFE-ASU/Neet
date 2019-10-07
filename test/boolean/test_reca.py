@@ -1,8 +1,7 @@
 import unittest
 import numpy as np
-from neet.boolean import ECA, RewiredECA
-from neet.network import Network
-from neet.boolean.network import BooleanNetwork
+from neet import Network
+from neet.boolean import BooleanNetwork, ECA, RewiredECA
 
 
 class TestRewiredECA(unittest.TestCase):

@@ -2,10 +2,9 @@
 import unittest
 import numpy as np
 from neet.python import long
-from neet.boolean import LogicNetwork
+from neet.boolean import BooleanNetwork, LogicNetwork
 from neet.exceptions import FormatError
-from neet.network import Network
-from neet.boolean.network import BooleanNetwork
+from neet import Network
 
 
 class TestLogicNetwork(unittest.TestCase):

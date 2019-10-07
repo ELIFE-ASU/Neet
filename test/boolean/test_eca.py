@@ -1,8 +1,7 @@
-import unittest
-from neet.boolean import ECA
+from neet import Network
+from neet.boolean import BooleanNetwork, ECA
 import numpy as np
-from neet.network import Network
-from neet.boolean.network import BooleanNetwork
+import unittest
 
 
 class TestECA(unittest.TestCase):

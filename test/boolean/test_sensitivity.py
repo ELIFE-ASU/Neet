@@ -1,5 +1,5 @@
 import unittest
-from neet.boolean import (LogicNetwork, WTNetwork)
+from neet.boolean import LogicNetwork, WTNetwork
 import numpy as np
 
 
