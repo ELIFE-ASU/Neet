@@ -9,3 +9,4 @@ Boolean Networks
    boolean/network
    boolean/eca
    boolean/reca
+   boolean/wtnetwork
