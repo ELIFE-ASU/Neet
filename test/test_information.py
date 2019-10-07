@@ -1,6 +1,6 @@
 import numpy as np
 import unittest
-from neet import Architecture
+from neet import Information
 from neet.boolean.examples import s_pombe
 
 
@@ -20,7 +20,7 @@ class TestInformation(unittest.TestCase):
         The architecture correctly computes the active information
         """
         k, timesteps = 5, 20
-        arch = Architecture(s_pombe, k=k, timesteps=timesteps)
+        arch = Information(s_pombe, k=k, timesteps=timesteps)
 
         expected_ai = np.asarray([0.0, 0.408344, 0.629567, 0.629567, 0.379157,
                                   0.400462, 0.670196, 0.670196, 0.391891])
@@ -37,7 +37,7 @@ class TestInformation(unittest.TestCase):
         The architecture correctly computes the entropy rate
         """
         k, timesteps = 5, 20
-        arch = Architecture(s_pombe, k=k, timesteps=timesteps)
+        arch = Information(s_pombe, k=k, timesteps=timesteps)
 
         expected_er = np.asarray([0.0, 0.016912, 0.072803, 0.072803, 0.058420,
                                   0.024794, 0.032173, 0.032173, 0.089669])
@@ -54,7 +54,7 @@ class TestInformation(unittest.TestCase):
         The architecture correctly computes the transfer entropy
         """
         k, timesteps = 5, 20
-        arch = Architecture(s_pombe, k=k, timesteps=timesteps)
+        arch = Information(s_pombe, k=k, timesteps=timesteps)
 
         expected_te = np.asarray(
             [[0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
@@ -88,7 +88,7 @@ class TestInformation(unittest.TestCase):
         The architecture correctly computes the mutual information
         """
         k, timesteps = 5, 20
-        arch = Architecture(s_pombe, k=k, timesteps=timesteps)
+        arch = Information(s_pombe, k=k, timesteps=timesteps)
 
         expected_mi = np.asarray(
             [[0.162326, 0.013747, 0.004285, 0.004285, 0.013409, 0.015862,

@@ -7,7 +7,7 @@
     from neet.information import *
     from neet.boolean.examples import s_pombe
 
-The :mod:`neet.information` provides the :class:`Architecture` class to compute
+The :mod:`neet.information` provides the :class:`Information` class to compute
 various information measures over the dynamics of discrete-state network
 models. 
 
@@ -18,12 +18,12 @@ import numpy as np
 import pyinform as pi
 
 
-class Architecture(object):
+class Information(object):
     """
     A class to represent the :math:`k`-history informational architecture of a
     network.
 
-    The Architecture is initialized with a network, a history length, and time
+    An Information is initialized with a network, a history length, and time
     series length. A time series of the desired length is computed from each
     initial state of the network, and used populate probability distributions
     over the state transitions of each node. From there any number of
@@ -43,7 +43,7 @@ class Architecture(object):
 
     .. doctest:: information
 
-        >>> arch = Architecture(s_pombe, k=5, timesteps=20)
+        >>> arch = Information(s_pombe, k=5, timesteps=20)
         >>> arch.active_information()
         array([0.        , 0.4083436 , 0.62956679, 0.62956679, 0.37915718,
                0.40046165, 0.67019615, 0.67019615, 0.39189127])
@@ -121,7 +121,7 @@ class Architecture(object):
 
         .. doctest:: information
 
-            >>> arch = Architecture(s_pombe, k=5, timesteps=20)
+            >>> arch = Information(s_pombe, k=5, timesteps=20)
             >>> arch.active_information()
             array([0.        , 0.4083436 , 0.62956679, 0.62956679, 0.37915718,
                    0.40046165, 0.67019615, 0.67019615, 0.39189127])
@@ -156,7 +156,7 @@ class Architecture(object):
 
         .. doctest:: information
 
-            >>> arch = Architecture(s_pombe, k=5, timesteps=20)
+            >>> arch = Information(s_pombe, k=5, timesteps=20)
             >>> arch.entropy_rate()
             array([0.        , 0.01691208, 0.07280268, 0.07280268, 0.05841994,
                    0.02479402, 0.03217332, 0.03217332, 0.08966941])
@@ -187,7 +187,7 @@ class Architecture(object):
 
         .. doctest:: information
 
-            >>> arch = Architecture(s_pombe, k=5, timesteps=20)
+            >>> arch = Information(s_pombe, k=5, timesteps=20)
             >>> arch.transfer_entropy()
             array([[0.        , 0.        , 0.        , 0.        , 0.        ,
                     0.        , 0.        , 0.        , 0.        ],
@@ -227,7 +227,7 @@ class Architecture(object):
 
         .. doctest:: information
 
-            >>> arch = Architecture(s_pombe, k=5, timesteps=20)
+            >>> arch = Information(s_pombe, k=5, timesteps=20)
             >>> arch.mutual_information()
             array([[0.16232618, 0.01374672, 0.00428548, 0.00428548, 0.01340937,
                     0.01586238, 0.00516987, 0.00516987, 0.01102766],
