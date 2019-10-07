@@ -7,3 +7,4 @@ Boolean Networks
 .. toctree::
 
    boolean/network
+   boolean/eca
