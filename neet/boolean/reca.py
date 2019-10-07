@@ -25,7 +25,9 @@ class RewiredECA(BooleanNetwork):
     RewiredECA instances can be instantiated by providing an ECA rule ``code``,
     and either the number of nodes in the network (``size``) or a ``wiring``
     matrix which specifies how the nodes are wired.  Optionally, the user can
-    specify boundary conditions as in :class:`neet.boolean.ECA`.
+    specify boundary conditions as in :class:`neet.boolean.ECA`. As with all
+    :class:`neet.Network` classes, the names of the nodes and network-wide
+    metadata can be provided.
 
     In addition to all inherited methods, RewiredECA exposes the following properites
 
@@ -95,6 +97,10 @@ class RewiredECA(BooleanNetwork):
     :type size: int or None
     :param wiring: a wiring matrix
     :type wiring: list, numpy.ndarray
+    :param names: an iterable object of the names of the nodes in the network
+    :type names: seq
+    :param metadata: metadata dictionary for the network
+    :type metadata: dict
     :raises ValueError: if both ``size`` and ``wiring`` are provided
     :raises ValueError: if neither ``size`` nor ``wiring`` are provided
     :raises ValueError: if ``size`` is less than :math:`1` (when provided)
@@ -104,11 +110,11 @@ class RewiredECA(BooleanNetwork):
                         :math:`[-1, ``size``]` (when provided)
     """
 
-    def __init__(self, code, boundary=None, size=None, wiring=None):
+    def __init__(self, code, boundary=None, size=None, wiring=None, names=None, metadata=None):
         if size is not None and wiring is not None:
             raise ValueError("cannot provide size and wiring at the same time")
         elif size is not None:
-            super(RewiredECA, self).__init__(size)
+            super(RewiredECA, self).__init__(size, names=names, metadata=metadata)
             self.code = code
             self.boundary = boundary
             self.__wiring = np.zeros((3, size), dtype=int)
@@ -129,7 +135,7 @@ class RewiredECA(BooleanNetwork):
             elif np.any(wiring_array > shape[1]):
                 raise ValueError("invalid input node in wiring")
 
-            super(RewiredECA, self).__init__(int(shape[1]))
+            super(RewiredECA, self).__init__(int(shape[1]), names=names, metadata=metadata)
             self.code = code
             self.boundary = boundary
             self.__wiring = wiring_array

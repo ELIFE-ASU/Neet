@@ -19,7 +19,9 @@ class ECA(BooleanNetwork):
     8-bit integral member variable ``code`` representing the Wolfram code for
     the ECA rule and a set of boundary conditions which is either ``None``,
     signifying periodic boundary conditions, or a pair of cell states
-    signifying fixed, open boundary conditions.
+    signifying fixed, open boundary conditions.  As with all
+    :class:`neet.Network` classes, the names of the nodes and network-wide
+    metadata can be provided.
 
     .. inheritance-diagram:: ECA
         :parts: 1
@@ -38,12 +40,16 @@ class ECA(BooleanNetwork):
     :type size: int
     :param boundary: the boundary conditions for the CA
     :type boundary: tuple or None
+    :param names: an iterable object of the names of the nodes in the network
+    :type names: seq
+    :param metadata: metadata dictionary for the network
+    :type metadata: dict
     :raises ValueError: if ``code`` is not in :math:`\\{0,1,\\ldots,255\\}`
     :raises ValueError: if ``boundary`` is a neither ``None`` nor a pair of binary states
     """
 
-    def __init__(self, code, size, boundary=None):
-        super(ECA, self).__init__(size)
+    def __init__(self, code, size, boundary=None, names=None, metadata=None):
+        super(ECA, self).__init__(size, names=names, metadata=metadata)
         self.code = code
         self.boundary = boundary
 
