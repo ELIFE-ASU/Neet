@@ -1,15 +1,14 @@
 """
-.. currentmodule:: neet.information
+.. currentmodule:: neet
 
 .. testsetup:: information
 
     import numpy as np
-    from neet.information import *
+    from neet import Information
     from neet.boolean.examples import s_pombe
 
-The :mod:`neet.information` provides the :class:`Information` class to compute
-various information measures over the dynamics of discrete-state network
-models. 
+The :mod:`neet` provides the :class:`Information` class to compute various
+information measures over the dynamics of discrete-state network models. 
 
 The core information-theoretic computations are supported by the `PyInform
 <https://elife-asu.github.io/PyInform>`_ package.
@@ -49,7 +48,7 @@ class Information(object):
                0.40046165, 0.67019615, 0.67019615, 0.39189127])
 
     :param net: the network to analyze
-    :type net: neet.network.Network
+    :type net: neet.Network
     :param k: the history length
     :type k: int
     :param timesteps: the number of timesteps to evaluate the network

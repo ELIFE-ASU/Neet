@@ -1,12 +1,12 @@
 """
-.. currentmodule:: neet.statespace
+.. currentmodule:: neet
 
 .. testsetup:: statespace
 
-    from neet.statespace import StateSpace, UniformSpace
+    from neet import StateSpace, UniformSpace
 
-The :mod:`neet.statespace` module provides the following classes from which all
-**Neet** network classes inherit:
+The :mod:`neet` module provides the following classes from which all **Neet**
+network classes inherit:
 
 .. autosummary::
     :nosignatures:
@@ -14,7 +14,7 @@ The :mod:`neet.statespace` module provides the following classes from which all
     StateSpace
     UniformSpace
 
-.. inheritance-diagram:: neet.statespace
+.. inheritance-diagram:: neet.StateSpace neet.UniformSpace
    :parts: 1
 
 This endows networks with methods for iterating over the states of the network,

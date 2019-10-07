@@ -3,7 +3,7 @@ Information Analysis
 .. automodule:: neet.information
    :synopsis: Information analysis
 
-   .. autoclass:: Architecture
+   .. autoclass:: Information
 
       .. automethod:: active_information
 

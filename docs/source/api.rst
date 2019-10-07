@@ -1,6 +1,9 @@
 API
 ===
 
+.. automodule:: neet
+   :synopsis: Neet Network Analysis
+
 .. toctree::
 
    api/landscape
