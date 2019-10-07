@@ -64,7 +64,7 @@ class Network(LandscapeMixin, StateSpace):
 
     :param shape: the base of each node of the network
     :type shape: list
-    :param names: an interable object of the names of the nodes in the network
+    :param names: an iterable object of the names of the nodes in the network
     :type names: seq
     :param metadata: metadata dictionary for the network
     :type metadata: dict
