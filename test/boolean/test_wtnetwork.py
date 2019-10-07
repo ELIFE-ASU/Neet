@@ -310,7 +310,7 @@ class TestWTNetwork(unittest.TestCase):
                     return 0
 
         net = WTNetwork([[1, 0], [-1, 1]], [0.5, 0.0],
-                             theta=reverse_negative)
+                        theta=reverse_negative)
         xs = [0, 0]
         self.assertEqual([1, 1], net.update(xs))
         self.assertEqual([1, 1], xs)
@@ -491,7 +491,7 @@ class TestWTNetwork(unittest.TestCase):
 
     def test_update_pin_none(self):
         net = WTNetwork([[1, 0], [-1, 1]], [0.5, 0.0],
-                             theta=WTNetwork.positive_threshold)
+                        theta=WTNetwork.positive_threshold)
         xs = [0, 0]
         self.assertEqual([0, 1], net.update(xs, pin=None))
         xs = [0, 0]
@@ -499,7 +499,7 @@ class TestWTNetwork(unittest.TestCase):
 
     def test_update_pin_index_clash(self):
         net = WTNetwork([[1, 0], [-1, 1]], [0.5, 0.0],
-                             theta=WTNetwork.positive_threshold)
+                        theta=WTNetwork.positive_threshold)
         with self.assertRaises(ValueError):
             net.update([0, 0], index=0, pin=[1])
         with self.assertRaises(ValueError):
@@ -539,7 +539,7 @@ class TestWTNetwork(unittest.TestCase):
 
     def test_update_values_none(self):
         net = WTNetwork([[1, 0], [-1, 1]], [0.5, 0.0],
-                             theta=WTNetwork.positive_threshold)
+                        theta=WTNetwork.positive_threshold)
         xs = [0, 0]
         self.assertEqual([0, 1], net.update(xs, values=None))
         xs = [0, 0]
@@ -547,7 +547,7 @@ class TestWTNetwork(unittest.TestCase):
 
     def test_update_invalid_values(self):
         net = WTNetwork([[1, 0], [-1, 1]], [0.5, 0.0],
-                             theta=WTNetwork.positive_threshold)
+                        theta=WTNetwork.positive_threshold)
         with self.assertRaises(ValueError):
             net.update([0, 0], values={0: 2})
         with self.assertRaises(ValueError):
@@ -555,7 +555,7 @@ class TestWTNetwork(unittest.TestCase):
 
     def test_update_pin_invalid_indicies(self):
         net = WTNetwork([[1, 0], [-1, 1]], [0.5, 0.0],
-                             theta=WTNetwork.positive_threshold)
+                        theta=WTNetwork.positive_threshold)
         with self.assertRaises(IndexError):
             net.update([0, 0], values={-3: 0})
         with self.assertRaises(IndexError):
@@ -563,7 +563,7 @@ class TestWTNetwork(unittest.TestCase):
 
     def test_update_values_index_clash(self):
         net = WTNetwork([[1, 0], [-1, 1]], [0.5, 0.0],
-                             theta=WTNetwork.positive_threshold)
+                        theta=WTNetwork.positive_threshold)
         with self.assertRaises(ValueError):
             net.update([0, 0], index=0, values={0: 1})
         with self.assertRaises(ValueError):
@@ -573,7 +573,7 @@ class TestWTNetwork(unittest.TestCase):
 
     def test_update_values_pin_clash(self):
         net = WTNetwork([[1, 0], [-1, 1]], [0.5, 0.0],
-                             theta=WTNetwork.positive_threshold)
+                        theta=WTNetwork.positive_threshold)
         with self.assertRaises(ValueError):
             net.update([0, 0], pin=[0], values={0: 1})
         with self.assertRaises(ValueError):
@@ -585,7 +585,7 @@ class TestWTNetwork(unittest.TestCase):
 
     def test_update_values(self):
         net = WTNetwork([[1, 0], [-1, 1]], [0.5, 0.0],
-                             theta=WTNetwork.negative_threshold)
+                        theta=WTNetwork.negative_threshold)
 
         xs = [1, 1]
         self.assertEqual([1, 1], net.update(xs, values={1: 1}))

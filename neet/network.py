@@ -69,6 +69,7 @@ class Network(LandscapeMixin, StateSpace):
     :param metadata: metadata dictionary for the network
     :type metadata: dict
     """
+
     def __init__(self, shape, names=None, metadata=None):
         super(Network, self).__init__(shape)
 

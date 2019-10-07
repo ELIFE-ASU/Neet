@@ -8,7 +8,7 @@
     from neet.boolean.examples import s_pombe
 
 The :mod:`neet` provides the :class:`Information` class to compute various
-information measures over the dynamics of discrete-state network models. 
+information measures over the dynamics of discrete-state network models.
 
 The core information-theoretic computations are supported by the `PyInform
 <https://elife-asu.github.io/PyInform>`_ package.

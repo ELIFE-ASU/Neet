@@ -46,8 +46,8 @@ class TestNetwork(unittest.TestCase):
 
     def test_network_graph_LogicNetwork(self):
         net = LogicNetwork([((1, 2), {'01', '10'}),
-                                 ((0, 2), ((0, 1), '10', [1, 1])),
-                                 ((0, 1), {'11'})], ['A', 'B', 'C'])
+                            ((0, 2), ((0, 1), '10', [1, 1])),
+                            ((0, 1), {'11'})], ['A', 'B', 'C'])
 
         nx_net = net.network_graph(labels='names', title='Logic Network')
         self.assertEqual(set(nx_net), set(['A', 'B', 'C']))

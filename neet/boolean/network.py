@@ -17,6 +17,7 @@ class BooleanNetwork(SensitivityMixin, UniformNetwork):
     """
     A generic boolean network
     """
+
     def __init__(self, size, names=None, metadata=None):
         super(BooleanNetwork, self).__init__(size, 2, names, metadata)
 
