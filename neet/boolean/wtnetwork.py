@@ -21,7 +21,17 @@ class WTNetwork(BooleanNetwork):
         :parts: 1
 
     In addition to methods inherited from :class:`neet.boolean.BooleanNetwork`,
-    WTNetwork exposes the following static methods:
+    WTNetwork exposes the following attributes
+
+    +--------------------+----------------------------------------------------+
+    | :attr:`weights`    | The network's square weight matrix.                |
+    +--------------------+----------------------------------------------------+
+    | :attr:`thresholds` | The network's threshold vector.                    |
+    +--------------------+----------------------------------------------------+
+    | :attr:`theta`      | The network's activation function.                 |
+    +--------------------+----------------------------------------------------+
+
+    and static methods:
 
     .. autosummary::
         :nosignatures:
@@ -33,8 +43,8 @@ class WTNetwork(BooleanNetwork):
 
     At a minimum, WTNetworks accept either a weight matrix or a size. The
     weight matrix must be square, with the :math:`(i,j)` element representing
-    the weight on the edge from :math:`i`th node to the :math:`j`th. If a size
-    is provided, all weights are assumed to be :math:`0.0`.
+    the weight on the edge from :math:`j`-th node to the :math:`i`-th. If a
+    size is provided, all weights are assumed to be :math:`0.0`.
 
     .. doctest:: wtnetwork
 
@@ -213,7 +223,9 @@ class WTNetwork(BooleanNetwork):
     @staticmethod
     def split_threshold(values, states):
         """
-        Applies the following functional form to the arguments:
+        Activates if the stimulus exceeds 0, maintaining state if it is exactly
+        0. That is, it is a middle ground between :meth:`negative_threshold`
+        and :meth:`positive_threshold`:
 
         .. math::
 
@@ -275,7 +287,8 @@ class WTNetwork(BooleanNetwork):
     @staticmethod
     def negative_threshold(values, states):
         """
-        Applies the following functional form to the arguments:
+        Activate if the stimulus exceeds 0. That is, it "leans negative" if the
+        simulus is 0:
 
         .. math::
 
@@ -335,7 +348,8 @@ class WTNetwork(BooleanNetwork):
     @staticmethod
     def positive_threshold(values, states):
         """
-        Applies the following functional form to the arguments:
+        Activate if the stimulus is 0 or greater. That is, it "leans positive"
+        if the simulus is 0:
 
         .. math::
 
