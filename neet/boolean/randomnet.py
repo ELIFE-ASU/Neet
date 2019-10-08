@@ -263,7 +263,7 @@ def _random_logic_fixed_connections(logic_net, ps, fix_external=False,
 
         new_table.append((indices, conditions))
 
-    return LogicNetwork(new_table, logic_net.names)
+    return LogicNetwork(new_table, names=logic_net.names)
 
 
 def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
@@ -324,7 +324,7 @@ def _random_logic_shuffled_connections(logic_net, ps, fix_external=False,
 
         new_table.append((indices, conditions))
 
-    return LogicNetwork(new_table, logic_net.names)
+    return LogicNetwork(new_table, names=logic_net.names)
 
 
 def _random_logic_free_connections(logic_net, ps):
@@ -352,7 +352,7 @@ def _random_logic_free_connections(logic_net, ps):
 
         new_table.append((indices, conditions))
 
-    return LogicNetwork(new_table, logic_net.names)
+    return LogicNetwork(new_table, names=logic_net.names)
 
 
 def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
@@ -422,4 +422,4 @@ def _random_logic_fixed_num_edges(logic_net, ps, fix_external=False,
     for external in externals:
         new_table[external] = logic_net.table[external]
 
-    return LogicNetwork(new_table, logic_net.names)
+    return LogicNetwork(new_table, names=logic_net.names)

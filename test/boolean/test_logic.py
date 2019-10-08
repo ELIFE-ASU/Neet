@@ -17,8 +17,8 @@ class TestLogicNetwork(unittest.TestCase):
         self.assertEqual(1, net.size)
         self.assertEqual([(1, {0})], net._encoded_table)
 
-        net = LogicNetwork(
-            [((1,), {'0', '1'}), ((0,), {'1'})], ['A', 'B'])
+        net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})],
+                           names=['A', 'B'])
         self.assertEqual(2, net.size)
         self.assertEqual(['A', 'B'], net.names)
         self.assertEqual([(2, {0, 2}), (1, {1})], net._encoded_table)
@@ -36,13 +36,13 @@ class TestLogicNetwork(unittest.TestCase):
         with self.assertRaises(ValueError):
             LogicNetwork([((0,), {'0'})], names=["A", "B"])
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             LogicNetwork([((0,),)])
 
         with self.assertRaises(IndexError):
             LogicNetwork([((1,), {'0'})])
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             LogicNetwork([((0,), '0')])
 
     def test_init_long(self):
@@ -296,7 +296,8 @@ class TestLogicNetwork(unittest.TestCase):
     def test_network_graph_names(self):
         net = LogicNetwork([((1, 2), {'01', '10'}),
                             ((0, 2), ((0, 1), '10', [1, 1])),
-                            ((0, 1), {'11'})], ['A', 'B', 'C'])
+                            ((0, 1), {'11'})],
+                           names=['A', 'B', 'C'])
 
         nx_net = net.network_graph(labels='names')
         self.assertEqual(set(nx_net), set(['A', 'B', 'C']))

@@ -5,7 +5,6 @@
 .. testsetup:: wtnetwork
 
     from neet.boolean import WTNetwork
-    from neet.boolean.examples import s_pombe
 """
 import numpy as np
 import re
