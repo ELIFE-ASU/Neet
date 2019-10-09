@@ -272,10 +272,7 @@ class TestLogicNetwork(unittest.TestCase):
                          [(2, {2}), (1, {1}), (3, {2, 1})])
 
         net.reduce_table()
-        self.assertEqual(net.table,
-                         [((1,), {'1'}),
-                          ((0,), {'1'}),
-                          ((0, 1), {'01', '10'})])
+        self.assertEqual(net.table, reduced_table)
 
         net = LogicNetwork([((0, 1), {'00', '01', '10', '11'}),
                             ((1,), {'1'})],
@@ -286,12 +283,12 @@ class TestLogicNetwork(unittest.TestCase):
                           ((1,), {'1'})])
 
         net = LogicNetwork([((1,), {'0', '1'}),
-                            ((1,), {'1'})],
+                            ((0,), set())],
                            reduced=True)
 
         self.assertEqual(net.table,
-                         [((0,), {'1'}),
-                          ((1,), {'1'})])
+                         [((0,), {'0', '1'}),
+                          ((1,), set())])
 
     def test_network_graph_names(self):
         net = LogicNetwork([((1, 2), {'01', '10'}),

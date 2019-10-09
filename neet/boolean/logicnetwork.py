@@ -229,12 +229,9 @@ class LogicNetwork(BooleanNetwork):
                 if not conditions:
                     # If original conditions is empty, node is never activated.
                     reduced_conditions = set()
-                elif node in sources:
+                else:
                     # Node is always activated no matter its previous state.
                     reduced_conditions = {'0', '1'}
-                else:
-                    # Node state is not changed.
-                    reduced_conditions = {'1'}
 
             reduced_table.append((tuple(reduced_sources), reduced_conditions))
 
