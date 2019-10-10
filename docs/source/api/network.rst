@@ -8,9 +8,9 @@ Network Classes
 
    .. autoclass:: Network
 
-      .. autoproperty:: metadata
+      .. autoattribute:: metadata
 
-      .. autoproperty:: names
+      .. autoattribute:: names
 
       .. automethod:: _unsafe_update
 
@@ -31,4 +31,4 @@ Network Classes
 
    .. autoclass:: UniformNetwork
 
-      .. autoproperty:: base
+      .. autoattribute:: base

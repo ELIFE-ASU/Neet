@@ -6,6 +6,6 @@ Elementary Cellular Automata
 
 .. autoclass:: neet.boolean.ECA
 
-   .. autoproperty:: code
+   .. autoattribute:: code
 
-   .. autoproperty:: boundary
+   .. autoattribute:: boundary

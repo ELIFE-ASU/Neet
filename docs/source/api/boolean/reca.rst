@@ -6,9 +6,9 @@ Rewired Elementary Cellular Automata
 
 .. autoclass:: neet.boolean.RewiredECA
 
-   .. autoproperty:: code
+   .. autoattribute:: code
 
-   .. autoproperty:: boundary
+   .. autoattribute:: boundary
 
-   .. autoproperty:: wiring
+   .. autoattribute:: wiring
 
