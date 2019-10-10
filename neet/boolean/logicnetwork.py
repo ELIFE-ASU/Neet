@@ -205,8 +205,9 @@ class LogicNetwork(BooleanNetwork):
             >>> net.table == [((0,1), {'00', '10'}), ((0,), {'0', '1'})]
             True
             >>> net.reduce_table()
-            >>> net.table == [((1,), {'0'}), ((1,), {'1'})]
+            >>> net.table == [((1,), {'0'}), ((1,), {'0', '1'})]
             True
+
         """
         reduced_table = []
         for node, (sources, conditions) in enumerate(self.table):
