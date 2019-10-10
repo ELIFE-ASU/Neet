@@ -11,3 +11,4 @@ Boolean Networks
    boolean/reca
    boolean/wtnetwork
    boolean/logicnetwork
+   boolean/sensitivity

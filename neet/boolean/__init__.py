@@ -18,3 +18,4 @@ from .eca import ECA  # noqa
 from .reca import RewiredECA  # noqa
 from .wtnetwork import WTNetwork  # noqa
 from .logicnetwork import LogicNetwork  # noqa
+from .sensitivity import SensitivityMixin  # noqa
