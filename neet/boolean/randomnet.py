@@ -4,8 +4,12 @@
 .. testsetup:: randomnet
 
     import numpy as np
-    from neet.boolean.examples import *
-    from neet.boolean.randomnet import *
+    np.random.seed(2019)
+
+    from neet.boolean import LogicNetwork
+    from neet.boolean.examples import myeloid
+    from neet.boolean.randomnet import random_logic
+
     def neighbors_in(net):
         return [net.neighbors_in(node) for node in range(net.size)]
     def neighbors_out(net):
@@ -23,42 +27,49 @@ from .logicnetwork import LogicNetwork
 from deprecated.sphinx import deprecated
 
 
-@deprecated(version='1.0', reason='This function will be replaced in version 2.0.0')
+# @deprecated(version='1.0', reason='This function will be replaced in version 2.0.0')
 def random_logic(logic_net, p=0.5, connections='fixed-structure',
                  fix_external=False, make_irreducible=False,
                  fix_canalizing=False):
     """
-    Return a ``LogicNetwork`` from an input ``LogicNetwork`` with a random
-    logic table.
+    Generate a random variant of a :class:`neet.boolean.LogicNetwork`. Given an
+    initial network, randomize some aspects of the network subject to specified
+    constraints, returning the resulting network. **Note** that this function
+    `does not` modify the input network.
 
-    ``connections`` decides how a node in the random network is connected to
-    other nodes:
+    .. doctest:: randomnet
 
-        ``'fixed-structure'``
-            the random network has the same connections as the input network.
+        >>> random_logic(myeloid)
+        <neet.boolean.logicnetwork.LogicNetwork object at 0x...>
+        >>> net = random_logic(myeloid)
+        >>> net.size == myeloid.size
+        True
+        >>> net.table != myeloid.table
+        True
 
-        ``'fixed-in-degree'``
-            the number of connections to a node is the same as the input
-            network, but the connections are randomly selected.
+    The ``connections`` argument determines how a node in the random network
+    is connected to other nodes:
 
-        ``'fixed-mean-degree'``
-            the total number of edges is conserved, but edges are placed
-            randomly between nodes.
-
-        ``'free'``
-            only the number of nodes is conserved, with the number of
-            connections to a node chosen uniformly between 1 and the total
-            number of nodes.
-
-    ``p`` is the probability of a state of the connected nodes being present in
-    the activation table. It is also equavolent to the probability of any node
-    being activated. If ``p`` is a single number, it applies to all nodes.
-    Otherwise ``p`` must be a sequence of numbers that match in size with the
-    input network.
+    +-------------------------+------------------------------------------------------------+
+    | ``'fixed-structure'``   | | the random network has the same connections as the input |
+    |                         | | network                                                  |
+    +-------------------------+------------------------------------------------------------+
+    | ``'fixed-in-degree'``   | | the number of connections to a node is the same as the   |
+    |                         | | input network, but the connections are randomly selected |         
+    +-------------------------+------------------------------------------------------------+
+    | ``'fixed-mean-degree'`` | | the total number of edges is conserved, but edges are    |
+    |                         | | placed randomly between nodes                            |
+    +-------------------------+------------------------------------------------------------+
+    | ``'free'``              | | only the number of nodes is conserved, with the number   |
+    |                         | | of connections to a node chosen uniformly between 1 and  |
+    |                         | | the total number of nodes                                |
+    +-------------------------+------------------------------------------------------------+
 
     .. doctest:: randomnet
 
         >>> net = random_logic(myeloid, connections='fixed-structure')
+        >>> net.table != myeloid.table
+        True
         >>> neighbors_in(net) == neighbors_in(myeloid)
         True
         >>> neighbors_out(net) == neighbors_out(myeloid)
@@ -67,6 +78,8 @@ def random_logic(logic_net, p=0.5, connections='fixed-structure',
     .. doctest:: randomnet
 
         >>> net = random_logic(myeloid, connections='fixed-in-degree')
+        >>> net.table != myeloid.table
+        True
         >>> in_degree(net) == in_degree(myeloid)
         True
         >>> out_degree(net) == out_degree(myeloid)
@@ -75,16 +88,66 @@ def random_logic(logic_net, p=0.5, connections='fixed-structure',
     .. doctest:: randomnet
 
         >>> net = random_logic(myeloid, connections='fixed-mean-degree')
+        >>> net.table != myeloid.table
+        True
         >>> mean_degree(net) == mean_degree(myeloid)
         True
 
-    :param logic_net: a :class:`neet.boolean.LogicNetwork`
-    :param p: probability that a state is present in the activation table
-    :type p: number or sequence
-    :param connections: ``'fixed-structure'``, ``'fixed-in-degree'``,
-                        ``'fixed-mean-degree'``, or ``'free'``
+    The ``p`` argument is the probability of a state of the connected nodes
+    being present in the activation table. It is also equivalent to the
+    probability of any node being activated. If ``p`` is a single number, it
+    applies to all nodes. Otherwise ``p`` must be a sequence of as many numbers
+    as the size of the input network.
+
+    .. doctest:: randomnet
+
+        >>> net = LogicNetwork([((1,),{'0'}), ((0,),{'1'})])
+        >>> rand = random_logic(net, p=1.0)
+        >>> rand.table == [((1,), {'0','1'}), ((0,), {'0','1'})]
+        True
+        >>> rand = random_logic(net, p=0.0)
+        >>> rand.table == [((1,), set()), ((0,), set())]
+        True
+
+    An "external node" is a node which has no incoming edges. The
+    ``fix_external`` argument determines whether or not the number of external
+    nodes is perserved under randomization.
+
+    .. doctest:: randomnet
+
+        >>> net = LogicNetwork([((1,), set()), ((0,2), {'01','10'}), ((1,), {'1'})])
+        >>> rand = random_logic(net, connections='fixed-mean-degree')
+        >>> rand.table == [((1,), {'0'}), ((1, 0), {'10', '00'}), ((1,), {'0'})]
+        >>> rand = random_logic(net, connections='fixed-mean-degree', fix_external=True)
+        >>> rand.table
+
+    When randomly constructing a truth table, there is a reasonable likelihood
+    that some edges will actually have no real affect on their target node. The
+    ``make_irreducible`` argument enforces the requirement that all edges are
+    "real", that is that the network is "irreducible". While this may seem
+    obvious, many original works neglected this detail in their analyses. We
+    provide the option for the sake of consistency with previous works.
+
+    The ``fix_canalizing`` argument ensures that there are as many canalizing
+    nodes in the random variant as there are in the original network.
+
+    :param logic_net: the original network
+    :type: neet.boolean.LogicNetwork
+    :param p: the activation bias for the random variant
+    :type p: int, float, list, numpy.ndarray
+    :param connections: how to randomize edges; one of ``'fixed-structure'``,
+                        ``'fixed-in-degree'``, ``'fixed-mean-degree'``, or ``'free'``
     :type connections: str
-    :returns: a random :class:`neet.boolean.LogicNetwork`
+    :param fix_external: ensure the variant has the same number of external
+                         nodes as the input network 
+    :type fix_external: bool
+    :param make_irreducible: ensure that all edges in the variant have causal
+                             effect on their target node
+    :type make_irreducible: bool
+    :param fix_canalizing: ensure the variant has the same number of canalizing
+                           nodes as the input network.
+    :type fix_canalizing: bool
+    :return: a randomized variant of the input :class:`neet.boolean.LogicNetwork`
     """
     if not isinstance(logic_net, LogicNetwork):
         raise ValueError('object must be a LogicNetwork')
@@ -102,8 +165,10 @@ def random_logic(logic_net, p=0.5, connections='fixed-structure',
                      'free': _random_logic_free_connections}
 
     try:
-        return random_styles[connections](logic_net, ps, fix_external,
-                                          make_irreducible, fix_canalizing)
+        return random_styles[connections](logic_net, ps,
+                                          fix_external=fix_external,
+                                          make_irreducible=make_irreducible,
+                                          fix_canalizing=fix_canalizing)
     except KeyError:
         msg = "connections must be 'fixed-structure', 'fixed-in-degree'," \
               "'fixed-mean-degree', or 'free'"
@@ -166,9 +231,6 @@ def random_canalizing_binary_states(k, p):
 
 
 def _all_states_with_one_node_fixed(k, fixed_index, fixed_value, max_k=20):
-    """
-    (Should have length 2**(k-1).)
-    """
     if k > max_k:
         raise Exception("k > max_k")
     # there may be a more efficient way to do this...
@@ -182,9 +244,6 @@ def _external_nodes(logic_net):
         if row[0] == (idx, ) and row[1] == {'1'}:
             externals.add(idx)
     return externals
-
-# stolen from grn-survey.generate_variants
-
 
 def _fake_connections(net):
     fakes = []
