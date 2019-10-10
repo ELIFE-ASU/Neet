@@ -18,10 +18,37 @@
 [doc-stable-url]: https://neet.readthedocs.io/en/stable
 
 **Neet** is a python package designed to provide an easy-to-use API for creating
-and evaluating network models. In its current state, **Neet** supports
+and evaluating dynamical network models. In its current state, **Neet** supports
 simulating synchronous Boolean network models, though the API is designed to be
 model generic. Future work will implement asynchronous update mechanisms and
 more general network types.
+
+## Examples
+
+**Neet** provides a hierarchy of network classes with methods designed to make common tasks as
+painless as possible. For example, you can read in a collection of boolean logic equations and
+immediately probe the dynamics of the network, and compute values such as the
+[attractor cycles](https://neet.readthedocs.io/en/stable/api/landscape.html#neet.LandscapeMixin.attractors)
+and
+[average sensitivity](https://neet.readthedocs.io/en/stable/api/boolean/sensitivity.html#neet.boolean.SensitivityMixin.average_sensitivity)
+of the network.
+
+```python
+>>> from neet.boolean import LogicNetwork
+>>> net = LogicNetwork.read_logic('myeloid-logic_expressions.txt')
+>>> net.names
+['GATA-2', 'GATA-1', 'FOG-1', 'EKLF', 'Fli-1', 'SCL', 'C/EBPa', 'PU.1', 'cJun', 'EgrNab', 'Gfi-1']
+>>> net.attractors
+array([array([0]), array([62, 38]), array([46]), array([54]),
+       array([1216]), array([1116, 1218]), array([896]), array([960])],
+      dtype=object)
+>>> net.average_sensitivity()
+1.0227272727272727
+>>> net.network_graph()
+<networkx.classes.digraph.DiGraph object at 0x7b2ce5508510>
+```
+
+See the [examples](examples) directory for Jupyter notebooks which demonstrate some of the Neet's features.
 
 ## Installation
 
@@ -92,7 +119,7 @@ developers. We'll get you up and running!
 - Daniels, B.C., Kim, H., Moore, D.G., Zhou, S., Smith, H.B., Karas, B.,
   Kauffman, S.A., and Walker, S.I. (2018) "Criticality Distinguishes the
   Ensemble of Biological Regulatory Networks" *Phys. Rev. Lett.* **121** (13),
-  138102, [doi:10.1103/PhysRevLett.121.138102](https://doi.org/10.1103/PhysRevLett.121.138102)
+  138102, doi:[10.1103/PhysRevLett.121.138102](https://doi.org/10.1103/PhysRevLett.121.138102)
 
 ## System Support
 
@@ -102,6 +129,10 @@ So far the python wrapper has been tested under `python2.7`, `python3.4` and
 * Debian 8
 * Mac OS X 10.11 (El Capitan)
 * Windows 10
+
+> **Note:** We will continue supporting Python 2.7 until January 1, 2020 when
+[PEP 373](https://www.python.org/dev/peps/pep-0373/#maintenance-releases) states
+that official support for Python 2.7 will end.
 
 ## Copyright and Licensing
 Copyright © 2017-2019 Bryan C. Daniels, Bradley Karas, Hyunju Kim, Douglas G.
