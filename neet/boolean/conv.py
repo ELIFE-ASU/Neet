@@ -3,17 +3,10 @@
 
 .. testsetup:: conv
 
+    import numpy
     from neet.boolean import LogicNetwork
-    from neet.boolean.conv import *
+    from neet.boolean.conv import wt_to_logic
     from neet.boolean.examples import s_pombe
-    from neet.landscape import transitions
-
-Some algorithms are more efficiently implemented on particular network type.
-This module allows the user to convert between network types, though not all
-conversions are possible. For example, not every
-:class:`neet.boolean.LogicNetwork` can be converted to a
-:class:`neet.boolean.WTNetwork`, though the reverse direction is always
-possible.
 """
 from .logicnetwork import LogicNetwork
 from .wtnetwork import WTNetwork
@@ -28,10 +21,10 @@ def wt_to_logic(net):
 
     .. doctest:: conv
 
-        >>> s_pombe_logical = wt_to_logic(s_pombe)
-        >>> isinstance(s_pombe_logical, LogicNetwork)
+        >>> net = wt_to_logic(s_pombe)
+        >>> isinstance(net, LogicNetwork)
         True
-        >>> transitions(s_pombe_logical) == transitions(s_pombe)
+        >>> numpy.array_equal(net.transitions, s_pombe.transitions)
         True
 
     :param net: a network to convert

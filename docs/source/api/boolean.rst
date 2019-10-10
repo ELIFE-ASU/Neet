@@ -12,3 +12,4 @@ Boolean Networks
    boolean/wtnetwork
    boolean/logicnetwork
    boolean/sensitivity
+   boolean/conv
