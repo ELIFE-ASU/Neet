@@ -15,3 +15,6 @@ A clear and concise description of what you want to happen.
 
 ## Example Usage
 A simple example to demonstrate how the feature might be used.
+
+## Refrences
+References to papers or other software which describe or implement this feature in detail.
