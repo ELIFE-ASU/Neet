@@ -31,3 +31,4 @@ Please describe the tests that you ran to verify your changes.
 - [ ] New and existing unit tests pass locally with my changes
 - [ ] I have added appropriate labels to this pull request
 - [ ] I have assigned an approver for this pull request
+- [ ] This is a notable change, and I've added it to CHANGELOG.md
