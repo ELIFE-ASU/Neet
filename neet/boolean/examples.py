@@ -173,12 +173,12 @@ HGF_SIGNALING_EXTERNAL = join(DATA_PATH, 'hgf-signaling-external.txt')
 #: migration of primary human keratinocytes, as described in [Singh2012]_.
 hgf_signaling_in_keratinocytes = LogicNetwork.read_logic(HGF_SIGNALING_EXPRESSIONS,
                                                          HGF_SIGNALING_EXTERNAL, metadata={
-    'name': 'HGF Signaling in Keratinocytes',
-    'description': 'A model of hepatocyte growth-factor induced migration of '
-                   'primary human keratinocytes',
-    'citation': 'A. Singh, J. M. Nascimento, S. Kowar, H. Busch, and '
-                'M. Boerries, "Boolean approach to signalling pathway '
-                'modelling in HGF-induced keratinocyte migration," '
-                'Bioinformatics, vol. 28, no. 18, pp. i495–i501, Sep. 2012.'
-                'doi:10.1093/bioinformatics/bts410',
-})
+                                                             'name': 'HGF Signaling in Keratinocytes',
+                                                             'description': 'A model of hepatocyte growth-factor induced migration of '
+                                                                            'primary human keratinocytes',
+                                                             'citation': 'A. Singh, J. M. Nascimento, S. Kowar, H. Busch, and '
+                                                                         'M. Boerries, "Boolean approach to signalling pathway '
+                                                                         'modelling in HGF-induced keratinocyte migration," '
+                                                                         'Bioinformatics, vol. 28, no. 18, pp. i495–i501, Sep. 2012.'
+                                                                         'doi:10.1093/bioinformatics/bts410',
+                                                         })
