@@ -40,6 +40,13 @@ networks have a "shape", namely an array of the number of states each node can t
      >>> s_pombe.shape
      [2, 2, 2, 2, 2, 2, 2, 2, 2]
 
+Along with this, comes the ability to ask how many nodes the network has:
+
+.. doctest:: introduction
+
+      >>> s_pombe.size
+      9
+
 In general, Neet's networks need not be uniform; each state can have a different base. However, all
 of the networks currently implemented are Boolean, meaning that every node in the network has a
 binary.
