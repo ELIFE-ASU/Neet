@@ -34,7 +34,7 @@ s_cerevisiae = WTNetwork.read(S_CEREVISIAE_NODES, S_CEREVISIAE_EDGES, metadata={
     'description': 'Cell cycle network for *S. cerevisiae* (budding yeast)',
     'citation': 'F. Li, T. Long, Y. Lu, Q. Ouyang, and C. Tang, "The yeast '
                 'cell-cycle network is robustly designed," Proc. Natl. Acad. '
-                'Sci. U. S. A., vol. 101, no. 14, pp. 4781–4786, Apr. 2004. '
+                'Sci. U. S. A., vol. 101, no. 14, pp. 4781-4786, Apr. 2004. '
                 'doi:10.1073/pnas.0305937101',
 })
 
@@ -162,7 +162,7 @@ il_6_signaling = LogicNetwork.read_logic(IL_6_SIGNALING_EXPRESSIONS, IL_6_SIGNAL
     'citation': 'A. Ryll, R. Samaga, F. Schaper, L. G. Alexopoulos, and '
                 'S. Klamt, "Large-scale network models of IL-1 and IL-6 '
                 'signalling and their hepatocellular specification," '
-                'Mol. Biosyst., vol. 7, no. 12, pp. 3253–3270, Dec. 2011.'
+                'Mol. Biosyst., vol. 7, no. 12, pp. 3253-3270, Dec. 2011.'
                 'doi:10.1039/c1mb05261f',
 })
 
@@ -179,6 +179,6 @@ hgf_signaling_in_keratinocytes = LogicNetwork.read_logic(HGF_SIGNALING_EXPRESSIO
                                                              'citation': 'A. Singh, J. M. Nascimento, S. Kowar, H. Busch, and '
                                                                          'M. Boerries, "Boolean approach to signalling pathway '
                                                                          'modelling in HGF-induced keratinocyte migration," '
-                                                                         'Bioinformatics, vol. 28, no. 18, pp. i495–i501, Sep. 2012.'
+                                                                         'Bioinformatics, vol. 28, no. 18, pp. i495-i501, Sep. 2012.'
                                                                          'doi:10.1093/bioinformatics/bts410',
                                                          })
