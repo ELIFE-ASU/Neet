@@ -6,10 +6,10 @@ API
 
 .. toctree::
 
-   api/landscape
-   api/statespace
    api/network
    api/boolean
-   api/draw
+   api/statespace
+   api/landscape
    api/information
+   api/draw
    api/exceptions
