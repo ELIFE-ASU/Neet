@@ -57,7 +57,7 @@ class TestNetwork(unittest.TestCase):
     def test_network_graph_WTNetwork(self):
         nx_net = s_pombe.network_graph(labels='names', title='S. pombe')
         self.assertEqual(set(nx_net), set(s_pombe.names))
-        self.assertEqual(nx_net.graph['name'], 's_pombe')
+        self.assertEqual(nx_net.graph['name'], 'Fission Yeast Cell Cycle')
         self.assertEqual(nx_net.graph['title'], 'S. pombe')
 
     def test_to_networkx_ECA_metadata(self):

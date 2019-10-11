@@ -13,3 +13,4 @@ Boolean Networks
    boolean/logicnetwork
    boolean/sensitivity
    boolean/conv
+   boolean/examples

@@ -727,5 +727,5 @@ class TestWTNetwork(unittest.TestCase):
 
         nx_net = s_pombe.network_graph(labels='indices')
 
-        self.assertEqual(nx_net.graph['name'], 's_pombe')
+        self.assertEqual(nx_net.graph['name'], 'Fission Yeast Cell Cycle')
         self.assertEqual(nx_net.graph['name'], s_pombe.metadata['name'])

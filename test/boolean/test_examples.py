@@ -12,6 +12,8 @@ def all_example_networks():
         ex.mouse_cortical_7B,
         ex.mouse_cortical_7C,
         ex.myeloid,
+        ex.il_6_signaling,
+        ex.hgf_signaling_in_keratinocytes,
     ]
 
 
@@ -41,8 +43,11 @@ class TestBooleanExamples(unittest.TestCase):
         """
         for net in all_example_networks():
             self.assertTrue('name' in net.metadata)
+            self.assertNotEqual(net.metadata['name'], '')
             self.assertTrue('description' in net.metadata)
+            self.assertNotEqual(net.metadata['description'], '')
             self.assertTrue('citation' in net.metadata)
+            self.assertNotEqual(net.metadata['citation'], '')
 
     def test_myeloid(self):
         self.assertEqual(11, ex.myeloid.size)
