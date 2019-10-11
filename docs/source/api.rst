@@ -1,5 +1,5 @@
-API
-===
+API Reference
+=============
 
 .. automodule:: neet
    :synopsis: Neet Network Analysis
