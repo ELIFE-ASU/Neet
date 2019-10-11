@@ -1,5 +1,5 @@
-Network State Spaces
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+State Spaces
+^^^^^^^^^^^^
 .. automodule:: neet.statespace
    :synopsis: State spaces for networks
 

@@ -1,5 +1,5 @@
-Network Landscape Analysis
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Landscape Analysis
+^^^^^^^^^^^^^^^^^^
 .. automodule:: neet.landscape
    :synopsis: Landscape analysis of synchronous networks
 
