@@ -92,7 +92,6 @@ Contents
 
 .. toctree::
 
-   getting-started
    intro
    networks
    statespaces
