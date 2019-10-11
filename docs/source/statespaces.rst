@@ -72,6 +72,8 @@ Since the networks are iterable, you can treat them like any other kind of seque
       >>> list(filter(lambda s: s[0] ^ s[1] == 1, s_pombe))
       [[1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0], ...]
 
+.. _state-encoding:
+
 State Encoding and Decoding
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
