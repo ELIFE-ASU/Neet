@@ -109,6 +109,8 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['static']
 
+html_css_files = ['css/table.css']
+
 
 # -- Options for HTMLHelp output ------------------------------------------
 
