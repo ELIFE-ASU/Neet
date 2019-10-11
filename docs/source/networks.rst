@@ -147,3 +147,9 @@ or labeled by the node name:
       ... })
 
 .. image:: static/s_pombe_names.png
+
+.. Note::
+
+      For the drawing functionality, you will need to install the optional dependencies: `Graphviz
+      <https://graphviz.org/>`_ and `pygraphviz <https://pypi.org/project/pygraphviz/>`_. See
+      `Getting Started <getting-started.html#dependencies>`__.
