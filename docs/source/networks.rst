@@ -1,3 +1,5 @@
+.. currentmodule:: neet
+
 .. testsetup:: introduction
 
       from neet.boolean.examples import s_pombe
@@ -13,25 +15,25 @@ including
 .. autosummary::
    :nosignatures:
 
-   neet.boolean.ECA
-   neet.boolean.RewiredECA
-   neet.boolean.WTNetwork
-   neet.boolean.LogicNetwork
+   boolean.ECA
+   boolean.RewiredECA
+   boolean.WTNetwork
+   boolean.LogicNetwork
 
 These concrete network types are leaves in a hierarchy:
 
-.. inheritance-diagram:: neet.boolean.ECA neet.boolean.RewiredECA neet.boolean.WTNetwork neet.boolean.LogicNetwork
+.. inheritance-diagram:: boolean.ECA boolean.RewiredECA boolean.WTNetwork boolean.LogicNetwork
    :parts: 1
 
-All networks in Neet ultimately derive from the :class:`neet.Network` class which provides a uniform
+All networks in Neet ultimately derive from the :class:`Network` class which provides a uniform
 interface for all network models. This class provides a basic interface in and of itself, but
-derives from :class:`neet.StateSpace` and :class:`neet.LandscapeMixin` to provide a wealth of
-additional features. See :ref:`statespaces` and :ref:`landscapes` for more information.
+derives from :class:`StateSpace` and :class:`LandscapeMixin` to provide a wealth of additional
+features. See :ref:`statespaces` and :ref:`landscapes` for more information.
 
 Basic Network Attributes
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-As an example, consider the boolean network :attr:`neet.boolean.examples.s_pombe`, which is a gene
+As an example, consider the boolean network :attr:`boolean.examples.s_pombe`, which is a gene
 regulatory network model of the cell cycle of *S. pombe* (fission yeast) [Davidich2008]_. All
 networks have a "shape", namely an array of the number of states each node can take — it's base.
 
@@ -72,8 +74,8 @@ Dynamic State Update
 Beyond data such as these, concrete classes specify information necessary for describing the
 dynamics of the network's state. Unlike most dynamical network packages, Neet's networks do not
 store the state of the network internally. Instead, the API provides methods for operating on state
-external to the network. In particular, :meth:`neet.Network.update` which updates a state of the
-list or :class:`numpy.ndarray` **in place**.
+external to the network. In particular, :meth:`Network.update` which updates a state of the list or
+:class:`numpy.ndarray` **in place**.
 
 .. doctest:: introduction
 
@@ -89,7 +91,7 @@ This single function allows Neet to implement a number of common analyses such a
 Graph Structure
 ^^^^^^^^^^^^^^^
 
-As dynamical networks, all :class:`neet.Network` instances have a `directed graph
+As dynamical networks, all :class:`Network` instances have a `directed graph
 <https://en.wikipedia.org/wiki/Directed_graph>`_ structure. Neet provides a minimal interface for
 exploring this structure. At it's basic, you can probe which nodes are connected by an edge:
 
