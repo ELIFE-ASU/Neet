@@ -455,6 +455,20 @@ class TestLandscape(unittest.TestCase):
             self.assertEqual(net.volume, g.number_of_nodes())
             self.assertEqual(net.volume, g.number_of_edges())
 
+    def test_graph_update_eca(self):
+        for size in range(2, 7):
+            net = ECA(30, size)
+            g = net.landscape_graph()
+            net.landscape_graph(width=size)
+            self.assertEqual(g.graph['width'], size)
+
+    def test_graph_update_wtnetwork(self):
+        for net in [s_pombe, s_cerevisiae, c_elegans]:
+            net.landscape()
+            g = net.landscape_graph()
+            net.landscape_graph(label=net.metadata['name'])
+            self.assertEqual(g.graph['label'], net.metadata['name'])
+
     def test_in_degree(self):
         for code in [30, 110, 21, 43]:
             for size in range(2, 7):
