@@ -102,9 +102,9 @@ filling in [the template](.github/ISSUE_TEMPLATE/feature_request.md).
 
 ### Your First Code Contribution
 
-Your contributions are more than welcome!  before you get started It's also advisable that you read
-through the [API documentation](https://neet.readthedocs.io/en/latest/api.html) to make sure that
-you fully understand how the various components of Neet interact.
+Your contributions are more than welcome! It's also advisable that you read through the [API
+documentation](https://neet.readthedocs.io/en/latest/api.html) to make sure that you fully
+understand how the various components of Neet interact before you get started.
 
 For external contributions, we use [GitHub forks](https://guides.github.com/activities/forking/) and
 [pull requests](https://guides.github.com/activities/forking/#making-a-pull-request) workflow. To
@@ -128,7 +128,7 @@ The Fork-Pull Request process described here has several goals:
 
   * Maintain Neet's quality
   * Quickly fix problems with Neet that are important to users
-  * Enage the community in working to make Neet as near to perfect as possible
+  * Engage the community in working to make Neet as near to perfect as possible
   * Enable a sustainable system for Neet's maintainers to review contributions
 
 Please follow these steps to have your contribution considered by the maintainers:
@@ -155,7 +155,7 @@ Please follow these steps to have your contribution considered by the maintainer
 * Use the present tense ("Add c-sensitivity" not "Added c-sensitivity")
 * Use the imperative mood ("Add fix_canalizing parameter..." not "Adds fix_canalizing parameter...")
 * Limit the first line to 72 characters or less
-* Reference isses and pull requests liberally after the first line
+* Reference issues and pull requests liberally after the first line
 * When only changing documentation, include `[ci skip]` in the commit title
 * Consider starting the commit message with an applicable emoji:
     - :art: `:art:` when improving the format/structure of the code
@@ -168,7 +168,7 @@ Please follow these steps to have your contribution considered by the maintainer
     - :hammer: `:hammer:` when adding code or files
     - :fire: `:fire:` when removing code or files
     - :green_heart: `:green_heart:` when fixing the CI build
-    - :heavy_check_mark: `:heavy_check_mark:` when adding tests
+    - :heavy_check_mark: `:heavy_check_mark:` when adding or modifying tests
     - :arrow_up: `:arrow_up:` when upgrading dependencies
     - :arrow_down: `:arrow_down:` when downgrading dependencies
     - :shirt: `:shirt:` when dealing with linter warnings
@@ -239,10 +239,9 @@ All classes should have a docstring which roughly adheres to the following templ
 ```python
 class LogicNetwork(BooleanNetwork):
     """
-    A short, one-sentence description. Follow up with as much detail as you reasonbly can
-    about the inheritance structure and methods provided by the class. This is a good
-    place to include an inheritance diagram and list of methods/properties/attributes of
-    the class:
+    A short, one-sentence description. Follow up with as much detail as you reasonably can about the
+    inheritance structure and methods provided by the class. This is a good place to include an
+    inheritance diagram and list of methods/properties/attributes of the class:
 
     .. inheritance-diagram:: LogicNetwork
         :parts: 1
@@ -354,7 +353,7 @@ To fetch changes from ELIFE-ASU/Neet's master branch:
 $ git fetch elife master
 ```
 This will get all of the changes from the main repository's master branch, but it will not merge any
-of those changes into your local working branchs. To do that, use `merge`:
+of those changes into your local working branches. To do that, use `merge`:
 ```shell
 $ git checkout master
 $ git merge elife/master
