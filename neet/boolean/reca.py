@@ -295,19 +295,16 @@ class RewiredECA(BooleanNetwork):
         if not isinstance(index, int):
             raise TypeError("index must be a non-negative integer")
 
-        size = self.size
-
-        if index < 0 or index > size - 1:
-            msg = "index must be a non-negative integer less than size"
-            raise ValueError(msg)
-
-        return set(self.wiring[:, index])
+        if index < 0 or index > self.size - 1:
+            return set()
+        else:
+            return set(self.wiring[:, index])
 
     def neighbors_out(self, index, *args, **kwargs):
         if not isinstance(index, int):
             raise TypeError("index must be a non-negative integer")
 
-        neighbors = {}
+        neighbors = set()
         for j in range(self.size):
             for i in range(3):
                 if self.wiring[i, j] == index:
@@ -318,7 +315,20 @@ class RewiredECA(BooleanNetwork):
     def network_graph(self, *args, **kwargs):
         kwargs['code'] = self.code
         kwargs['boundary'] = self.boundary
-        return super(RewiredECA, self).to_networkx_graph(*args, **kwargs)
+        g = super(RewiredECA, self).network_graph(*args, **kwargs)
+
+        if 'labels' not in kwargs:
+            kwargs['labels'] = 'indices'
+
+        if kwargs['labels'] == 'indices':
+            g.add_edges_from(map(lambda n: (-1, n), self.neighbors_out(-1)))
+            g.add_edges_from(map(lambda n: (5, n), self.neighbors_out(5)))
+        elif kwargs['labels'] == 'names':
+            names = self.names
+            g.add_edges_from(map(lambda n: ('left', names[n]), self.neighbors_out(-1)))
+            g.add_edges_from(map(lambda n: ('right', names[n]), self.neighbors_out(5)))
+
+        return g
 
 
 BooleanNetwork.register(RewiredECA)
