@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
 from neet import Information
-from neet.boolean.examples import s_pombe
+from neet.boolean.examples import s_pombe, s_cerevisiae
 
 
 class TestInformation(unittest.TestCase):
@@ -14,6 +14,48 @@ class TestInformation(unittest.TestCase):
         A canary test to ensure the test suite is working
         """
         self.assertEqual(3, 1 + 2)
+
+    def test_invalid_network(self):
+        """
+        Cannot initialize with an invalid network.
+        """
+        with self.assertRaises(TypeError):
+            Information('net', k=5, timesteps=20)
+
+    def test_invalid_history_length(self):
+        """
+        Cannot initialize with an invalid history length.
+        """
+        with self.assertRaises(TypeError):
+            Information(s_pombe, k=float(5), timesteps=20)
+
+        with self.assertRaises(ValueError):
+            Information(s_pombe, k=0, timesteps=20)
+
+        with self.assertRaises(ValueError):
+            Information(s_pombe, k=-1, timesteps=20)
+
+    def test_invalid_timeseries_length(self):
+        """
+        Cannot initialize with an invalid time series length.
+        """
+        with self.assertRaises(TypeError):
+            Information(s_pombe, k=5, timesteps=float(20))
+
+        with self.assertRaises(ValueError):
+            Information(s_pombe, k=5, timesteps=0)
+
+        with self.assertRaises(ValueError):
+            Information(s_pombe, k=5, timesteps=-1)
+
+    def test_can_initialize(self):
+        """
+        Can initialize the network properly.
+        """
+        arch = Information(s_pombe, k=5, timesteps=20)
+        self.assertEqual(arch.net, s_pombe)
+        self.assertEqual(arch.k, 5)
+        self.assertEqual(arch.timesteps, 20)
 
     def test_ai(self):
         """
@@ -59,22 +101,23 @@ class TestInformation(unittest.TestCase):
         expected_te = np.asarray(
             [[0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
               0.000000, 0.000000, 0.000000],
-             [0.000000, 0.000000, 0.000000, 0.000000, 0.016912, 0.000000,
-              0.000000, 0.000000, 0.000000],
-             [0.000000, 0.051370, 0.000000, 0.012225, 0.019947, 0.051370,
-              0.006039, 0.006039, 0.072803],
-             [0.000000, 0.051370, 0.012225, 0.000000, 0.019947, 0.051370,
-              0.006039, 0.006039, 0.072803],
-             [0.000000, 0.058420, 0.047602, 0.047602, 0.000000, 0.058420,
-              0.047602, 0.047602, 0.000000],
-             [0.000000, 0.000000, 0.024794, 0.024794, 0.000000, 0.000000,
-              0.024794, 0.024794, 0.000000],
-             [0.000000, 0.016690, 0.004526, 0.004526, 0.011916, 0.016690,
-              0.000000, 0.002983, 0.032173],
-             [0.000000, 0.016690, 0.004526, 0.004526, 0.011916, 0.016690,
-              0.002983, 0.000000, 0.032173],
-             [0.000000, 0.060304, 0.048289, 0.048289, 0.089669, 0.060304,
-              0.048927, 0.048927, 0.000000]])
+             [0.000000, 0.000000, 0.051370, 0.051370, 0.058420, 0.000000,
+              0.016690, 0.016690, 0.060304],
+             [0.000000, 0.000000, 0.000000, 0.012225, 0.047602, 0.024794,
+              0.004526, 0.004526, 0.048289],
+             [0.000000, 0.000000, 0.012225, 0.000000, 0.047602, 0.024794,
+              0.004526, 0.004526, 0.048289],
+             [0.000000, 0.016912, 0.019947, 0.019947, 0.000000, 0.000000,
+              0.011916, 0.011916, 0.089669],
+             [0.000000, 0.000000, 0.051370, 0.051370, 0.058420, 0.000000,
+              0.016690, 0.016690, 0.060304],
+             [0.000000, 0.000000, 0.006039, 0.006039, 0.047602, 0.024794,
+              0.000000, 0.002983, 0.048927],
+             [0.000000, 0.000000, 0.006039, 0.006039, 0.047602, 0.024794,
+              0.002983, 0.000000, 0.048927],
+             [0.000000, 0.000000, 0.072803, 0.072803, 0.000000, 0.000000,
+              0.032173, 0.032173, 0.000000]])
+
         got_te = arch.transfer_entropy()
         self.assertEqual(got_te.shape, expected_te.shape)
         self.assertTrue(np.allclose(got_te, expected_te, atol=1e-6))
@@ -116,3 +159,60 @@ class TestInformation(unittest.TestCase):
         got_mi = arch.mutual_information(local=True)
         self.assertEqual((9, 9, 512, 21), got_mi.shape)
         self.assertTrue(np.allclose(np.mean(got_mi, axis=(2, 3)), expected_mi, atol=1e-6))
+
+    def test_set_network(self):
+        """
+        Changing the network resets the internal state.
+        """
+        arch = Information(s_pombe, k=5, timesteps=20)
+        before_ai = arch.active_information()
+
+        arch.net = s_cerevisiae
+        after_ai = arch.active_information()
+
+        self.assertNotEqual(after_ai.shape, before_ai.shape)
+
+        with self.assertRaises(TypeError):
+            arch.net = 'net'
+
+    def test_set_history_length(self):
+        """
+        Changing the history length resets the internal state.
+        """
+        arch = Information(s_pombe, k=1, timesteps=20)
+        before_ai = arch.active_information()
+
+        arch.k = 5
+        after_ai = arch.active_information()
+
+        self.assertFalse(np.allclose(after_ai, before_ai))
+
+        with self.assertRaises(TypeError):
+            arch.k = float(1)
+
+        with self.assertRaises(ValueError):
+            arch.k = 0
+
+        with self.assertRaises(ValueError):
+            arch.k = -1
+
+    def test_set_timeseries_length(self):
+        """
+        Changing the number of time steps resets the internal state.
+        """
+        arch = Information(s_pombe, k=5, timesteps=10)
+        before_ai = arch.active_information()
+
+        arch.timesteps = 20
+        after_ai = arch.active_information()
+
+        self.assertFalse(np.allclose(after_ai, before_ai))
+
+        with self.assertRaises(TypeError):
+            arch.timesteps = float(1)
+
+        with self.assertRaises(ValueError):
+            arch.timesteps = 0
+
+        with self.assertRaises(ValueError):
+            arch.timesteps = -1
