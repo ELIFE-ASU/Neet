@@ -165,7 +165,8 @@ Please follow these steps to have your contribution considered by the maintainer
     - :apple: `:apple:` when fixing something on maxOS
     - :checkered_flag: `:checkered_flag:` when fixing something on Window
     - :bug: `:bug:` when fixing a bug
-    - :fire: `:fire:` when removing code or file
+    - :hammer: `:hammer:` when adding code or files
+    - :fire: `:fire:` when removing code or files
     - :green_heart: `:green_heart:` when fixing the CI build
     - :heavy_check_mark: `:heavy_check_mark:` when adding tests
     - :arrow_up: `:arrow_up:` when upgrading dependencies
