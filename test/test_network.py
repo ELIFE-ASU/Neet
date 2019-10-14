@@ -1,70 +1,68 @@
-from .mock import MockObject, MockNetwork, MockBooleanNetwork
-from neet import Network
-from neet.boolean import BooleanNetwork, ECA, LogicNetwork, WTNetwork
-from neet.boolean.examples import s_pombe
+from .mock import MockObject, MockNetwork, MockUniformNetwork
+from neet import Network, UniformNetwork
 import unittest
 
 
 class TestNetwork(unittest.TestCase):
     def test_is_network(self):
-        net = MockNetwork([3, 3, 3, 3, 3])
-        self.assertTrue(isinstance(net, Network))
+        self.assertTrue(isinstance(MockNetwork([3] * 5), Network))
 
-        not_net = MockObject()
-        self.assertFalse(isinstance(not_net, Network))
-
+        self.assertFalse(isinstance(MockObject(), Network))
         self.assertFalse(isinstance(5, Network))
 
-    def test_is_boolean_network(self):
-        self.assertTrue(isinstance(MockBooleanNetwork(5), BooleanNetwork))
-
-        self.assertFalse(isinstance(MockNetwork([4, 3, 2, 4, 5]), BooleanNetwork))
-
-    def test_neighbors_ECA(self):
-        eca = ECA(30, 4)
-
+    def test_invalid_names(self):
+        with self.assertRaises(TypeError):
+            MockNetwork([4, 3], names=5)
         with self.assertRaises(ValueError):
-            eca.neighbors(1, direction='')
-
-        self.assertTrue(eca.neighbors(1), set([0, 1, 2]))
-
-    def test_neighbors_WTNetwork(self):
-        net = WTNetwork([[1, 0], [1, 1]])
-
+            MockNetwork([4, 3], names=['1'])
         with self.assertRaises(ValueError):
-            net.neighbors(0, direction='')
+            MockNetwork([4, 3], names=['1', '2', '3'])
 
-        self.assertTrue(net.neighbors(0), [set([0])])
+    def test_invalid_metadata(self):
+        with self.assertRaises(TypeError):
+            MockNetwork([4, 3], metadata=list())
+        with self.assertRaises(TypeError):
+            MockNetwork([4, 3], metadata='dict')
 
-    def test_neighbors_LogicNetwork(self):
-        net = LogicNetwork([((0,), {'0'})])
-
+    def test_network_graph_invalid_labels(self):
         with self.assertRaises(ValueError):
-            net.neighbors(0, direction='')
+            MockNetwork([4, 3]).network_graph(labels='anything')
 
-        self.assertTrue(net.neighbors(0), [set([0])])
 
-    def test_network_graph_LogicNetwork(self):
-        net = LogicNetwork([((1, 2), {'01', '10'}),
-                            ((0, 2), ((0, 1), '10', [1, 1])),
-                            ((0, 1), {'11'})],
-                           names=['A', 'B', 'C'])
+class TestUniformNetwork(unittest.TestCase):
+    def test_is_uniform_network(self):
+        self.assertTrue(isinstance(MockUniformNetwork(5, 3), UniformNetwork))
+        self.assertFalse(isinstance(MockNetwork([4] * 5), UniformNetwork))
 
-        nx_net = net.network_graph(labels='names', title='Logic Network')
-        self.assertEqual(set(nx_net), set(['A', 'B', 'C']))
-        self.assertEqual(nx_net.graph['title'], 'Logic Network')
+    def test_base(self):
+        self.assertTrue(MockUniformNetwork(5, 3).base, 3)
 
-    def test_network_graph_WTNetwork(self):
-        nx_net = s_pombe.network_graph(labels='names', title='S. pombe')
-        self.assertEqual(set(nx_net), set(s_pombe.names))
-        self.assertEqual(nx_net.graph['name'], 'Fission Yeast Cell Cycle')
-        self.assertEqual(nx_net.graph['title'], 'S. pombe')
+    def test_iter(self):
+        net = MockUniformNetwork(2, 3)
+        self.assertEqual(list(net), [[0, 0], [1, 0], [2, 0], [0, 1], [1, 1],
+                                     [2, 1], [0, 2], [1, 2], [2, 2]])
 
-    def test_to_networkx_ECA_metadata(self):
-        net = ECA(30, 3)
-        net.boundary = (1, 0)
+    def test_contains(self):
+        net = MockUniformNetwork(2, 3)
+        self.assertTrue([1, 1] in net)
+        for state in net:
+            self.assertTrue(state in net)
+        self.assertFalse([-1, 0] in net)
+        self.assertFalse([3, 0] in net)
+        self.assertFalse([0, 3] in net)
 
-        nx_net = net.network_graph()
+        self.assertFalse(0 in net)
+        self.assertFalse([2] in net)
+        self.assertFalse([0, 0, 0] in net)
 
-        self.assertEqual(nx_net.graph['code'], 30)
-        self.assertEqual(nx_net.graph['boundary'], (1, 0))
+    def test_encode(self):
+        net = MockUniformNetwork(2, 3)
+        for i, state in enumerate(net):
+            self.assertEqual(net.encode(state), i)
+
+    def test_encode_decode(self):
+        net = MockUniformNetwork(2, 3)
+        for i, state in enumerate(net):
+            self.assertEqual(state, net.decode(i))
+            self.assertEqual(state, net.decode(net.encode(state)))
+            self.assertEqual(i, net.encode(net.decode(i)))
