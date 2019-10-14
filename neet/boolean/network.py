@@ -13,7 +13,7 @@ import copy
 
 class BooleanNetwork(SensitivityMixin, UniformNetwork):
     """
-    The BooleanNetwork class is a base class for all of **Neet**'s Boolean
+    The BooleanNetwork class is a base class for all of Neet's Boolean
     networks. The BooleanNetwork class inherits from both
     :class:`neet.UniformNetwork` and :class:`neet.boolean.SensitivityMixin`,
     and specializes the inherited :class:`neet.StateSpace` methods to exploit

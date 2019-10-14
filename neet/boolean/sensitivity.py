@@ -31,8 +31,8 @@ class SensitivityMixin(object):
         canalizing_nodes
 
     The :class:`neet.boolean.BooleanNetwork` class derives from
-    SensitivityMixin to provide sensitivity analysis to all of **Neet**'s
-    Boolean network models.
+    SensitivityMixin to provide sensitivity analysis to all of Neet's Boolean
+    network models.
     """
 
     def sensitivity(self, state, transitions=None):

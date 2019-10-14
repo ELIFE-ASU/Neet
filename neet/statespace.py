@@ -5,7 +5,7 @@
 
     from neet import StateSpace, UniformSpace
 
-The :mod:`neet` module provides the following classes from which all **Neet**
+The :mod:`neet` module provides the following classes from which all Neet
 network classes inherit:
 
 .. autosummary::

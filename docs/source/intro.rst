@@ -13,10 +13,10 @@ structure <information.html>`__ and `sensitivity` of those network models.
 Examples
 --------
 
-**Neet** provides a network classes with methods designed to make common tasks as painless as
-possible. For example, you can read in a collection of boolean logic equations and immediately probe
-the dynamics of the network, and compute values such as the :attr:`LandscapeMixin.attractors` and
-the :meth:`boolean.SensitivityMixin.average_sensitivity` of the network
+Neet provides a network classes with methods designed to make common tasks as painless as possible.
+For example, you can read in a collection of boolean logic equations and immediately probe the
+dynamics of the network, and compute values such as the :attr:`LandscapeMixin.attractors` and the
+:meth:`boolean.SensitivityMixin.average_sensitivity` of the network
 
 .. doctest::
 
@@ -48,8 +48,8 @@ Installation
 Dependencies
 ^^^^^^^^^^^^
 
-**Neet** depends on several packages which will be installed by default when **Neet** is installed
-via `pip`:
+Neet depends on several packages which will be installed by default when Neet is installed via
+`pip`:
 
 * `six <https://pypi.org/project/six/>`_
 * `numpy <https://pypi.org/project/numpy/>`_
@@ -58,7 +58,7 @@ via `pip`:
 * `deprecated <https://pypi.org/project/Deprecated/>`_
 
 However, network visualization is notoriously problematic, and so we have two optional dependencies
-which are only required if you wish to visualize networks using **Neet**'s builtin capabilities:
+which are only required if you wish to visualize networks using Neet's builtin capabilities:
 
 * `Graphviz <https://graphviz.org/>`_
 * `pygraphviz <https://pypi.org/project/pygraphviz/>`_
@@ -76,9 +76,8 @@ To install via ``pip``, you can run the following
 
     $ pip install neet
 
-Note that on some systems this will require administrative privileges. If you
-don't have admin privileges or would prefer to install **Neet** for your user
-only, you do so via the ``--user`` flag:
+Note that on some systems this will require administrative privileges. If you don't have admin
+privileges or would prefer to install Neet for your user only, you do so via the ``--user`` flag:
 
 ::
 
@@ -97,8 +96,8 @@ From Source
 System Support
 ~~~~~~~~~~~~~~
 
-So far the python wrapper has been tested under ``python2.7``, ``python3.4`` and
-``python3.5``, and on the following platforms:
+So far the python wrapper has been tested under ``python2.7``, ``python3.4`` and ``python3.5``, and
+on the following platforms:
 
 .. Note::
 

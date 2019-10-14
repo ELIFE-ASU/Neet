@@ -7,7 +7,7 @@
     from neet.boolean.examples import s_pombe
 
 The :mod:`neet` module provides the following abstract network classes from
-which all concrete **Neet** networks inherit:
+which all concrete Neet networks inherit:
 
 .. autosummary::
     :nosignatures:
@@ -32,8 +32,8 @@ import six
 @six.add_metaclass(ABCMeta)
 class Network(LandscapeMixin, StateSpace):
     """
-    The Network class is the core base class for all **Neet** networks. It
-    provides an interface for describing network state updating and simple
+    The Network class is the core base class for all Neet networks. It provides
+    an interface for describing network state updating and simple
     graph-theoretic analyses.
 
     .. autosummary::

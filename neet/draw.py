@@ -1,7 +1,7 @@
 """
 .. currentmodule:: neet.draw
 
-Utilities for drawing **Neet** objects and graph representations.
+Utilities for drawing Neet objects and graph representations.
 """
 import networkx as nx
 import pygraphviz  # noqa
