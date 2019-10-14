@@ -390,8 +390,7 @@ class LogicNetwork(BooleanNetwork):
                     node_name = node_title.group(1)
                     # Read specifications for node.
                     if node_name not in names:
-                        raise FormatError(
-                            "'{}' not in node names".format(node_name))
+                        raise FormatError("'{}' not in node names".format(node_name))
                     node_index = names.index(node_name)
                     sub_net_nodes = re.split(
                         r'\s*,\s*|\s+', node_title.group(2).strip())
@@ -519,7 +518,7 @@ class LogicNetwork(BooleanNetwork):
             for i, item in enumerate(expr_split):
                 if item not in ops and item not in '()':
                     if item not in names:
-                        raise ValueError("unknown component '{}'".format(item))
+                        raise FormatError("unknown component '{}'".format(item))
                     if item not in sub_nodes:
                         expr_split[i] = '{' + str(len(sub_nodes)) + '}'
                         sub_nodes.append(item)
