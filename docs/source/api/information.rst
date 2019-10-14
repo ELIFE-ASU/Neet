@@ -5,6 +5,12 @@ Information Analysis
 
    .. autoclass:: Information
 
+      .. autoattribute:: net
+
+      .. autoattribute:: k
+
+      .. autoattribute:: timesteps
+
       .. automethod:: active_information
 
       .. automethod:: entropy_rate

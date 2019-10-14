@@ -9,11 +9,15 @@ References
 
 .. [Huang2013] Huang, X., Chen, L., Chim, H., Chan, L. L. H., Zhao, Z., and Yan, H. "Boolean genetic network model for the control of C. elegans early embryonic cell cycles," *Biomed. Eng. Online*, vol. 12 Suppl 1, p. S1, (2013) doi:`10.1186/1475-925X-12-S1-S1 <https://dx.doi.org/10.1186/1475-925X-12-S1-S1>`_.
 
-.. [Krawitz2007] Krawitz, P. and Shmulevich, I. "Basin Entropy in Boolean Network Ensembles" *Phys. Rev. Lett.* **98**, 158701 (2007) doi:`10.1103/PhysRevLett.98.158701 <https://dx.doi.org/10.1103/PhysRevLett.98.158701>`_.
+.. [Krawitz2007] Krawitz, P. and Shmulevich, I. "Basin Entropy in Boolean Network Ensembles" *Phys. Rev. Lett.*, vol. 98, 158701 (2007) doi:`10.1103/PhysRevLett.98.158701 <https://dx.doi.org/10.1103/PhysRevLett.98.158701>`_.
 
 .. [Krumsiek2011] Krumsiek, J., Marr, C., Schroeder, T., and Theis, F. J. "Hierarchical differentiation of myeloid progenitors is encoded in the transcription factor network," *PLoS One*, vol. 6, no. 8, p. e22649, (2011) doi:`10.1371/journal.pone.0022649 <https://dx.doi.org/10.1371/journal.pone.0022649>`_.
 
 .. [Li2004] Li, F., Long, T., Lu, Y., Ouyang, Q., and Tang, C. "The yeast cell-cycle network is robustly designed," *Proc. Natl. Acad. Sci. U. S. A.*, vol. 101, no. 14, pp. 4781-4786 (2004) doi:`10.1073/pnas.0305937101 <https://dx.doi.org/10.1073/pnas.0305937101>`_.
+
+.. [Lizier2012] Lizier, J. T.,  Prokopenko, M., and Zomaya, A. Y., "Local measures of information storage in complex distributed computation" Information Sciences, vol. 208, pp. 39-54 (2012) doi:`10.1016/j.ins.2012.04.016 <http://dx.doi.org/10.1016/j.ins.2012.04.016>`_.
+
+.. [Schreiber2000] T. Schreiber, "Measuring information transfer", *Phys. Rev. Lett* vol. 85, no. 2, pp.461-464 (2000). doi:`10.1103/PhysRevLett.85.461 <http://dx.doi.org/10.1103/PhysRevLett.85.461>`_.
 
 .. [Pomerance2009] Pomerance, A., Ott, E., Girvan E., and Losert, W. "The Effect of Network Topology on the Stability of Discrete State Models of Genetic Control." *Proc. Natl. Acad. Sci. USA* **106** (2009): 8209-14. doi:`10.1073/pnas.0900142106 <https://dx.doi.org/10.1073/pnas.0900142106>`_.
 
