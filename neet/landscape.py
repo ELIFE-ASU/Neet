@@ -143,7 +143,7 @@ class LandscapeMixin:
 
         This function implicitly calls :attr:`clear_landscape`, so make sure to
         create a reference to :attr:`landscape_data` if landscape information
-        has previously been compute and you wish to keep it around.
+        has previously been computed and you wish to keep it around.
 
         .. rubric:: Basic Usage
 

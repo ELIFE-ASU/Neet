@@ -432,3 +432,27 @@ class SensitivityMixin:
                                            calc_trans=calc_trans)
 
         return np.sum(Q) / self.size
+
+    def C_sensitivity(self, state, c=1, transitions=None):
+        """C-Sensitivity modification of the regular sensitivity function. I deleted the 
+        doctest code because it was cluttering my screen"""
+
+        """The c-sensitivity of f(x1, . . ., xn) at x is defined as the number of 
+        c-Hamming neighbors of x on which the function value is different from its value on x. That is,"""
+
+        encoder = self._unsafe_encode
+        distance = self.distance
+        neighbors = self.hamming_neighbors(state)
+
+        nextState = self.update(state)
+
+        # count sum of differences found in neighbors of the original
+        s = 0.
+        for neighbor in neighbors:
+            if transitions is not None:
+                newState = transitions[encoder(neighbor)]
+            else:
+                newState = self._unsafe_update(neighbor)
+            s += distance(newState, nextState)
+
+        return s / self.size
