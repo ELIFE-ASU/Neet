@@ -22,6 +22,7 @@ API Documentation
 import copy
 import numpy as np
 import numpy.linalg as linalg
+import itertools as itt
 
 
 class SensitivityMixin:
@@ -433,7 +434,7 @@ class SensitivityMixin:
 
         return np.sum(Q) / self.size
 
-    def C_sensitivity(self, state, c=1, transitions=None):
+    def C_sensitivity_at_x(self, state, transitions=None, c=1):
         """C-Sensitivity modification of the regular sensitivity function. I deleted the 
         doctest code because it was cluttering my screen"""
 
@@ -442,17 +443,87 @@ class SensitivityMixin:
 
         encoder = self._unsafe_encode
         distance = self.distance
-        neighbors = self.hamming_neighbors(state)
+        #neighbors = self.hamming_neighbors(state)
 
         nextState = self.update(state)
 
+        """
+        Returns an iterator for each vector I which is a strict subset of {1,...,n} and where |I| = c
+        """
+        I_comb_iter = itt.combinations(range(self.length), c)
+
+
+        """ 
+        Generator function which returns a new hamming neighbor
+        Each hamming neighbor is simply the product of self.state XOR I
+        """
+        def c_hamming_neighbors(self, state, c):
+            #first_bitmask = [1] * c + [0] * (self.length - c)
+            #c_bitmask_iterator = itt.permutations(first_bitmask, self.length)
+            try:
+                nxt = next(I_comb_iter)
+                XORed = copy.copy(state)
+                for i in nxt:
+                    XORed[i] ^= 1
+            except StopIteration:
+                return
+            yield XORed
+
+        """ 
+        Also a generator function. It's automatically advanced in the for loop, which
+        acts as a "try: next(neighbors); catch StopIteration:". This behavior is built 
+        into Python and is idiomatic.
+        """ 
+        neighbors = c_hamming_neighbors(state, c)    
+
         # count sum of differences found in neighbors of the original
+        
         s = 0.
         for neighbor in neighbors:
             if transitions is not None:
                 newState = transitions[encoder(neighbor)]
             else:
                 newState = self._unsafe_update(neighbor)
-            s += distance(newState, nextState)
+            #s += distance(newState, nextState)
+            # the paper which describes c-sensitivity uses an indicator function
+            # instead of a distance function. That is what will be used here
+            if not newState == nextState:
+                s += 1
 
-        return s / self.size
+        return s #/ math.pow(2, self.size)
+
+    def Average_c_sensitivity(self, states=None, calc_trans=True, c=1):
+
+        s = 0
+
+
+
+        if states is not None:
+            if calc_trans:
+                decoder = self.decode
+                trans = list(map(decoder, self.transitions))
+            else:
+                trans = None
+
+            for state in states:
+                s += C_sensitivity_at_x(state, trans, c)
+
+            s = s / math.pow(2, len(states))
+            return s
+
+        else:
+            for n in range(self.size):
+                state_gen = itt.combinations(range(self.size),n)
+                for state in state_gen:
+                    s += C_sensitivity_at_x(state, trans, c)
+
+            s = s / math.pow(2, self.size)
+            """ s is now the average C-Sensitivity of f and must lie in the interval [0, (n choose c)] 
+            where n is the size of the network."""
+
+            upper_bound = math.factorial(self.size) / (math.factorial(c) * math.factorial(n - c))
+            if s > upper_bound or x < 0:
+                raise ValueError('This value of S should not be possible and the code is therefore wrong')
+
+        return s
+        #yield s / upper_bound # yields the normalized average c-sensitivity
