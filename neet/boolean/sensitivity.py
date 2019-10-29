@@ -58,17 +58,28 @@ class SensitivityMixin:
         encoder = self._unsafe_encode
         distance = self.distance
         neighbors = self.hamming_neighbors(state)
+        neighbors_copy = [neighbor.copy() for neighbor in neighbors]
 
         nextState = self.update(state)
 
         # count sum of differences found in neighbors of the original
         s = 0.
+        #debugging_index = 0
         for neighbor in neighbors:
             if transitions is not None:
                 newState = transitions[encoder(neighbor)]
             else:
                 newState = self._unsafe_update(neighbor)
             s += distance(newState, nextState)
+            """print("testing whether the hamming neighbors are correct")
+            print("1. neighbor:  ", neighbors_copy[debugging_index])
+            print("2. state:     ", state,"\n")
+            print("1. newState:  ", newState)
+            print("2. nextState: ", nextState,"\n\n")
+            debugging_index += 1"""
+            #s += distance(nextState, nextState)#DEBUGGING CODE! DO NOT LEAVE IN
+            # DO NOT LEAVE THIS LINE UNCOMMENTED WHILE THE ABOVE LINE IS COMMENTED
+            #print("testing if the distance between the same input is anything other than 0")
 
         return s / self.size
 
@@ -442,36 +453,51 @@ class SensitivityMixin:
         """The c-sensitivity of f(x1, . . ., xn) at x is defined as the number of 
         c-Hamming neighbors of x on which the function value is different from its value on x. That is,"""
 
+        #print("\n\nC-sensitivity for f(x) at x = ", state)
+
         encoder = self._unsafe_encode
         distance = self.distance
         #neighbors = self.hamming_neighbors(state)
-
+        state_copy = copy.copy(state)
         nextState = self.update(state)
 
         """
         Returns an iterator for each vector I which is a strict subset of {1,...,n} and where |I| = c
         note: if c = 0, this will return an empty tuple
         """
+        #I_comb_iter = itt.combinations(range(self.size), c)
+        #print(list(I_comb_iter))
         I_comb_iter = itt.combinations(range(self.size), c)
-
 
         """ 
         Generator function which returns a new hamming neighbor
         Each hamming neighbor is simply the product of self.state XOR I
         """
         def c_hamming_neighbors(self, state, c):
+            #print("c: ",c)
             #first_bitmask = [1] * c + [0] * (self.length - c)
             #c_bitmask_iterator = itt.permutations(first_bitmask, self.length)
             try:
                 nxt = next(I_comb_iter)
-                XORed = copy.copy(state)
+                XORed = copy.copy(state_copy)
                 for i in nxt:
+                    #if i is None:
+                        #print("i is none")
+                    #else:
+                        #print("i: ",i)
+                        #print("nxt: ",nxt)
+                        #XORed[i] ^= 1
                     XORed[i] ^= 1
+                #print("XORed:",XORed)
+                return XORed
             except StopIteration:
-                return
-            yield XORed
+                return None
+            #yield XORed
+            #print("XORed:",XORed)
+            #yield XORed
 
         """ 
+        #OK, so I messed with the function and it's only ~kinda~ a generator function now...
         Also a generator function. It's automatically advanced in the for loop, which
         acts as a "try: next(neighbors); catch StopIteration:". This behavior is built 
         into Python and is idiomatic.
@@ -481,7 +507,15 @@ class SensitivityMixin:
         # count sum of differences found in neighbors of the original
         #c0 = 0
         s = 0.
-        for neighbor in c_hamming_neighbors(self,state,c):
+        neighbors_copy = []
+        copy_counter = 0
+    
+        neighbor = c_hamming_neighbors(self,state,c)
+        while neighbor is not None:
+            neighbors_copy.append(copy.copy(neighbor))
+            #print("neighbor: ",neighbor)
+            #if c == 0:
+                #print("c is zero, this shouldn't print! ", c)
             if transitions is not None:
                 newState = transitions[encoder(neighbor)]
             else:
@@ -500,17 +534,21 @@ class SensitivityMixin:
             #if not (list(newState) == list(nextState)):
                 if c == 0:
                     print("this also shouldn't print")
-                    print("1. neighbor:  ", neighbor)
-                    print("2. state:     ", state,"\n")
+                    print("1. neighbor:  ", neighbors_copy[copy_counter])
+                    print("2. state:     ", state_copy,"\n")
                     print("1. newState:  ", newState)
                     print("2. nextState: ", nextState,"\n\n")
                 s += 1
+            copy_counter += 1
+            neighbor = c_hamming_neighbors(self,state,c)
+        #print("s / size", s / self.size)
+        return s#  / self.size#/ math.pow(2, self.size)
 
-        return s #/ math.pow(2, self.size)
 
     def Average_c_sensitivity(self, states=None, calc_trans=True, c=1):
 
         s = 0
+
 
 
 
@@ -540,8 +578,11 @@ class SensitivityMixin:
                     state_array = [0 for x in range(self.size)]
                     for index in state:
                         state_array[index] = 1
+                    print("state:",state_array)#debugging
                     s += self.C_sensitivity_at_x(state_array, trans, c)
 
+            #print("s / self.size", s / self.size)
+            #s2 = s / self.size
             s = s / np.power(2, self.size)
             """ s is now the average C-Sensitivity of f and must lie in the interval [0, (n choose c)] 
             where n is the size of the network."""
@@ -550,5 +591,7 @@ class SensitivityMixin:
             if s > upper_bound or s < 0:
                 raise ValueError('This value of S should not be possible and the code is therefore wrong')
 
+        print("s / upper_bound = normalized average c-sensitivity: ", s / upper_bound)
+        #print("s2 / upper_bound = normalized average c-sensitivity: ", s2 / upper_bound)
         return s
         #yield s / upper_bound # yields the normalized average c-sensitivity
