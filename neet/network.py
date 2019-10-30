@@ -1,13 +1,13 @@
 """
-.. currentmodule:: neet.network
+.. currentmodule:: neet
 
 .. testsetup:: network
 
     from neet.boolean import ECA
     from neet.boolean.examples import s_pombe
 
-The :mod:`neet.network` module provides the following abstract network classes
-from which all concrete **Neet** networks inherit:
+The :mod:`neet` module provides the following abstract network classes from
+which all concrete Neet networks inherit:
 
 .. autosummary::
     :nosignatures:
@@ -15,7 +15,7 @@ from which all concrete **Neet** networks inherit:
     Network
     UniformNetwork
 
-.. inheritance-diagram:: neet.network
+.. inheritance-diagram:: neet.Network neet.UniformNetwork
    :parts: 1
 
 These classes provide an abstract interface which algorithms can leverage for
@@ -32,8 +32,8 @@ import six
 @six.add_metaclass(ABCMeta)
 class Network(LandscapeMixin, StateSpace):
     """
-    The Network class is the core base class for all **Neet** networks. It
-    provides an interface for describing network state updating and simple
+    The Network class is the core base class for all Neet networks. It provides
+    an interface for describing network state updating and simple
     graph-theoretic analyses.
 
     .. autosummary::
@@ -50,12 +50,11 @@ class Network(LandscapeMixin, StateSpace):
         draw_network_graph
 
     Network is an *abstract* class, meaning it cannot be instantiated, and
-    inherits from :class:`neet.landscape.LandscapeMixin` and
-    :class:`neet.statespace.StateSpace`. Initialization of the Network
-    requires, at a minimum, a specification of the shape of the network's state
-    space, and optionally allows the user to specify a list of names for the
-    nodes of the network and a metadata dictionary for the network as a whole
-    (e.g. citation information).
+    inherits from :class:`neet.LandscapeMixin` and :class:`neet.StateSpace`.
+    Initialization of the Network requires, at a minimum, a specification of
+    the shape of the network's state space, and optionally allows the user to
+    specify a list of names for the nodes of the network and a metadata
+    dictionary for the network as a whole (e.g. citation information).
 
     Any concrete deriving class must overload the following methods:
 
@@ -65,11 +64,12 @@ class Network(LandscapeMixin, StateSpace):
 
     :param shape: the base of each node of the network
     :type shape: list
-    :param names: an interable object of the names of the nodes in the network
+    :param names: an iterable object of the names of the nodes in the network
     :type names: seq
     :param metadata: metadata dictionary for the network
     :type metadata: dict
     """
+
     def __init__(self, shape, names=None, metadata=None):
         super(Network, self).__init__(shape)
 
@@ -213,7 +213,7 @@ class Network(LandscapeMixin, StateSpace):
             arguments. In that case, it should first ensure that those
             arguments are well-behaved, and and the delegate subsequent checks
             and the call to :meth:`_unsafe_update` to a call to this
-            :meth:`neet.networks.Network.update`.
+            :meth:`neet.Network.update`.
 
         :param state: the state of the network to update
         :type state: list or numpy.ndarray
@@ -381,7 +381,7 @@ class UniformNetwork(Network):
     type meets this condition, then you should derive from UniformNetwork
     rather than Network.
 
-    .. inheritance-diagram:: neet.network.UniformNetwork
+    .. inheritance-diagram:: neet.UniformNetwork
        :parts: 1
 
 

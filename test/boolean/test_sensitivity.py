@@ -1,6 +1,7 @@
-import unittest
-from neet.boolean import (LogicNetwork, WTNetwork)
+from copy import deepcopy
+from neet.boolean import LogicNetwork, WTNetwork
 import numpy as np
+import unittest
 
 
 class TestSensitivity(unittest.TestCase):
@@ -8,11 +9,31 @@ class TestSensitivity(unittest.TestCase):
         net = WTNetwork([[1, -1], [0, 1]], [0.5, 0])
         self.assertEqual(1.0, net.sensitivity([0, 0]))
 
+    def test_sensitivity_transitions(self):
+        net = WTNetwork([[1, -1], [0, 1]], [0.5, 0])
+        trans = list(map(net.decode, net.transitions))
+        self.assertEqual(1.0, net.sensitivity([0, 0], transitions=trans))
+
     def test_average_sensitivity_lengths(self):
         net = WTNetwork([[1, -1], [0, 1]], [0.5, 0])
 
         with self.assertRaises(ValueError):
             net.average_sensitivity(states=[[0, 0], [0, 1]], weights=[0, 1, 2])
+
+    def test_different_matrix_without_trans(self):
+        net = WTNetwork([[1, -1], [0, 1]], [0.5, 0])
+        trans = list(map(net.decode, net.transitions))
+        for state in net:
+            with_trans = net.difference_matrix(state[:], transitions=trans)
+            without_trans = net.difference_matrix(state[:])
+            self.assertTrue(np.allclose(with_trans, without_trans, atol=1e-6))
+
+    def test_average_difference_matrix_without_calc(self):
+        net = WTNetwork([[1, -1], [0, 1]], [0.5, 0])
+        states = list(net)
+        with_calc = net.average_sensitivity(states=deepcopy(states), calc_trans=True)
+        without_calc = net.average_sensitivity(states=deepcopy(states), calc_trans=False)
+        self.assertTrue(np.allclose(with_calc, without_calc, atol=1e-6))
 
     def test_average_sensitivity(self):
         net = WTNetwork([[1, -1], [0, 1]], [0.5, 0])
@@ -62,11 +83,20 @@ class TestSensitivity(unittest.TestCase):
     def test_is_canalizing_logic_network(self):
         net = LogicNetwork([((1, 2), {'01', '10'}),
                             ((0, 2), ('01', '10', '11')),
-                            ((0, 1), {'11'})])
+                            ((0, 1), {'11'}),
+                            ((3,), {'0'})])
 
         self.assertFalse(net.is_canalizing(0, 1))
         self.assertTrue(net.is_canalizing(1, 0))
         self.assertTrue(net.is_canalizing(2, 1))
+        self.assertFalse(net.is_canalizing(0, 3))
+        self.assertFalse(net.is_canalizing(3, 0))
+
+    def test_is_canalizing_wtnetwork(self):
+        net = WTNetwork([[0, 1], [1, 0]], [1, 0.5],
+                        theta=WTNetwork.negative_threshold)
+        self.assertTrue(net.is_canalizing(1, 0))
+        self.assertFalse(net.is_canalizing(0, 0))
 
     def test_canalizing(self):
         net = LogicNetwork([((1, 2), {'01', '10'}),
