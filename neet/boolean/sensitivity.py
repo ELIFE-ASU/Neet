@@ -58,7 +58,7 @@ class SensitivityMixin:
         encoder = self._unsafe_encode
         distance = self.distance
         neighbors = self.hamming_neighbors(state)
-        neighbors_copy = [neighbor.copy() for neighbor in neighbors]
+        #neighbors_copy = [neighbor.copy() for neighbor in neighbors]
 
         nextState = self.update(state)
 
@@ -538,11 +538,11 @@ class SensitivityMixin:
                     print("2. state:     ", state_copy,"\n")
                     print("1. newState:  ", newState)
                     print("2. nextState: ", nextState,"\n\n")
-                s += 1
+                s += distance(newState, nextState)
             copy_counter += 1
             neighbor = c_hamming_neighbors(self,state,c)
         #print("s / size", s / self.size)
-        return s#  / self.size#/ math.pow(2, self.size)
+        return s / copy_counter#  / self.size#/ math.pow(2, self.size)
 
 
     def Average_c_sensitivity(self, states=None, calc_trans=True, c=1):
@@ -578,7 +578,7 @@ class SensitivityMixin:
                     state_array = [0 for x in range(self.size)]
                     for index in state:
                         state_array[index] = 1
-                    print("state:",state_array)#debugging
+                    #print("state:",state_array)#debugging
                     s += self.C_sensitivity_at_x(state_array, trans, c)
 
             #print("s / self.size", s / self.size)
