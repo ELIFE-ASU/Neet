@@ -1,8 +1,7 @@
 import unittest
 import numpy as np
-from neet.boolean import ECA, RewiredECA
-from neet.network import Network
-from neet.boolean.network import BooleanNetwork
+from neet import Network
+from neet.boolean import BooleanNetwork, ECA, RewiredECA
 
 
 class TestRewiredECA(unittest.TestCase):
@@ -236,6 +235,20 @@ class TestRewiredECA(unittest.TestCase):
         self.assertEqual([0, 1, 1, 1, 0], reca.update([0, 0, 1, 1, 0], index=1))
         self.assertEqual([0, 1, 0, 1, 0], reca.update([0, 1, 0, 1, 0], index=0))
 
+    def test_reca_index_wrap(self):
+        """
+        Ensure indices wrap around
+        """
+        reca = RewiredECA(30, size=5)
+        self.assertEqual([1, 0, 0, 0, 1], reca._unsafe_update([1, 0, 0, 0, 1], index=-1))
+
+    def test_reca_index_boundaries(self):
+        """
+        Ensure updating indices respects boudary edges
+        """
+        reca = RewiredECA(30, size=5)
+        self.assertEqual([1, 1, 0, 0, 0], reca.update([0, 1, 0, 0, 0], index=0))
+
     def test_reca_pin_none(self):
         """
         Ensure that pin behaves correctly for nil arguments
@@ -356,3 +369,66 @@ class TestRewiredECA(unittest.TestCase):
         self.assertEqual([0, 0, 1, 0, 0], reca.update(xs, values={-2: 0}))
         self.assertEqual([0, 1, 0, 1, 0], reca.update(
             xs, values={2: 0, -5: 0}))
+
+    def test_neighbors(self):
+        reca = RewiredECA(30, wiring=[
+            [-1, 4, 1, 2, -1], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
+        ])
+
+        incoming = {0: set([-1, 0]),
+                    1: set([1, 2, 4]),
+                    2: set([1, 2, 3]),
+                    3: set([2, 3, 4]),
+                    4: set([-1, 4, 5])}
+
+        for i in range(reca.size):
+            self.assertEqual(incoming[i], reca.neighbors(i, direction='in'))
+
+        outgoing = {-1: set([0, 4]),
+                    0: set([0]),
+                    1: set([1, 2]),
+                    2: set([1, 2, 3]),
+                    3: set([2, 3]),
+                    4: set([1, 3, 4]),
+                    5: set([4])}
+        for i in range(-1, reca.size + 1):
+            self.assertEqual(outgoing[i], reca.neighbors(i, direction='out'))
+
+        all = {-1: set([0, 4]),
+               0: set([-1, 0]),
+               1: set([1, 2, 4]),
+               2: set([1, 2, 3]),
+               3: set([2, 3, 4]),
+               4: set([-1, 1, 3, 4, 5]),
+               5: set([4])}
+        for i in range(-1, reca.size + 1):
+            self.assertEqual(all[i], reca.neighbors(i, direction='both'))
+            self.assertEqual(all[i], reca.neighbors(i))
+
+    def test_neighbors_in_raises(self):
+        reca = RewiredECA(30, wiring=[
+            [-1, 4, 1, 2, -1], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
+        ])
+        with self.assertRaises(TypeError):
+            reca.neighbors_in(1.5)
+
+    def test_neighbors_out_raises(self):
+        reca = RewiredECA(30, wiring=[
+            [-1, 4, 1, 2, -1], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
+        ])
+        with self.assertRaises(TypeError):
+            reca.neighbors_out(1.5)
+
+    def test_network_graph(self):
+        reca = RewiredECA(30, wiring=[
+            [-1, 4, 1, 2, -1], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
+        ], boundary=(0, 1), names=['a', 'b', 'c', 'd', 'e'])
+        g = reca.network_graph()
+        self.assertEqual(g.graph['code'], 30)
+        self.assertEqual(g.graph['boundary'], (0, 1))
+        self.assertEqual(set(g.nodes), set(range(-1, reca.size + 1)))
+
+        g = reca.network_graph(labels='names')
+        self.assertEqual(g.graph['code'], 30)
+        self.assertEqual(g.graph['boundary'], (0, 1))
+        self.assertEqual(set(g.nodes), set(['left', 'a', 'b', 'c', 'd', 'e', 'right']))

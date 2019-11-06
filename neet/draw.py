@@ -1,7 +1,7 @@
 """
 .. currentmodule:: neet.draw
 
-Utilities for drawing **Neet** objects and graph representations.
+Utilities for drawing Neet objects and graph representations.
 """
 import networkx as nx
 import pygraphviz  # noqa
@@ -17,7 +17,7 @@ def view_pygraphviz(G, edgelabel=None, prog='dot', args='',
 
     This is a modified version of ``view_pyagraphviz`` from
     :mod:`networkx.drawing.nx_agraph` to allow display toggle.
-    
+
     Original copyright::
 
         Copyright (C) 2004-2019 by
