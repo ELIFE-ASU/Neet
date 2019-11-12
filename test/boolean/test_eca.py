@@ -1,8 +1,7 @@
-import unittest
-from neet.boolean import ECA
+from neet import Network
+from neet.boolean import BooleanNetwork, ECA
 import numpy as np
-from neet.network import Network
-from neet.boolean.network import BooleanNetwork
+import unittest
 
 
 class TestECA(unittest.TestCase):
@@ -232,6 +231,12 @@ class TestECA(unittest.TestCase):
         eca.update(lattice, index=1)
         self.assertEqual([0, 1, 1, 0, 0], lattice)
 
+    def test_unsafe_update_index(self):
+        eca = ECA(30, 5)
+        lattice = [0, 0, 0, 1, 0]
+        eca._unsafe_update(lattice, index=-1)
+        self.assertEqual([0, 0, 0, 1, 1], lattice)
+
     def test_update_index_numpy(self):
         eca = ECA(30, 5, (1, 1))
 
@@ -325,6 +330,8 @@ class TestECA(unittest.TestCase):
     def test_neighbors_in(self):
         net = ECA(30, 3)
 
+        self.assertEqual(net.neighbors_in(0), set([2, 0, 1]))
+        self.assertEqual(net.neighbors_in(1), set([0, 1, 2]))
         self.assertEqual(net.neighbors_in(2), set([0, 1, 2]))
 
         with self.assertRaises(ValueError):

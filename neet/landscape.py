@@ -1,5 +1,5 @@
 """
-.. currentmodule:: neet.landscape
+.. currentmodule:: neet
 
 .. testsetup:: landscape
 
@@ -7,14 +7,13 @@
     from neet.boolean.examples import s_pombe
     import numpy as np
 
-The :mod:`neet.landscape` module provides the :class:`LandscapeMixin` class
-from which the :class:`neet.network.Network` class inherits. This endows all
-networks with the various methods for computing the various landscape-related
-properties of the networks, such as :attr:`LandscapeMixin.attractors`. These
-properties are often associated with the *state space* of the network; however,
-we have opted to provide them via a separate mixin because the
-:class:`neet.statespace.StateSpace` class represents an *unstructured* set of
-states, with no dynamical information
+The :mod:`neet` module provides the :class:`LandscapeMixin` class from which
+the :class:`neet.Network` class inherits. This endows all networks with the
+various methods for computing the various landscape-related properties of the
+networks, such as :attr:`LandscapeMixin.attractors`. These properties are often
+associated with the *state space* of the network; however, we have opted to
+provide them via a separate mixin because the :class:`neet.StateSpace` class
+represents an *unstructured* set of states, with no dynamical information
 
 A key feature of the :class:`LandscapeMixin` is that it is lazy and caches
 results as they are computed. For example, the attractors of the landscape are
@@ -143,7 +142,7 @@ class LandscapeMixin:
 
         This function implicitly calls :attr:`clear_landscape`, so make sure to
         create a reference to :attr:`landscape_data` if landscape information
-        has previously been compute and you wish to keep it around.
+        has previously been computed and you wish to keep it around.
 
         .. rubric:: Basic Usage
 

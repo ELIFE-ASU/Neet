@@ -1,13 +1,10 @@
+# -*- coding: utf-8 -*-
 """
-.. currentmodule:: neet.boolean.wtnetwork
+.. currentmodule:: neet.boolean
 
 .. testsetup:: wtnetwork
 
-    from neet.boolean.examples import s_pombe
-    from neet.boolean.wtnetwork import WTNetwork
-
-Weight/Threshold Networks
-=========================
+    from neet.boolean import WTNetwork
 """
 import numpy as np
 import re
@@ -16,65 +13,117 @@ from .network import BooleanNetwork
 
 class WTNetwork(BooleanNetwork):
     """
-    The WTNetwork class represents weight/threshold-based boolean networks. As
-    such it is specified in terms of a matrix of edge weights (rows are target
-    nodes) and a vector of node thresholds, and each node of the network is
-    expected to be in either of two states ``0`` or ``1``.
+    WTNetwork represents weight-threshold boolean network. This type of Boolean
+    network model is common in biology as it represents activating/inhibiting
+    interactions between subcomponents.
+
+    .. inheritance-diagram:: WTNetwork
+        :parts: 1
+
+    In addition to methods inherited from :class:`neet.boolean.BooleanNetwork`,
+    WTNetwork exposes the following attributes
+
+    +--------------------+----------------------------------------------------+
+    | :attr:`weights`    | The network's square weight matrix.                |
+    +--------------------+----------------------------------------------------+
+    | :attr:`thresholds` | The network's threshold vector.                    |
+    +--------------------+----------------------------------------------------+
+    | :attr:`theta`      | The network's activation function.                 |
+    +--------------------+----------------------------------------------------+
+
+    and static methods:
+
+    .. autosummary::
+        :nosignatures:
+
+        read
+        positive_threshold
+        negative_threshold
+        split_threshold
+
+    At a minimum, WTNetworks accept either a weight matrix or a size. The
+    weight matrix must be square, with the :math:`(i,j)` element representing
+    the weight on the edge from :math:`j`-th node to the :math:`i`-th. If a
+    size is provided, all weights are assumed to be :math:`0.0`.
+
+    .. doctest:: wtnetwork
+
+        >>> WTNetwork(3)
+        <neet.boolean.wtnetwork.WTNetwork object at 0x...>
+        >>> WTNetwork([[0, 1, 0], [-1, 0, -1], [-1, 1, 1]])
+        <neet.boolean.wtnetwork.WTNetwork object at 0x...>
+
+    Each node has associated with it a threshold value. These thresholds can be
+    provided at initialization. If none are provided, all thresholds are
+    assumed to be :math:`0.0`.
+
+    .. doctest:: wtnetwork
+
+        >>> net = WTNetwork(3, [0.5, 0.0, -0.5])
+        >>> net.thresholds
+        array([ 0.5,  0. , -0.5])
+        >>> WTNetwork([[0, 1, 0], [-1, 0, -1], [-1, 1, 1]], thresholds=[0.5, 0.0, -0.5])
+        <neet.boolean.wtnetwork.WTNetwork object at 0x...>
+
+    Finally, every node of the network is assumed to use the same activation
+    function, ``theta``. This function, if not provided, is assumed to be
+    :meth:`split_threshold`.
+
+    .. doctest:: wtnetwork
+
+        >>> net = WTNetwork(3)
+        >>> net.theta
+        <function WTNetwork.split_threshold at 0x...>
+        >>> net = WTNetwork(3, theta=WTNetwork.negative_threshold)
+        >>> net.theta
+        <function WTNetwork.negative_threshold at 0x...>
+
+    This activation function must accept two arguments: the activation stimulus
+    and the current state of the node or network. It should handle two types of
+    arguments:
+
+        1. stimulus and state are scalar
+        2. stimulus and state are vectors (``list`` or :class:`numpy.ndarray`)
+
+    In case 2, the result should `modify` the state in-place and return the vector.
+
+    .. testcode:: wtnetwork
+
+        def theta(stimulus, state):
+            if isinstance(stimulus, (list, numpy.ndarray)):
+                for i, x in enumerate(stimulus):
+                    state[i] = theta(x, state[i])
+                return state
+            elif stimulus < 0:
+                return 0
+            else:
+                return state
+        net = WTNetwork(3, theta=theta)
+        print(net.theta)
+
+    .. testoutput:: wtnetwork
+
+        <function theta at 0x...>
+
+    As with all :class:`neet.Network` classes, the names of the nodes and
+    network-wide metadata can be provided.
+
+    :param weights: a weights matrix (rows → targets, columns → sources) or a size
+    :type weights: int, list, numpy.ndarray
+    :param thresholds: activation thresholds for the nodes
+    :type thresholds: list, numpy.ndarray
+    :param theta: the activation function for all nodes
+    :type theta: callable
+    :param names: an iterable object of the names of the nodes in the network
+    :type names: seq
+    :param metadata: metadata dictionary for the network
+    :type metadata: dict
+    :raises ValueError: if weights is not a integer or a square matrix
+    :raises ValueError: if thresholds and weights have inconsistent dimensions
+    :raises ValueError: if theta is not callable
     """
 
-    def __init__(self, weights, thresholds=None, names=None, theta=None):
-        """
-        Construct a network from weights and thresholds.
-
-        .. rubric:: Examples
-
-        .. doctest:: wtnetwork
-
-            >>> net = WTNetwork([[1,0],[1,1]])
-            >>> net.size
-            2
-            >>> net.weights
-            array([[1., 0.],
-                   [1., 1.]])
-            >>> net.thresholds
-            array([0., 0.])
-
-        .. doctest:: wtnetwork
-
-            >>> net = WTNetwork([[1,0],[1,1]], [0.5,-0.5])
-            >>> net.size
-            2
-            >>> net.weights
-            array([[1., 0.],
-                   [1., 1.]])
-            >>> net.thresholds
-            array([ 0.5, -0.5])
-
-        .. doctest:: wtnetwork
-
-            >>> net = WTNetwork(3)
-            >>> net.size
-            3
-            >>> net.weights
-            array([[0., 0., 0.],
-                   [0., 0., 0.],
-                   [0., 0., 0.]])
-            >>> net.thresholds
-            array([0., 0., 0.])
-
-        :param weights: the network weights, where: source/column -> target/row
-        :param thresholds: the network thresholds
-        :param names: the names of the network nodes (optional)
-        :parma theta: the threshold function to use
-        :raises ValueError: if ``weights`` is empty
-        :raises ValueError: if ``weights`` is not a square matrix
-        :raises ValueError: if ``thresholds`` is not a vector
-        :raises ValueError: if ``weights`` and ``thresholds`` have different
-                            dimensions
-        :raises ValueError: if ``len(names)`` is not equal to the number of
-                            nodes
-        :raises TypeError: if ``threshold_func`` is not callable
-        """
+    def __init__(self, weights, thresholds=None, theta=None, names=None, metadata=None):
         if isinstance(weights, int):
             self.weights = np.zeros([weights, weights])
         else:
@@ -91,7 +140,7 @@ class WTNetwork(BooleanNetwork):
         else:
             self.thresholds = np.asarray(thresholds, dtype=np.float)
 
-        super(WTNetwork, self).__init__(self.thresholds.size, names=names)
+        super(WTNetwork, self).__init__(self.thresholds.size, names=names, metadata=metadata)
 
         if theta is None:
             self.theta = type(self).split_threshold
@@ -107,84 +156,6 @@ class WTNetwork(BooleanNetwork):
             raise(ValueError(msg))
 
     def _unsafe_update(self, states, index=None, pin=None, values=None):
-        """
-        Update ``states``, in place, according to the network update rules
-        without checking the validity of the arguments.
-
-        .. rubric:: Basic Use
-
-        .. doctest:: wtnetwork
-
-            >>> s_pombe.size
-            9
-            >>> xs = [0,0,0,0,1,0,0,0,0]
-            >>> s_pombe._unsafe_update(xs)
-            [0, 0, 0, 0, 0, 0, 0, 0, 1]
-            >>> s_pombe._unsafe_update(xs)
-            [0, 1, 1, 1, 0, 0, 1, 0, 0]
-
-        .. rubric:: Single-Node Update
-
-        .. doctest:: wtnetwork
-
-            >>> xs = [0,0,0,0,1,0,0,0,0]
-            >>> net._unsafe_update(xs, index=-1)
-            [0, 0, 0, 0, 1, 0, 0, 0, 1]
-            >>> net._unsafe_update(xs, index=2)
-            [0, 0, 1, 0, 1, 0, 0, 0, 1]
-            >>> net._unsafe_update(xs, index=3)
-            [0, 0, 1, 1, 1, 0, 0, 0, 1]
-
-
-        .. rubric:: State Pinning
-
-        .. doctest:: wtnetwork
-
-            >>> net._unsafe_update([0,0,0,0,1,0,0,0,0], pin=[-1])
-            [0, 0, 0, 0, 0, 0, 0, 0, 0]
-            >>> net._unsafe_update([0,0,0,0,0,0,0,0,1], pin=[1])
-            [0, 0, 1, 1, 0, 0, 1, 0, 0]
-            >>> net._unsafe_update([0,0,0,0,0,0,0,0,1], pin=range(1,4))
-            [0, 0, 0, 0, 0, 0, 1, 0, 0]
-            >>> net._unsafe_update([0,0,0,0,0,0,0,0,1], pin=[1,2,3,-1])
-            [0, 0, 0, 0, 0, 0, 1, 0, 1]
-
-        .. rubric:: Value Fixing
-
-        .. doctest:: wtnetwork
-
-            >>> net.update([0,0,0,0,1,0,0,0,0], values={0:1, 2:1})
-            [1, 0, 1, 0, 0, 0, 0, 0, 1]
-            >>> net.update([0,0,0,0,0,0,0,0,1], values={0:1, 1:0, 2:0})
-            [1, 0, 0, 1, 0, 0, 1, 0, 0]
-            >>> net.update([0,0,0,0,0,0,0,0,1], values={-1:1, -2:1})
-            [0, 1, 1, 1, 0, 0, 1, 1, 1]
-
-        .. rubric:: Erroneous Usage
-
-        .. doctest:: wtnetwork
-
-            >>> net._unsafe_update([0,0,0])
-            Traceback (most recent call last):
-                ...
-            ValueError: shapes (9,9) and (3,) not aligned: 9 (dim 1) != 3 (dim 0)
-            >>> net._unsafe_update([0,0,0,0,2,0,0,0,0])
-            [0, 0, 0, 0, 0, 0, 0, 0, 1]
-            >>> net._unsafe_update([0,0,0,0,1,0,0,0,0], 9)
-            Traceback (most recent call last):
-                ...
-            IndexError: index 9 is out of bounds for axis 0 with size 9
-            >>> net._unsafe_update([0,0,0,0,0,0,0,0,1], pin=[10])
-            Traceback (most recent call last):
-                ...
-            IndexError: index 10 is out of bounds for axis 1 with size 9
-
-        :param states: the one-dimensional sequence of node states
-        :param index: the index to update or None
-        :param pin: the indices to pin (fix to their current state) or None
-        :param values: a dictionary of index-value pairs to fix after update
-        :returns: the updated states
-        """
         pin_states = pin is not None and pin != []
         if index is None:
             if pin_states:
@@ -203,7 +174,7 @@ class WTNetwork(BooleanNetwork):
         return states
 
     @staticmethod
-    def read(nodes_path, edges_path):
+    def read(nodes_path, edges_path, theta=None, metadata=None):
         """
         Read a network from a pair of node/edge files.
 
@@ -221,7 +192,11 @@ class WTNetwork(BooleanNetwork):
         :type nodes_path: str
         :param edges_path: path to the edges file
         :type edges_path: str
-        :returns: a :class:`WTNetwork`
+        :param theta: the activation function
+        :type theta: callable
+        :param metadata: metadata dictionary for the network
+        :type metadata: dict
+        :return: a :class:`WTNetwork`
         """
         comment = re.compile(r'^\s*#.*$')
         names, thresholds = [], []
@@ -243,12 +218,14 @@ class WTNetwork(BooleanNetwork):
                     a, b, w = line.strip().split()
                     weights[nameindices[b], nameindices[a]] = float(w)
 
-        return WTNetwork(weights, thresholds, names)
+        return WTNetwork(weights, thresholds, theta, names=names, metadata=metadata)
 
     @staticmethod
     def split_threshold(values, states):
         """
-        Applies the following functional form to the arguments:
+        Activates if the stimulus exceeds 0, maintaining state if it is exactly
+        0. That is, it is a middle ground between :meth:`negative_threshold`
+        and :meth:`positive_threshold`:
 
         .. math::
 
@@ -259,7 +236,7 @@ class WTNetwork(BooleanNetwork):
             \\end{cases}
 
         If ``values`` and ``states`` are iterable, then apply the above
-        function to each pair ``(x,y) in zip(values, states)`` and stores
+        function to each pair ``(x,y)`` in ``zip(values, states)`` and stores
         the result in ``states``.
 
         If ``values`` and ``states`` are scalar values, then simply apply
@@ -291,9 +268,9 @@ class WTNetwork(BooleanNetwork):
 
         :param values: the threshold-shifted values of each node
         :param states: the pre-updated states of the nodes
-        :returns: the updated states
+        :return: the updated states
         """
-        if isinstance(values, list) or isinstance(values, np.ndarray):
+        if isinstance(values, (list, np.ndarray)):
             for i, x in enumerate(values):
                 if x < 0:
                     states[i] = 0
@@ -310,7 +287,8 @@ class WTNetwork(BooleanNetwork):
     @staticmethod
     def negative_threshold(values, states):
         """
-        Applies the following functional form to the arguments:
+        Activate if the stimulus exceeds 0. That is, it "leans negative" if the
+        simulus is 0:
 
         .. math::
 
@@ -320,7 +298,7 @@ class WTNetwork(BooleanNetwork):
             \\end{cases}
 
         If ``values`` and ``states`` are iterable, then apply the above
-        function to each pair ``(x,y) in zip(values, states)`` and stores
+        function to each pair ``(x,y)`` in ``zip(values, states)`` and stores
         the result in ``states``.
 
         If ``values`` and ``states`` are scalar values, then simply apply
@@ -352,9 +330,9 @@ class WTNetwork(BooleanNetwork):
 
         :param values: the threshold-shifted values of each node
         :param states: the pre-updated states of the nodes
-        :returns: the updated states
+        :return: the updated states
         """
-        if isinstance(values, list) or isinstance(values, np.ndarray):
+        if isinstance(values, (list, np.ndarray)):
             for i, x in enumerate(values):
                 if x <= 0:
                     states[i] = 0
@@ -370,7 +348,8 @@ class WTNetwork(BooleanNetwork):
     @staticmethod
     def positive_threshold(values, states):
         """
-        Applies the following functional form to the arguments:
+        Activate if the stimulus is 0 or greater. That is, it "leans positive"
+        if the simulus is 0:
 
         .. math::
 
@@ -380,7 +359,7 @@ class WTNetwork(BooleanNetwork):
             \\end{cases}
 
         If ``values`` and ``states`` are iterable, then apply the above
-        function to each pair ``(x,y) in zip(values, states)`` and stores
+        function to each pair ``(x,y)`` in ``zip(values, states)`` and stores
         the result in ``states``.
 
         If ``values`` and ``states`` are scalar values, then simply apply
@@ -412,9 +391,9 @@ class WTNetwork(BooleanNetwork):
 
         :param values: the threshold-shifted values of each node
         :param states: the pre-updated states of the nodes
-        :returns: the updated states
+        :return: the updated states
         """
-        if isinstance(values, list) or isinstance(values, np.ndarray):
+        if isinstance(values, (list, np.ndarray)):
             for i, x in enumerate(values):
                 if x < 0:
                     states[i] = 0
@@ -428,27 +407,6 @@ class WTNetwork(BooleanNetwork):
                 return 1
 
     def neighbors_in(self, index, *args, **kwargs):
-        """
-        Return the set of all neighbor nodes, where edge(neighbor_node-->index)
-        exists. An important consideration is that some threshold functions
-        can introduce implicit dependence between nodes, e.g.
-        :meth:`WTNetwork.split_threshold`.
-
-        :param index: node index
-        :returns: the set of all node indices which point toward the index node
-
-        .. rubric:: Examples
-
-        .. doctest:: wtnetwork
-
-            >>> net = WTNetwork([[0,0,0],[1,0,1],[0,1,0]],
-            ... theta=WTNetwork.split_threshold)
-            >>> [net.neighbors_in(node) for node in range(net.size)]
-            [{0}, {0, 1, 2}, {1, 2}]
-            >>> net.theta = WTNetwork.negative_threshold
-            >>> [net.neighbors_in(node) for node in range(net.size)]
-            [set(), {0, 2}, {1}]
-        """
         negative_thresh = type(self).negative_threshold
         positive_thresh = type(self).positive_threshold
         if self.theta is negative_thresh or self.theta is positive_thresh:
@@ -459,25 +417,6 @@ class WTNetwork(BooleanNetwork):
             return set(np.flatnonzero(self.weights[index])) | set([index])
 
     def neighbors_out(self, index, *args, **kwargs):
-        """
-        Return the set of all neighbor nodes, where
-        edge(index-->neighbor_node) exists.
-
-        :param index: node index
-        :returns: the set of all node indices which the index node points to
-
-        .. rubric:: Basic Use
-
-        .. doctest:: wtnetwork
-
-            >>> net = WTNetwork([[0,0,0],[1,0,1],[0,1,0]],
-            ... theta=WTNetwork.split_threshold)
-            >>> [net.neighbors_out(node) for node in range(net.size)]
-            [{0, 1}, {1, 2}, {1, 2}]
-            >>> net.theta = WTNetwork.negative_threshold
-            >>> [net.neighbors_out(node) for node in range(net.size)]
-            [{1}, {2}, {1}]
-        """
         negative_thresh = type(self).negative_threshold
         positive_thresh = type(self).positive_threshold
         if self.theta is negative_thresh or self.theta is positive_thresh:

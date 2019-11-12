@@ -1,85 +1,138 @@
 """
-.. currentmodule:: neet.sensitivity
+.. currentmodule:: neet.boolean
 
 .. testsetup:: sensitivity
 
     from neet.boolean.examples import c_elegans, s_pombe
-    from neet.sensitivity import *
-
-Sensitivity
-===========
-
-The :mod:`neet.sensitivity` module provides a collection of functions for
-computing measures of sensitivity of networks, i.e. the degree to which
-perturbations of the network state propogate and spread. This module also
-provides a collection of functions for identifying "canalizing edges": edges
-for which a state of the source node uniquely determines the state of the
-target regardless of other sources.
-
-API Documentation
------------------
 """
 import copy
 import numpy as np
 import numpy.linalg as linalg
+import math
+import itertools as itt
 
 
-class SensitivityMixin:
+class SensitivityMixin(object):
+    """
+    SensitivityMixin provides methods for sensitivity analysis. That is,
+    methods to quantify the degree to which perturbations of a network's state
+    propagate and spread. As part of this, we also provide methods for
+    identifying "canalizing edges": edges for which a state of the source node
+    uniquely determines the state of the target regardless of other sources.
+
+    .. autosummary::
+        :nosignatures:
+
+        sensitivity
+        average_sensitivity
+        lambdaQ
+        difference_matrix
+        average_difference_matrix
+        is_canalizing
+        canalizing_edges
+        canalizing_nodes
+
+    The :class:`neet.boolean.BooleanNetwork` class derives from
+    SensitivityMixin to provide sensitivity analysis to all of Neet's Boolean
+    network models.
+    """
+
     def sensitivity(self, state, transitions=None):
         """
-        Calculate Boolean network sensitivity, as defined in [Shmulevich2004]_
+        Compute the Boolean sensitivity at a given network state.
 
-        The sensitivity of a Boolean function :math:`f` on state vector :math:`x`
-        is the number of Hamming neighbors of :math:`x` on which the function
-        value is different than on :math:`x`.
+        The sensitivity of a Boolean function :math:`f` on state vector
+        :math:`x` is the number of Hamming neighbors of :math:`x` on which the
+        function value is different than on :math:`x`, as defined in
+        [Shmulevich2004]_.
 
-        This calculates the average sensitivity over all :math:`N` boolean
-        functions, where :math:`N` is the size of self.
+        This method calculates the average sensitivity over all :math:`N`
+        boolean functions, where :math:`N` is the number of nodes in the
+        network.
 
         .. rubric:: Examples
 
         .. doctest:: sensitivity
 
-            >>> sensitivity(s_pombe, [0, 0, 0, 0, 0, 1, 1, 0, 0])
+            >>> s_pombe.sensitivity([0, 0, 0, 0, 0, 1, 1, 0, 0])
             1.0
-            >>> sensitivity(s_pombe, [0, 1, 1, 0, 1, 0, 0, 1, 0])
+            >>> s_pombe.sensitivity([0, 1, 1, 0, 1, 0, 0, 1, 0])
             0.4444444444444444
-            >>> sensitivity(c_elegans, [0, 0, 0, 0, 0, 0, 0, 0])
+            >>> c_elegans.sensitivity([0, 0, 0, 0, 0, 0, 0, 0])
             1.75
-            >>> sensitivity(c_elegans, [1, 1, 1, 1, 1, 1, 1, 1])
+            >>> c_elegans.sensitivity([1, 1, 1, 1, 1, 1, 1, 1])
             1.25
 
-        :param state: a single network state, represented as a list of node states
-        :param transitions: a list of precomputed state transitions (*optional*)
-        :type transitions: list or None
+        Optionally, the user can provide a pre-computed array of state
+        transitions to improve performance when this function is repeatedly
+        called.
+
+        .. doctest:: sensitivity
+
+            >>> trans = list(map(s_pombe.decode, s_pombe.transitions))
+            >>> s_pombe.sensitivity([0, 0, 0, 0, 0, 1, 1, 0, 0], transitions=trans)
+            1.0
+            >>> s_pombe.sensitivity([0, 1, 1, 0, 1, 0, 0, 1, 0], transitions=trans)
+            0.4444444444444444
+
+        :param state: a single network state
+        :type state: list, numpy.ndarray
+        :param transitions: precomputed state transitions (*optional*)
+        :type transitions: list, numpy.ndarray, None
+        :return: the sensitivity at the provided state
+
+        .. seealso:: :func:`average_sensitivity`
         """
         encoder = self._unsafe_encode
         distance = self.distance
         neighbors = self.hamming_neighbors(state)
+        #neighbors_copy = [neighbor.copy() for neighbor in neighbors]
 
         nextState = self.update(state)
 
         # count sum of differences found in neighbors of the original
         s = 0.
+        #debugging_index = 0
         for neighbor in neighbors:
             if transitions is not None:
                 newState = transitions[encoder(neighbor)]
             else:
                 newState = self._unsafe_update(neighbor)
             s += distance(newState, nextState)
+            """print("testing whether the hamming neighbors are correct")
+            print("1. neighbor:  ", neighbors_copy[debugging_index])
+            print("2. state:     ", state,"\n")
+            print("1. newState:  ", newState)
+            print("2. nextState: ", nextState,"\n\n")
+            debugging_index += 1"""
+            #s += distance(nextState, nextState)#DEBUGGING CODE! DO NOT LEAVE IN
+            # DO NOT LEAVE THIS LINE UNCOMMENTED WHILE THE ABOVE LINE IS COMMENTED
+            #print("testing if the distance between the same input is anything other than 0")
 
         return s / self.size
 
     def difference_matrix(self, state, transitions=None):
         """
-        Returns matrix answering the question: Starting at the given state, does
-        flipping the state of node ``j`` change the state of node ``i``?
+        Compute the difference matrix at a given state.
+
+        For a network with :math:`N` nodes, with Boolean functions :math:`f_i`,
+        the difference matrix is a :math:`N \\times N` matrix
+
+        .. math::
+
+            A_{ij} = f_i(x) \\oplus f_i(x \\oplus e_j)
+
+        where :math:`e_j` is the network state with the :math:`j`-th node in
+        the :math:`1` state while all others are :math:`0`. In other words, the
+        element :math:`A_{ij}` signifies whether or not flipping the
+        :math:`j`-th node's state changes the subsequent state of the
+        :math:`i`-th node.
 
         .. rubric:: Examples
 
         .. doctest:: sensitivity
 
-            >>> difference_matrix(s_pombe, [0, 0, 0, 0, 0, 0, 0, 0, 0])
+            >>> s_pombe.difference_matrix([0, 0, 0, 0, 0, 0, 0, 0, 0])
             array([[0., 0., 0., 0., 0., 0., 0., 0., 0.],
                    [0., 0., 1., 1., 1., 0., 0., 0., 0.],
                    [0., 0., 1., 0., 0., 0., 0., 0., 1.],
@@ -89,7 +142,7 @@ class SensitivityMixin:
                    [0., 0., 0., 0., 0., 0., 1., 0., 1.],
                    [0., 1., 0., 0., 0., 0., 0., 1., 0.],
                    [0., 0., 0., 0., 1., 0., 0., 0., 0.]])
-            >>> difference_matrix(c_elegans, [0, 0, 0, 0, 0, 0, 0, 0])
+            >>> c_elegans.difference_matrix([0, 0, 0, 0, 0, 0, 0, 0])
             array([[1., 0., 0., 0., 0., 0., 0., 1.],
                    [0., 0., 1., 1., 0., 0., 0., 0.],
                    [0., 0., 1., 0., 1., 0., 0., 0.],
@@ -100,8 +153,12 @@ class SensitivityMixin:
                    [0., 0., 0., 0., 0., 0., 0., 1.]])
 
         :param state: the starting state
-        :param transitions: a precomputed list of state transitions (*optional*)
-        :type transitions: list or None
+        :type state: list, numpy.ndarray
+        :param transitions: precomputed state transitions (*optional*)
+        :type transitions: list, numpy.ndarray, None
+        :return: the difference matrix
+
+        .. seealso:: :func:`average_difference_matrix`
         """
         # set up empty matrix
         N = len(state)
@@ -125,14 +182,14 @@ class SensitivityMixin:
 
     def average_difference_matrix(self, states=None, weights=None, calc_trans=True):
         """
-        Averaged over states, what is the probability
-        that node i's state is changed by a single bit flip of node j?
+
+        Compute the difference matrix, averaged over some states.
 
         .. rubric:: Examples
 
         .. doctest:: sensitivity
 
-            >>> average_difference_matrix(s_pombe)
+            >>> s_pombe.average_difference_matrix()
             array([[0.    , 0.    , 0.    , 0.    , 0.    , 0.    , 0.    , 0.    ,
                     0.    ],
                    [0.    , 0.    , 0.25  , 0.25  , 0.25  , 0.    , 0.    , 0.    ,
@@ -151,7 +208,7 @@ class SensitivityMixin:
                     0.5   ],
                    [0.    , 0.    , 0.    , 0.    , 1.    , 0.    , 0.    , 0.    ,
                     0.    ]])
-            >>> average_difference_matrix(c_elegans)
+            >>> c_elegans.average_difference_matrix()
             array([[0.25  , 0.25  , 0.    , 0.    , 0.    , 0.25  , 0.25  , 0.25  ],
                    [0.    , 0.    , 0.5   , 0.5   , 0.    , 0.    , 0.    , 0.    ],
                    [0.5   , 0.    , 0.5   , 0.    , 0.5   , 0.    , 0.    , 0.    ],
@@ -161,14 +218,17 @@ class SensitivityMixin:
                    [1.    , 0.    , 0.    , 0.    , 0.    , 0.    , 0.    , 0.    ],
                    [0.    , 0.    , 0.    , 0.    , 0.    , 0.    , 0.5   , 0.5   ]])
 
-        :param states: If None, average over all possible states. Otherwise,
-                       providing a list of states will calculate the average over
-                       only those states.
-        :type states: list or None
-        :param calc_trans: Optionally pre-calculate all transitions. Only used
-                            when states or weights argument is not None.
+        :param states: the states to average over; all states if ``None``
+        :type states: list, numpy.ndarray, None
+        :param weights: weights for a weighted average over ``states``; uniform
+                        weighting if ``None``
+        :type weights: list, numpy.ndarray, None
+        :param calc_trans: pre-compute all state transitions; ignored if
+                           ``states`` or ``weights`` is ``None``
         :type calc_trans: bool
-        :return: boolean ``numpy`` array
+        :return: the difference matrix as a :meth:`numpy.ndarray`.
+
+        .. seealso:: :func:`difference_matrix`
         """
         N = self.size
         Q = np.zeros((N, N))
@@ -229,52 +289,57 @@ class SensitivityMixin:
 
         return Q
 
-    def is_canalizing(self, node_i, neighbor_j):
+    def is_canalizing(self, x, y):
         """
-        Determine whether a given network edge is canalizing: if ``node_i``'s
-        value at :math:`t+1` is fully determined when ``neighbor_j``'s value has
-        a particular value at :math:`t`, regardless of the values of other nodes,
-        then there is a canalizing edge from ``neighbor_j`` to node_i.
+        Determine whether a given network edge is canalizing.
 
-        According to (Stauffer 1987), "A rule ... is called forcing, or
-        canalizing, if at least one of its :math:`K` arguments has the property
-        that the result of the function is already fixed if this argument has
-        one particular value, regardless of the values for the :math:`K-1` other
-        arguments."  Note that this is a definition for whether a node's rule is
-        canalizing, whereas this function calculates whether a specific edge is
-        canalizing.  Under this definition, if a node has any incoming canalizing
-        edges, then its rule is canalizing.
+        An edge :math:`(y,x)` is canalyzing if :math:`x`'s value at :math:`t+1`
+        is fully determined when :math:`y`'s value has a particular value at
+        :math:`t`, regardless of the values of other nodes.
+
+        According to (Stauffer 1987):
+        ::
+
+            "A rule [...] is called forcing, or canalizing, if at least one of
+            its :math:`K` arguments has the property that the result of the
+            function is already fixed if this argument has one particular
+            value, regardless of the values for the :math:`K-1` other
+            arguments."  Note that this is a definition for whether a node's
+            rule is canalizing, whereas this function calculates whether a
+            specific edge is canalizing.  Under this definition, if a node has
+            any incoming canalizing edges, then its rule is canalizing.
 
         .. rubric:: Examples
 
         .. doctest:: sensitivity
 
-            >>> is_canalizing(s_pombe, 1, 2)
+            >>> s_pombe.is_canalizing(1, 2)
             True
-            >>> is_canalizing(s_pombe, 2, 1)
+            >>> s_pombe.is_canalizing(2, 1)
             False
-            >>> is_canalizing(c_elegans, 7, 7)
+            >>> c_elegans.is_canalizing(7, 7)
             True
-            >>> is_canalizing(c_elegans, 1, 3)
+            >>> c_elegans.is_canalizing(1, 3)
             True
-            >>> is_canalizing(c_elegans, 4, 3)
+            >>> c_elegans.is_canalizing(4, 3)
             False
 
-        :param node_i: target node index
-        :param neighbor_j: source node index
-        :return: ``True`` if the edge ``(neighbor_j, node_i)`` is canalizing, or
-                 ``None`` if the edge does not exist
+        :param x: target node's index
+        :type x: int
+        :param y: source node's index
+        :type y: int
+        :return: whether or not the edge ``(y,x)`` is canalizing; ``None`` if
+                 the edge does not exist
 
-        .. seealso:: :func:`canalizing_edges`
-        .. seealso:: :func:`canalizing_nodes`
+        .. seealso:: :func:`canalizing_edges`, :func:`canalizing_nodes`
         """
-        nodesInfluencingI = list(self.neighbors_in(node_i))
+        nodesInfluencingI = list(self.neighbors_in(x))
 
-        if (neighbor_j not in nodesInfluencingI) or (node_i not in range(self.size)):
+        if (y not in nodesInfluencingI) or (x not in range(self.size)):
             # can't be canalizing if j has no influence on i
             return None  # or False?
         else:
-            jindex = nodesInfluencingI.index(neighbor_j)
+            jindex = nodesInfluencingI.index(y)
 
             subspace = self.subspace
 
@@ -293,8 +358,8 @@ class SensitivityMixin:
                 # first hold j off
                 if jOffForced:
                     jOff = copy.copy(state)
-                    jOff[neighbor_j] = 0
-                    jOffNext = self._unsafe_update(jOff, index=node_i)[node_i]
+                    jOff[y] = 0
+                    jOffNext = self._unsafe_update(jOff, index=x)[x]
                     if jOffForcedValue is None:
                         jOffForcedValue = jOffNext
                     elif jOffForcedValue != jOffNext:
@@ -304,8 +369,8 @@ class SensitivityMixin:
                 # now hold j on
                 if jOnForced:
                     jOn = copy.copy(state)
-                    jOn[neighbor_j] = 1
-                    jOnNext = self._unsafe_update(jOn, index=node_i)[node_i]
+                    jOn[y] = 1
+                    jOnNext = self._unsafe_update(jOn, index=x)[x]
                     if jOnForcedValue is None:
                         jOnForcedValue = jOnNext
                     elif jOnForcedValue != jOnNext:
@@ -320,58 +385,53 @@ class SensitivityMixin:
 
     def canalizing_edges(self):
         """
-        Return a set of tuples corresponding to the edges in the network that
-        are canalizing. Each tuple consists of two node indices, corresponding
-        to an edge from the second node to the first node (so that the second node
-        controls the first node in a canalizing manner).
+        Get the set of all canalizing edges in the network.
 
         .. rubric:: Examples
 
         .. doctest:: sensitivity
 
-            >>> canalizing_edges(s_pombe)
+            >>> s_pombe.canalizing_edges()
             {(1, 2), (5, 4), (0, 0), (1, 3), (4, 5), (5, 6), (5, 7), (1, 4), (8, 4), (5, 2), (5, 3)}
-            >>> canalizing_edges(c_elegans)
+            >>> c_elegans.canalizing_edges()
             {(1, 2), (3, 2), (1, 3), (7, 6), (6, 0), (7, 7)}
 
         :return: the set of canalizing edges as in the form ``(target, source)``
 
-        .. seealso:: :func:`is_canalizing`
-        .. seealso:: :func:`canalizing_nodes`
+        .. seealso:: :func:`is_canalizing`, :func:`canalizing_nodes`
         """
-        canalizingList = []
-        for indexi in range(self.size):
-            for neighborj in self.neighbors_in(indexi):
-                if self.is_canalizing(indexi, neighborj):
-                    canalizingList.append((indexi, neighborj))
-        return set(canalizingList)
+        canalizing_edges = set()
+        for x in range(self.size):
+            for y in self.neighbors_in(x):
+                if self.is_canalizing(x, y):
+                    canalizing_edges.add((x, y))
+        return canalizing_edges
 
     def canalizing_nodes(self):
         """
-        Find the nodes of the network which have at least one incoming canalizing
-        edge.
+        Get a set of all nodes with at least one incoming canalizing edge.
 
         .. rubric:: Examples
 
         .. doctest:: sensitivity
 
-            >>> canalizing_nodes(s_pombe)
+            >>> s_pombe.canalizing_nodes()
             {0, 1, 4, 5, 8}
-            >>> canalizing_nodes(c_elegans)
+            >>> c_elegans.canalizing_nodes()
             {1, 3, 6, 7}
 
         :return: the set indices of nodes with at least one canalizing input edge
 
-        .. seealso:: :func:`is_canalizing`
-        .. seealso:: :func:`canalizing_edges`
+        .. seealso:: :func:`is_canalizing`, :func:`canalizing_edges`
         """
         nodes = [e[0] for e in self.canalizing_edges()]
         return set(np.unique(nodes))
 
     def lambdaQ(self, **kwargs):
         """
-        Calculate sensitivity eigenvalue, the largest eigenvalue of the
-        sensitivity matrix :func:`average_difference_matrix`.
+        Compute the sensitivity eigenvalue, :math:`\\lambda_Q`. That is, the
+        largest eigenvalue of the sensitivity matrix
+        :func:`average_difference_matrix`.
 
         This is analogous to the eigenvalue calculated in [Pomerance2009]_.
 
@@ -379,12 +439,14 @@ class SensitivityMixin:
 
         .. doctest:: sensitivity
 
-            >>> lambdaQ(s_pombe)
+            >>> s_pombe.lambdaQ()
             0.8265021276831896
-            >>> lambdaQ(c_elegans)
+            >>> c_elegans.lambdaQ()
             1.263099227661824
 
         :return: the sensitivity eigenvalue (:math:`\\lambda_Q`) of ``net``
+
+        .. seealso:: :func:`average_difference_matrix`
         """
         Q = self.average_difference_matrix(**kwargs)
         return max(abs(linalg.eigvals(Q)))
@@ -404,31 +466,184 @@ class SensitivityMixin:
 
         .. doctest:: sensitivity
 
-            >>> average_sensitivity(c_elegans)
+            >>> c_elegans.average_sensitivity()
             1.265625
-            >>> average_sensitivity(c_elegans, states=[[0, 0, 0, 0, 0, 0, 0, 0],
+            >>> c_elegans.average_sensitivity(states=[[0, 0, 0, 0, 0, 0, 0, 0],
             ... [1, 1, 1, 1, 1, 1, 1, 1]])
             ...
             1.5
-            >>> average_sensitivity(c_elegans, states=[[0, 0, 0, 0, 0, 0, 0, 0],
-            ... [1, 1, 1, 1, 1, 1, 1, 1]],weights=[0.9, 0.1])
+            >>> c_elegans.average_sensitivity(states=[[0, 0, 0, 0, 0, 0, 0, 0],
+            ... [1, 1, 1, 1, 1, 1, 1, 1]], weights=[0.9, 0.1])
             ...
             1.7
-            >>> average_sensitivity(c_elegans, states=[[0, 0, 0, 0, 0, 0, 0, 0],
+            >>> c_elegans.average_sensitivity(states=[[0, 0, 0, 0, 0, 0, 0, 0],
             ... [1, 1, 1, 1, 1, 1, 1, 1]], weights=[9, 1])
             ...
             1.7
 
-        :param states: Optional list or generator of states. If None, all states
-                       are used.
-        :param weights: Optional list or generator of weights for each state.
-                        If None, each state is equally weighted. If states and
-                        weights are both None, an algorithm is used to efficiently
-                        make use of sparse connectivity.
+        :param states: The states to average over; all states if ``None``
+        :type states: list, numpy.ndarray, None
+        :param weights: weights for a weighted average over ``states``; all
+                        :math:`1`s if ``None``.
+        :type weights: list, numpy.ndarray, None
+        :param calc_trans: pre-compute all state transitions; ignored if
+                           ``states`` or ``weights`` is ``None``.
         :return: the average sensitivity of ``net``
+
+        .. seealso:: :func:`sensitivity`
         """
 
         Q = self.average_difference_matrix(states=states, weights=weights,
                                            calc_trans=calc_trans)
 
         return np.sum(Q) / self.size
+
+    def C_sensitivity_at_x(self, state, transitions=None, c=1):
+        """C-Sensitivity modification of the regular sensitivity function. I deleted the 
+        doctest code because it was cluttering my screen"""
+
+        """The c-sensitivity of f(x1, . . ., xn) at x is defined as the number of 
+        c-Hamming neighbors of x on which the function value is different from its value on x. That is,"""
+
+        #print("\n\nC-sensitivity for f(x) at x = ", state)
+
+        encoder = self._unsafe_encode
+        distance = self.distance
+        #neighbors = self.hamming_neighbors(state)
+        state_copy = copy.copy(state)
+        nextState = self.update(state)
+
+        """
+        Returns an iterator for each vector I which is a strict subset of {1,...,n} and where |I| = c
+        note: if c = 0, this will return an empty tuple
+        """
+        #I_comb_iter = itt.combinations(range(self.size), c)
+        #print(list(I_comb_iter))
+        I_comb_iter = itt.combinations(range(self.size), c)
+
+        """ 
+        Generator function which returns a new hamming neighbor
+        Each hamming neighbor is simply the product of self.state XOR I
+        """
+        def c_hamming_neighbors(self, state, c):
+            #print("c: ",c)
+            #first_bitmask = [1] * c + [0] * (self.length - c)
+            #c_bitmask_iterator = itt.permutations(first_bitmask, self.length)
+            try:
+                nxt = next(I_comb_iter)
+                XORed = copy.copy(state_copy)
+                for i in nxt:
+                    #if i is None:
+                        #print("i is none")
+                    #else:
+                        #print("i: ",i)
+                        #print("nxt: ",nxt)
+                        #XORed[i] ^= 1
+                    XORed[i] ^= 1
+                #print("XORed:",XORed)
+                return XORed
+            except StopIteration:
+                return None
+            #yield XORed
+            #print("XORed:",XORed)
+            #yield XORed
+
+        """ 
+        #OK, so I messed with the function and it's only ~kinda~ a generator function now...
+        Also a generator function. It's automatically advanced in the for loop, which
+        acts as a "try: next(neighbors); catch StopIteration:". This behavior is built 
+        into Python and is idiomatic.
+        """ 
+        #neighbors = c_hamming_neighbors(self, state, c)    
+
+        # count sum of differences found in neighbors of the original
+        #c0 = 0
+        s = 0.
+        neighbors_copy = []
+        copy_counter = 0
+    
+        neighbor = c_hamming_neighbors(self,state,c)
+        while neighbor is not None:
+            neighbors_copy.append(copy.copy(neighbor))
+            #print("neighbor: ",neighbor)
+            #if c == 0:
+                #print("c is zero, this shouldn't print! ", c)
+            if transitions is not None:
+                newState = transitions[encoder(neighbor)]
+            else:
+                newState = self._unsafe_update(neighbor)
+
+            # the paper which describes c-sensitivity uses an indicator function
+            # instead of a distance function. That is what will be used here
+            #s += distance(newState, nextState) #Do not use this
+            """if c == 0:
+                #print("this shouldn't print")
+                if c0 == 0:
+                    print("neighbors: ",list(neighbor))
+                    print("state: ", state)
+                    c0=1"""
+            if distance(newState, nextState) > 0:
+            #if not (list(newState) == list(nextState)):
+                if c == 0:
+                    print("this also shouldn't print")
+                    print("1. neighbor:  ", neighbors_copy[copy_counter])
+                    print("2. state:     ", state_copy,"\n")
+                    print("1. newState:  ", newState)
+                    print("2. nextState: ", nextState,"\n\n")
+                s += distance(newState, nextState)
+            copy_counter += 1
+            neighbor = c_hamming_neighbors(self,state,c)
+        #print("s / size", s / self.size)
+        return s / copy_counter#  / self.size#/ math.pow(2, self.size)
+
+
+    def Average_c_sensitivity(self, states=None, calc_trans=True, c=1):
+
+        s = 0
+
+
+
+
+        if states is not None:
+            if calc_trans:
+                decoder = self.decode
+                trans = list(map(decoder, self.transitions))
+            else:
+                trans = None
+
+            for state in states:
+                s += self.C_sensitivity_at_x(state, trans, c)
+
+            s = s / np.power(2, len(states))
+            return s
+
+        else:
+            if calc_trans:
+                decoder = self.decode
+                trans = list(map(decoder, self.transitions))
+            else:
+                trans = None
+            for n in range(self.size):
+                state_gen = itt.combinations(range(self.size),n)
+                for state in state_gen:
+                    #print("state:",state)#debugging
+                    state_array = [0 for x in range(self.size)]
+                    for index in state:
+                        state_array[index] = 1
+                    #print("state:",state_array)#debugging
+                    s += self.C_sensitivity_at_x(state_array, trans, c)
+
+            #print("s / self.size", s / self.size)
+            #s2 = s / self.size
+            s = s / np.power(2, self.size)
+            """ s is now the average C-Sensitivity of f and must lie in the interval [0, (n choose c)] 
+            where n is the size of the network."""
+
+            upper_bound = math.factorial(self.size) / (math.factorial(c) * math.factorial(n - c))
+            if s > upper_bound or s < 0:
+                raise ValueError('This value of S should not be possible and the code is therefore wrong')
+
+        print("s / upper_bound = normalized average c-sensitivity: ", s / upper_bound)
+        #print("s2 / upper_bound = normalized average c-sensitivity: ", s2 / upper_bound)
+        return s
+        #yield s / upper_bound # yields the normalized average c-sensitivity
