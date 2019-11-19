@@ -11,6 +11,10 @@ import numpy.linalg as linalg
 import math
 import itertools as itt
 
+"""
+.. import matplotlib.pyplot as plt
+"""
+
 
 class SensitivityMixin(object):
     """
@@ -647,3 +651,17 @@ class SensitivityMixin(object):
         #print("s2 / upper_bound = normalized average c-sensitivity: ", s2 / upper_bound)
         return s
         #yield s / upper_bound # yields the normalized average c-sensitivity
+
+    def derrida_plot(self, max_c=None, transitions=None) #X-Axis = c value, Y-Axis = output of Average_c_sensitivity
+        if max_c is None:
+            max_c = self.size
+
+        plt.title('Derrida Plot')
+        y_vals = []
+
+        for x in range(max_c):
+            y_vals.append(Average_c_sensitivity(self))
+
+        plt.plot(y_vals)
+
+        return plt
