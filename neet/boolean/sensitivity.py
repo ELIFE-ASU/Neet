@@ -10,6 +10,7 @@ import numpy as np
 import numpy.linalg as linalg
 import math
 import itertools as itt
+import matplotlib.pyplot as plt
 
 """
 .. import matplotlib.pyplot as plt
@@ -609,6 +610,12 @@ class SensitivityMixin(object):
 
 
         if states is not None:
+            num_states = 0
+            states = list(states)
+            #print("type of states: ", type(states))
+            #print("len of states: ", type(states))
+            #print("len of states: ", len(states))
+            #print("len of states: ", len(states))
             if calc_trans:
                 decoder = self.decode
                 trans = list(map(decoder, self.transitions))
@@ -617,8 +624,17 @@ class SensitivityMixin(object):
 
             for state in states:
                 s += self.C_sensitivity_at_x(state, trans, c)
+                num_states += 1
 
-            s = s / np.power(2, len(states))
+            if num_states is not 0:
+                #print("num_states: ", num_states)
+                #print("2^num_states: ", 2 ** num_states)
+                #CANNOT USE NP.POW()
+                #IT CALLS C-FUNCTIONS WHICH DO NOT ALLOW FOR UNLIMITED-SIZED-INTEGERS
+                #AND VERY QUICKLY RESULTS IN AN OVERFLOW TO 0
+                s = s / (2 ** num_states)#np.power(2, num_states)
+            else:
+                raise ValueError("Number of states is somehow not 'None' but also not > 0")
             return s
 
         else:
@@ -639,7 +655,8 @@ class SensitivityMixin(object):
 
             #print("s / self.size", s / self.size)
             #s2 = s / self.size
-            s = s / np.power(2, self.size)
+            s = s / 2 ** self.size
+            #print("2 ** self.size: ", 2 ** self.size)
             """ s is now the average C-Sensitivity of f and must lie in the interval [0, (n choose c)] 
             where n is the size of the network."""
 
@@ -652,16 +669,23 @@ class SensitivityMixin(object):
         return s
         #yield s / upper_bound # yields the normalized average c-sensitivity
 
-    def derrida_plot(self, max_c=None, transitions=None) #X-Axis = c value, Y-Axis = output of Average_c_sensitivity
+    def derrida_plot(self, max_c=None):#, transitions=None): #X-Axis = c value, Y-Axis = output of Average_c_sensitivity
         if max_c is None:
             max_c = self.size
 
         plt.title('Derrida Plot')
         y_vals = []
 
+        """if transitions is not None:
+            for x in range(max_c):
+                y_vals.append(self.Average_c_sensitivity(self, transitions))
+        else:
+            for x in range(max_c):
+                y_vals.append(self.Average_c_sensitivity(self))"""
         for x in range(max_c):
-            y_vals.append(Average_c_sensitivity(self))
+                y_vals.append(self.Average_c_sensitivity(states=None, calc_trans=True, c=x))            
 
+        print(y_vals)
         plt.plot(y_vals)
 
         return plt
