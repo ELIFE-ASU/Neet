@@ -37,7 +37,7 @@ class SensitivityMixin(object):
     network models.
     """
 
-    def sensitivity(self, state, transitions=None):
+    def sensitivity(self, state, transitions=None, timesteps=1):
         """
         Compute the Boolean sensitivity at a given network state.
 
@@ -87,17 +87,18 @@ class SensitivityMixin(object):
         distance = self.distance
         neighbors = self.hamming_neighbors(state)
         #neighbors_copy = [neighbor.copy() for neighbor in neighbors]
-
-        nextState = self.update(state)
+        for t in range(timesteps):
+            nextState = self._unsafe_update(state)
 
         # count sum of differences found in neighbors of the original
         s = 0.
         #debugging_index = 0
         for neighbor in neighbors:
-            if transitions is not None:
-                newState = transitions[encoder(neighbor)]
-            else:
-                newState = self._unsafe_update(neighbor)
+            for t in range(timesteps):
+                if transitions is not None:
+                    newState = transitions[encoder(neighbor)]
+                else:
+                    newState = self._unsafe_update(neighbor)
             s += distance(newState, nextState)
             """print("testing whether the hamming neighbors are correct")
             print("1. neighbor:  ", neighbors_copy[debugging_index])
@@ -451,7 +452,7 @@ class SensitivityMixin(object):
         Q = self.average_difference_matrix(**kwargs)
         return max(abs(linalg.eigvals(Q)))
 
-    def average_sensitivity(self, states=None, weights=None, calc_trans=True):
+    def average_sensitivity(self, states=None, weights=None, calc_trans=True, timesteps=1):
         """
         Calculate average Boolean network sensitivity, as defined in
         [Shmulevich2004]_.
@@ -492,11 +493,62 @@ class SensitivityMixin(object):
 
         .. seealso:: :func:`sensitivity`
         """
+        if(timesteps==1):
+            Q = self.average_difference_matrix(states=states, weights=weights, calc_trans=calc_trans)
+            return np.sum(Q) / self.size
+        else:
+            Q = 0
+            if states is not None:
+                num_states = 0
+                states = list(states)
+                #print("type of states: ", type(states))
+                #print("len of states: ", type(states))
+                #print("len of states: ", len(states))
+                #print("len of states: ", len(states))
+                if calc_trans:
+                    decoder = self.decode
+                    trans = list(map(decoder, self.transitions))
+                else:
+                    trans = None
 
-        Q = self.average_difference_matrix(states=states, weights=weights,
-                                           calc_trans=calc_trans)
+                for state in states:
+                    Q += self.sensitivity(state, trans, timesteps)
+                    num_states += 1
 
-        return np.sum(Q) / self.size
+                if num_states is not 0:
+                    #print("num_states: ", num_states)
+                    #print("2^num_states: ", 2 ** num_states)
+                    #CANNOT USE NP.POW()
+                    #IT CALLS C-FUNCTIONS WHICH DO NOT ALLOW FOR UNLIMITED-SIZED-INTEGERS
+                    #AND VERY QUICKLY RESULTS IN AN OVERFLOW TO 0
+                    Q = Q / (2 ** num_states)   #np.power(2, num_states)
+                else:
+                    raise ValueError("Number of states is somehow not 'None' but also not > 0")
+                return Q
+            else:
+                if calc_trans:
+                    decoder = self.decode
+                    trans = list(map(decoder, self.transitions))
+                else:
+                    trans = None
+                for n in range(self.size):
+                    state_gen = itt.combinations(range(self.size),n)
+                    for state in state_gen:
+                        #print("state:",state)#debugging
+                        state_array = [0 for x in range(self.size)]
+                        for index in state:
+                            state_array[index] = 1
+                        #print("state:",state_array)#debugging
+                        Q += self.sensitivity(state_array, trans, timesteps)
+
+                    #print("Q / self.size", Q / self.size)
+                    #s2 = Q / self.size
+                    Q = Q / 2 ** self.size
+                    #print("2 ** self.size: ", 2 ** self.size)
+                    # upper_bound = math.factorial(self.size) / (math.factorial(timesteps) * math.factorial(n - c))
+                    # if Q > upper_bound or Q < 0:
+                    #     raise ValueError('This value of Q should not be possible and the code is therefore wrong')
+                return Q
 
     def C_sensitivity_at_x(self, state, transitions=None, c=1):
         """C-Sensitivity modification of the regular sensitivity function. I deleted the 
