@@ -686,6 +686,16 @@ class SensitivityMixin(object):
                 y_vals.append(self.Average_c_sensitivity(states=None, calc_trans=True, c=x))            
 
         print(y_vals)
+    def Extended_Time_Plot(self, max_c=None, transitions=None): #X-Axis = c value, Y-Axis = output of Average_c_sensitivity
+        if max_c is None:
+            max_c = self.size
+
+        plt.title('Extended_Time_Plot')
+        y_vals = []
+
+        for x in range(max_c):
+            y_vals.append(self.average_sensitivity(states=None, weights=None, calc_trans=True))
+
         plt.plot(y_vals)
 
         return plt
