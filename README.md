@@ -1,6 +1,6 @@
 # Neet: Simulating and analyzing network models
 
-[![][doc-stable-img]][doc-stable-url] [![][doc-latest-img]][doc-latest-url] [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url]
+[![][doc-stable-img]][doc-stable-url] [![][doc-latest-img]][doc-latest-url] [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] [![][doi-img]][doi-url]
 
 [travis-img]: https://travis-ci.org/ELIFE-ASU/Neet.svg?branch=master
 [travis-url]: https://travis-ci.org/ELIFE-ASU/Neet
@@ -16,6 +16,9 @@
 
 [doc-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [doc-stable-url]: https://neet.readthedocs.io/en/stable
+
+[doi-img]: https://zenodo.org/badge/DOI/10.5281/zenodo.3489785.svg
+[doi-url]: https://doi.org/10.5281/zenodo.3489785
 
 **Neet** is a python package designed to provide an easy-to-use API for creating
 and evaluating dynamical network models. In its current state, **Neet** supports
