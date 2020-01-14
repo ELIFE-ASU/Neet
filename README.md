@@ -138,7 +138,7 @@ So far the python wrapper has been tested under `python2.7`, `python3.4` and
 that official support for Python 2.7 will end.
 
 ## Copyright and Licensing
-Copyright © 2017-2019 Bryan C. Daniels, Bradley Karas, Hyunju Kim, Douglas G.
+Copyright © 2017-2020 Bryan C. Daniels, Bradley Karas, Hyunju Kim, Douglas G.
 Moore, Harrison Smith, Sara I. Walker, and Siyu Zhou. Free use of this software is
 granted under the terms of the MIT License.
 
