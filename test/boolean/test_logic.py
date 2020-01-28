@@ -344,3 +344,12 @@ class TestLogicNetwork(unittest.TestCase):
         nx_net = net.network_graph(labels='indices')
 
         self.assertEqual(nx_net.graph['name'], net.metadata['name'])
+
+    def test_network_graph_has_all_nodes(self):
+        net = LogicNetwork([((), set())])
+        g = net.network_graph()
+        self.assertEqual(g.number_of_nodes(), net.size)
+
+        net = LogicNetwork([((), set()), ((2,), {'0'}), ((1,), {'1'})])
+        g = net.network_graph()
+        self.assertEqual(g.number_of_nodes(), net.size)
