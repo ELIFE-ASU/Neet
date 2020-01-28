@@ -27,7 +27,7 @@ Describe the steps to reproduce the bug, and include a script if possible.
 A clear and concise description of what you expected to happen.
 
 ### Actual Behavior
-A clear and consise description of the actual behavior and why it isn't desirable.
+A clear and concise description of the actual behavior and why it isn't desirable.
 
 ### Additional Context
 Add any other context about the problem here.
