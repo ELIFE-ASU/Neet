@@ -337,14 +337,10 @@ class TestLogicNetwork(unittest.TestCase):
         with self.assertRaises(ValueError):
             net.network_graph(labels='names')
 
-    def test_to_networkx_metadata(self):
+    def test_network_graph_metadata(self):
         net = LogicNetwork([((0,), {'0'})])
         net.metadata['name'] = 'net_name'
 
         nx_net = net.network_graph(labels='indices')
 
         self.assertEqual(nx_net.graph['name'], net.metadata['name'])
-
-    # def test_draw(self):
-    #     net = bnet.LogicNetwork([((0,), {'0'})])
-    #     draw(net,labels='indices')

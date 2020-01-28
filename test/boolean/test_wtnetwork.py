@@ -722,7 +722,7 @@ class TestWTNetwork(unittest.TestCase):
         with self.assertRaises(ValueError):
             net.network_graph(labels='names')
 
-    def test_to_networkx_metadata(self):
+    def test_network_graph_metadata(self):
         from neet.boolean.examples import s_pombe
 
         nx_net = s_pombe.network_graph(labels='indices')
