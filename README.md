@@ -126,16 +126,17 @@ developers. We'll get you up and running!
 
 ## System Support
 
-So far the python wrapper has been tested under `python2.7`, `python3.4` and
-`python3.5`, and on the following platforms:
+So far the python wrapper has been tested under `python3.4` and `python3.5`, and on the following
+platforms:
 
 * Debian 8
 * Mac OS X 10.11 (El Capitan)
 * Windows 10
 
-> **Note:** We will continue supporting Python 2.7 until January 1, 2020 when
-[PEP 373](https://www.python.org/dev/peps/pep-0373/#maintenance-releases) states
-that official support for Python 2.7 will end.
+> **Note:** As of January 1, 2020, official support for Python 2.X  has ended as per [PEP
+373](https://www.python.org/dev/peps/pep-0373/#maintenance-releases). As such, Neet no longer
+officially supports 2.X; however, the current version (Neet v1.0) is compatible and all unit tests
+pass under Python 2.7.
 
 ## Copyright and Licensing
 Copyright © 2017-2020 Bryan C. Daniels, Bradley Karas, Hyunju Kim, Douglas G.
