@@ -337,7 +337,7 @@ class TestLogicNetwork(unittest.TestCase):
         with self.assertRaises(ValueError):
             net.network_graph(labels='names')
 
-    def test_to_networkx_metadata(self):
+    def test_network_graph_metadata(self):
         net = LogicNetwork([((0,), {'0'})])
         net.metadata['name'] = 'net_name'
 
@@ -345,6 +345,11 @@ class TestLogicNetwork(unittest.TestCase):
 
         self.assertEqual(nx_net.graph['name'], net.metadata['name'])
 
-    # def test_draw(self):
-    #     net = bnet.LogicNetwork([((0,), {'0'})])
-    #     draw(net,labels='indices')
+    def test_network_graph_has_all_nodes(self):
+        net = LogicNetwork([((), set())])
+        g = net.network_graph()
+        self.assertEqual(g.number_of_nodes(), net.size)
+
+        net = LogicNetwork([((), set()), ((2,), {'0'}), ((1,), {'1'})])
+        g = net.network_graph()
+        self.assertEqual(g.number_of_nodes(), net.size)

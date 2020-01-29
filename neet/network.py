@@ -340,17 +340,21 @@ class Network(LandscapeMixin, StateSpace):
         :return: a :class:`networkx.DiGraph` object
         """
         if labels == 'indices':
-            edges = [(i, j) for i in range(self.size) for j in self.neighbors_out(i)]
+            nodes = range(self.size)
+            edges = [(i, j) for i in nodes for j in self.neighbors_out(i)]
         elif labels == 'names' and self.names is not None:
-            names = self.names
-            edges = [(names[i], names[j]) for i in range(self.size) for j in self.neighbors_out(i)]
+            nodes = self.names
+            edges = [(nodes[i], nodes[j]) for i in range(self.size) for j in self.neighbors_out(i)]
         elif labels == 'names' and self.names is None:
             raise ValueError("network nodes do not have names")
         else:
             raise ValueError("labels argument must be 'names' or 'indices', got {}".format(labels))
 
         kwargs.update(self.metadata)
-        return nx.DiGraph(edges, **kwargs)
+        g = nx.DiGraph(**kwargs)
+        g.add_nodes_from(nodes)
+        g.add_edges_from(edges)
+        return g
 
     def draw_network_graph(self, graphkwargs={}, pygraphkwargs={}):
         """
