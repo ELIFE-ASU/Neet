@@ -117,3 +117,30 @@ class TestSensitivity(unittest.TestCase):
     def test_average_sensitivity_il_6(self):
         from neet.boolean.examples import il_6_signaling
         self.assertAlmostEqual(il_6_signaling.average_sensitivity(), 0.914971, places=6)
+
+    def test_time_sensitivity_s_pombe(self):
+        from neet.boolean.examples import s_pombe
+        #s_pombe sensitivity for timesteps = 2-4 for 3 different states
+        self.assertAlmostEqual(s_pombe.sensitivity([0,0,0,0,0,0,0,0,0], timesteps=2), 1.777777, places=6)
+        self.assertAlmostEqual(s_pombe.sensitivity([0,0,0,0,0,0,0,0,0], timesteps=3), 2.111111, places=6)
+        self.assertAlmostEqual(s_pombe.sensitivity([0,0,0,0,0,0,0,0,0], timesteps=4), 2.666666, places=6)
+        self.assertAlmostEqual(s_pombe.sensitivity([0,1,1,0,1,1,0,1,1], timesteps=2), 0.555555, places=6)
+        self.assertAlmostEqual(s_pombe.sensitivity([0,1,1,0,1,1,0,1,1], timesteps=3), 0.222222, places=6)
+        self.assertAlmostEqual(s_pombe.sensitivity([0,1,1,0,1,1,0,1,1], timesteps=4), 0.555556, places=6)
+        self.assertAlmostEqual(s_pombe.sensitivity([0,0,1,0,0,1,0,0,1], timesteps=2), 1.333333, places=6)
+        self.assertAlmostEqual(s_pombe.sensitivity([0,0,1,0,0,1,0,0,1], timesteps=3), 0.555555, places=6)
+        self.assertAlmostEqual(s_pombe.sensitivity([0,0,1,0,0,1,0,0,1], timesteps=4), 1.888888, places=6)
+
+    def test_time_sensitivity_c_elegans(self):
+        from neet.boolean.examples import c_elegans
+        #c_elegans sensitivity for timesteps = 2-4 for 3 different states
+        self.assertEqual(c_elegans.sensitivity([0,0,0,0,0,0,0,0], timesteps=2), 2)
+        self.assertEqual(c_elegans.sensitivity([0,0,0,0,0,0,0,0], timesteps=3), 2.25)
+        self.assertEqual(c_elegans.sensitivity([0,0,0,0,0,0,0,0], timesteps=4), 2.375)
+        self.assertEqual(c_elegans.sensitivity([0,1,1,0,0,1,1,0], timesteps=2), 0.75)
+        self.assertEqual(c_elegans.sensitivity([0,1,1,0,0,1,1,0], timesteps=3), 0.75)
+        self.assertEqual(c_elegans.sensitivity([0,1,1,0,0,1,1,0], timesteps=4), 0.625)
+        self.assertEqual(c_elegans.sensitivity([0,0,0,1,0,0,0,1], timesteps=2), 2.75)
+        self.assertEqual(c_elegans.sensitivity([0,0,0,1,0,0,0,1], timesteps=3), 3.25)
+        self.assertEqual(c_elegans.sensitivity([0,0,0,1,0,0,0,1], timesteps=4), 2.875)
+    
