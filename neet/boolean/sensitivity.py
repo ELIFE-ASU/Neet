@@ -491,7 +491,7 @@ class SensitivityMixin(object):
 
     def c_sensitivity(self, state, transitions=None, c=1):
 
-        assert !(c < 0),"the value of c needs to be greater than or equal to zero"
+        assert(c >= 0), "the value of c needs to be greater than or equal to zero"
         assert !(c > self.size),"the value of c needs to be between 0 and the size of the network"
         assert (isinstance(c, int)),"c needs to be an integer"
 
