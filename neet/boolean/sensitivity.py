@@ -491,13 +491,14 @@ class SensitivityMixin(object):
 
     def c_sensitivity(self, state, transitions=None, c=1):
 
-        assert(c >= 0), "the value of c needs to be greater than or equal to zero"
-        assert !(c > self.size),"the value of c needs to be between 0 and the size of the network"
         assert (isinstance(c, int)),"c needs to be an integer"
+        assert(c >= 0), "the value of c needs to be greater than or equal to zero"
+        assert (c < self.size),"the value of c needs to be between 0 and the size of the network"
+ 
 
 
-        """C-Sensitivity modification of the regular sensitivity function. I deleted the 
-        doctest code because it was cluttering my screen
+        """
+        C-Sensitivity modification of the regular sensitivity function.
 
         The c-sensitivity of :math:`f(x_1, //ldots, x_n)` at :math:`x` is defined as the number of 
         c-Hamming neighbors of :math:`x` on which the function value is different from its value on :math:`x`. That is,
@@ -654,7 +655,7 @@ class SensitivityMixin(object):
             where n is the size of the network.
             """
 
-            upper_bound = math.factorial(self.size) / (math.factorial(c) * math.factorial(n - c))
+            upper_bound = math.factorial(self.size) / (math.factorial(c) * math.factorial(self.size - c))
             if s > upper_bound or s < 0:
                 raise RuntimeError('This value of S should not be possible and the code is therefore wrong')
 
