@@ -121,15 +121,15 @@ class TestSensitivity(unittest.TestCase):
     def test_time_sensitivity_s_pombe(self):
         from neet.boolean.examples import s_pombe
         #s_pombe sensitivity for timesteps = 2-4 for 3 different states
-        self.assertAlmostEqual(s_pombe.sensitivity([0,0,0,0,0,0,0,0,0], timesteps=2), 1.777777, places=6)
+        self.assertAlmostEqual(s_pombe.sensitivity([0,0,0,0,0,0,0,0,0], timesteps=2), 1.777778, places=6)
         self.assertAlmostEqual(s_pombe.sensitivity([0,0,0,0,0,0,0,0,0], timesteps=3), 2.111111, places=6)
-        self.assertAlmostEqual(s_pombe.sensitivity([0,0,0,0,0,0,0,0,0], timesteps=4), 2.666666, places=6)
-        self.assertAlmostEqual(s_pombe.sensitivity([0,1,1,0,1,1,0,1,1], timesteps=2), 0.555555, places=6)
+        self.assertAlmostEqual(s_pombe.sensitivity([0,0,0,0,0,0,0,0,0], timesteps=4), 2.666667, places=6)
+        self.assertAlmostEqual(s_pombe.sensitivity([0,1,1,0,1,1,0,1,1], timesteps=2), 0.555556, places=6)
         self.assertAlmostEqual(s_pombe.sensitivity([0,1,1,0,1,1,0,1,1], timesteps=3), 0.222222, places=6)
         self.assertAlmostEqual(s_pombe.sensitivity([0,1,1,0,1,1,0,1,1], timesteps=4), 0.555556, places=6)
         self.assertAlmostEqual(s_pombe.sensitivity([0,0,1,0,0,1,0,0,1], timesteps=2), 1.333333, places=6)
-        self.assertAlmostEqual(s_pombe.sensitivity([0,0,1,0,0,1,0,0,1], timesteps=3), 0.555555, places=6)
-        self.assertAlmostEqual(s_pombe.sensitivity([0,0,1,0,0,1,0,0,1], timesteps=4), 1.888888, places=6)
+        self.assertAlmostEqual(s_pombe.sensitivity([0,0,1,0,0,1,0,0,1], timesteps=3), 0.555556, places=6)
+        self.assertAlmostEqual(s_pombe.sensitivity([0,0,1,0,0,1,0,0,1], timesteps=4), 1.888889, places=6)
 
     def test_time_sensitivity_c_elegans(self):
         from neet.boolean.examples import c_elegans
