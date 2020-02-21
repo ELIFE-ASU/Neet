@@ -90,14 +90,14 @@ class SensitivityMixin(object):
         """
         encoder = self._unsafe_encode
         distance = self.distance
-        neighbors = self.hamming_neighbors(state)
+        neighbors = self.hamming_neighbors(state, c=1)
         #neighbors_copy = [neighbor.copy() for neighbor in neighbors]
         for t in range(timesteps):
-            nextState = self._unsafe_update(state)
+            nextState = self.update(state)
 
         # count sum of differences found in neighbors of the original
         s = 0.
-        #debugging_index = 0
+
         for neighbor in neighbors:
             for t in range(timesteps):
                 if transitions is not None:
@@ -105,15 +105,6 @@ class SensitivityMixin(object):
                 else:
                     newState = self._unsafe_update(neighbor)
             s += distance(newState, nextState)
-            """print("testing whether the hamming neighbors are correct")
-            print("1. neighbor:  ", neighbors_copy[debugging_index])
-            print("2. state:     ", state,"\n")
-            print("1. newState:  ", newState)
-            print("2. nextState: ", nextState,"\n\n")
-            debugging_index += 1"""
-            #s += distance(nextState, nextState)#DEBUGGING CODE! DO NOT LEAVE IN
-            # DO NOT LEAVE THIS LINE UNCOMMENTED WHILE THE ABOVE LINE IS COMMENTED
-            #print("testing if the distance between the same input is anything other than 0")
 
         return s / self.size
 
@@ -502,71 +493,55 @@ class SensitivityMixin(object):
             Q = self.average_difference_matrix(states=states, weights=weights, calc_trans=calc_trans)
             return np.sum(Q) / self.size
         else:
-            Q = 0
-            if states is not None:
-                num_states = 0
-                states = list(states)
-                #print("type of states: ", type(states))
-                #print("len of states: ", type(states))
-                #print("len of states: ", len(states))
-                #print("len of states: ", len(states))
-                if calc_trans:
-                    decoder = self.decode
-                    trans = list(map(decoder, self.transitions))
-                else:
-                    trans = None
-
-                for state in states:
-                    Q += self.sensitivity(state, trans, timesteps)
-                    num_states += 1
-
-                if num_states is not 0:
-                    #print("num_states: ", num_states)
-                    #print("2^num_states: ", 2 ** num_states)
-                    #CANNOT USE NP.POW()
-                    #IT CALLS C-FUNCTIONS WHICH DO NOT ALLOW FOR UNLIMITED-SIZED-INTEGERS
-                    #AND VERY QUICKLY RESULTS IN AN OVERFLOW TO 0
-                    Q = Q / (2 ** num_states)   #np.power(2, num_states)
-                else:
-                    raise ValueError("Number of states is somehow not 'None' but also not > 0")
-                return Q
+            total = 0
+            if calc_trans:
+                decoder = self.decode
+                trans = list(map(decoder, self.transitions))
             else:
-                if calc_trans:
-                    decoder = self.decode
-                    trans = list(map(decoder, self.transitions))
-                else:
-                    trans = None
-                for n in range(self.size):
-                    state_gen = itt.combinations(range(self.size),n)
-                    for state in state_gen:
-                        #print("state:",state)#debugging
-                        state_array = [0 for x in range(self.size)]
-                        for index in state:
-                            state_array[index] = 1
-                        #print("state:",state_array)#debugging
-                        Q += self.sensitivity(state_array, trans, timesteps)
+                trans = None
+            if states is not None:
+                # print("states: ", states)
+                for state in states:
+                    # print("state: ", state)
+                    val = self.sensitivity(state, trans, timesteps)
+                    # print(" val= ", val)
+                    total += val
+                avg = total/ (len(states))
+                return avg
+            else:
+                for state in self:
+                    # print("state: ", state)
+                    # for t in range(1, timesteps) :
+                    val = self.sensitivity(state, trans, timesteps)
+                    # print(" val= ", val)
+                    total += val
+                avg = total/ self.volume
+                return avg
 
-                    #print("Q / self.size", Q / self.size)
-                    #s2 = Q / self.size
-                    Q = Q / 2 ** self.size
-                    #print("2 ** self.size: ", 2 ** self.size)
-                    # upper_bound = math.factorial(self.size) / (math.factorial(timesteps) * math.factorial(n - c))
-                    # if Q > upper_bound or Q < 0:
-                    #     raise ValueError('This value of Q should not be possible and the code is therefore wrong')
-                return Q
+    def c_sensitivity(self, state, transitions=None, c=1):
 
-    def C_sensitivity_at_x(self, state, transitions=None, c=1):
-        """C-Sensitivity modification of the regular sensitivity function. I deleted the 
-        doctest code because it was cluttering my screen"""
+        assert (isinstance(c, int)),"c needs to be an integer"
+        assert(c >= 0), "the value of c needs to be greater than or equal to zero"
+        assert (c <= self.size),"the value of c needs to be between 0 and the size of the network"
+ 
 
-        """The c-sensitivity of f(x1, . . ., xn) at x is defined as the number of 
-        c-Hamming neighbors of x on which the function value is different from its value on x. That is,"""
 
-        #print("\n\nC-sensitivity for f(x) at x = ", state)
+        """
+        C-Sensitivity modification of the regular sensitivity function.
+
+        The c-sensitivity of :math:`f(x_1, //ldots, x_n)` at :math:`x` is defined as the number of 
+        c-Hamming neighbors of :math:`x` on which the function value is different from its value on :math:`x`. That is,
+
+        :param state: a single network state
+        :type state: list, numpy.ndarray
+        :param transitions: precomputed state transitions (*optional*)
+        :type transitions: list, numpy.ndarray, None
+        :return: the C-sensitivity at the provided state
+
+        """
 
         encoder = self._unsafe_encode
         distance = self.distance
-        #neighbors = self.hamming_neighbors(state)
         state_copy = copy.copy(state)
         nextState = self.update(state)
 
@@ -574,8 +549,7 @@ class SensitivityMixin(object):
         Returns an iterator for each vector I which is a strict subset of {1,...,n} and where |I| = c
         note: if c = 0, this will return an empty tuple
         """
-        #I_comb_iter = itt.combinations(range(self.size), c)
-        #print(list(I_comb_iter))
+
         I_comb_iter = itt.combinations(range(self.size), c)
 
         """ 
@@ -583,66 +557,45 @@ class SensitivityMixin(object):
         Each hamming neighbor is simply the product of self.state XOR I
         """
         def c_hamming_neighbors(self, state, c):
-            #print("c: ",c)
-            #first_bitmask = [1] * c + [0] * (self.length - c)
-            #c_bitmask_iterator = itt.permutations(first_bitmask, self.length)
             try:
                 nxt = next(I_comb_iter)
                 XORed = copy.copy(state_copy)
                 for i in nxt:
-                    #if i is None:
-                        #print("i is none")
-                    #else:
-                        #print("i: ",i)
-                        #print("nxt: ",nxt)
-                        #XORed[i] ^= 1
                     XORed[i] ^= 1
-                #print("XORed:",XORed)
                 return XORed
             except StopIteration:
                 return None
-            #yield XORed
-            #print("XORed:",XORed)
-            #yield XORed
+
 
         """ 
         #OK, so I messed with the function and it's only ~kinda~ a generator function now...
-        Also a generator function. It's automatically advanced in the for loop, which
+        It's automatically advanced in the for loop, which
         acts as a "try: next(neighbors); catch StopIteration:". This behavior is built 
         into Python and is idiomatic.
         """ 
-        #neighbors = c_hamming_neighbors(self, state, c)    
 
-        # count sum of differences found in neighbors of the original
-        #c0 = 0
         s = 0.
-        neighbors_copy = []
+        neighbors_copy = []#uses quite a bit of memory and should be removed from code once unit testing is completed
         copy_counter = 0
     
         neighbor = c_hamming_neighbors(self,state,c)
         while neighbor is not None:
             neighbors_copy.append(copy.copy(neighbor))
-            #print("neighbor: ",neighbor)
-            #if c == 0:
-                #print("c is zero, this shouldn't print! ", c)
             if transitions is not None:
                 newState = transitions[encoder(neighbor)]
             else:
                 newState = self._unsafe_update(neighbor)
 
             # the paper which describes c-sensitivity uses an indicator function
-            # instead of a distance function. That is what will be used here
-            #s += distance(newState, nextState) #Do not use this
-            """if c == 0:
-                #print("this shouldn't print")
-                if c0 == 0:
-                    print("neighbors: ",list(neighbor))
-                    print("state: ", state)
-                    c0=1"""
+            # instead of a distance function. Distance will be used here instead of the indicator.
+            
             if distance(newState, nextState) > 0:
-            #if not (list(newState) == list(nextState)):
                 if c == 0:
-                    print("this also shouldn't print")
+                    # The distance between 0-hamming neighbors should
+                    # be 0, since a 0-hamming neighbor is just the
+                    # original state/vector
+                    print("This shouldn't print. 0-hamming neighbors should not diverge.")
+                    print("c: ", c)
                     print("1. neighbor:  ", neighbors_copy[copy_counter])
                     print("2. state:     ", state_copy,"\n")
                     print("1. newState:  ", newState)
@@ -650,16 +603,32 @@ class SensitivityMixin(object):
                 s += distance(newState, nextState)
             copy_counter += 1
             neighbor = c_hamming_neighbors(self,state,c)
-        #print("s / size", s / self.size)
-        return s / copy_counter#  / self.size#/ math.pow(2, self.size)
+        return s / copy_counter
 
 
-    def Average_c_sensitivity(self, states=None, calc_trans=True, c=1):
+    def average_c_sensitivity(self, states=None, calc_trans=True, c=1):
 
-        s = 0
+        """
+        Simple acts as a for-loop which does some precomputation before generating 
+        all possible states of the network (maintaining topology and connections, 
+        just changing the initial node values to all possible combinations of active
+        nodes)
+        Each generated state's c-sensitivity is summed and then divided by the total
+        number of generated states.
+        """
 
 
+        """
 
+        :param states: a set of network states
+        :type states: list, numpy.ndarray
+        :param transitions: precomputed state transitions (*optional*)
+        :type transitions: list, numpy.ndarray, None
+        :param calc_trans: pre-compute all state transitions; ignored if
+                           ``states`` or ``weights`` is ``None``
+        :type calc_trans: bool
+        :return: the sensitivity averaged over all possible 
+                            states of the network
 
         if states is not None:
             num_states = 0
@@ -674,50 +643,63 @@ class SensitivityMixin(object):
             else:
                 trans = None
 
-            for state in states:
-                s += self.C_sensitivity_at_x(state, trans, c)
-                num_states += 1
+        """
 
-            if num_states is not 0:
-                #print("num_states: ", num_states)
-                #print("2^num_states: ", 2 ** num_states)
-                #CANNOT USE NP.POW()
-                #IT CALLS C-FUNCTIONS WHICH DO NOT ALLOW FOR UNLIMITED-SIZED-INTEGERS
-                #AND VERY QUICKLY RESULTS IN AN OVERFLOW TO 0
-                s = s / (2 ** num_states)#np.power(2, num_states)
-            else:
-                raise ValueError("Number of states is somehow not 'None' but also not > 0")
-            return s
+
+        s = 0
+
+        # optionally pre-calculate transitions
+        if calc_trans:
+            decoder = self.decode
+            trans = list(map(decoder, self.transitions))
+        else:
+            trans = None
+
+
+        if states is not None:
+            # Iterate through all provided states and sum 
+            # the distances between them and their c-hamming-neighbors
+            # after a single time-step (one synchronous transition)
+            for state in states:
+                s += self.c_sensitivity(state, trans, c)
+
+            # get the average of s by diving the sum by the
+            # number of states considered
+            s = s / len(states)
+
 
         else:
-            if calc_trans:
-                decoder = self.decode
-                trans = list(map(decoder, self.transitions))
-            else:
-                trans = None
-            for n in range(self.size):
+            # Generate all possible states 
+            # and sum the distances between them and each of their
+            # c-hamming-neighbors in the next time step (after one 
+            # synchronous transition)
+            for state in self:
+                s += self.c_sensitivity(state, trans, c)
+
+
+            # Deprecated implementation I'm keeping around while we implement unit testing. Will be removed after
+            # equivalence/correctness of the above (2 line) implementation is established
+            """for n in range(self.size):
                 state_gen = itt.combinations(range(self.size),n)
                 for state in state_gen:
-                    #print("state:",state)#debugging
                     state_array = [0 for x in range(self.size)]
                     for index in state:
                         state_array[index] = 1
-                    #print("state:",state_array)#debugging
-                    s += self.C_sensitivity_at_x(state_array, trans, c)
+                    s += self.c_sensitivity(state_array, trans, c)"""
 
-            #print("s / self.size", s / self.size)
-            #s2 = s / self.size
-            s = s / 2 ** self.size
-            #print("2 ** self.size: ", 2 ** self.size)
-            """ s is now the average C-Sensitivity of f and must lie in the interval [0, (n choose c)] 
-            where n is the size of the network."""
+            # Average s by diving the sum by the 
+            # total number of possible states (2^n)
+            # s = s / np.power(2, self.size)
+            s = s / self.volume
+            """ 
+            s is now the average C-Sensitivity of f and must lie in the interval [0, (n choose c)] 
+            where n is the size of the network.
+            """
 
-            upper_bound = math.factorial(self.size) / (math.factorial(c) * math.factorial(n - c))
+            upper_bound = math.factorial(self.size) / (math.factorial(c) * math.factorial(self.size - c))
             if s > upper_bound or s < 0:
-                raise ValueError('This value of S should not be possible and the code is therefore wrong')
+                raise RuntimeError('This value of S should not be possible and the code is therefore wrong')
 
-        print("s / upper_bound = normalized average c-sensitivity: ", s / upper_bound)
-        #print("s2 / upper_bound = normalized average c-sensitivity: ", s2 / upper_bound)
         return s
         #yield s / upper_bound # yields the normalized average c-sensitivity
 

@@ -143,4 +143,50 @@ class TestSensitivity(unittest.TestCase):
         self.assertEqual(c_elegans.sensitivity([0,0,0,1,0,0,0,1], timesteps=2), 2.75)
         self.assertEqual(c_elegans.sensitivity([0,0,0,1,0,0,0,1], timesteps=3), 3.25)
         self.assertEqual(c_elegans.sensitivity([0,0,0,1,0,0,0,1], timesteps=4), 2.875)
-    
+
+    def test_c_sensitivity(self):
+        from neet.boolean.examples import c_elegans, s_pombe
+        #s_pombe test for state [0,0,0,0,0,0,0,0,0]
+        self.assertAlmostEqual(s_pombe.c_sensitivity([0,0,0,0,0,0,0,0,0],c=2), 2.361111, places=6)
+        self.assertEqual(s_pombe.c_sensitivity([0,0,0,0,0,0,0,0,0],c=7), 4)
+        self.assertAlmostEqual(s_pombe.c_sensitivity([0,0,0,0,0,0,0,0,0],c=8), 4.333333, places=6)
+        #s_pombe test for state [0,1,1,0,1,1,0,1,1]
+        self.assertAlmostEqual(s_pombe.c_sensitivity([0,1,1,0,1,1,0,1,1],c=2), 1.555556, places=6)
+        self.assertAlmostEqual(s_pombe.c_sensitivity([0,1,1,0,1,1,0,1,1],c=7), 3.333333, places=6)
+        self.assertAlmostEqual(s_pombe.c_sensitivity([0,1,1,0,1,1,0,1,1],c=8), 3.666667, places=6)
+        #s_pombe test for state [0,0,1,0,0,1,0,0,1]
+        self.assertAlmostEqual(s_pombe.c_sensitivity([0,0,1,0,0,1,0,0,1],c=2), 1.944444, places=6)
+        self.assertAlmostEqual(s_pombe.c_sensitivity([0,0,1,0,0,1,0,0,1],c=7), 4.222222, places=6)
+        self.assertAlmostEqual(s_pombe.c_sensitivity([0,0,1,0,0,1,0,0,1],c=8), 4.555556, places=6)
+        #c_elegans test for state [0,0,0,0,0,0,0,0]
+        self.assertAlmostEqual(c_elegans.c_sensitivity([0,0,0,0,0,0,0,0],c=2), 2.535714, places=6)
+        self.assertEqual(c_elegans.c_sensitivity([0,0,0,0,0,0,0,0],c=7), 4.75)
+        self.assertEqual(c_elegans.c_sensitivity([0,0,0,0,0,0,0,0],c=8), 5)
+        #c_elegans test for state [0, 1, 1, 1, 0, 1, 1, 1]
+        self.assertAlmostEqual(c_elegans.c_sensitivity([0, 1, 1, 1, 0, 1, 1, 1],c=2), 1.464286, places=6)
+        self.assertEqual(c_elegans.c_sensitivity([0, 1, 1, 1, 0, 1, 1, 1],c=7), 5.375)
+        self.assertEqual(c_elegans.c_sensitivity([0, 1, 1, 1, 0, 1, 1, 1],c=8), 7)
+
+    def test_avg_c_sensitivity(self):
+        from neet.boolean import LogicNetwork
+        net_1 = LogicNetwork([
+            ((0,1,2), {'011', '101', '100', '110'}),
+            ((0,1,2), {'001', '010', '101', '110'}),
+            ((0,1,2), {'000', '010', '100', '110'})
+        ])
+        net_2 = LogicNetwork([
+            ((0,1,2), {'010', '110', '100', '101'}),
+            ((0,1,2), {'001', '011', '010', '101'}),
+            ((0,1,2), {'000', '001', '100', '101'})
+        ])
+        net_3 = LogicNetwork([
+            ((0,1,2), ['001', '010','100', '111']),
+            ((1,), ['0']),
+            ((0,1), ['11'])
+        ], names='ABC')
+        self.assertAlmostEqual(net_1.average_c_sensitivity(c=2), 1.833333, places=6)
+        self.assertEqual(net_2.average_c_sensitivity(c=2), 2)
+        self.assertAlmostEqual(net_3.average_c_sensitivity(c=2), 1.166667, places=6)
+
+        
+
