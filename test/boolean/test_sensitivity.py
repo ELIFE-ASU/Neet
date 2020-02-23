@@ -162,10 +162,14 @@ class TestSensitivity(unittest.TestCase):
         self.assertAlmostEqual(c_elegans.c_sensitivity([0,0,0,0,0,0,0,0],c=2), 2.535714, places=6)
         self.assertEqual(c_elegans.c_sensitivity([0,0,0,0,0,0,0,0],c=7), 4.75)
         self.assertEqual(c_elegans.c_sensitivity([0,0,0,0,0,0,0,0],c=8), 5)
-        #c_elegans test for state [0, 1, 1, 1, 0, 1, 1, 1]
-        self.assertAlmostEqual(c_elegans.c_sensitivity([0, 1, 1, 1, 0, 1, 1, 1],c=2), 1.464286, places=6)
-        self.assertEqual(c_elegans.c_sensitivity([0, 1, 1, 1, 0, 1, 1, 1],c=7), 5.375)
-        self.assertEqual(c_elegans.c_sensitivity([0, 1, 1, 1, 0, 1, 1, 1],c=8), 7)
+        #c_elegans test for state [0,1,1,0,0,1,1,0]
+        self.assertAlmostEqual(c_elegans.c_sensitivity([0,1,1,0,0,1,1,0],c=2), 1.464286, places=6)
+        self.assertEqual(c_elegans.c_sensitivity([0,1,1,0,0,1,1,0],c=7), 5.875)
+        self.assertEqual(c_elegans.c_sensitivity([0,1,1,0,0,1,1,0],c=8), 7)
+        #c_elegans test for state [0,0,0,1,0,0,0,1]
+        self.assertAlmostEqual(c_elegans.c_sensitivity([0,0,0,1,0,0,0,1],c=2), 2.928571, places=6)
+        self.assertEqual(c_elegans.c_sensitivity([0,0,0,1,0,0,0,1],c=7), 5.75)
+        self.assertEqual(c_elegans.c_sensitivity([0,0,0,1,0,0,0,1],c=8), 6)
 
     def test_avg_c_sensitivity(self):
         from neet.boolean import LogicNetwork
