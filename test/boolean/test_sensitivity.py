@@ -188,5 +188,32 @@ class TestSensitivity(unittest.TestCase):
         self.assertEqual(net_2.average_c_sensitivity(c=2), 2)
         self.assertAlmostEqual(net_3.average_c_sensitivity(c=2), 1.166667, places=6)
 
-        
+    def test_avg_time_sensitivity(self):
+        from neet.boolean import LogicNetwork
+        net_1 = LogicNetwork([
+            ((0,1,2), {'011', '101', '100', '110'}),
+            ((0,1,2), {'001', '010', '101', '110'}),
+            ((0,1,2), {'000', '010', '100', '110'})
+        ])
+        net_2 = LogicNetwork([
+            ((0,1,2), {'010', '110', '100', '101'}),
+            ((0,1,2), {'001', '011', '010', '101'}),
+            ((0,1,2), {'000', '001', '100', '101'})
+        ])
+        net_3 = LogicNetwork([
+            ((0,1,2), ['001', '010','100', '111']),
+            ((1,), ['0']),
+            ((0,1), ['11'])
+        ], names='ABC')
+        self.assertAlmostEqual(net_1.average_sensitivity(timesteps=2), 1.333333, places=6)
+        self.assertAlmostEqual(net_1.average_sensitivity(timesteps=3), 1.666667, places=6)
+        self.assertEqual(net_1.average_sensitivity(timesteps=4), 1)
+        #for net_2 timesteps=2 need assertAlmostEqual since actual value is 1.4999...
+        self.assertAlmostEqual(net_2.average_sensitivity(timesteps=2), 1.5, places=1)
+        self.assertAlmostEqual(net_2.average_sensitivity(timesteps=3), 1.666667, places=6)
+        self.assertAlmostEqual(net_2.average_sensitivity(timesteps=4), 1.666667, places=6)
+        self.assertEqual(net_3.average_sensitivity(timesteps=2), 1.5)
+        self.assertEqual(net_3.average_sensitivity(timesteps=3), 1)
+        self.assertEqual(net_3.average_sensitivity(timesteps=4), 1)
+
 

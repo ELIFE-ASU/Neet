@@ -102,6 +102,7 @@ class SensitivityMixin(object):
             for t in range(timesteps):
                 if transitions is not None:
                     newState = transitions[encoder(neighbor)]
+                    neighbor = newState
                 else:
                     newState = self._unsafe_update(neighbor)
             s += distance(newState, nextState)
