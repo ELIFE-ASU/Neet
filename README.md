@@ -1,6 +1,6 @@
 # Neet: Simulating and analyzing network models
 
-[![][doc-stable-img]][doc-stable-url] [![][doc-latest-img]][doc-latest-url] [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url]
+[![][doc-stable-img]][doc-stable-url] [![][doc-latest-img]][doc-latest-url] [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] [![][doi-img]][doi-url]
 
 [travis-img]: https://travis-ci.org/ELIFE-ASU/Neet.svg?branch=master
 [travis-url]: https://travis-ci.org/ELIFE-ASU/Neet
@@ -16,6 +16,9 @@
 
 [doc-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [doc-stable-url]: https://neet.readthedocs.io/en/stable
+
+[doi-img]: https://zenodo.org/badge/DOI/10.5281/zenodo.3489785.svg
+[doi-url]: https://doi.org/10.5281/zenodo.3489785
 
 **Neet** is a python package designed to provide an easy-to-use API for creating
 and evaluating dynamical network models. In its current state, **Neet** supports
@@ -123,19 +126,20 @@ developers. We'll get you up and running!
 
 ## System Support
 
-So far the python wrapper has been tested under `python2.7`, `python3.4` and
-`python3.5`, and on the following platforms:
+So far the python wrapper has been tested under `python3.4` and `python3.5`, and on the following
+platforms:
 
 * Debian 8
 * Mac OS X 10.11 (El Capitan)
 * Windows 10
 
-> **Note:** We will continue supporting Python 2.7 until January 1, 2020 when
-[PEP 373](https://www.python.org/dev/peps/pep-0373/#maintenance-releases) states
-that official support for Python 2.7 will end.
+> **Note:** As of January 1, 2020, official support for Python 2.X  has ended as per [PEP
+373](https://www.python.org/dev/peps/pep-0373/#maintenance-releases). As such, Neet no longer
+officially supports 2.X; however, the current version (Neet v1.0) is compatible and all unit tests
+pass under Python 2.7.
 
 ## Copyright and Licensing
-Copyright © 2017-2019 Bryan C. Daniels, Bradley Karas, Hyunju Kim, Douglas G.
+Copyright © 2017-2020 Bryan C. Daniels, Bradley Karas, Hyunju Kim, Douglas G.
 Moore, Harrison Smith, Sara I. Walker, and Siyu Zhou. Free use of this software is
 granted under the terms of the MIT License.
 
