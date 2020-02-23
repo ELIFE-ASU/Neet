@@ -46,7 +46,7 @@ Biological Regulatory Networks" *Phys. Rev.  Lett.* **121** (13), 138102,
 Copyright and Licensing
 -----------------------
 
-Copyright © 2017-2019 Bryan C. Daniels, Bradley Karas, Hyunju Kim, Douglas G.
+Copyright © 2017-2020 Bryan C. Daniels, Bradley Karas, Hyunju Kim, Douglas G.
 Moore, Harrison Smith, Sara I. Walker, and Siyu Zhou. Free use of this software
 is granted under the terms of the MIT License.
 
