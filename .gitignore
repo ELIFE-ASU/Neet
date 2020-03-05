@@ -96,3 +96,5 @@ ENV/
 
 #Mac
 *.DS_Store
+
+.mypy_cache
