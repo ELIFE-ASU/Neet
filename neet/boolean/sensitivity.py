@@ -704,29 +704,36 @@ class SensitivityMixin(object):
         return s
         #yield s / upper_bound # yields the normalized average c-sensitivity
 
-    def derrida_plot(self, max_c=None):#, transitions=None): #X-Axis = c value, Y-Axis = output of Average_c_sensitivity
+    def derrida_plot(self, max_c=None):
+        #X-Axis = c value, Y-Axis = output of Average_c_sensitivity
         if max_c is None:
             max_c = self.size
 
-        plt.title('Derrida Plot')
+        # plt.title('Derrida Plot')
         y_vals = []
 
-        """if transitions is not None:
-            for x in range(max_c):
-                y_vals.append(self.Average_c_sensitivity(self, transitions))
-        else:
-            for x in range(max_c):
-                y_vals.append(self.Average_c_sensitivity(self))"""
         for x in range(max_c):
-                y_vals.append(self.Average_c_sensitivity(states=None, calc_trans=True, c=x))            
+                y_vals.append(self.average_c_sensitivity(states=None, calc_trans=True, c=x))            
+        f, ax = plt.subplots()
+        ax.set_title('Derrida Plot')
+        ax.plot(range(max_c), y_vals)
+        ax.set_xlabel('Pertubation size (c)')
+        ax.set_ylabel('Sensitivity')
+        #actually show the plot
+        plt.show()
+        return f, ax
 
-        print(y_vals)
-    def Extended_Time_Plot(self, max_timesteps=4, transitions=None): #X-Axis = c value, Y-Axis = output of Extended_Time
-        if max_c is None:
-            max_c = self.size
-
-        plt.title('Extended_Time_Plot')
+    def extended_time_plot(self, startTimestep = 1, endTimestep=4):
+        #start timestep has to be greater than or equal to 1
         y_vals = []
 
-        for x in range(max_timesteps):
-            y_vals.append(self.average_sensitivity(states=None, weights=None, calc_trans=True, timesteps=x))
+        for x in range(startTimestep, endTimestep+1):
+            y_vals.append(self.average_sensitivity(timesteps=x))
+        f, ax = plt.subplots()
+        ax.set_title('Extended Time Plot')
+        ax.plot(range(startTimestep, endTimestep+1), y_vals)
+        ax.set_xlabel('Timestep (t)')
+        ax.set_ylabel('Sensitivity')
+        #actually show the plot
+        plt.show()
+        return f, ax
