@@ -71,10 +71,39 @@ class TestBooleanNetwork(unittest.TestCase):
         with self.assertRaises(IndexError):
             list(net.subspace([3]))
 
-    def test_hamming_neighbors(self):
+    def test_hamming_neighbors_c_0(self):
         net = MockBooleanNetwork(3)
-        self.assertEqual(net.hamming_neighbors([0, 0, 0]), [[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        self.assertEqual(net.hamming_neighbors([0, 1, 0]), [[1, 1, 0], [0, 0, 0], [0, 1, 1]])
+        self.assertEqual(list(net.hamming_neighbors([0, 0, 0], c=0)), [[0, 0, 0]])
+        self.assertEqual(list(net.hamming_neighbors([0, 1, 0], c=0)), [[0, 1, 0]])
+        for state in net:
+            for neighbor in net.hamming_neighbors(state):
+                self.assertTrue(neighbor in net)
+                self.assertNotEqual(neighbor, state)
+
+    def test_hamming_neighbors_c_1(self):
+        net = MockBooleanNetwork(3)
+        self.assertEqual(list(net.hamming_neighbors([0, 0, 0])), [[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        self.assertEqual(list(net.hamming_neighbors([0, 1, 0])), [[1, 1, 0], [0, 0, 0], [0, 1, 1]])
+        for state in net:
+            for neighbor in net.hamming_neighbors(state):
+                self.assertTrue(neighbor in net)
+                self.assertNotEqual(neighbor, state)
+
+    def test_hamming_neighbors_c_2(self):
+        net = MockBooleanNetwork(3)
+        self.assertEqual(list(net.hamming_neighbors([0, 0, 0], c=2)),
+                         [[1, 1, 0], [1, 0, 1], [0, 1, 1]])
+        self.assertEqual(list(net.hamming_neighbors([0, 1, 0], c=2)),
+                         [[1, 0, 0], [1, 1, 1], [0, 0, 1]])
+        for state in net:
+            for neighbor in net.hamming_neighbors(state):
+                self.assertTrue(neighbor in net)
+                self.assertNotEqual(neighbor, state)
+
+    def test_hamming_neighbors_c_3(self):
+        net = MockBooleanNetwork(3)
+        self.assertEqual(list(net.hamming_neighbors([0, 0, 0], c=3)), [[1, 1, 1]])
+        self.assertEqual(list(net.hamming_neighbors([0, 1, 0], c=3)), [[1, 0, 1]])
         for state in net:
             for neighbor in net.hamming_neighbors(state):
                 self.assertTrue(neighbor in net)
@@ -83,15 +112,15 @@ class TestBooleanNetwork(unittest.TestCase):
     def test_hamming_neighbors_raises(self):
         net = MockBooleanNetwork(3)
         with self.assertRaises(ValueError):
-            net.hamming_neighbors(0)
+            list(net.hamming_neighbors(0))
         with self.assertRaises(ValueError):
-            net.hamming_neighbors([0, 0])
+            list(net.hamming_neighbors([0, 0]))
         with self.assertRaises(ValueError):
-            net.hamming_neighbors([0, 0, 0, 0])
+            list(net.hamming_neighbors([0, 0, 0, 0]))
         with self.assertRaises(ValueError):
-            net.hamming_neighbors([2, 0, 0])
+            list(net.hamming_neighbors([2, 0, 0]))
         with self.assertRaises(ValueError):
-            net.hamming_neighbors([-1, 0, 0])
+            list(net.hamming_neighbors([-1, 0, 0]))
 
     def test_distance(self):
         net = MockBooleanNetwork(3)

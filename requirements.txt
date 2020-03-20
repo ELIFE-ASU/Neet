@@ -4,3 +4,4 @@ networkx
 pyinform
 pygraphviz
 deprecated
+matplotlib

@@ -9,6 +9,7 @@ from neet import UniformNetwork
 from neet.python import long
 from .sensitivity import SensitivityMixin
 import copy
+from itertools import combinations
 
 
 class BooleanNetwork(SensitivityMixin, UniformNetwork):
@@ -159,7 +160,7 @@ class BooleanNetwork(SensitivityMixin, UniformNetwork):
                 else:
                     i += 1
 
-    def hamming_neighbors(self, state):
+    def hamming_neighbors(self, state, c=1):
         """
         Get all states that one unit of Hamming distance from a given state.
 
@@ -179,11 +180,12 @@ class BooleanNetwork(SensitivityMixin, UniformNetwork):
         """
         if state not in self:
             raise ValueError('state is not in state space')
-        neighbors = [None] * self.size
-        for i in range(self.size):
-            neighbors[i] = copy.copy(state)
-            neighbors[i][i] ^= 1
-        return neighbors
+
+        for bits in combinations(range(self.size), c):
+            neighbor = copy.copy(state)
+            for i in bits:
+                neighbor[i] ^= 1
+            yield neighbor
 
     def distance(self, a, b):
         """

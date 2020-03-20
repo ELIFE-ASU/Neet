@@ -35,7 +35,7 @@ setup(
     maintainer_email='doug@dglmoore.com',
     url='https://github.com/elife-asu/neet',
     license=LICENSE,
-    install_requires=['six', 'numpy', 'networkx', 'pyinform', 'deprecated'],
+    install_requires=['six', 'numpy', 'networkx', 'pyinform', 'deprecated', 'matplotlib'],
     extra_requires={
         "draw": ['pygraphviz']
     },
