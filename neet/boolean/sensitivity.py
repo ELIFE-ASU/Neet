@@ -490,7 +490,7 @@ class SensitivityMixin(object):
 
         .. seealso:: :func:`sensitivity`
         """
-        if(timesteps==1):
+        if(timesteps == 1):
             Q = self.average_difference_matrix(states=states, weights=weights, calc_trans=calc_trans)
             return np.sum(Q) / self.size
         else:
@@ -507,7 +507,7 @@ class SensitivityMixin(object):
                     val = self.sensitivity(state, trans, timesteps)
                     # print(" val= ", val)
                     total += val
-                avg = total/ (len(states))
+                avg = total / (len(states))
                 return avg
             else:
                 for state in self:
@@ -516,16 +516,14 @@ class SensitivityMixin(object):
                     val = self.sensitivity(state, trans, timesteps)
                     # print(" val= ", val)
                     total += val
-                avg = total/ self.volume
+                avg = total / self.volume
                 return avg
 
     def c_sensitivity(self, state, transitions=None, c=1):
 
-        assert (isinstance(c, int)),"c needs to be an integer"
+        assert (isinstance(c, int)), "c needs to be an integer"
         assert(c >= 0), "the value of c needs to be greater than or equal to zero"
-        assert (c <= self.size),"the value of c needs to be between 0 and the size of the network"
- 
-
+        assert (c <= self.size), "the value of c needs to be between 0 and the size of the network"
 
         """
         C-Sensitivity modification of the regular sensitivity function.
@@ -557,6 +555,7 @@ class SensitivityMixin(object):
         Generator function which returns a new hamming neighbor
         Each hamming neighbor is simply the product of self.state XOR I
         """
+
         def c_hamming_neighbors(self, state, c):
             try:
                 nxt = next(I_comb_iter)
@@ -567,19 +566,18 @@ class SensitivityMixin(object):
             except StopIteration:
                 return None
 
-
         """ 
         #OK, so I messed with the function and it's only ~kinda~ a generator function now...
         It's automatically advanced in the for loop, which
         acts as a "try: next(neighbors); catch StopIteration:". This behavior is built 
         into Python and is idiomatic.
-        """ 
+        """
 
         s = 0.
-        neighbors_copy = []#uses quite a bit of memory and should be removed from code once unit testing is completed
+        neighbors_copy = []  # uses quite a bit of memory and should be removed from code once unit testing is completed
         copy_counter = 0
-    
-        neighbor = c_hamming_neighbors(self,state,c)
+
+        neighbor = c_hamming_neighbors(self, state, c)
         while neighbor is not None:
             neighbors_copy.append(copy.copy(neighbor))
             if transitions is not None:
@@ -589,7 +587,7 @@ class SensitivityMixin(object):
 
             # the paper which describes c-sensitivity uses an indicator function
             # instead of a distance function. Distance will be used here instead of the indicator.
-            
+
             if distance(newState, nextState) > 0:
                 if c == 0:
                     # The distance between 0-hamming neighbors should
@@ -598,17 +596,15 @@ class SensitivityMixin(object):
                     print("This shouldn't print. 0-hamming neighbors should not diverge.")
                     print("c: ", c)
                     print("1. neighbor:  ", neighbors_copy[copy_counter])
-                    print("2. state:     ", state_copy,"\n")
+                    print("2. state:     ", state_copy, "\n")
                     print("1. newState:  ", newState)
-                    print("2. nextState: ", nextState,"\n\n")
+                    print("2. nextState: ", nextState, "\n\n")
                 s += distance(newState, nextState)
             copy_counter += 1
-            neighbor = c_hamming_neighbors(self,state,c)
+            neighbor = c_hamming_neighbors(self, state, c)
         return s / copy_counter
 
-
     def average_c_sensitivity(self, states=None, calc_trans=True, c=1):
-
         """
         Simple acts as a for-loop which does some precomputation before generating 
         all possible states of the network (maintaining topology and connections, 
@@ -617,7 +613,6 @@ class SensitivityMixin(object):
         Each generated state's c-sensitivity is summed and then divided by the total
         number of generated states.
         """
-
 
         """
 
@@ -646,7 +641,6 @@ class SensitivityMixin(object):
 
         """
 
-
         s = 0
 
         # optionally pre-calculate transitions
@@ -656,9 +650,8 @@ class SensitivityMixin(object):
         else:
             trans = None
 
-
         if states is not None:
-            # Iterate through all provided states and sum 
+            # Iterate through all provided states and sum
             # the distances between them and their c-hamming-neighbors
             # after a single time-step (one synchronous transition)
             for state in states:
@@ -668,15 +661,13 @@ class SensitivityMixin(object):
             # number of states considered
             s = s / len(states)
 
-
         else:
-            # Generate all possible states 
+            # Generate all possible states
             # and sum the distances between them and each of their
-            # c-hamming-neighbors in the next time step (after one 
+            # c-hamming-neighbors in the next time step (after one
             # synchronous transition)
             for state in self:
                 s += self.c_sensitivity(state, trans, c)
-
 
             # Deprecated implementation I'm keeping around while we implement unit testing. Will be removed after
             # equivalence/correctness of the above (2 line) implementation is established
@@ -688,7 +679,7 @@ class SensitivityMixin(object):
                         state_array[index] = 1
                     s += self.c_sensitivity(state_array, trans, c)"""
 
-            # Average s by diving the sum by the 
+            # Average s by diving the sum by the
             # total number of possible states (2^n)
             # s = s / np.power(2, self.size)
             s = s / self.volume
@@ -702,10 +693,10 @@ class SensitivityMixin(object):
                 raise RuntimeError('This value of S should not be possible and the code is therefore wrong')
 
         return s
-        #yield s / upper_bound # yields the normalized average c-sensitivity
+        # yield s / upper_bound # yields the normalized average c-sensitivity
 
     def derrida_plot(self, max_c=None):
-        #X-Axis = c value, Y-Axis = output of Average_c_sensitivity
+        # X-Axis = c value, Y-Axis = output of Average_c_sensitivity
         if max_c is None:
             max_c = self.size
 
@@ -713,27 +704,27 @@ class SensitivityMixin(object):
         y_vals = []
 
         for x in range(max_c):
-                y_vals.append(self.average_c_sensitivity(states=None, calc_trans=True, c=x))            
+            y_vals.append(self.average_c_sensitivity(states=None, calc_trans=True, c=x))
         f, ax = plt.subplots()
         ax.set_title('Derrida Plot')
         ax.plot(range(max_c), y_vals)
         ax.set_xlabel('Pertubation size (c)')
         ax.set_ylabel('Sensitivity')
-        #actually show the plot
+        # actually show the plot
         plt.show()
         return f, ax
 
-    def extended_time_plot(self, startTimestep = 1, endTimestep=4):
-        #start timestep has to be greater than or equal to 1
+    def extended_time_plot(self, startTimestep=1, endTimestep=4):
+        # start timestep has to be greater than or equal to 1
         y_vals = []
 
-        for x in range(startTimestep, endTimestep+1):
+        for x in range(startTimestep, endTimestep + 1):
             y_vals.append(self.average_sensitivity(timesteps=x))
         f, ax = plt.subplots()
         ax.set_title('Extended Time Plot')
-        ax.plot(range(startTimestep, endTimestep+1), y_vals)
+        ax.plot(range(startTimestep, endTimestep + 1), y_vals)
         ax.set_xlabel('Timestep (t)')
         ax.set_ylabel('Sensitivity')
-        #actually show the plot
+        # actually show the plot
         plt.show()
         return f, ax

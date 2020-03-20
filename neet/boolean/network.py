@@ -182,7 +182,7 @@ class BooleanNetwork(SensitivityMixin, UniformNetwork):
 
         if state not in self:
             raise ValueError('state is not in state space')
-        
+
         I_comb_iter = itt.combinations(range(self.size), c)
 
         def c_hamming_neighbors(self, state, c):
