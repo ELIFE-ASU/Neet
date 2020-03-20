@@ -4,17 +4,12 @@
 .. testsetup:: sensitivity
 
     from neet.boolean.examples import c_elegans, s_pombe
+    import matplotlib.pyplot as plt
 """
 import copy
 import numpy as np
 import numpy.linalg as linalg
-import math
-import itertools as itt
 import matplotlib.pyplot as plt
-
-"""
-.. import matplotlib.pyplot as plt
-"""
 
 
 class SensitivityMixin(object):
@@ -88,24 +83,31 @@ class SensitivityMixin(object):
 
         .. seealso:: :func:`average_sensitivity`
         """
+        if not isinstance(timesteps, int):
+            raise TypeError('timesteps must be an integer')
+        elif timesteps < 0:
+            raise ValueError('timesteps must be non-negative')
+
+        if timesteps == 0:
+            return 1.0
+
         encoder = self._unsafe_encode
+        update = self._unsafe_update
         distance = self.distance
         neighbors = self.hamming_neighbors(state, c=1)
-        #neighbors_copy = [neighbor.copy() for neighbor in neighbors]
-        for t in range(timesteps):
-            nextState = self.update(state)
 
-        # count sum of differences found in neighbors of the original
+        nextState = self.update(copy.copy(state))
+        for t in range(1, timesteps):
+            update(nextState)
+
         s = 0.
-
         for neighbor in neighbors:
             for t in range(timesteps):
                 if transitions is not None:
-                    newState = transitions[encoder(neighbor)]
-                    neighbor = newState
+                    neighbor = transitions[encoder(neighbor)]
                 else:
-                    newState = self._unsafe_update(neighbor)
-            s += distance(newState, nextState)
+                    update(neighbor)
+            s += distance(neighbor, nextState)
 
         return s / self.size
 
@@ -158,17 +160,13 @@ class SensitivityMixin(object):
 
         .. seealso:: :func:`average_difference_matrix`
         """
-        # set up empty matrix
         N = len(state)
         Q = np.empty((N, N))
 
-        # list Hamming neighbors (in order!)
         encoder = self._unsafe_encode
         neighbors = self.hamming_neighbors(state)
+        nextState = self.update(copy.copy(state))
 
-        nextState = self.update(state)
-
-        # count differences found in neighbors of the original
         for j, neighbor in enumerate(neighbors):
             if transitions is not None:
                 newState = transitions[encoder(neighbor)]
@@ -232,17 +230,12 @@ class SensitivityMixin(object):
         Q = np.zeros((N, N))
 
         if (states is not None) or (weights is not None):
-            # explicitly calculate difference matrix for each state
-
-            # optionally pre-calculate transitions
             if calc_trans:
                 decoder = self.decode
                 trans = list(map(decoder, self.transitions))
             else:
                 trans = None
 
-            # currently changes state generators to lists.
-            # is there a way to avoid this?
             if states is None:
                 states = list(self)
             else:
@@ -254,14 +247,12 @@ class SensitivityMixin(object):
                 weights = list(weights)
 
             if np.shape(weights) != (len(states),):
-                msg = "Weights must be a 1D array with length same as states"
-                raise(ValueError(msg))
+                raise ValueError('Weights must be a 1D array with length same as states')
 
             norm = np.sum(weights)
             for i, state in enumerate(states):
                 Q += weights[i] * self.difference_matrix(state, trans) / norm
-
-        else:  # make use of sparse connectivity to be more efficient
+        else:
             state0 = np.zeros(N, dtype=int)
 
             subspace = self.subspace
@@ -270,7 +261,6 @@ class SensitivityMixin(object):
                 nodesInfluencingI = list(self.neighbors_in(i))
                 for jindex, j in enumerate(nodesInfluencingI):
 
-                    # for each state of other nodes, does j matter?
                     otherNodes = copy.copy(nodesInfluencingI)
                     otherNodes.pop(jindex)
                     otherNodeStates = list(subspace(otherNodes, state0))
@@ -281,7 +271,6 @@ class SensitivityMixin(object):
                         state[i] = iState
                         state[j] = 1
                         jOnNext = self._unsafe_update(state, index=i)[i]
-                        # are the results different?
                         Q[i, j] += (jOffNext + jOnNext) % 2
                     Q[i, j] /= float(len(otherNodeStates))
 
@@ -334,14 +323,12 @@ class SensitivityMixin(object):
         nodesInfluencingI = list(self.neighbors_in(x))
 
         if (y not in nodesInfluencingI) or (x not in range(self.size)):
-            # can't be canalizing if j has no influence on i
-            return None  # or False?
+            return None
         else:
             jindex = nodesInfluencingI.index(y)
 
             subspace = self.subspace
 
-            # for every state of other nodes, does j determine i?
             otherNodes = list(copy.copy(nodesInfluencingI))
             otherNodes.pop(jindex)
             otherNodeStates = list(subspace(otherNodes, np.zeros(self.size, dtype=int)))
@@ -353,7 +340,6 @@ class SensitivityMixin(object):
 
                 state = otherNodeStates[stateindex]
 
-                # first hold j off
                 if jOffForced:
                     jOff = copy.copy(state)
                     jOff[y] = 0
@@ -361,10 +347,8 @@ class SensitivityMixin(object):
                     if jOffForcedValue is None:
                         jOffForcedValue = jOffNext
                     elif jOffForcedValue != jOffNext:
-                        # then holding j off does not force i
                         jOffForced = False
 
-                # now hold j on
                 if jOnForced:
                     jOn = copy.copy(state)
                     jOn[y] = 1
@@ -372,13 +356,10 @@ class SensitivityMixin(object):
                     if jOnForcedValue is None:
                         jOnForcedValue = jOnNext
                     elif jOnForcedValue != jOnNext:
-                        # then holding j on does not force i
                         jOnForced = False
 
                 stateindex += 1
 
-            # if we have checked all states, then the edge must be forcing
-            # print "jOnForced,jOffForced",jOnForced,jOffForced
             return jOnForced or jOffForced
 
     def canalizing_edges(self):
@@ -490,241 +471,177 @@ class SensitivityMixin(object):
 
         .. seealso:: :func:`sensitivity`
         """
-        if(timesteps == 1):
+        if not isinstance(timesteps, int):
+            raise TypeError('timesteps must be an integer')
+        elif timesteps < 0:
+            raise ValueError('timesteps must be non-negative')
+
+        if timesteps == 0:
+            return 1.0
+        elif timesteps == 1:
             Q = self.average_difference_matrix(states=states, weights=weights, calc_trans=calc_trans)
             return np.sum(Q) / self.size
         else:
-            total = 0
-            if calc_trans:
-                decoder = self.decode
-                trans = list(map(decoder, self.transitions))
-            else:
-                trans = None
+            total = 0.0
             if states is not None:
-                # print("states: ", states)
                 for state in states:
-                    # print("state: ", state)
-                    val = self.sensitivity(state, trans, timesteps)
-                    # print(" val= ", val)
-                    total += val
-                avg = total / (len(states))
-                return avg
+                    total += self.sensitivity(state, timesteps=timesteps)
+                return total / len(states)
             else:
+                total = 0.0
                 for state in self:
-                    # print("state: ", state)
-                    # for t in range(1, timesteps) :
-                    val = self.sensitivity(state, trans, timesteps)
-                    # print(" val= ", val)
-                    total += val
-                avg = total / self.volume
-                return avg
+                    total += self.sensitivity(state, timesteps=timesteps)
+                return total / self.volume
 
     def c_sensitivity(self, state, transitions=None, c=1):
-
-        assert (isinstance(c, int)), "c needs to be an integer"
-        assert(c >= 0), "the value of c needs to be greater than or equal to zero"
-        assert (c <= self.size), "the value of c needs to be between 0 and the size of the network"
-
         """
         C-Sensitivity modification of the regular sensitivity function.
 
-        The c-sensitivity of :math:`f(x_1, //ldots, x_n)` at :math:`x` is defined as the number of 
-        c-Hamming neighbors of :math:`x` on which the function value is different from its value on :math:`x`. That is,
+        The c-sensitivity of :math:`f(x_1, //ldots, x_n)` at :math:`x` is
+        defined as the number of c-Hamming neighbors of :math:`x` on which the
+        function value is different from its value on :math:`x`. That is,
 
         :param state: a single network state
         :type state: list, numpy.ndarray
         :param transitions: precomputed state transitions (*optional*)
         :type transitions: list, numpy.ndarray, None
         :return: the C-sensitivity at the provided state
-
         """
+        if not isinstance(c, int):
+            raise TypeError('perturbation size must be an integer')
+        elif c < 0:
+            raise ValueError('perturbation size must be non-negative')
+        elif c > self.size:
+            raise ValueError('perturbation size cannot be greater than the number of nodes')
+        elif c == 0:
+            return 0.0
 
         encoder = self._unsafe_encode
+        update = self._unsafe_update
         distance = self.distance
-        state_copy = copy.copy(state)
-        nextState = self.update(state)
+        nextState = self.update(copy.copy(state))
 
-        """
-        Returns an iterator for each vector I which is a strict subset of {1,...,n} and where |I| = c
-        note: if c = 0, this will return an empty tuple
-        """
-
-        I_comb_iter = itt.combinations(range(self.size), c)
-
-        """ 
-        Generator function which returns a new hamming neighbor
-        Each hamming neighbor is simply the product of self.state XOR I
-        """
-
-        def c_hamming_neighbors(self, state, c):
-            try:
-                nxt = next(I_comb_iter)
-                XORed = copy.copy(state_copy)
-                for i in nxt:
-                    XORed[i] ^= 1
-                return XORed
-            except StopIteration:
-                return None
-
-        """ 
-        #OK, so I messed with the function and it's only ~kinda~ a generator function now...
-        It's automatically advanced in the for loop, which
-        acts as a "try: next(neighbors); catch StopIteration:". This behavior is built 
-        into Python and is idiomatic.
-        """
-
-        s = 0.
-        neighbors_copy = []  # uses quite a bit of memory and should be removed from code once unit testing is completed
-        copy_counter = 0
-
-        neighbor = c_hamming_neighbors(self, state, c)
-        while neighbor is not None:
-            neighbors_copy.append(copy.copy(neighbor))
+        s, count = 0.0, 0
+        for neighbor in self.hamming_neighbors(state, c):
             if transitions is not None:
                 newState = transitions[encoder(neighbor)]
             else:
-                newState = self._unsafe_update(neighbor)
-
-            # the paper which describes c-sensitivity uses an indicator function
-            # instead of a distance function. Distance will be used here instead of the indicator.
-
-            if distance(newState, nextState) > 0:
-                if c == 0:
-                    # The distance between 0-hamming neighbors should
-                    # be 0, since a 0-hamming neighbor is just the
-                    # original state/vector
-                    print("This shouldn't print. 0-hamming neighbors should not diverge.")
-                    print("c: ", c)
-                    print("1. neighbor:  ", neighbors_copy[copy_counter])
-                    print("2. state:     ", state_copy, "\n")
-                    print("1. newState:  ", newState)
-                    print("2. nextState: ", nextState, "\n\n")
-                s += distance(newState, nextState)
-            copy_counter += 1
-            neighbor = c_hamming_neighbors(self, state, c)
-        return s / copy_counter
+                newState = update(neighbor)
+            s += distance(newState, nextState)
+            count += 1
+        return s / count
 
     def average_c_sensitivity(self, states=None, calc_trans=True, c=1):
         """
-        Simple acts as a for-loop which does some precomputation before generating 
-        all possible states of the network (maintaining topology and connections, 
-        just changing the initial node values to all possible combinations of active
-        nodes)
-        Each generated state's c-sensitivity is summed and then divided by the total
-        number of generated states.
-        """
-
-        """
+        Simple acts as a for-loop which does some precomputation before
+        generating all possible states of the network (maintaining topology and
+        connections, just changing the initial node values to all possible
+        combinations of active nodes) Each generated state's c-sensitivity is
+        summed and then divided by the total number of generated states.
 
         :param states: a set of network states
         :type states: list, numpy.ndarray
-        :param transitions: precomputed state transitions (*optional*)
-        :type transitions: list, numpy.ndarray, None
         :param calc_trans: pre-compute all state transitions; ignored if
                            ``states`` or ``weights`` is ``None``
         :type calc_trans: bool
-        :return: the sensitivity averaged over all possible 
-                            states of the network
-
-        if states is not None:
-            num_states = 0
-            states = list(states)
-            #print("type of states: ", type(states))
-            #print("len of states: ", type(states))
-            #print("len of states: ", len(states))
-            #print("len of states: ", len(states))
-            if calc_trans:
-                decoder = self.decode
-                trans = list(map(decoder, self.transitions))
-            else:
-                trans = None
-
+        :return: the sensitivity averaged over all possible states of the
+                 network
         """
+        if not isinstance(c, int):
+            raise TypeError('perturbation size must be an integer')
+        elif c < 0:
+            raise ValueError('perturbation size must be non-negative')
+        elif c > self.size:
+            raise ValueError('perturbation size cannot be greater than the number of nodes')
+        elif c == 0:
+            return 0.0
 
-        s = 0
-
-        # optionally pre-calculate transitions
         if calc_trans:
             decoder = self.decode
             trans = list(map(decoder, self.transitions))
         else:
             trans = None
 
+        s = 0
         if states is not None:
-            # Iterate through all provided states and sum
-            # the distances between them and their c-hamming-neighbors
-            # after a single time-step (one synchronous transition)
             for state in states:
                 s += self.c_sensitivity(state, trans, c)
-
-            # get the average of s by diving the sum by the
-            # number of states considered
-            s = s / len(states)
-
+            return s / len(states)
         else:
-            # Generate all possible states
-            # and sum the distances between them and each of their
-            # c-hamming-neighbors in the next time step (after one
-            # synchronous transition)
             for state in self:
                 s += self.c_sensitivity(state, trans, c)
+            return s / self.volume
 
-            # Deprecated implementation I'm keeping around while we implement unit testing. Will be removed after
-            # equivalence/correctness of the above (2 line) implementation is established
-            """for n in range(self.size):
-                state_gen = itt.combinations(range(self.size),n)
-                for state in state_gen:
-                    state_array = [0 for x in range(self.size)]
-                    for index in state:
-                        state_array[index] = 1
-                    s += self.c_sensitivity(state_array, trans, c)"""
+    def derrida_plot(self, min_c=0, max_c=None):
+        """
+        Plot the :math:`c`-sensitivity versus the size of the perturbation :math:`c`.
 
-            # Average s by diving the sum by the
-            # total number of possible states (2^n)
-            # s = s / np.power(2, self.size)
-            s = s / self.volume
-            """ 
-            s is now the average C-Sensitivity of f and must lie in the interval [0, (n choose c)] 
-            where n is the size of the network.
-            """
-
-            upper_bound = math.factorial(self.size) / (math.factorial(c) * math.factorial(self.size - c))
-            if s > upper_bound or s < 0:
-                raise RuntimeError('This value of S should not be possible and the code is therefore wrong')
-
-        return s
-        # yield s / upper_bound # yields the normalized average c-sensitivity
-
-    def derrida_plot(self, max_c=None):
-        # X-Axis = c value, Y-Axis = output of Average_c_sensitivity
+        :param min_c: minimum perturbation size
+        :type min_c: int
+        :param max_c: maximum perturbation size
+        :type max_c: int
+        :return: matplotlib figure and axes
+        """
         if max_c is None:
-            max_c = self.size
+            max_c = self.size + 1
 
-        # plt.title('Derrida Plot')
-        y_vals = []
+        if not isinstance(min_c, int):
+            raise TypeError('minimum perturbation size must be an integer')
+        elif min_c < 0:
+            raise ValueError('minimum perturbation size must be non-negative')
+        elif min_c > self.size:
+            raise ValueError('minimum perturbation size cannot be greater than the number of nodes')
 
-        for x in range(max_c):
-            y_vals.append(self.average_c_sensitivity(states=None, calc_trans=True, c=x))
+        if not isinstance(max_c, int):
+            raise TypeError('maximum perturbation size must be an integer')
+        elif max_c < 0:
+            raise ValueError('maximum perturbation size must be non-negative')
+        elif max_c > self.size + 1:
+            raise ValueError('maximum perturbation size cannot be greater than the one more than number of nodes')
+
+        if min_c >= max_c:
+            raise ValueError('minimum perturbation size must be less than maximum size')
+
+        y_vals = [self.average_c_sensitivity(c=c) for c in range(min_c, max_c)]
+
         f, ax = plt.subplots()
         ax.set_title('Derrida Plot')
-        ax.plot(range(max_c), y_vals)
+        ax.plot(range(min_c, max_c), y_vals)
         ax.set_xlabel('Pertubation size (c)')
         ax.set_ylabel('Sensitivity')
-        # actually show the plot
-        plt.show()
+
         return f, ax
 
-    def extended_time_plot(self, startTimestep=1, endTimestep=4):
-        # start timestep has to be greater than or equal to 1
-        y_vals = []
+    def extended_time_plot(self, min_timesteps=0, max_timesteps=5):
+        """
+        Plot the sensitivity versus the time since the perturbation.
 
-        for x in range(startTimestep, endTimestep + 1):
-            y_vals.append(self.average_sensitivity(timesteps=x))
+        :param min_timesteps: minimum number of timesteps
+        :type min_timesteps: int
+        :param max_timesteps: maximum number of timesteps
+        :type max_timesteps: int
+        :return: matplotlib figure and axes
+        """
+        if not isinstance(min_timesteps, int):
+            raise TypeError('minimum number of timesteps must be an integer')
+        elif min_timesteps < 0:
+            raise ValueError('minimum number of timesteps must be non-negative')
+
+        if not isinstance(max_timesteps, int):
+            raise TypeError('maximum number of timesteps must be an integer')
+        elif max_timesteps < 0:
+            raise ValueError('maximum number of timesteps must be non-negative')
+
+        if min_timesteps >= max_timesteps:
+            raise ValueError('minimum number of timesteps must be less than maximum number')
+
+        y_vals = [self.average_sensitivity(timesteps=t) for t in range(min_timesteps, max_timesteps)]
+
         f, ax = plt.subplots()
+
         ax.set_title('Extended Time Plot')
-        ax.plot(range(startTimestep, endTimestep + 1), y_vals)
+        ax.plot(range(min_timesteps, max_timesteps), y_vals)
         ax.set_xlabel('Timestep (t)')
         ax.set_ylabel('Sensitivity')
-        # actually show the plot
-        plt.show()
+
         return f, ax

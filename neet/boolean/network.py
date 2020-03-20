@@ -9,7 +9,7 @@ from neet import UniformNetwork
 from neet.python import long
 from .sensitivity import SensitivityMixin
 import copy
-import itertools as itt
+from itertools import combinations
 
 
 class BooleanNetwork(SensitivityMixin, UniformNetwork):
@@ -178,38 +178,14 @@ class BooleanNetwork(SensitivityMixin, UniformNetwork):
         :return: a list of neighbors of the given state
         :raises ValueError: if the state is not in the network's state space
         """
-        state_copy = copy.copy(state)
-
         if state not in self:
             raise ValueError('state is not in state space')
 
-        I_comb_iter = itt.combinations(range(self.size), c)
-
-        def c_hamming_neighbors(self, state, c):
-            try:
-                nxt = next(I_comb_iter)
-                XORed = copy.copy(state_copy)
-                for i in nxt:
-                    XORed[i] ^= 1
-                return XORed
-            except StopIteration:
-                return None
-
-        neighbors = list()
-        neighbor = c_hamming_neighbors(self, state, c)
-        while neighbor is not None:
-            neighbors.append(copy.copy(neighbor))
-            neighbor = c_hamming_neighbors(self, state, c)
-
-        """
-        if state not in self:
-            raise ValueError('state is not in state space')
-        neighbors = [None] * self.size
-        for i in range(self.size):
-            neighbors[i] = copy.copy(state)
-            neighbors[i][i] ^= 1
-        """
-        return neighbors
+        for bits in combinations(range(self.size), c):
+            neighbor = copy.copy(state)
+            for i in bits:
+                neighbor[i] ^= 1
+            yield neighbor
 
     def distance(self, a, b):
         """
