@@ -116,6 +116,9 @@ class NetworkRandomizer(AbstractRandomizer):
             raise TypeError(msg)
 
     def random(self):
+        """
+        Returns a random network
+        """
         topology = self.trand.random()
 
         loop = 0
@@ -163,6 +166,8 @@ class UniformBias(NetworkRandomizer):
         """
         Generate random Boolean networks with the same bias on each non-external
         node.
+        "Bias" = prior probability based on (# of node input combinations which will
+        activate the node) / (the # of possible node input combinations)
         """
         super().__init__(network, **kwargs)
         self.p = p
@@ -187,7 +192,7 @@ class MeanBias(UniformBias):
         """
         Get the mean bias of a network
         """
-        return np.mean([float(len(row[1]) / 2**len(row[0])) for row in network.table])
+        return np.mean([float(len(row[1])) / float(2**len(row[0])) for row in network.table])
 
 
 class LocalBias(NetworkRandomizer):
