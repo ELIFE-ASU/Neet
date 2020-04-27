@@ -1,5 +1,6 @@
 from .mock import MockObject, MockNetwork, MockUniformNetwork
 from neet import Network, UniformNetwork
+from neet.boolean.random import randomizer, topology
 from neet.boolean import logicnetwork, network
 from neet.boolean.random import dynamics
 from neet.boolean.examples import s_pombe
@@ -136,13 +137,33 @@ class TestNetwork(unittest.TestCase):
         if(printq):
             print("test passed!")
 
+    def test_correct_local(self, net=None, printq=True, debug=False):
+
+        if (net == None):
+            for network in self.netList:
+                self.test_correct_local(network, printq=False)
+            print("test passed!")
+            return
+
+        FixedTopo = topology.FixedTopology(net)
+        FixedTopo.add_constraint(topology.InDegree)
+        r = dynamics.LocalBias(net, trand=FixedTopo)
+        if(printq):
+            print("test passed!")
+
+    
     def test_correct_errors_thrown(self):
         with self.assertRaises(NotImplementedError):
             r = dynamics.MeanBias(s_pombe)
         with self.assertRaises(NotImplementedError):
             r = dynamics.LocalBias(s_pombe)
         with self.assertRaises(NotImplementedError):
-            
-            r = dynamics.MeanBias(s_pombe)
+            FixedTopo = topology.FixedTopology(s_pombe)
+            #FixedTopo.add_constraint(topology.InDegree)
+            r = dynamics.MeanBias(s_pombe, trand=FixedTopo)
+        with self.assertRaises(NotImplementedError):
+            FixedTopo = topology.InDegree(s_pombe)
+            #FixedTopo.add_constraint(topology.FixedTopology)
+            r = dynamics.MeanBias(s_pombe, trand=FixedTopo)
         print("test passed!")
         
