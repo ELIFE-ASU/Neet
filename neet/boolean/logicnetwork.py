@@ -10,12 +10,11 @@ Logic-based Networks
 """
 import re
 from neet.python import long
-from neet.statespace import StateSpace
 from neet.exceptions import FormatError
-import networkx as nx
+from .network import BooleanNetwork
 
 
-class LogicNetwork(object):
+class LogicNetwork(BooleanNetwork):
     """
     The LogicNetwork class represents boolean networks whose update rules
     follow logic relations among nodes. Each node state is expressed as ``0``
@@ -75,15 +74,7 @@ class LogicNetwork(object):
         if not isinstance(table, (list, tuple)):
             raise TypeError("table must be a list or tuple")
 
-        self.__size = len(table)
-
-        if names:
-            if not isinstance(names, (list, tuple)):
-                raise TypeError("names must be a list or tuple")
-            elif len(names) != self.__size:
-                raise ValueError("number of names must match network size")
-            else:
-                self.names = list(names)
+        super(LogicNetwork, self).__init__(size=len(table), names=names)
 
         # Store positive truth table for human reader.
         self.table = []
@@ -92,7 +83,7 @@ class LogicNetwork(object):
             if not (isinstance(row, (list, tuple)) and len(row) == 2):
                 raise ValueError("Invalid table format")
             for idx in row[0]:
-                if idx >= self.__size:
+                if idx >= self.size:
                     raise IndexError("mask index out of range")
             # Validate truth table of the sub net.
             if not isinstance(row[1], (list, tuple, set)):
@@ -105,28 +96,8 @@ class LogicNetwork(object):
         if reduced:
             self.reduce_table()
 
-        self._state_space = StateSpace(self.__size, base=2)
-
         # Encode truth table for faster computation.
         self._encode_table()
-
-        self.metadata = {}
-
-    @property
-    def size(self):
-        """
-        The number of nodes in the network.
-
-        .. doctest:: logicnetwork
-
-            >>> net = LogicNetwork([((1, 2), {'01', '10'}),
-            ... ((0, 2), {'01', '10', '11'}), ((0, 1), {'11'})])
-            >>> net.size
-            3
-
-        :type: int
-        """
-        return self.__size
 
     def _encode_table(self):
         self._encoded_table = []
@@ -237,24 +208,6 @@ class LogicNetwork(object):
 
         self._encode_table()
 
-    def state_space(self):
-        """
-        Return a :class:`neet.statespace.StateSpace` object for the network.
-
-        .. doctest:: logicnetwork
-
-            >>> net = LogicNetwork([((1, 2), {'01', '10'}),
-            ... ((0, 2), {'01', '10', '11'}), ((0, 1), {'11'})])
-            >>> net.state_space()
-            <neet.statespace.StateSpace object at 0x...>
-            >>> space = net.state_space()
-            >>> list(space)
-            [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]]
-
-        :returns: the network's :class:`neet.statespace.StateSpace`
-        """
-        return self._state_space
-
     def _unsafe_update(self, net_state, index=None, pin=None, values=None):
         """
         Unsafely update node states according to the truth table.
@@ -318,7 +271,7 @@ class LogicNetwork(object):
         encoded_state = self.state_space()._unsafe_encode(net_state)
 
         if index is None:
-            indices = range(self.__size)
+            indices = range(self.size)
         else:
             indices = [index]
 
@@ -337,79 +290,6 @@ class LogicNetwork(object):
                 net_state[k] = v
 
         return net_state
-
-    def update(self, net_state, index=None, pin=None, values=None):
-        """
-        Update node states according to the truth table.
-
-        If ``index`` is provided, only update the node at ``index``. If
-        ``index`` is not provided, update all ndoes. ``pin`` provides the
-        indices of which the nodes' states are forced to remain unchanged.
-
-        .. rubric:: Examples
-
-        .. doctest:: logicnetwork
-
-            >>> net = LogicNetwork([((0,), {'0'})])
-            >>> net.update([0], 0)
-            [1]
-            >>> net.update([1])
-            [0]
-            >>>
-
-        .. doctest:: logicnetwork
-
-            >>> net = LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})])
-            >>> net.update([1, 0], 0)
-            [1, 0]
-            >>> net.update([1, 0], 1)
-            [1, 1]
-            >>> net.update([0, 0])
-            [1, 0]
-
-        .. doctest:: logicnetwork
-
-            >>> net = LogicNetwork([((1, 2), {'01', '10'}),
-            ... ((0, 2), {(0, 1), '10', (1, 1)}),
-            ... ((0, 1), {'11'})])
-            >>> net.size
-            3
-            >>> net.update([0, 0, 1], 1)
-            [0, 1, 1]
-            >>> net.update([0, 1, 0])
-            [1, 0, 0]
-            >>> net.update([0, 0, 1])
-            [1, 1, 0]
-            >>> net.update([0, 0, 1], pin=[1])
-            [1, 0, 0]
-            >>> net.update([0, 0, 1], pin=[0, 1])
-            [0, 0, 0]
-            >>> net.update([0, 0, 1], values={0: 0})
-            [0, 1, 0]
-            >>> net.update([0, 0, 1], pin=[1], values={0: 0})
-            [0, 0, 0]
-
-        :param net_state: a sequence of binary node states
-        :type net_state: sequence
-        :param index: the index to update (or None)
-        :type index: int or None
-        :param pin: the indices to pin (or None)
-        :type pin: sequence
-        :param values: override values
-        :type values: dict
-        :returns: the updated states
-        """
-        if net_state not in self.state_space():
-            raise ValueError(
-                "the provided state is not in the network's state space")
-
-        if values and any([v not in (0, 1) for v in values.values()]):
-            raise ValueError("invalid state in values argument")
-
-        if pin and values and any([k in pin for k in values]):
-            raise ValueError("cannot set a value for a pinned state")
-
-        return self._unsafe_update(net_state, index, pin, values)
 
     @classmethod
     def read_table(cls, table_path, reduced=False):
@@ -614,7 +494,7 @@ class LogicNetwork(object):
 
         return cls(table, names, reduced)
 
-    def neighbors_in(self, index):
+    def neighbors_in(self, index, *args, **kwargs):
         """
         Return the set of all neighbor nodes, where edge(neighbor_node-->index)
         exists.
@@ -635,7 +515,7 @@ class LogicNetwork(object):
         """
         return set(self.table[index][0])
 
-    def neighbors_out(self, index):
+    def neighbors_out(self, index, *args, **kwargs):
         """
         Return the set of all neighbor nodes, where edge(index-->neighbor_node)
         exists.
@@ -662,71 +542,5 @@ class LogicNetwork(object):
 
         return outgoing_neighbors
 
-    def neighbors(self, index):
-        """
-        Return a set of neighbors for a specified node, or a list of sets of
-        neighbors for all nodes in the network.
 
-        .. rubric:: Examples
-
-        .. doctest:: logicnetwork
-
-            >>> net = LogicNetwork([((1, 2), {'11', '10'}),
-            ... ((0,), {'1'}),
-            ... ((0, 1, 2), {'010', '011', '101'}),
-            ... ((3,), {'1'})])
-            >>> [net.neighbors(node) for node in range(net.size)]
-            [{1, 2}, {0, 2}, {0, 1, 2}, {3}]
-
-        :param index: node index
-        :returns: a set of neighbors of a node
-        """
-        return self.neighbors_in(index) | self.neighbors_out(index)
-
-    def to_networkx_graph(self, labels='indices'):
-        """
-        Return networkx graph given neet network.
-
-        :param labels: how node is labeled and thus identified in networkx
-                       graph (``'names'`` or ``'indices'``)
-        :returns: a ``networkx.DiGraph``
-        """
-        if labels == 'names':
-            if hasattr(self, 'names') and (self.names is not None):
-                labels = self.names
-            else:
-                raise ValueError("network nodes do not have names")
-
-        elif labels == 'indices':
-            labels = range(self.__size)
-
-        else:
-            raise ValueError("labels must be 'names' or 'indices'")
-
-        edges = []
-        for i, label in enumerate(labels):
-            for j in self.neighbors_out(i):
-                edges.append((labels[i], labels[j]))
-
-        return nx.DiGraph(edges, name=self.metadata.get('name'))
-
-    def draw(self, labels='indices', filename=None):
-        """
-        Output a file with a simple network drawing.
-
-        Requires ``networkx`` and ``pygraphviz``.
-
-        Supported image formats are determined by ``graphviz``. In particular,
-        pdf support requires ``'cairo'`` and ``'pango'`` to be installed prior
-        to graphviz installation.
-
-        :param labels: how node is labeled and thus identified in networkx
-                       graph (``'names'`` or ``'indices'``), only used if
-                       network is a :class:`LogicNetwork` or
-                       :class:`neet.boolean.WTNetwork`
-        :param filename: filename to write drawing to. Temporary filename will
-                         be used if no filename provided.
-        :returns: a ``pygraphviz`` network drawing
-        """
-        nx.nx_agraph.view_pygraphviz(self.to_networkx_graph(
-            labels=labels), prog='circo', path=filename)
+BooleanNetwork.register(LogicNetwork)

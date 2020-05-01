@@ -1,14 +1,12 @@
 import unittest
-import networkx as nx
 import numpy as np
 from neet.boolean.examples import mouse_cortical_7B
-from neet.boolean.examples import s_pombe
 from neet.boolean.randomnet import (random_logic, random_binary_states,RBN,)
 
 TESTSEED = 314159
 
-class TestRandomnet(unittest.TestCase):
 
+class TestRandomnet(unittest.TestCase):
     def test_random_logic_invalid_p(self):
         """
         ``random_logic`` should raise a value error if ``p`` is an

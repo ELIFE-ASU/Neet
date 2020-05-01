@@ -96,7 +96,7 @@ class TestLogicExamples(unittest.TestCase):
 
     def test_mouse_cortical_7B_logic_expressions(self):
         self.assertEqual(['gF', 'gE', 'gP', 'gC', 'gS', 'pF', 'pE',
-                         'pP', 'pC', 'pS'],
+                          'pP', 'pC', 'pS'],
                          ex.mouse_cortical_7B_from_expr.names)
         self.assertEqual(ex.mouse_cortical_7B_from_expr.table,
                          ex.mouse_cortical_7B.table)
@@ -167,12 +167,12 @@ class TestLogicExamples(unittest.TestCase):
                          ex.mouse_cortical_7C.table)
         # Assert attractors.
         attractors = (
-             # Anterior desired attractor (reachable from desired anterior
-             # initial state)
-             [1, 0, 1, 0, 1, 1, 0, 1, 0, 1],
-             # Posterior desired attractor (unreachable from desired
-             # posterior initial state)
-             [0, 1, 0, 1, 0, 0, 1, 0, 1, 0]
+            # Anterior desired attractor (reachable from desired anterior
+            # initial state)
+            [1, 0, 1, 0, 1, 1, 0, 1, 0, 1],
+            # Posterior desired attractor (unreachable from desired
+            # posterior initial state)
+            [0, 1, 0, 1, 0, 0, 1, 0, 1, 0]
         )
 
         for state in attractors:

@@ -19,8 +19,8 @@ target regardless of other sources.
 API Documentation
 -----------------
 """
-from .interfaces import is_boolean_network
-from .synchronous import transitions
+from .boolean.network import BooleanNetwork
+from .synchronous import Landscape
 
 import copy
 import numpy as np
@@ -56,7 +56,7 @@ def sensitivity(net, state, transitions=None):
     :param transitions: a list of precomputed state transitions (*optional*)
     :type transitions: list or None
     """
-    if not is_boolean_network(net):
+    if not isinstance(net, BooleanNetwork):
         raise(TypeError("net must be a boolean network"))
 
     # list Hamming neighbors
@@ -64,11 +64,13 @@ def sensitivity(net, state, transitions=None):
 
     nextState = net.update(state)
 
+    encoder = net.state_space()._unsafe_encode
+
     # count sum of differences found in neighbors of the original
     s = 0.
     for neighbor in neighbors:
         if transitions is not None:
-            newState = transitions[_fast_encode(neighbor)]
+            newState = transitions[encoder(neighbor)]
         else:
             newState = net._unsafe_update(neighbor)
         s += _boolean_distance(newState, nextState)
@@ -119,30 +121,17 @@ def difference_matrix(net, state, transitions=None):
 
     nextState = net.update(state)
 
+    encoder = net.state_space()._unsafe_encode
+
     # count differences found in neighbors of the original
     for j, neighbor in enumerate(neighbors):
         if transitions is not None:
-            newState = transitions[_fast_encode(neighbor)]
+            newState = transitions[encoder(neighbor)]
         else:
             newState = net._unsafe_update(neighbor)
         Q[:, j] = [(nextState[i] + newState[i]) % 2 for i in range(N)]
 
     return Q
-
-
-def _states_limited(nodes, state):
-    """
-    All possible states that vary only nodes with given indices.
-    """
-    if len(nodes) == 0:
-        return [state]
-    for i in nodes:
-        stateFlipped = copy.copy(state)
-        stateFlipped[nodes[0]] = (stateFlipped[nodes[0]] + 1) % 2
-
-        left_rec = _states_limited(nodes[1:], state)
-        right_rec = _states_limited(nodes[1:], stateFlipped)
-        return left_rec + right_rec
 
 
 def average_difference_matrix(net, states=None, weights=None, calc_trans=True):
@@ -200,7 +189,8 @@ def average_difference_matrix(net, states=None, weights=None, calc_trans=True):
 
         # optionally pre-calculate transitions
         if calc_trans:
-            trans = list(transitions(net))
+            decoder = net.state_space().decode
+            trans = list(map(decoder, Landscape(net).transitions))
         else:
             trans = None
 
@@ -227,6 +217,8 @@ def average_difference_matrix(net, states=None, weights=None, calc_trans=True):
     else:  # make use of sparse connectivity to be more efficient
         state0 = np.zeros(N, dtype=int)
 
+        space = net.state_space()
+
         for i in range(N):
             nodesInfluencingI = list(net.neighbors_in(i))
             for jindex, j in enumerate(nodesInfluencingI):
@@ -234,7 +226,7 @@ def average_difference_matrix(net, states=None, weights=None, calc_trans=True):
                 # for each state of other nodes, does j matter?
                 otherNodes = list(copy.copy(nodesInfluencingI))
                 otherNodes.pop(jindex)
-                otherNodeStates = _states_limited(otherNodes, state0)
+                otherNodeStates = list(space.subspace(otherNodes, state0))
                 for state in otherNodeStates:
                     # might be able to do faster by calculating transitions
                     # once for each i also we only need the update for node i
@@ -301,11 +293,12 @@ def is_canalizing(net, node_i, neighbor_j):
     else:
         jindex = nodesInfluencingI.index(neighbor_j)
 
+        space = net.state_space()
+
         # for every state of other nodes, does j determine i?
         otherNodes = list(copy.copy(nodesInfluencingI))
         otherNodes.pop(jindex)
-        otherNodeStates = _states_limited(
-            otherNodes, np.zeros(net.size, dtype=int))
+        otherNodeStates = list(space.subspace(otherNodes, np.zeros(net.size, dtype=int)))
 
         jOnForced, jOffForced = True, True
         jOnForcedValue, jOffForcedValue = None, None
@@ -414,22 +407,10 @@ def lambdaQ(net, **kwargs):
         1.263099227661824
 
     :param net: a :mod:`neet` boolean network
-    :return: the sensitivity eigenvalue (:math:`\lambda_Q`) of ``net``
+    :return: the sensitivity eigenvalue (:math:`\\lambda_Q`) of ``net``
     """
     Q = average_difference_matrix(net, **kwargs)
     return max(abs(linalg.eigvals(Q)))
-
-
-def _fast_encode(state):
-    """
-    Quickly find encoding of a binary state.
-
-    Same result as ``net.state_space().encode(state)``.
-    """
-    out = 0
-    for bit in state[::-1]:
-        out = (out << 1) | bit
-    return out
 
 
 def _boolean_distance(state1, state2):
@@ -507,7 +488,7 @@ def average_sensitivity(net, states=None, weights=None, calc_trans=True):
     :return: the average sensitivity of ``net``
     """
 
-    if not is_boolean_network(net):
+    if not isinstance(net, BooleanNetwork):
         raise(TypeError("net must be a boolean network"))
 
     Q = average_difference_matrix(net, states=states, weights=weights,

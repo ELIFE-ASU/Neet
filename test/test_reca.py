@@ -1,6 +1,8 @@
 import unittest
 import numpy as np
-from neet.automata.reca import RewiredECA
+from neet.boolean import ECA, RewiredECA
+from neet.network import Network
+from neet.boolean.network import BooleanNetwork
 
 
 class TestRewiredECA(unittest.TestCase):
@@ -12,21 +14,12 @@ class TestRewiredECA(unittest.TestCase):
         """
         Ensure that RewiredECA meets the requirement of a network
         """
-        from neet.interfaces import is_network
-        self.assertTrue(is_network(RewiredECA))
-        self.assertTrue(is_network(RewiredECA(23, size=3)))
-        self.assertTrue(is_network(RewiredECA(
-            30, wiring=[[-1, 0, 1], [0, 1, 2], [1, 2, 3]])))
-
-    def test_is_fixed_sized(self):
-        """
-        Ensure that RewiredECA is of fixed size
-        """
-        from neet.interfaces import is_fixed_sized
-        self.assertTrue(is_fixed_sized(RewiredECA))
-        self.assertTrue(is_fixed_sized(RewiredECA(23, size=3)))
-        self.assertTrue(is_fixed_sized(RewiredECA(
-            30, wiring=[[-1, 0, 1], [0, 1, 2], [1, 2, 3]])))
+        self.assertTrue(isinstance(RewiredECA(23, size=3), Network))
+        self.assertTrue(isinstance(RewiredECA(23, size=3), BooleanNetwork))
+        self.assertTrue(isinstance(RewiredECA(
+            30, wiring=[[-1, 0, 1], [0, 1, 2], [1, 2, 3]]), Network))
+        self.assertTrue(isinstance(RewiredECA(
+            30, wiring=[[-1, 0, 1], [0, 1, 2], [1, 2, 3]]), BooleanNetwork))
 
     def test_invalid_code(self):
         """
@@ -174,9 +167,8 @@ class TestRewiredECA(unittest.TestCase):
         """
         Ensure that RewiredECAs can reproduce closed ECAs
         """
-        from neet.automata import ECA
         reca = RewiredECA(30, size=7)
-        eca = ECA(30)
+        eca = ECA(30, size=7)
         state = [0, 0, 0, 1, 0, 0, 0]
         for _ in range(10):
             expect = eca.update(np.copy(state))
@@ -187,9 +179,8 @@ class TestRewiredECA(unittest.TestCase):
         """
         Ensure that RewiredECAs can reproduce open ECAs
         """
-        from neet.automata import ECA
         reca = RewiredECA(30, boundary=(1, 0), size=7)
-        eca = ECA(30, boundary=(1, 0))
+        eca = ECA(30, size=7, boundary=(1, 0))
         state = [0, 0, 0, 1, 0, 0, 0]
         for _ in range(10):
             expect = eca.update(np.copy(state))
@@ -230,7 +221,7 @@ class TestRewiredECA(unittest.TestCase):
             reca.update([0, 0, 0, 0, 1], index=6)
 
         with self.assertRaises(IndexError):
-            reca.update([0, 0, 0, 0, 1], index=-6)
+            reca.update([0, 0, 0, 0, 1], index=-1)
 
     def test_reca_index(self):
         """
@@ -240,13 +231,10 @@ class TestRewiredECA(unittest.TestCase):
             [0, 4, 1, 2, 3], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
         ])
 
-        state = [0, 0, 0, 0, 1]
-        self.assertEqual([0, 0, 0, 1, 1], reca.update(state, index=3))
-        self.assertEqual([0, 0, 1, 1, 1], reca.update(state, index=2))
-        self.assertEqual([0, 0, 1, 1, 0], reca.update(state, index=-1))
-        self.assertEqual([0, 1, 1, 1, 0], reca.update(state, index=1))
-        self.assertEqual([0, 1, 0, 1, 0], reca.update(state, index=-3))
-        self.assertEqual([0, 1, 0, 1, 0], reca.update(state, index=0))
+        self.assertEqual([0, 0, 0, 1, 1], reca.update([0, 0, 0, 0, 1], index=3))
+        self.assertEqual([0, 0, 1, 1, 1], reca.update([0, 0, 0, 1, 1], index=2))
+        self.assertEqual([0, 1, 1, 1, 0], reca.update([0, 0, 1, 1, 0], index=1))
+        self.assertEqual([0, 1, 0, 1, 0], reca.update([0, 1, 0, 1, 0], index=0))
 
     def test_reca_pin_none(self):
         """
@@ -351,7 +339,7 @@ class TestRewiredECA(unittest.TestCase):
         Test the values argument
         """
         reca = RewiredECA(30, wiring=[
-            [-1,  4,  1,  2, -1], [0,  1,  2,  3,  4], [0,  2,  3,  4,  5]
+            [-1, 4, 1, 2, -1], [0, 1, 2, 3, 4], [0, 2, 3, 4, 5]
         ])
 
         xs = [0, 0, 1, 0, 0]

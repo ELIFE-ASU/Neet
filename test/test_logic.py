@@ -4,16 +4,14 @@ import numpy as np
 from neet.python import long
 from neet.boolean import LogicNetwork
 from neet.exceptions import FormatError
+from neet.network import Network
+from neet.boolean.network import BooleanNetwork
 
 
 class TestLogicNetwork(unittest.TestCase):
     def test_is_network(self):
-        from neet.interfaces import is_network
-        self.assertTrue(is_network(LogicNetwork([([0], {'0'})])))
-
-    def test_is_fixed_sized(self):
-        from neet.interfaces import is_fixed_sized
-        self.assertTrue(is_fixed_sized(LogicNetwork([([0], {'0'})])))
+        self.assertTrue(isinstance(LogicNetwork([([0], {'0'})]), Network))
+        self.assertTrue(isinstance(LogicNetwork([([0], {'0'})]), BooleanNetwork))
 
     def test_init(self):
         net = LogicNetwork([((0,), {'0'})])
@@ -31,7 +29,7 @@ class TestLogicNetwork(unittest.TestCase):
             LogicNetwork("not a list or tuple")
 
         with self.assertRaises(TypeError):
-            LogicNetwork([((0,), {'0'})], names="A")
+            LogicNetwork([((0,), {'0'})], names=5)
 
         with self.assertRaises(ValueError):
             LogicNetwork([((1,), {'0', '1'}), ((0,), {'1'})], names=['A'])

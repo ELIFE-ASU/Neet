@@ -1,18 +1,14 @@
 import unittest
 import neet.boolean as bnet
 import numpy as np
+from neet.network import Network
+from neet.boolean.network import BooleanNetwork
 
 
 class TestWTNetwork(unittest.TestCase):
     def test_is_network(self):
-        from neet.interfaces import is_network
-        self.assertTrue(is_network(bnet.WTNetwork))
-        self.assertTrue(is_network(bnet.WTNetwork([[1]])))
-
-    def test_is_fixed_sized(self):
-        from neet.interfaces import is_fixed_sized
-        self.assertTrue(is_fixed_sized(bnet.WTNetwork))
-        self.assertTrue(is_fixed_sized(bnet.WTNetwork([[1]])))
+        self.assertTrue(isinstance(bnet.WTNetwork([[1]]), Network))
+        self.assertTrue(isinstance(bnet.WTNetwork([[1]]), BooleanNetwork))
 
     def test_init_failed(self):
         with self.assertRaises(ValueError):

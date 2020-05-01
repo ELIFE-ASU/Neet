@@ -130,3 +130,12 @@ class TestSensitivityWTNetwork(unittest.TestCase):
 
         nodes = canalizing_nodes(net)
         self.assertEqual(nodes, {1, 2})
+
+    def test_average_sensitivity_hgf(self):
+        from neet.boolean.examples import hgf_signaling_in_keratinocytes
+        self.assertAlmostEqual(average_sensitivity(hgf_signaling_in_keratinocytes),
+                               0.981618, places=6)
+
+    def test_average_sensitivity_il_6(self):
+        from neet.boolean.examples import il_6_signaling
+        self.assertAlmostEqual(average_sensitivity(il_6_signaling), 0.914971, places=6)
