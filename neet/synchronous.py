@@ -24,6 +24,7 @@ API Documentation
 import networkx as nx
 import numpy as np
 import pyinform as pi
+import copy
 from .statespace import StateSpace
 from .network import Network
 
@@ -36,7 +37,7 @@ class Landscape(StateSpace):
     the state transition graph.
     """
 
-    def __init__(self, net, size=None, index=None, pin=None, values=None,
+    def __init__(self, net, index=None, pin=None, values=None,
                  dynamic_pin=None):
         """
         Construct the landscape for a network.
@@ -324,13 +325,10 @@ class Landscape(StateSpace):
             
             # we will construct a special limited state space that does not
             # iterate over fixed nodes
-            if self.is_uniform:
-                bases = [ self.base for i in range(self.ndim) ]
-            else:
-                bases = self.base
+            limited_shape = self.shape[:]
             for fixed_node_index in self.__pin:
-                bases[fixed_node_index] = 1
-            self.limited_state_space = StateSpace(bases)
+                limited_shape[fixed_node_index] = 1
+            self.limited_state_space = StateSpace(limited_shape)
             
             # we will keep track of both the "transitions" (starting points
             # to endpoints after ell timesteps, where ell is the length of
