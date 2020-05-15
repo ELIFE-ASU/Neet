@@ -24,6 +24,37 @@ import random
 import numpy as np
 from neet.sensitivity import canalizing_nodes
 from .logicnetwork import LogicNetwork
+from .wtnetwork import WTNetwork
+import networkx as nx
+
+def RBN_Kim(network_size,avg_deg,prob_inh,type=1,seed=None):
+    """
+    Create a random network designed to mimic those in Kim et al. 2013.
+    
+    network_size        : Number of nodes
+    avg_deg             : Average degree of nodes (used to set
+                          p = avg_deg / network_size)
+    prob_inh            : Probability that a given edge is inhibitory
+    """
+    if type != 1:
+        raise NotImplementedError
+    
+    p = avg_deg / network_size
+    g = nx.gnp_random_graph(network_size,p,seed=seed,directed=True)
+    adj = nx.to_numpy_array(g)
+    
+    # change to inhibitory with probability prob_inh
+    # (probably a terribly inefficient way of doing this)
+    if seed is not None:
+        np.random.seed(seed+1)
+    for i in range(network_size):
+        for j in range(network_size):
+            if adj[i,j] == 1:
+                if np.random.random() < prob_inh:
+                    adj[i,j] = -1
+    
+    return WTNetwork(adj)
+    
 
 def RBN(network_size, k, p, self_loops=False):
     """
