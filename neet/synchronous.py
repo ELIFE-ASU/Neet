@@ -335,10 +335,10 @@ class Landscape(StateSpace):
             # the dynamic pin) and "dynamic_paths" (all steps along the way).
             # note that transitions are encoded using the limited state space,
             # while dynamic paths are encoded using the full state space.
-            transitions = np.empty(self.limited_state_space.volume, dtype=np.int)
+            transitions = np.empty(self.limited_state_space.volume, dtype=np.object)
             dynamic_paths = np.empty((self.limited_state_space.volume,
                                       len(self.__dynamic_pin)),
-                                     dtype=np.int)
+                                     dtype=np.object)
             for i,state in enumerate(self.limited_state_space):
                 current_state = copy.copy(state)
                 ell = len(self.__dynamic_pin)
