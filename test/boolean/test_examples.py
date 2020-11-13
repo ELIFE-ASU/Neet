@@ -1,9 +1,54 @@
-"""Unit test for LogicNetwork examples"""
 import unittest
 import neet.boolean.examples as ex
 
 
-class TestLogicExamples(unittest.TestCase):
+def all_example_networks():
+    return [
+        ex.s_pombe,
+        ex.s_cerevisiae,
+        ex.c_elegans,
+        ex.p53_no_dmg,
+        ex.p53_dmg,
+        ex.mouse_cortical_7B,
+        ex.mouse_cortical_7C,
+        ex.myeloid,
+        ex.il_6_signaling,
+        ex.hgf_signaling_in_keratinocytes,
+    ]
+
+
+class TestBooleanExamples(unittest.TestCase):
+
+    def test_examples_loaded(self):
+        """
+        Test that all example networks successfully load.
+        """
+        all_example_networks()
+
+    def test_s_pombe(self):
+        self.assertEqual(9, ex.s_pombe.size)
+        self.assertEqual(["SK", "Cdc2_Cdc13", "Ste9", "Rum1", "Slp1",
+                          "Cdc2_Cdc13_active", "Wee1_Mik1", "Cdc25",
+                          "PP"], ex.s_pombe.names)
+
+    def test_s_cerevisiae(self):
+        self.assertEqual(11, ex.s_cerevisiae.size)
+        self.assertEqual(["Cln3", "MBF", "SBF", "Cln1_2", "Cdh1", "Swi5",
+                          "Cdc20_Cdc14", "Clb5_6", "Sic1", "Clb1_2",
+                          "Mcm1_SFF"], ex.s_cerevisiae.names)
+
+    def test_examples_metadata(self):
+        """
+        Test that all examples have name, description, and citation metadata.
+        """
+        for net in all_example_networks():
+            self.assertTrue('name' in net.metadata)
+            self.assertNotEqual(net.metadata['name'], '')
+            self.assertTrue('description' in net.metadata)
+            self.assertNotEqual(net.metadata['description'], '')
+            self.assertTrue('citation' in net.metadata)
+            self.assertNotEqual(net.metadata['citation'], '')
+
     def test_myeloid(self):
         self.assertEqual(11, ex.myeloid.size)
         self.assertEqual(['GATA-2', 'GATA-1', 'FOG-1', 'EKLF', 'Fli-1',
@@ -31,7 +76,7 @@ class TestLogicExamples(unittest.TestCase):
             self.assertEqual(ex.myeloid.update(state[:]), state)
 
         # Assert non-attractors.
-        for state in ex.myeloid.state_space():
+        for state in ex.myeloid:
             if state not in attractors:
                 self.assertNotEqual(ex.myeloid.update(state[:]), state)
 
@@ -51,7 +96,7 @@ class TestLogicExamples(unittest.TestCase):
             self.assertEqual(ex.myeloid_from_expr.update(state[:]), state)
 
         # Assert non-attractors.
-        for state in ex.myeloid.state_space():
+        for state in ex.myeloid:
             if state not in attractors:
                 self.assertNotEqual(
                     ex.myeloid_from_expr.update(state[:]), state)
@@ -89,7 +134,7 @@ class TestLogicExamples(unittest.TestCase):
             self.assertEqual(ex.mouse_cortical_7B.update(state[:]), state)
 
         # Assert non-attractors.
-        for state in ex.mouse_cortical_7B.state_space():
+        for state in ex.mouse_cortical_7B:
             if state not in attractors:
                 self.assertNotEqual(
                     ex.mouse_cortical_7B.update(state[:]), state)
@@ -116,7 +161,7 @@ class TestLogicExamples(unittest.TestCase):
                 ex.mouse_cortical_7B_from_expr.update(state[:]), state)
 
         # Assert non-attractors.
-        for state in ex.mouse_cortical_7B.state_space():
+        for state in ex.mouse_cortical_7B:
             if state not in attractors:
                 self.assertNotEqual(
                     ex.mouse_cortical_7B_from_expr.update(state[:]), state)
@@ -154,7 +199,7 @@ class TestLogicExamples(unittest.TestCase):
             self.assertEqual(ex.mouse_cortical_7C.update(state[:]), state)
 
         # Assert non-attractors.
-        for state in ex.mouse_cortical_7C.state_space():
+        for state in ex.mouse_cortical_7C:
             if state not in attractors:
                 self.assertNotEqual(
                     ex.mouse_cortical_7C.update(state[:]), state)
@@ -180,7 +225,7 @@ class TestLogicExamples(unittest.TestCase):
                 ex.mouse_cortical_7C_from_expr.update(state[:]), state)
 
         # Assert non-attractors.
-        for state in ex.mouse_cortical_7C.state_space():
+        for state in ex.mouse_cortical_7C:
             if state not in attractors:
                 self.assertNotEqual(
                     ex.mouse_cortical_7C_from_expr.update(state[:]), state)

@@ -1,8 +1,7 @@
-import unittest
-from neet.boolean import ECA
+from neet import Network
+from neet.boolean import BooleanNetwork, ECA
 import numpy as np
-from neet.network import Network
-from neet.boolean.network import BooleanNetwork
+import unittest
 
 
 class TestECA(unittest.TestCase):
@@ -98,9 +97,9 @@ class TestECA(unittest.TestCase):
             eca.boundary = [0, 1]
 
     def test_state_space(self):
-        self.assertEqual(2, len(list(ECA(30, 1).state_space())))
-        self.assertEqual(4, len(list(ECA(30, 2).state_space())))
-        self.assertEqual(8, len(list(ECA(30, 3).state_space())))
+        self.assertEqual(2, len(list(ECA(30, 1))))
+        self.assertEqual(4, len(list(ECA(30, 2))))
+        self.assertEqual(8, len(list(ECA(30, 3))))
 
     def test_invalid_lattice_state_update(self):
         eca = ECA(30, 3)
@@ -172,8 +171,7 @@ class TestECA(unittest.TestCase):
         eca = ECA(45, 14)
         lattice = [1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1]
         expected = [0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
-        state_space = eca.state_space()
-        if lattice in state_space:
+        if lattice in eca:
             for n in range(1000):
                 eca._unsafe_update(lattice)
         self.assertEqual(expected, lattice)
@@ -182,8 +180,7 @@ class TestECA(unittest.TestCase):
         eca = ECA(45, 14, (0, 1))
         lattice = [1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1]
         expected = [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1]
-        state_space = eca.state_space()
-        if lattice in state_space:
+        if lattice in eca:
             for n in range(1000):
                 eca._unsafe_update(lattice)
         self.assertEqual(expected, lattice)
@@ -233,6 +230,12 @@ class TestECA(unittest.TestCase):
         lattice = [0, 0, 1, 0, 0]
         eca.update(lattice, index=1)
         self.assertEqual([0, 1, 1, 0, 0], lattice)
+
+    def test_unsafe_update_index(self):
+        eca = ECA(30, 5)
+        lattice = [0, 0, 0, 1, 0]
+        eca._unsafe_update(lattice, index=-1)
+        self.assertEqual([0, 0, 0, 1, 1], lattice)
 
     def test_update_index_numpy(self):
         eca = ECA(30, 5, (1, 1))
@@ -327,6 +330,8 @@ class TestECA(unittest.TestCase):
     def test_neighbors_in(self):
         net = ECA(30, 3)
 
+        self.assertEqual(net.neighbors_in(0), set([2, 0, 1]))
+        self.assertEqual(net.neighbors_in(1), set([0, 1, 2]))
         self.assertEqual(net.neighbors_in(2), set([0, 1, 2]))
 
         with self.assertRaises(ValueError):
@@ -378,7 +383,7 @@ class TestECA(unittest.TestCase):
         net = ECA(30, 3)
         net.boundary = (1, 0)
 
-        nx_net = net.to_networkx_graph()
+        nx_net = net.network_graph()
 
         self.assertEqual(nx_net.graph['code'], 30)
         self.assertEqual(nx_net.graph['boundary'], (1, 0))

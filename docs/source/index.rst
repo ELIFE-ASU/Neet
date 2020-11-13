@@ -1,14 +1,10 @@
 Neet: Simulating and analyzing network models
 =============================================
 
-**Neet** is a python package designed to provide an easy-to-use API for creating
-and evaluating network models. In its current state, **Neet** supports
-simulating synchronous Boolean network models, though the API is designed to be
-model generic. Future work will implement asynchronous update mechanisms and
-more general network types.
-
-If you are interested in using **Neet**, you'll definitely be interested in
-checking out the documentation - https://elife-asu.github.io/Neet.
+Neet is a python package designed to provide an easy-to-use API for creating and evaluating network
+models. In its current state, Neet supports simulating synchronous Boolean network models, though
+the API is designed to be model generic. Future work will implement asynchronous update mechanisms
+and more general network types.
 
 .. image:: https://travis-ci.org/ELIFE-ASU/Neet.svg?branch=master
     :alt: Build Status (Travis CI)
@@ -25,14 +21,13 @@ checking out the documentation - https://elife-asu.github.io/Neet.
 Getting Help
 ------------
 
-**Neet** is developed to help people interested in using and analyzing network
-models to get things done quickly and painlessly. Your feedback is
-indispensable. Please create an issue if you find a bug, an error in the
-documentation, or have a feature you'd like to request. Your contribution will
-make **Neet** a better tool for everyone.
+Neet is developed to help people interested in using and analyzing network models to get things done
+quickly and painlessly. Your feedback is indispensable. Please create an issue if you find a bug, an
+error in the documentation, or have a feature you'd like to request. Your contribution will make
+Neet a better tool for everyone.
 
-If you are interested in contributing to **Neet**, please contact the
-developers. We'll get you up and running!
+If you are interested in contributing to Neet, please contact the developers. We'll get you up and
+running!
 
 **Neet Source Repository**
     https://github.com/elife-asu/neet
@@ -51,7 +46,7 @@ Biological Regulatory Networks" *Phys. Rev.  Lett.* **121** (13), 138102,
 Copyright and Licensing
 -----------------------
 
-Copyright © 2017-2019 Bryan C. Daniels, Bradley Karas, Hyunju Kim, Douglas G.
+Copyright © 2017-2020 Bryan C. Daniels, Bradley Karas, Hyunju Kim, Douglas G.
 Moore, Harrison Smith, Sara I. Walker, and Siyu Zhou. Free use of this software
 is granted under the terms of the MIT License.
 
@@ -63,16 +58,15 @@ Contents
 
 .. toctree::
 
-    getting-started
-    statespace
-    interfaces
-    automata
-    boolean
-    synchronous
-    sensitivity
-    information
-    exceptions
-    zrefs
+   intro
+   networks
+   statespaces
+   landscapes
+   information
+   sensitivity
+   random
+   api
+   zrefs
 
 Indices and tables
 ==================
