@@ -36,7 +36,7 @@ setup(
     url='https://github.com/elife-asu/neet',
     license=LICENSE,
     install_requires=['six', 'numpy', 'networkx', 'pyinform', 'deprecated'],
-    extra_requires={
+    extras_require={
         "draw": ['pygraphviz']
     },
     setup_requires=['green'],
