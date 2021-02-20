@@ -1045,7 +1045,7 @@ class LandscapeMixin:
 
         data.basins = basins
         data.basin_sizes = np.asarray(basin_sizes)
-        data.attractors = np.asarray(attractors)
+        data.attractors = np.asarray(attractors, dtype=list)
         data.attractor_lengths = np.asarray(attractor_lengths)
         data.in_degrees = in_degrees
         data.heights = heights

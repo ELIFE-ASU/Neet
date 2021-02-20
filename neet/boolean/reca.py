@@ -124,7 +124,7 @@ class RewiredECA(BooleanNetwork):
         elif wiring is not None:
             if not isinstance(wiring, (list, np.ndarray)):
                 raise TypeError("wiring must be a list or an array")
-            wiring_array = np.copy(wiring)
+            wiring_array = np.array(wiring, dtype=object)
             shape = wiring_array.shape
             if wiring_array.ndim != 2:
                 raise ValueError("wiring must be a matrix")
@@ -138,7 +138,7 @@ class RewiredECA(BooleanNetwork):
             super(RewiredECA, self).__init__(int(shape[1]), names=names, metadata=metadata)
             self.code = code
             self.boundary = boundary
-            self.__wiring = wiring_array
+            self.__wiring = np.array(wiring_array, dtype=int)
         else:
             raise ValueError("either size or wiring must be provided")
 
