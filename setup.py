@@ -40,7 +40,7 @@ setup(
         "draw": ['pygraphviz']
     },
     setup_requires=['green'],
-    packages=['neet', 'neet.boolean'],
+    packages=['neet', 'neet.boolean' 'neet.boolean.random'],
     package_data={'neet.boolean': ['data/*.txt', 'data/*.dat']},
     test_suite='test',
     platforms=['Windows', 'OS X', 'Linux']
