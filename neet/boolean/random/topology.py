@@ -2,7 +2,7 @@ import networkx as nx
 import numpy as np
 
 from .randomizer import AbstractRandomizer
-from .constraints import TopologicalConstraint, GenericTopological, ConstraintError
+from .constraints import TopologicalConstraint, GenericTopologicalConstraint, ConstraintError
 
 
 class TopologyRandomizer(AbstractRandomizer):
@@ -32,7 +32,7 @@ class TopologyRandomizer(AbstractRandomizer):
             if isinstance(constraint, TopologicalConstraint):
                 pass
             elif callable(constraint):
-                constraints[i] = GenericTopological(constraint)
+                constraints[i] = GenericTopologicalConstraint(constraint)
             else:
                 raise TypeError('constraints must be callable or type TopologicalConstraint')
 
@@ -49,7 +49,7 @@ class TopologyRandomizer(AbstractRandomizer):
         if isinstance(constraint, TopologicalConstraint):
             pass
         elif callable(constraint):
-            constraint = GenericTopological(constraint)
+            constraint = GenericTopologicalConstraint(constraint)
         else:
             raise TypeError('constraints must be callable or type TopologicalConstraint')
 
@@ -79,7 +79,7 @@ class FixedTopology(TopologyRandomizer):
             if isinstance(constraint, TopologicalConstraint):
                 pass
             elif callable(constraint):
-                constraints[i] = GenericTopological(constraint)
+                constraints[i] = GenericTopologicalConstraint(constraint)
             else:
                 raise TypeError('constraints must be callable or type TopologicalConstraint')
             if not constraints[i].satisfies(self.graph):
@@ -99,7 +99,7 @@ class FixedTopology(TopologyRandomizer):
         if isinstance(constraint, TopologicalConstraint):
             pass
         elif callable(constraint):
-            constraint = GenericTopological(constraint)
+            constraint = GenericTopologicalConstraint(constraint)
         else:
             raise TypeError('constraints must be callable or type TopologicalConstraint')
 

@@ -4,7 +4,7 @@ import numpy as np
 from abc import abstractmethod
 from .randomizer import AbstractRandomizer
 from .topology import TopologyRandomizer, FixedTopology, InDegree
-from .constraints import DynamicalConstraint, TopologicalConstraint, GenericDynamical, \
+from .constraints import DynamicalConstraint, TopologicalConstraint, GenericDynamicalConstraint, \
     NodeConstraint, GenericNodeConstraint, ConstraintError
 from inspect import isclass
 
@@ -64,7 +64,7 @@ class NetworkRandomizer(AbstractRandomizer):
             elif isinstance(constraint, TopologicalConstraint):
                 tconstraints.append(constraint)
             elif callable(constraint):
-                dconstraints.append(GenericDynamical(constraint))
+                dconstraints.append(GenericDynamicalConstraint(constraint))
             else:
                 msg = 'constraints must be callable, a DynamicalConstraint or TopologicalConstraint'
                 raise TypeError(msg)
@@ -108,7 +108,7 @@ class NetworkRandomizer(AbstractRandomizer):
         elif isinstance(constraint, DynamicalConstraint):
             super().add_constraint(constraint)
         elif callable(constraint):
-            super().add_constraint(GenericDynamical(constraint))
+            super().add_constraint(GenericDynamicalConstraint(constraint))
         elif isinstance(constraint, TopologicalConstraint):
             self.trand.add_constraint(constraint)
         else:

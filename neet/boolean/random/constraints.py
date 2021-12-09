@@ -147,7 +147,7 @@ class IsIrreducible(DynamicalConstraint):
         """
         if super().satisfies(network):
             if not isinstance(network, neet.boolean.LogicNetwork):
-                raise NotImplementedError()
+                raise TypeError('network must be a neet.boolean.LogicNetwork')
 
             for idx in range(network.size):
                 for neighbor_in in network.neighbors_in(idx):
@@ -198,7 +198,7 @@ class HasCanalizingNodes(DynamicalConstraint):
             return self.__count_canalizing_nodes(network) == self.num_canalizing
 
 
-class GenericTopological(TopologicalConstraint):
+class GenericTopologicalConstraint(TopologicalConstraint):
     def __init__(self, test):
         """
         A generic constraint defined in terms of a callable.
@@ -221,7 +221,7 @@ class GenericTopological(TopologicalConstraint):
             return self.test(net)
 
 
-class GenericDynamical(DynamicalConstraint):
+class GenericDynamicalConstraint(DynamicalConstraint):
     def __init__(self, test):
         """
         A generic constraint defined in terms of a callable.
@@ -251,21 +251,26 @@ class NodeConstraint(DynamicalConstraint):
     pass
 
 
-class GenericNodeConstraint(DynamicalConstraint):
+class GenericNodeConstraint(NodeConstraint):
     def __init__(self, test):
         if not callable(test):
             raise TypeError('test must be callable')
         self.test = test
 
-    def satisfies(self, net):
-        if super().satisfies(net):
-            return self.test(net)
+    def satisfies(self, conditions):
+        if not isinstance(conditions, set):
+            raise TypeError('only a set of activation conditions is testable with a node constraint')
+        return self.test(conditions)
 
 
 class IrreducibleNode(NodeConstraint):
     def satisfies(self, conditions):
+        if not isinstance(conditions, set):
+            raise TypeError('only a set of activation conditiosn is testable with IrreducibleNode')
+
         if len(conditions) == 0:
             return True
+
         k = list(map(len, conditions))[0]
         for i in range(k):
             counter = {}  # type: ignore
@@ -278,4 +283,5 @@ class IrreducibleNode(NodeConstraint):
 
             if not any(counter.values()):
                 return False
+
         return True
