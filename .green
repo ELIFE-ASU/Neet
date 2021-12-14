@@ -1,3 +1,4 @@
 verbose = 1
 logging = True
 run-coverage = True
+omit-patterns = .eggs/*

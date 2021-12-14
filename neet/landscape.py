@@ -142,7 +142,7 @@ class LandscapeMixin:
 
         This function implicitly calls :attr:`clear_landscape`, so make sure to
         create a reference to :attr:`landscape_data` if landscape information
-        has previously been compute and you wish to keep it around.
+        has previously been computed and you wish to keep it around.
 
         .. rubric:: Basic Usage
 
@@ -1045,7 +1045,7 @@ class LandscapeMixin:
 
         data.basins = basins
         data.basin_sizes = np.asarray(basin_sizes)
-        data.attractors = np.asarray(attractors)
+        data.attractors = np.asarray(attractors, dtype=list)
         data.attractor_lengths = np.asarray(attractor_lengths)
         data.in_degrees = in_degrees
         data.heights = heights

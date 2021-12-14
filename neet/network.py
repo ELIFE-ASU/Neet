@@ -358,6 +358,7 @@ class Network(LandscapeMixin, StateSpace):
 
     def draw_network_graph(self, graphkwargs={}, pygraphkwargs={}):
         """
+        
         Draw network's networkx graph using PyGraphviz.
 
         .. Note::

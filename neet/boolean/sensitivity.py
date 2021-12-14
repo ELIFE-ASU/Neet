@@ -8,6 +8,8 @@
 import copy
 import numpy as np
 import numpy.linalg as linalg
+import math
+import itertools as itt
 
 
 class SensitivityMixin(object):
@@ -84,17 +86,28 @@ class SensitivityMixin(object):
         encoder = self._unsafe_encode
         distance = self.distance
         neighbors = self.hamming_neighbors(state)
+        #neighbors_copy = [neighbor.copy() for neighbor in neighbors]
 
         nextState = self.update(state)
 
         # count sum of differences found in neighbors of the original
         s = 0.
+        #debugging_index = 0
         for neighbor in neighbors:
             if transitions is not None:
                 newState = transitions[encoder(neighbor)]
             else:
                 newState = self._unsafe_update(neighbor)
             s += distance(newState, nextState)
+            """print("testing whether the hamming neighbors are correct")
+            print("1. neighbor:  ", neighbors_copy[debugging_index])
+            print("2. state:     ", state,"\n")
+            print("1. newState:  ", newState)
+            print("2. nextState: ", nextState,"\n\n")
+            debugging_index += 1"""
+            #s += distance(nextState, nextState)#DEBUGGING CODE! DO NOT LEAVE IN
+            # DO NOT LEAVE THIS LINE UNCOMMENTED WHILE THE ABOVE LINE IS COMMENTED
+            #print("testing if the distance between the same input is anything other than 0")
 
         return s / self.size
 
