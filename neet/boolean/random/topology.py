@@ -20,8 +20,8 @@ class TopologyRandomizer(AbstractRandomizer):
         Set the randomizer's constraints.
 
         :param constraints: the new constraints
-        :type constraints: a seq of AbstractConstraint instances
-        :raises TypeError: if any of the contraints are not an AbstractConstraint
+        :type constraints: a seq of AbstractConstraint or callable instances
+        :raises TypeError: if any of the contraints are neither an AbstractConstraint nor callable
         """
         if constraints is None:
             constraints = []
